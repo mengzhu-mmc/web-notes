@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        span {
+            /* 行内元素的margin值，只有左右 有效 */
+            margin: 100px;
+            /* 行内元素的padding值 只有左右 有效，对于竖直方向的内边距该行内元素的内容范围增大了，不过只是表象，对周围元素并无影响 */
+            /* padding: 100px; */
+            background: skyblue;
+        }
+    </style>
+</head>
+<body>
+    <span>行内元素1</span>
+    <span>行内元素2</span>
+    <p>12313212</p>
+    <script>
+        /* 
+            1.行内元素和其他行内元素都会在一条水平线上排列，都是在同一行的；块级元素却总是会在新的一行开始排列，各个块级元素独占一行，垂直向下排列，若想使其水平方向排序，可使用左右浮动（float：left/right）让其水平方向排列。
+
+            2.行内元素不可以设置宽高，宽度高度随文本内容的变化而变化，但是可以设置行高（line-height），同时在设置外边距margin上下无效，左右有效，内填充padding上下无效，左右有效；块级元素可以设置宽高，并且宽度高度以及外边距，内填充都可随意控制。        
+
+            3.块级元素可以包含行内元素和块级元素，还可以容纳内联元素和其他元素；行内元素不能包含块级元素，只能容纳文本或者其他行内元素。
+        */
+    </script>
+</body>
+</html>

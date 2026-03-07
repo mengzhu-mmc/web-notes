@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+        /**
+         * @param {number} n
+         * @return {number}
+         */
+        var numberOfMatches = function (n) {
+            let sum = 0;
+            while(n>=2) {
+                sum += Math.floor(n / 2);
+                n = n % 2 == 0 ? n/2 : (Math.floor(n / 2)+1) ;
+            } 
+            return sum
+        }
+    </script>
+</body>
+
+</html>

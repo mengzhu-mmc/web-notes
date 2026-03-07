@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      const str1 = "asdfas",
+        str2 = "werasdfaswer";
+      let res = "";
+      for (let i = 0; i < str1.length; i++) {
+        for (let j = i + 1; j < str1.length; j++) {
+          const current = str1.slice(i, j + 1);
+          if (str2.includes(current)) {
+            res = current.length > res.length ? current : res;
+          }
+        }
+      }
+      console.log(res, "---res");
+    </script>
+  </body>
+</html>

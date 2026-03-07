@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>点击按钮复制文本内容</title>
+    <style>
+        /* .wrapper {
+            position: relative;
+        }
+        #input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            z-index: -10;
+        } */
+    </style>
+</head>
+<body>
+    <!-- 
+        https://zhuanlan.zhihu.com/p/53382478
+        
+        execCommand 详解：
+        https://blog.csdn.net/qq_16149125/article/details/83019815
+
+        如果是输入框，我们可以利用select()方法来选中输入框中的内容，然后调用copy命令，将文本复制到剪切板，但是select()方法只对<input>和<textarea>有效，对于其他标签就不太好使了。
+
+        既然出现了这个问题，那么我们顺着思路想就能想到解决办法的：我们可以在页面中添加一个textarea，然后把他隐藏掉，当我们点击按钮的时候，先把<textarea>的value改成<p>标签或其它标签的innerText，然后在进行复制。
+     -->
+    <div class="wrapper">
+        <p id="text">我是需要复制的文本内容</p>
+        <textarea id="input">这是幕后黑手</textarea>
+        <button onclick="copyText()">copy</button>
+    </div>
+
+    <script>
+        function copyText() {
+            let text = document.querySelector('#text').innerHTML
+            let input = document.querySelector('#input')
+            input.value = text
+            input.select();//选中文本框中的文本 select() 方法用于选取文本域中的内容。
+            document.execCommand("cut") // 剪切选中的文字
+            // document.execCommand("copy"); //复制选中的文字
+        }
+    </script>
+</body>
+</html>

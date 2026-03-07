@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      /**
+     * 给定一个只包括 '('，')'，'{'，'}'，'['，']' 的字符串 s ，判断字符串是否有效。
+
+      有效字符串需满足：
+
+      左括号必须用相同类型的右括号闭合。
+      左括号必须以正确的顺序闭合。
+      每个右括号都有一个对应的相同类型的左括号。
+    */
+      const isVail = (str) => {
+        let stack = [],
+          left = ["(", "[", "{"],
+          right = [")", "]", "}"];
+        for (let v of str) {
+          if (left.includes(v)) {
+            stack.push(v);
+          } else if (
+            right.includes(v) &&
+            left.indexOf(v) === right.indexOf(stack[stack.length - 1])
+          ) {
+            stack.pop();
+          } else {
+            return false;
+          }
+        }
+        return true;
+      };
+      console.log(isVail("{}{{{}}}"));
+    </script>
+  </body>
+</html>

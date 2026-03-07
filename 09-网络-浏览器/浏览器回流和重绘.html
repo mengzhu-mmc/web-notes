@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        div[class^="demo"] {
+            width: 100px;
+            height: 100px;
+            background: skyblue;
+        }
+        .demo1 {
+            /* 不管是 opacity 还是 visibility ，虽然不可见但是都还占据着原来的位置 */
+            /* opacity: 0; */
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo1"></div>
+    <div class="demo2"></div>
+</body>
+</html>

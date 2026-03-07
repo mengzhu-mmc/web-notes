@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+        .demo1 {
+            /* 单行文本出现省略号 */
+            width: 600px;
+            height: 30px;
+            font-size: 24px;
+            line-height: 30px;
+            white-space: nowrap; /* 强制文字不换航 */
+            overflow: hidden; /* 文字隐藏 */
+            text-overflow: ellipsis; /* 文字隐藏的方式： 以省略号的方式隐藏 */
+        }
+        .demo2 {
+            /* 多行文本出现省略号  (不兼容ie) */
+            width: 600px;
+            font-size: 24px;
+            display: -webkit-box; /* 弹性盒模型 */
+            -webkit-box-orient: vertical; /* 规定元素的排列方式：垂直排列 */
+            -webkit-line-clamp:2; /* 文字的行数 */
+            overflow: hidden; /* 溢出隐藏 */
+        }
+    </style>
+</head>
+<body>
+    <h2 class="demo1">
+        1、margin属性在ie6中显示的距离会比其他浏览器中显示的距离宽2倍，也就是说margin-left:20px;在ie6中距左侧对象的实际显示距离是40px，而在非ie6中显示的距左侧对象的距离是设置的值20px;所以要想设置一个对象距离左侧的距离在所有浏览器中都显示是20px的宽度的样式应为：.kwstu{margin-left:20px;_margin-left:20px;} 2、kwstu{background:green;/*forfirefox*/width:300px;_width:200px;}，一般浏览器会先给元素使用width:300px;的样式，紧接着后面还有个_width:200px;由于下划线_width只有IE6可以识别，所以此样式在IE6中实际设置对象的宽度为200px，后面的把前面的给覆盖了，而其他浏览器不识别_width不会执行_width:200px;这句样式，所以在其他浏览器中设置对象的宽度就是300px。
+    </h2>
+    <div style="height: 30px;"></div>
+    <h2 class="demo2">
+        1、margin属性在ie6中显示显示的距离会比其他浏览器中显示的距离宽2倍，也就是说margin-left:20px;在ie6中距左侧对象的实际显示距离是40px，而在非ie6中显示的距左侧对象的距离是设置的值20px;所以要想设置一个对象距离左侧的距离在所有浏览器中都显示是20px的宽度的样式应为：.kwstu{margin-left:20px;_margin-left:20px;} 2、kwstu{background:green;/*forfirefox*/width:300px;_width:200px;}，一般浏览器会先给元素使用width:300px;的样式，紧接着后面还有个_width:200px;由于下划线_width只有IE6可以识别，所以此样式在IE6中实际设置对象的宽度为200px，后面的把前面的给覆盖了，而其他浏览器不识别_width不会执行_width:200px;这句样式，所以在其他浏览器中设置对象的宽度就是300px。
+    </h2>
+</body>
+</html>

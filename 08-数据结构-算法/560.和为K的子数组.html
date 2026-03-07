@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      // var subarraySum = function (nums, k) {
+      //   let res = 0;
+      //   for (let end = 0; end < nums.length; end++) {
+      //     let sum = 0;
+      //     for (let start = end; start >= 0; start--) {
+      //       sum += nums[start];
+      //       if (sum === k) {
+      //         res++;
+      //       }
+      //     }
+      //   }
+      //   return res;
+      // };
+
+      const subarraySum = (nums, k) => {
+        let map = { 0: 1 },
+          res = 0,
+          sum = 0;
+        for (let i = 0; i < nums.length; i++) {
+          // 存储累加和的变量
+          sum += nums[i];
+          // 和为K， 可以看作 0-j的累加和 减去 0-i的累加和： map[j] - map[i] = k => map[j] - k = map[i]
+          if (map[sum - k]) {
+            res += map[sum - k];
+          }
+          // 记录当前累加和
+          if (map[sum]) {
+            map[sum]++;
+          } else {
+            map[sum] = 1;
+          }
+        }
+
+        return res;
+      };
+
+      console.log(subarraySum([1], 0));
+    </script>
+  </body>
+</html>

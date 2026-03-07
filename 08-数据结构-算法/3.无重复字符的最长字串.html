@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <!--给定一个字符串 s ，请你找出其中不含有重复字符的 最长子串 的长度。-->
+    <!-- https://leetcode.cn/problems/longest-substring-without-repeating-characters/ -->
+    <script>
+        // 自己写的挫代码
+        var lengthOfLongestSubstring = function(s) {
+            let max = [], arrayS = s.split('');
+            for (let i = 0; i < arrayS.length; i++) {
+                let temp = [arrayS[i]];
+                for (let j = i+1; j < arrayS.length; j++) {
+                    if(temp.indexOf(arrayS[j]) === -1) {
+                        temp.push(arrayS[j]);
+                    } else {
+                        break;
+                    }
+                }
+                if (temp.length > max.length) max = temp;
+            }
+            return max.length
+        };
+        // 官方答案
+        var lengthOfLongestSubstring2 = function (s) {
+            const occ = new Set();
+            const n = s.length;
+            let rk = -1, ans = 0;
+            for (let i = 0; i < n; i++) {
+                if(i != 0) {
+                    occ.delete(s.charAt(i- 1));
+                }
+                while (rk + 1 < n && !occ.has(s.charAt(rk + 1))) {
+                    occ.add(s.charAt(rk+1));
+                    ++rk;
+                }
+                ams = Math.max(ans, rk - i + 1);
+            }
+            return ans
+        }
+    </script>
+</body>
+</html>

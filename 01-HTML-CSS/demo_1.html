@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        div {
+            margin: 10px 0;
+            width: 300px;
+        }
+        P {
+            padding: 10px;
+            background-color: black;
+        }
+
+        [CLASS] {
+            color: rgb(230, 117, 117);
+        }
+
+        [CLASS~=CONTENT i] {
+            text-decoration: line-through;
+        }
+        .\000031 {
+            color: orange;
+        }
+        .\+foo {
+            background: paleturquoise;
+        }
+        /* 
+        可以生效，但是编辑器报错
+        .-- {
+            color: blue;
+            border: 1px solid red;
+        } */
+        .-a-b {
+            background: peachpuff;
+        }
+    </style>
+</head>
+
+<body>
+    <p class="content">颜色是？</p>
+    <div class="1">4564564</div>
+    <div class="+foo">sdfasdfsd</div>
+    <div class="--">789546</div>
+    <div class="-a-b">45646</div>
+
+    <div id="myId">
+        <div class="lonely">单身如我</div> 
+        <div class="outer">
+            <div class="inner">内外开花</div>、
+        </div>
+    </div>
+    <script>
+        // let len = document.querySelector('#myId').querySelectorAll('div div').length;
+        let len = document.querySelector('#myId').querySelectorAll(':scope div div').length;
+        console.log(len);
+    </script>
+</body>
+
+</html>

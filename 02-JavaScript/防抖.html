@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      input {
+        margin: 300px;
+        padding-left: 20px;
+        width: 260px;
+        height: 40px;
+        font-size: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <input type="text" placeholder="随便写点儿~" />
+
+    <script>
+      // 防抖
+      // 给一个固定时间，如果你开始触发动作，并且在这个固定时间内不再有任何动作，我就执行一次，否则我每次都会重新开始计时。
+      function debounce(fn, delay = 1000) {
+        if (typeof fn !== "function") {
+          throw new Error("fn is not a function");
+        }
+        let timeout = null;
+        return function () {
+          timeout && clearTimeout(timeout);
+          timeout = setTimeout(fn.bind(this), delay);
+        };
+      }
+
+      function debounce2(fn, delay) {
+        let timer = null;
+        return function () {
+          timer && clearTimeout(timer);
+          timer = setTimeout(fn.bind(this), delay);
+        };
+      }
+
+      const handlerChange = debounce(function () {
+        console.log(this);
+      });
+      // 绑定监听
+      // onInput 在用户输入使是触发
+      // onChange 失去焦点时触发
+      document
+        .getElementsByTagName("input")[0]
+        .addEventListener("input", handlerChange);
+    </script>
+  </body>
+</html>

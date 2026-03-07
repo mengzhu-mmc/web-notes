@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        article {
+            display: grid;
+            width: 300px;
+            height: 200px;
+            border: 5px solid hsl(39, 68%, 58%);
+            grid-template-rows: repeat(2, minmax(50px, 100px));
+            grid-template-columns: repeat(5, 1fr);
+
+            /* 留白 */
+            /* row-gap: 10px;
+            column-gap: 10px; */
+            gap: 20px 10px;
+
+        }
+        article div {
+            /* padding: 10px; */
+            background-color: rgb(238, 189, 55);
+            background-clip: content-box;
+            border: 1px solid rgb(32, 236, 236);
+            box-sizing: content-box;
+        } 
+    </style>
+</head>
+<body>
+    <article>
+        <div>1</div>
+        <div>2</div>
+        <div>3</div>
+        <div>4</div>
+        <div>5</div>
+        <div>6</div>
+        <div>7</div>
+        <div>8</div>
+        <div>9</div>
+        <div>10</div>
+    </article>
+</body>
+</html>

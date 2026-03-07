@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=\, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <form action="">
+        <fieldset>
+            <legend>学生档案</legend>
+            <label for="userName">姓名：</label><br>
+            <input type="text" name="userName" id="userName" placeholder="请输入用户名"><br>
+            <label for="userPhone">手机号码：</label><br>
+            <input type="text" type="tel" name="userPhone" id="userPhone"><br>
+            <label for="userEmail">邮箱地址：</label><br>
+            <input type="email" name="userEmail" id="userEmail"><br>
+            <label for="colleges">所属学院：</label><br>
+            <input type="text" id="colleges" list="college"><br>
+            <datalist id="college">
+                <option value="前端与移动开发学院">
+                <option value="java学院">
+                <option value="C++学院">
+            </datalist>
+            <label for="grade">入学成绩：</label><br><input type="number" name="grade" id="grade" max="100" min="0"><br>
+            <progress max="100" value="0" id="progress1"></progress>
+            <input type="date">
+            <input type="submit">
+        </fieldset>
+    </form>
+    <script>
+        var progress1 = document.querySelector('#progress1');
+
+        document.querySelector('#grade').oninput = function () {
+            progress1.value = grade.value;
+        }
+    </script>
+</body>
+</html>

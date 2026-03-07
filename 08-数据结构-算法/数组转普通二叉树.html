@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+
+  <body>
+    <script>
+      class Node {
+        constructor(data) {
+          this.data = data;
+          this.left = null;
+          this.right = null;
+        }
+      }
+
+      // const createTree = (arr) => {
+      //     let tree = new Node(arr[0]);
+      //     let Nodes = [tree];
+      //     let i = 1;
+      //     for (const node of Nodes) {
+      //         Nodes.push(node.left = new Node(arr[i]))
+      //         i++
+      //         if (i == arr.length) return tree
+      //         Nodes.push(node.right = new Node(arr[i]))
+      //         i++
+      //         if (i == arr.length) return tree
+      //     }
+      // }
+
+      const root = createTree([1, 2, 3, 4, 5, 6, 1]);
+      console.log(root);
+      /*  const hasPathSum = function(root, targetSum) {
+            if(!root) return false
+            if(!root.left && !root.right) return root.data === targetSum
+            return hasPathSum(root.left, targetSum - root.data) || hasPathSum(root.right, targetSum - root.data)            
+        } */
+
+      // const hasPathSum = function(root, target) {
+      //     if (!root) return false;
+      //     // 用来存储节点
+      //     let nodeQue = []
+      //     // 用来存储根节点到这个节点的总和
+      //     let valQue = []
+
+      //     // 根节点入队列
+      //     nodeQue.unshift(root)
+      //     valQue.unshift(root.data)
+
+      //     while(nodeQue.length > 0) {
+      //         // 将队头元素取出来得到节点root 和 值 temp
+      //         let root = nodeQue.pop()
+      //         let temp = valQue.pop()
+      //         if (!root.left && !root.right) {
+      //             if (temp === target) return true
+      //         }
+      //         if (root.left) {
+      //             // 左子树进入队列
+      //             nodeQue.unshift(root.left)
+      //             // 保存此时路径总和
+      //             valQue.unshift(root.left.data + temp)
+      //         }
+      //         if (root.right) {
+      //             nodeQue.unshift(root.right)
+      //             valQue.unshift(root.right.data + temp)
+      //         }
+      //     }
+      // }
+      function hasPathSum(root, target) {
+        if (!root || JSON.stringify(root) == "{}") return false;
+
+        const nodeQue = [];
+        const valQue = [];
+
+        nodeQue.push(root);
+        valQue.push(root.data);
+
+        while (nodeQue.length) {
+          let root = nodeQue.shift();
+          let temp = valQue.shift();
+
+          if (!root.left && !root.right) {
+            console.log(temp);
+            if (temp == target) return true;
+          }
+          if (root.left) {
+            nodeQue.push(root.left);
+            valQue.push(root.left.data + temp);
+          }
+          if (root.right) {
+            nodeQue.push(root.right);
+            valQue.push(root.right.data + temp);
+          }
+        }
+        console.log(valQue);
+        return false;
+      }
+      console.log(hasPathSum(root, 5));
+    </script>
+  </body>
+</html>

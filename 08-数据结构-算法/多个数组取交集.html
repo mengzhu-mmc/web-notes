@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+
+  <body>
+    <script>
+      // function f3(arr) {
+      //     if (arr.length === 0) return []
+      //     if (arr.length === 1) return arr[0]
+      //     var obj = {}
+      //     var result = []
+      //     for (var i = 0; i < arr[0].length; i++) {
+      //         obj['s' + arr[0][i]] = true
+      //     }
+      //     console.log(obj);
+      //     for (var i = 1; i < arr.length - 1; i++) {
+      //         var tObj = {}
+      //         for (var j = 0; j < arr[i].length; j++) {
+      //             if (obj['s' + arr[i][j]]) tObj['s' + arr[i][j]] = true
+      //         }
+      //         obj = tObj
+      //     }
+      //     var lastArr = arr[arr.length - 1]
+      //     for (var i = 0; i < lastArr.length; i++) {
+      //         if (obj['s' + lastArr[i]]) result.push(lastArr[i])
+      //     }
+      //     return result
+      // }
+
+      // => 优化一下：
+      function intersectNoRepeatTwice(arr) {
+        if (arr.length <= 1) return arr;
+
+        let set = new Set(arr[0]);
+
+        for (let i = 1; i < arr.length; i++) {
+          const tempArr = new Set([]);
+
+          for (let item of arr[i]) {
+            if (set.has(item)) {
+              tempArr.add(item);
+            }
+          }
+
+          if (tempArr.length == 0) {
+            set = tempArr;
+            break;
+          }
+
+          set = tempArr;
+        }
+
+        return Array.from(set);
+      }
+
+      var arr1 = [1, 3, 5, 6, 4, 3, 2];
+      var arr2 = [8, 32, 5, 1, 76, 3, 2];
+      var arr3 = [3, 8, 5, 65, 32, 3, 2];
+      var resultArr = intersectNoRepeatTwice([arr1, arr2, arr3]);
+      console.log(resultArr); //[3,2]
+
+      function A() {
+        this.name = "a";
+      }
+      function B() {
+        this.name = "b";
+      }
+      A.prototype.getName = function () {
+        return this.name;
+      };
+      B.prototype.getName = function () {
+        return this.name;
+      };
+      A.prototype = new B();
+      const c = new A();
+      console.log(c.getName());
+    </script>
+  </body>
+</html>

@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <title>HTML5拖拽-放置目标位置固定</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        padding: 20px;
+        /* 给页面加内边距，避免内容顶边 */
+      }
+      /* 拖拽源：被拖动的元素 */
+      .drag-box {
+        width: 100px;
+        height: 100px;
+        background: #42b983;
+        color: #fff;
+        text-align: center;
+        line-height: 100px;
+        cursor: move;
+        user-select: none;
+        margin-bottom: 20px;
+        border-radius: 4px;
+      }
+      /* 放置目标：核心★加fixed固定定位，锁死位置，样式完全不变 */
+      .drop-box {
+        width: 300px;
+        height: 300px;
+        border: 2px dashed #ccc;
+        color: #999;
+        padding: 10px;
+        /* 固定定位★：锁死位置，top/left可自行修改坐标 */
+        position: fixed;
+        top: 20px;
+        left: 200px;
+        /* 防止拖拽元素超出框框，可选 */
+        overflow: hidden;
+      }
+      /* 拖拽进入放置目标时的高亮样式（仅变边框/背景，位置不变） */
+      .drop-box.active {
+        border-color: #42b983;
+        background: #f5f5f5;
+        color: #42b983;
+      }
+      /* 拖拽元素拖入框内后的样式：取消外边距，可选加绝对定位自由摆放 */
+      .drop-box .drag-box {
+        margin: 0;
+        /* 可选：让拖拽元素在框内可自由拖动（如需固定初始位置，删掉这行） */
+        position: absolute;
+      }
+      /* 默认提示文字样式 */
+      .tip-text {
+        pointer-events: none;
+        /* 防止提示文字遮挡拖拽事件 */
+      }
+    </style>
+  </head>
+  <body>
+    <!-- 拖拽源：可多个，直接复制即可 -->
+    <div class="drag-box" draggable="true" id="dragTarget1">拖拽元素1</div>
+    <div class="drag-box" draggable="true" id="dragTarget2">拖拽元素2</div>
+    <div class="drag-box" draggable="true" id="dragTarget3">拖拽元素3</div>
+
+    <!-- 放置目标：位置固定，样式不变 -->
+    <div class="drop-box" id="dropBox">
+      <span class="tip-text">放置目标（拖到这里）</span>
+    </div>
+
+    <script>
+      const dropBox = document.getElementById("dropBox");
+      const tipText = document.querySelector(".tip-text");
+      // 给所有拖拽源绑定事件（支持多个拖拽元素，无需重复写代码）
+      document.querySelectorAll(".drag-box").forEach((dragItem) => {
+        // 拖拽开始
+        dragItem.ondragstart = function (e) {
+          console.log("✅ 拖拽开始：" + this.innerText);
+          e.dataTransfer.setData("text/plain", this.id);
+          this.style.opacity = "0.6"; // 拖拽半透明
+        };
+        // 拖拽结束：重置状态
+        dragItem.ondragend = function () {
+          console.log("🔚 拖拽结束：" + this.innerText);
+          this.style.opacity = "1";
+          dropBox.classList.remove("active"); // 防止样式残留
+        };
+      });
+
+      // 放置目标 - 拖拽进入：高亮
+      dropBox.ondragenter = function (e) {
+        e.preventDefault();
+        this.classList.add("active");
+        console.log("➡️  拖拽进入放置目标");
+      };
+      // 拖拽悬浮：核心★阻止默认行为，否则drop不触发
+      dropBox.ondragover = function (e) {
+        e.preventDefault();
+      };
+      // 拖拽离开：取消高亮
+      dropBox.ondragleave = function () {
+        this.classList.remove("active");
+        console.log("⬅️  拖拽离开放置目标");
+      };
+      // 放置成功：元素移动，框框位置不变
+      dropBox.ondrop = function (e) {
+        e.preventDefault();
+        this.classList.remove("active");
+        console.log("✅ 放置成功");
+
+        // 获取拖拽源ID，精准获取元素
+        const dragId = e.dataTransfer.getData("text/plain");
+        const dragElement = document.getElementById(dragId);
+        if (!dragElement) return;
+
+        // 核心：将拖拽元素添加到框内，框框位置不变
+        this.appendChild(dragElement);
+        // 隐藏默认提示文字
+        tipText.style.display = "none";
+        // 框框边框变实心，标记已放置（样式可选）
+        this.style.borderStyle = "solid";
+      };
+    </script>
+  </body>
+</html>

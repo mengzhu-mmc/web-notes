@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        #euro {
+            width: 150px;
+            height: 150px;
+            margin-left: -75px;
+            margin-top: -75px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform-style: preserve-3d;
+            animation: spin 2.5s linear infinite;
+        }
+
+        .back {
+            background-image: url("./img/backeuro.png");
+            width: 150px;
+            height: 150px;
+        }
+
+        .middle {
+            background-image: url("./img/faceeuro.png");
+            width: 150px;
+            height: 150px;
+            transform: translateZ(1px);
+            position: absolute;
+            top: 0;
+        }
+
+        .front {
+            background-image: url("./img/faceeuro.png");
+            height: 150px;
+            position: absolute;
+            top: 0;
+            transform: translateZ(10px);
+            width: 150px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotateY(0deg);
+            }
+
+            100% {
+                transform: rotateY(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="euro">
+        <article class="back"></article>
+        <article class="middle" style="transform: translateZ(1px)"></article>
+        <article class="middle" style="transform: translateZ(2px)"></article>
+        <article class="middle" style="transform: translateZ(3px)"></article>
+        <article class="middle" style="transform: translateZ(4px)"></article>
+        <article class="middle" style="transform: translateZ(5px)"></article>
+        <article class="middle" style="transform: translateZ(6px)"></article>
+        <article class="middle" style="transform: translateZ(7px)"></article>
+        <article class="middle" style="transform: translateZ(8px)"></article>
+        <article class="middle" style="transform: translateZ(9px)"></article>
+        <article class="front"></article>
+    </div>
+</body>
+
+</html>

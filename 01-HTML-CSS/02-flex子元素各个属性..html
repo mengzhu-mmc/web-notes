@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <!-- <style>
+        .wrap {
+            display: flex;
+            display: -webkit-flex;
+            width: 900px;
+            height: 500px;
+            background-color: cadetblue;
+        }
+        .wrap div{
+            flex: 1;
+            width: 200px;
+            height: 100px;
+            background-color: coral;
+        }
+        .wrap div:nth-child(2) {
+            /* flex份数 */
+            flex: 2;
+            /* order 默认为0 */
+            order: -1;
+            /* align-self属性允许单个项目有与其他项目不一样的对齐方式，可覆盖align-items属性 */
+            align-self: center;
+            background-color: cyan;
+        }
+        .wrap div:nth-child(3) {
+            align-self: flex-end;
+        }
+    </style> -->
+    <style>
+        .wrap {
+            display: flex;
+            width: 800px;
+            height: 400px;
+            background-color: blanchedalmond;
+            /* flex-direction: column; */
+            flex-wrap: wrap;
+            /* justify-content: center; */
+            justify-content: space-around;
+            align-items: center;
+            
+        }
+        .demo {
+            /* flex: 1; */
+            width: 20%;
+            height: 100px;
+            background-color: rgb(22, 187, 228);
+        }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <div class="demo">1</div>
+        <div class="demo">2</div>
+        <div class="demo">3</div>
+    </div>
+、
+</body>
+</html>

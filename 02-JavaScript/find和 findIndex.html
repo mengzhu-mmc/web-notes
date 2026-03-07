@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        /* 1. find 返回数组中第一个满足条件的元素（如果有的话）， 如果没有，则返回undefined。 */
+        [1,3,5,7].find(n => n < 5)  //=> 1
+        [1,3,-1].find(n => n > 5) //=> undefined
+
+        /* find方法的回调函数可以接受三个参数，依次为当前的值、当前的位置和原数组。 */
+        [1, 5, 10, 15].find(function(value, index, arr) {
+          return value > 9;
+        }) 
+        //=> 10
+
+        /* indexOf 方法无法识别数组的 NaN 成员，但是 findIndex 方法可以借助 Object.is 方法做到。 */
+        ['a','b',NaN,'c'].indexOf(NaN)
+        // -1
+
+        ['a','b',NaN,'c'].findIndex(y => Object.is(NaN, y))
+    </script>
+</body>
+</html>

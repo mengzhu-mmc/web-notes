@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+        // function interval(func, wait, times) {
+        //     var interv = function (w, t) {
+        //         return function () {
+        //             if (typeof t === "undefined" || t-- > 0) {
+        //                 setTimeout(interv, w);
+        //                 try {
+        //                     func.call(null);
+        //                 } catch (e) {
+        //                     t = 0;
+        //                     throw e.toString();
+        //                 }
+        //             }
+        //         };
+        //     }(wait, times);
+
+        //     setTimeout(interv, wait);
+        // };
+
+        // myInterval(()=> {
+        //     console.log(1);
+        //     console.log(a);
+        // }, 1000, 5)
+
+        // function mySetInterval(fn, time = 1000) {
+        //     let timer = null,
+        //         isClear = false;
+        //     function interval() {
+        //         if (isClear) {
+        //             isClear = false;
+        //             clearTimeout(timer);
+        //             return;
+        //         }
+        //         fn();
+        //         timer = setTimeout(interval, time);
+        //     }
+        //     timer = setTimeout(interval, time);
+        //     return () => {
+        //         isClear = true;
+        //     };
+        // }
+
+        function mySetInterval(fn, time=1000) {
+            let timer = null, isClear = false;
+            function interval() {
+                if(isClear) {
+                    isClear = false;
+                    clearTimeout(timer);
+                    return
+                }
+                fn()
+                timer = setTimeout(interval, time)
+            }
+            timer = setTimeout(interval, time)
+            return () => {
+                isClear = true
+            }
+        }
+        let cancel = mySetInterval(() => {
+            console.log(222)
+        }, 1000)
+
+        setTimeout(() => { cancel() }, 7000)
+
+
+        
+
+    </script>
+</body>
+
+</html>

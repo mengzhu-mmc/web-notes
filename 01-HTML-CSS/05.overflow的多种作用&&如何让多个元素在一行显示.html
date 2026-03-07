@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        /* 
+            面试题：让多个元素在一行显示
+            1.display:inline 转为行内元素 但是设置的宽高不起作用
+            2.display:inline-block  可以让元素在一行显示 但是会受 空格/换行键 的影响，产生间距距
+                =>解决办法：
+                    1.去掉空格和换行键，让标签全在一行（不推荐）
+                    2.给父元素加一个属性：font-size:0,给自身加个 font-size 来覆盖父元素的font-size:0
+                    3.利用浮动 float left/right
+         */
+         .demo1 {
+             width: 100px;
+             height: 200px;
+             background-color: burlywood;
+         }
+         .demo2 {
+             width: 150px;
+             height: 150px;
+             background-color: coral;
+             overflow: hidden;
+         }
+         .child {
+             margin-top: 30px;
+         }
+    </style>
+<body>
+    
+    <!-- 
+        overflow:hidden 的多种作用：
+            1.overflow 溢出隐藏
+            2.清除浮动产生的影响
+            3.解决margin-top 的传递问题
+     -->
+     <!-- 
+         CSS hack是通过在CSS样式中加入一些特殊的符号，让不同的浏览器识别不同的符号
+
+         zoom:1 （IE专用的属性）
+         触发其hasLayout，清除浮动产生的影响
+      -->
+     
+     <div class="demo1">模块一</div>
+     <div class="demo2">
+         <div class="child">456</div>
+     </div>
+</body>
+</html>

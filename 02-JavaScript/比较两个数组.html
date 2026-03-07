@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <script>
+    const arr1 = [1,1,2, NaN]
+      const arr2 = [1,2,2]
+
+  function areArraysContentEqual2(arr1 = [], arr2 = []) {
+    if (arr1.length !== arr2.length) {
+      return false;
+    }
+
+    const arrMap = new Map()
+
+    arr1.some(item => {
+      // 找到元素在第二个数组中的位置
+      const index = arr2.findIndex(item1 => {
+        // 这里有坑 下面会讲到
+        if (isNaN(item) && isNaN(item1)) {
+          return true
+        }
+        return item === item1
+      })
+      if (index !== -1) {
+        arr2.splice(index, 1)
+      }
+    })
+    return !arr2.length
+  }
+  </script>
+</body>
+</html>

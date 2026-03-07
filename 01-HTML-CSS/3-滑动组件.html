@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        html {
+            font-size: 10vw;
+        }
+
+        body {
+            margin: 0;
+        }
+
+        ul {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        #wrap {
+            position: relative;
+            width: 100vw;
+            overflow: hidden;
+        }
+
+        #list {
+            float: left;
+            display: flex;
+            display: -webkit-box;
+        }
+
+        #list li {
+            flex: none;
+            width: 100vw;
+        }
+
+        #list img {
+            width: 100%;
+            display: block;
+        }
+
+        .nav {
+            position: absolute;
+            left: 0;
+            bottom: .2rem;
+            width: 100%;
+            text-align: center;
+            vertical-align: top;
+        }
+
+        .nav a {
+            display: inline-block;
+            width: .3rem;
+            height: .3rem;
+            background: #fff;
+            margin: 0 .1rem;
+            border-radius: .15rem;
+            transition: .3s;
+        }
+
+        .nav .active {
+            width: .6rem;
+            color: #fff;
+        }
+
+        .textList {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .textList li {
+            font: 14px/40px "宋体";
+            padding-left: 20px;
+            border-bottom: 1px solid #000;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="wrap">
+        <ul id="list">
+            <li><img src="img/banner01.png" /></li>
+            <li><img src="img/banner02.png" /></li>
+            <li><img src="img/banner03.png" /></li>
+            <li><img src="img/banner04.png" /></li>
+        </ul>
+        <nav class="nav">
+            <a class="active"></a><a></a><a></a><a></a>
+        </nav>
+    </div>
+    <ul class="textList">
+        <li>我曾经跨国山河大海</li>
+        <li>我曾经跨国山河大海</li>
+        <li>我曾经跨国山河大海</li>
+        <li>我曾经跨国山河大海</li>
+        <li>我曾经跨国山河大海</li>
+        <li>我曾经跨国山河大海</li>
+        <li>我曾经跨国山河大海</li>
+        <li>我曾经跨国山河大海</li>
+        <li>我曾经跨国山河大海</li>
+        <li>我曾经跨国山河大海</li>
+    </ul>
+    <script src="./dist/bscroll.min.js"></script>
+    <script>
+        /* 
+            在两个方向的滑动上，如果有一些不同的操作，这里要注意我们要进行方向判断
+            每次滑动时判断方向，一旦判断方向，就不再判断
+        */
+        let wrap = document.querySelector("#wrap");
+        let wrapScroll = new BScroll(wrap)
+
+    </script>
+</body>
+
+</html>

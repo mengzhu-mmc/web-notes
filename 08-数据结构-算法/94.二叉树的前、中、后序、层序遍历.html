@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      // 前序遍历
+      // 迭代
+      // function fn(root) {
+      //     let stack = [],res = []
+      //     while( root !== null || stack.length !== 0) {
+      //         while(root !== null) {
+      //             res.push(root.val)
+      //             stack.push(root)
+      //             root = root.left
+      //         }
+
+      //         let curr = stack.pop()
+      //         root = curr.right
+      //     }
+      //     return res
+      // }
+
+      function fn(root) {
+        const res = [],
+          stack = [];
+        while (root !== null || stack.length) {
+          while (root) {
+            res.push(root.val);
+            stack.push(root);
+            root = root.left;
+          }
+
+          const curr = stack.pop();
+          root = curr.right;
+        }
+      }
+
+      function fn2(root) {
+        const res = [],
+          stack = [];
+        while (root !== null || stack.length) {
+          while (root) {
+            stack.push(root);
+            root = root.left;
+          }
+          const current = stack.pop();
+          res.push(current.val);
+          root = current.right;
+        }
+        return res;
+      }
+
+      function fn3(root) {
+        const res = [],
+          stack = [];
+        while (root !== null || stack.length) {
+          while (root) {
+            stack.push(root);
+            res.unshift(root.val);
+            root = root.right;
+          }
+
+          const current = stack.pop();
+          root = current.left;
+        }
+        return res;
+      }
+
+      // // 中序遍历
+      // function inorderTraversal(root) {
+      //     let stack = []
+      //     let res = []
+      //     while(root !== null || stack.length !== 0) {
+      //         while(root !== null) {
+      //             stack.push(root)
+      //             root = root.left;
+      //         }
+      //         root = stack.pop()
+      //         res.push(root.val)
+      //         root = root.right
+      //     }
+      // }
+
+      // // 后序遍历
+      function inorderTraversal3(root) {
+        // 初始化数据
+        const res = [];
+        const stack = [];
+        while (root || stack.length) {
+          while (root) {
+            stack.push(root);
+            res.unshift(root.val);
+            root = root.right;
+          }
+          const current = stack.pop();
+          root = current.left;
+        }
+        return res;
+      }
+
+      // 示例： 二叉树：[3,9,20,null,null,15,7],
+      // 遍历结果：[ [3], [9,20], [15,7] ]
+      // 层次遍历
+      // const levelOrder = root => {
+      //     let queue=[], res=[]
+      //     if(root) queue.push(root)
+      //     while(queue.length) {
+      //         let nextQueue = [], nowRes = []
+      //         while(queue.length) {
+      //             root = queue.shift()
+      //             nowRes.push(root.val)
+      //             root.left && nextQueue.push(root.left)
+      //             root.right && nextQueue.push(root.right)
+      //         }
+      //         queue = nextQueue
+      //         res.push(nowRes)
+      //     }
+      //     return res
+      // }
+      const levelOrder = (root) => {
+        let queue = [],
+          res = [];
+        if (root) queue.push(root);
+        while (queue.length) {
+          let nextQueue = [],
+            nowRes = [];
+          while (queue.length) {
+            root = queue.shift();
+            nowRes.push(root.val);
+            root.left && nextQueue.push(root.left);
+            root.right && nextQueue.push(root.right);
+          }
+          queue = nextQueue;
+          res.push(nowRes);
+        }
+        return res;
+      };
+
+      function levelOrder2(root) {
+        let queue = [];
+        const res = [];
+        if (root) queue.push(root);
+        while (queue.length) {
+          const nextQueue = [],
+            nextRes = [];
+          while (queue.length) {
+            root = queue.shift();
+            nextRes.push(root.val);
+            root.left && nextQueue.push(root.left);
+            root.right && nextQueue.push(root.right);
+          }
+
+          queue = nextQueue;
+          res.push(nextRes);
+        }
+        return res;
+      }
+    </script>
+  </body>
+</html>

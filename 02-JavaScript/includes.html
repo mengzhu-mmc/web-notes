@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        /* includes
+            方法返回一个布尔值，表示某个数组是否包含给定的值，与字符串的 includes 方法类似。
+            没有该方法之前，我们通常使用数组的 indexOf 方法，检查是否包含某个值
+        */
+        /* indexOf()缺点：
+           它内部使用严格相等运算符（===）进行判断，这会导致对 NaN 的误判。
+        */
+        [{a:1}, {b:2}].indexOf({'a':1})  //=> -1
+        [NaN].indexOf(NaN) //=> -1
+
+        /* includes 使用的是不一样的判断算法，就没有这个问题。 */
+        [NaN].includes(NaN) //=> true
+
+        /* includes 第二个参数表示搜索的起始位置： */
+        ['a', 'b', 'c', 'b'].includes('c', 2) //=> true
+        ['a', 'b', 'c', 'b'].includes('c', 3) //=> false
+
+        /* 如果第二个参数为负数，则表示从倒数第几位向后搜索： */
+        ['a','b','c','d'].includes('c',-1)  //false     (-1指的是倒数第一位'd')
+        ['a','b','c','d'].includes('c',-2)    //true     (-2指的是倒数第二位'c')
+    </script>
+</body>
+</html>

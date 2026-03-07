@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      //  给定一个只包含大写英文字母的字符串S，要求你给出对S重新排列的所有不相同的排列数。
+      // 如：S为ABA，则不同的排列有ABA、AAB、BAA三种
+
+      // 输入描述
+      // 输入一个长度不超过10的字符串S，我们确保都是大写的。
+
+      // 输出描述
+      // 输出S重新排列的所有不相同的排列数（包含自己本身）。
+
+      // 示例一
+      // 输入
+      // ABA
+      // 输出
+      // 3
+
+      function fn(str) {
+        let obj = {};
+        let len = str.length;
+        for (let i = 0; i < len; i++) {
+          let key = str[i];
+          if (obj[key]) {
+            obj[key]++;
+          } else {
+            obj[key] = 1;
+          }
+        }
+        let sum = 1;
+        Object.keys(obj).forEach((item) => {
+          const value = obj[item];
+          for (let i = len, j = value; i > len - value, j > 0; i--, j--) {
+            sum = (sum * i) / j;
+          }
+          len -= value;
+        });
+        console.log(sum);
+      }
+
+      // function fn(str) {
+      //   let obj = {};
+      //   let len = str.length;
+      //   for (let i = 0; i < len; i++) {
+      //     if (obj[str[i]]) {
+      //       obj[str[i]]++;
+      //     } else {
+      //       obj[str[i]] = 1;
+      //     }
+      //   }
+      //   let sum = 1;
+      //   Object.keys(obj).forEach((item) => {
+      //     const val = obj[item];
+      //     for (let i = val, j = len; i > 0, j > len - val; i--, j--) {
+      //       sum = (sum * j) / i;
+      //     }
+      //     len -= val;
+      //   });
+      //   console.log(sum);
+      // }
+
+      // function fn(str) {
+      //   const obj = {};
+      //   let len = str.length;
+      //   for (let i = 0; i < len; i++) {
+      //     if (obj[str[i]]) {
+      //       obj[str[i]]++;
+      //     } else {
+      //       obj[str[i]] = 1;
+      //     }
+      //   }
+      //   let sum = 1;
+      //   Object.keys(obj).forEach((item) => {
+      //     const value = obj[item];
+      //     for (let i = value, j = len; i > 0, j > len - value; i--, j--) {
+      //       sum = (sum * j) / i;
+      //     }
+      //     len -= value;
+      //   });
+      //   console.log(sum);
+      // }
+      fn("ABCDEFGHHA");
+    </script>
+  </body>
+</html>

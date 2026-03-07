@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        // 自己写的 84ms
+        var isAnagram = function(s, t) {
+            let arr1 = s.split(''),
+            arr2 = t.split(''),
+            flag = null;
+            if(arr1.length !== arr2.length) {
+                return; 
+            }
+            for (let i = 0; i < arr1.length; i++) {
+                for (let j = 0; j < arr2.length; j++) {
+                    if (arr2[j] == arr1[i]) {
+                        arr2.splice(j,1);
+                        break;
+                    } 
+                }
+            }
+            return arr2.length==0 ? true : false;
+        };
+        console.log(isAnagram('acr', 'car'))
+        
+        // 大佬写的：(简单但效率不一定高) 96ms
+        // var isAnagram = function (s, t) {
+        //     let res1 = s.split('').sort().join(''),
+        //         res2 = t.split('').sort().join(''),
+        //         flag = res1 == res2 ? true : false;
+        //     console.log(flag);
+        // }
+        // isAnagram('rat', 'rat');
+    </script>
+</body>
+</html>

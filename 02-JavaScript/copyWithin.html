@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        // Array.prototype.copyWithin(target, start = 0, end = this.length)
+        
+        /* 
+            可以在当前数组内部，将指定位置的数组项复制到其他位置，会覆盖原数组项，然后返回当前数组。使用该方法会修改当前数组。
+        */
+
+       /* 
+        它接受三个参数：
+
+        （1）target（必需）：从该位置开始替换数据。如果为负值，表示倒数。
+
+        （2）start（可选）：从该位置开始读取数据，默认为 0。如果为负值，表示倒数。
+
+        （3）end（可选）：到该位置前停止读取数据，默认等于数组长度。如果为负值，表示倒数。
+       */
+
+       ['a','b','c','d','e','f','g'].copyWithin(0, 3) //=> ["d", "e", "f", "g", "e", "f", "g"]
+
+       /* 上面代码表示将从 3 号位 直到数组结束的成员（'d','e','f','g'），复制到从 0 号位开始的位置。*/
+
+       // 将3号位复制到0号位，可以这么写：
+        ['a','b','c','d','e','f','g'].copyWithin(0, 3, 4)
+        //  ["d", "b", "c", "d", "e", "f", "g"] 
+
+        // start、end 为负数的情况：
+        // start -3 指的是 'e'，-3 - （-1）=2，就是用 'e' , 'f' 两个元素替换掉从0开头的 'a' , 'b'
+        ['a','b','c','d','e','f','g'].copyWithin(0, -3, -1)
+        //  ["e", "f", "c", "d", "e", "f", "g"]
+
+        //start -3 指的是 'e'，-3 - （-1）=2，就是用 'e' , 'f' 两个元素替换掉从0开头的 'a' , 'b'
+    </script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=\, initial-scale=1.0">
+    <title>parseInt</title>
+</head>
+<body>
+    <script>
+        /* 
+            parseInt(string, radix)
+                string： 要被解析的值
+                radix: 表示字符串的基数（从 2 ~ 36）,默认值为0，数字以10为基础来解析
+        */
+        console.log(parseInt("10")); //=> 10
+        console.log(parseInt("19", 10)); //=> 19 (1x10 + 9)
+        console.log(parseInt("3",4)); //=> 3 
+        console.log(parseInt("17"), 8); //=> 15 (1X8 + 7)
+
+        /* 
+            toString(n) 参数n是 要转化的进制 
+        */
+        var myNumber = 128;
+        document.write(myNumber + ' decimal<br>');
+        document.write(myNumber.toString(16) + ' hex<br>');
+        document.write(myNumber.toString(8) + ' octal<br>');
+        document.write(myNumber.toString(2) + ' binary<br>');
+    </script>
+</body>
+</html>

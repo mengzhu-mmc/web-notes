@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      /**
+       * @param {number} num
+       * @return {number}
+       * @link https://leetcode.cn/problems/reverse-bits-lcci/
+       */
+      var reverseBits = function (num) {
+        const list = (num >>> 0).toString(2).split("0");
+        let max = 1;
+        for (let i = 0; i < list.length; i++) {
+          let nowLen = list[i].length;
+          let nextLen = list[i + 1] ? list[i + 1].length : 0;
+          max = Math.max(max, nowLen + nextLen + 1);
+        }
+        return max > 32 ? 32 : max;
+      };
+      console.log(reverseBits(2147483647));
+    </script>
+  </body>
+</html>

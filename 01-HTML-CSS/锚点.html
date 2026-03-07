@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+        [class^="floor"] {
+            height: 500px;
+        }
+        .floor1 {
+            background-color: skyblue;
+        }
+        .floor2 {
+            background-color: rgb(28, 169, 173);
+        }
+        .floor3 {
+            background: steelblue;
+        }
+    </style>
+</head>
+<body>
+    <a href="#f3">我是锚点</a>
+    <a href="#hei">我也是锚点</a>
+    <div class="floor1" name="fl1" id="f1"></div><!-- 也可以通过 id 设置锚点 -->
+    <div class="floor2" name="fl2" id="f2"></div>
+    <a name="hei">hei</a> <!-- 如果要用 name 设置锚点，必须用 a 标签 -->
+    <div class="floor3" name="fl3" id="f3"></div>
+</body>
+</html>

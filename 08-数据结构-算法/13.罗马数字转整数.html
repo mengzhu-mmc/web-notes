@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      /**
+       * @param {string} s
+       * @return {number}
+       */
+      var romanToInt = function (s) {
+        const rule = {
+          I: 1,
+          V: 5,
+          X: 10,
+          L: 50,
+          C: 100,
+          D: 500,
+          M: 10000,
+        };
+        let res = 0;
+        const list = s.split("");
+        for (let i = 0; i < list.length; i++) {
+          const current = list[i],
+            next = list[i + 1];
+          console.log(current, next);
+          if (rule[current] < rule[next]) {
+            res -= rule[current];
+          } else {
+            res += rule[current];
+          }
+        }
+        return res;
+      };
+      console.log(romanToInt("MCMXCIV"));
+    </script>
+  </body>
+</html>

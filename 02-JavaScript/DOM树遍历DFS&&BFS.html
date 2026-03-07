@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <!-- 我们一般可以采用DFS（深度优先遍历）和BFS（广度优先遍历）来遍历DOM树 -->
+
+    <div class="root">
+        <div class="container">
+            <section class="sidebar">
+                <ul class="menu"></ul>
+            </section>
+            <section class="main">
+                <article class="post"></article>
+                <p class="copyright"></p>
+            </section>
+        </div>
+    </div>
+    <script>
+        // DFS的具体实现
+        // const DFSTraverse = (rootNodes, rootLayer) => {
+        //     const roots = Array.from(rootNodes)
+        //     while (roots.length) {
+        //         const root = roots.shift()
+        //         printInfo(root, rootLayer)
+        //         if(root.children.length) {
+        //             DFSTraverse(root.children, rootLayer + 1)
+        //         }
+        //     }
+        // }
+
+        function DFSTraverse(root, rootLayer) {
+            const roots = Array.from(root)
+            while(roots.length) {
+                let temp = roots.shift()
+                printInfo(temp, rootLayer)
+                if(temp.children.length) {
+                    DFSTraverse(temp.children, rootLayer+1)
+                }
+            }
+        }
+
+        
+        
+        const printInfo = (node, layer) => {
+            var str = ''
+            for (let i = 1; i < layer; i++) {
+                str += ' '
+            }
+            console.log(`${layer}:${str}${node.tagName} .${node.className}`);
+        }
+
+        DFSTraverse(document.querySelectorAll('.root'),3)
+    </script>
+</body>
+
+</html>

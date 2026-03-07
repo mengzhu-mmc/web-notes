@@ -1,0 +1,30 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        /**
+         * @description: 
+         * @param {*} nums
+         * @return {*}
+         */ // 1,2,3,4,5
+        var subsets = function(nums) {
+            let res = [[]];
+            nums.forEach(item1 => {
+                let arr = [] 
+                for (let i = 0; i < res.length; i++) {
+                    arr.push(res[i].concat(item1))
+                }
+                res = res.concat(arr)
+            });
+            return res
+        }
+
+    </script>
+</body>
+</html>

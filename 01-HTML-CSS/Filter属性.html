@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        img {
+            margin: 30px;
+            width: 400px;
+            height: 300px;
+        }
+        .demo1 {
+            /* 高斯模糊，值越大越模糊，默认是0 */
+            filter: blur(40px);
+            border: 1px solid orange;
+        }
+        .demo2 {
+            /* 亮度 brightness 如果值是0%，图像会全黑。值是100%，则图像无变化。值超过100%，图像会比原来更亮。*/
+            filter: brightness(0.6)
+        }
+        .demo3 {
+            /* 调整图像的对比度。值是0%的话，图像会全黑。值是100%，图像不变。值超过100%，意味着会运用更低的对比。默认是1。 */
+            filter: contrast(150%);
+        }
+        .demo4 {
+            /* 与 box-shadow属性很相似；不同之处在于，通过滤镜，一些浏览器为了更好的性能会提供硬件加速。 */
+            filter: drop-shadow(0 0 16px rgb(31, 30, 30));
+        }
+        .demo5 {
+            /* 将图像转换为灰度图像。值定义转换的比例。值为100%则完全转为灰度图像，值为0%图像无变化。若未设置，值默认是0。 */
+            filter: grayscale(80%);
+        }
+        .demo6 {
+            /* 色相旋转hue-rotate(deg) */
+            filter: hue-rotate(120deg);
+        }
+        .demo7 {
+            /* 反转图像invert(%) 值定义转换的比例。100%的价值是完全反转。值为0%则图像无变化。值在0%和100%之间，则是效果的线性乘子。 若值未设置，值默认是0。 */
+            filter: invert(70%);
+        }
+        .demo8 {
+            /* 
+            图像的透明程度。值为0%则是完全透明，值为100%则图像无变化。0-100%之间则是部分透明。也可以用0-之间的小数替代%。
+            与已有的opacity属性很相似，不同之处在于通过filter，一些浏览器为了提升性能会提供硬件加速。
+            */  
+            filter: opacity(30%);
+        }
+        .demo9 {
+            /*   饱和度saturate(%)
+            值为0%则是完全不饱和，值为100%则图像无变化。大于100%，则饱和度增高，色彩就会变重。 */
+            filter: saturate(20%);
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <img src="../../assist/img/4.jpg" title="正常">
+        <img src="../../assist/img/4.jpg" alt="" class="demo1" title="1高斯模糊">
+        <img src="../../assist/img/4.jpg" alt="" class="demo2" title="2亮度">
+        <img src="../../assist/img/4.jpg" alt="" class="demo3" title="3对比度">
+        <img src="../../assist/img/4.jpg" alt="" class="demo4" title="4投影">
+        <img src="../../assist/img/4.jpg" alt="" class="demo5" title="5灰度">
+        <img src="../../assist/img/4.jpg" alt="" class="demo6" title="6色相旋转">
+        <img src="../../assist/img/4.jpg" alt="" class="demo7" title="7反转图像">
+        <img src="../../assist/img/4.jpg" alt="" class="demo8" title="8透明度">
+        <img src="../../assist/img/4.jpg" alt="" class="demo9" title="9饱和度">
+    </div>
+</body>
+</html>

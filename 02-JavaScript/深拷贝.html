@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      // function clone(target, map = new Map()) {
+      //   if (typeof target === "object") {
+      //     let cloneTarget = Array.isArray(target) ? [] : {};
+      //     if (map.get(target)) {
+      //       return map.get(target);
+      //     }
+      //     map.set(target, cloneTarget);
+      //     for (const key in target) {
+      //       cloneTarget[key] = clone(target[key], map);
+      //     }
+      //     return cloneTarget;
+      //   } else {
+      //     return target;
+      //   }
+      // }
+
+      function clone(target, map = new Map()) {
+        if (typeof target === "object" && target !== null) {
+          const cloneTarget = Array.isArray(target) ? [] : {};
+          if (map.get(target)) {
+            return map.get(target);
+          }
+          map.set(target, cloneTarget);
+          for (const key in target) {
+            if (Object.hasOwnProperty.call(target, key)) {
+              cloneTarget[key] = clone(target[key], map);
+            }
+          }
+          return cloneTarget;
+        } else {
+          return target;
+        }
+      }
+
+      function clone2(target, map = new Map()) {
+        if (typeof target === "object" && target !== null) {
+          const cloneRes = Array.isArray(target) ? [] : {};
+          if (map.has(target)) {
+            return map.get(target);
+          }
+          map.set(target, cloneRes);
+          for (const key in target) {
+            if (Object.hasOwnProperty.call(target, key)) {
+              cloneRes[key] = clone2(target[key], map);
+            }
+          }
+          return cloneRes;
+        } else {
+          return target;
+        }
+      }
+
+      function deepClone3(obj, map = new Map()) {
+        if (typeof obj === "object" && obj !== null) {
+          if (map.has(obj)) {
+            return map.get(obj);
+          }
+          const cloneRes = Array.isArray(obj) ? [] : {};
+          map.set(obj, cloneRes);
+          for (let key in obj) {
+            if (obj.hasOwnProperty(key)) {
+              cloneRes[key] = deepClone3(obj[key], map);
+            }
+          }
+          return cloneRes;
+        } else {
+          return obj;
+        }
+      }
+
+      const a = {
+        name: "zhangsan",
+        hobbies: [
+          "huashui",
+          {
+            name: "moyu",
+            pin: "everyday",
+          },
+        ],
+      };
+      a._self = a;
+      console.time();
+      let b = deepClone3(a);
+      console.timeEnd();
+      b.hobbies[1].name = "my";
+      console.log(a, b);
+    </script>
+  </body>
+</html>

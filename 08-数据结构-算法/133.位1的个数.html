@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      var hammingWeight = function (n) {
+        const to2 = n.toString(2);
+        console.log(to2);
+        to2.replaceAll(/0/g, "");
+        console.log(to2);
+        return to2.length;
+      };
+      console.log(hammingWeight(11));
+    </script>
+  </body>
+</html>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>栅格</title>
+    <style>
+        article {
+            display: grid;
+            /*grid-template-rows: 100px 100px 100px;*//* 行之间的距离 */
+            /*grid-template-columns: 100px 100px 100px;*/ /* 列之间的距离 */
+            width: 300px;
+            height: 100px;
+            border: 1px solid silver;
+            grid-template-rows: repeat(2, 50%);
+            grid-template-columns: repeat(5, 20%);
+        }
+        article div {
+            /* 如果不指定宽高，默认填满容器 */
+            padding: 10px;
+            background-color: rgb(238, 189, 55);
+            background-clip: content-box;
+            border: 1px solid orange;
+            box-sizing: content-box;
+        }
+    </style>
+</head>
+<body>
+    <article>
+        <div>1</div>
+        <div>2</div>
+        <div>3</div>
+        <div>4</div>
+        <div>5</div>
+        <div>6</div>
+        <div>7</div>
+        <div>8</div>
+        <div>9</div>
+        <div>10</div>
+    </article>
+</body>
+</html>

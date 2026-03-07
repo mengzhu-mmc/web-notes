@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .wrap {
+            display: flex;
+            display:-webkit-flex;
+            width: 800px;
+            height: 300px;
+            flex-direction: column;
+            justify-content: center;
+            flex-wrap: wrap;
+            /* align-content: center; */
+            align-items: center;                                                     
+            background-color: bisque;
+        }
+        .demo {
+            width: 150px;
+            height: 100px;
+            background-color: brown;
+        }
+        .demo:nth-child(2) {
+            order: -1;
+            align-self:flex-end;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <div class="demo">1</div>
+        <div class="demo">2</div>
+        <div class="demo">3</div>
+        <div class="demo">4</div>
+        <div class="demo">5</div>
+        <div class="demo">6</div>
+    </div>
+</body>
+</html>

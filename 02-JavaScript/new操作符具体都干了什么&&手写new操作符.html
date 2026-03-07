@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      // function Person(name, age){
+      //     this.name = name;
+      //     this.age = age;
+      // }
+      // Person.prototype.sayName = function () {
+      //     console.log(this.name)
+      // }
+      // const person1 = new Person('Tom', 20)
+      // console.log(person1)  // Person {name: "Tom", age: 20}
+      // person1.sayName() // 'Tom'
+
+      // 创建一个新的对象obj
+      // 将对象与构建函数通过原型链连接起来
+      // 将构建函数中的this绑定到新建的对象obj上
+      // 根据构建函数返回类型作判断，如果是原始值则被忽略，如果是返回对象，需要正常处理
+
+      // 自己实现new方法
+      // function myNew (fn, ...arg) {
+      //     const obj = {};
+      //     obj.__proto__=fn.prototype;
+      //     const res = fn.call(obj, ...arg);
+      //     return Object.prototype.toString.call(res) == '[object Object]' ? res : obj
+      // }
+
+      function Person(name) {
+        this.name = name;
+        const obj1 = { name: this.name };
+      }
+
+      function myNew(fn, ...rest) {
+        let obj = {};
+        obj.__proto__ = fn.prototype;
+        let res = fn.apply(obj, rest);
+        return Object.prototype.toString.call(res) == "[object Object]"
+          ? res
+          : obj;
+      }
+
+      function myNew2(fn, ...rest) {
+        let obj = {};
+        obj.__proto__ = fn.prototype;
+        let res = fn.apply(obj, rest);
+        return Object.prototype.toString.call(res) === "[object Object]"
+          ? res
+          : obj;
+      }
+
+      const a = myNew2(Person, "liujie");
+      console.log(a);
+    </script>
+  </body>
+</html>

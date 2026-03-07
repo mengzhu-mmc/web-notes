@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>双飞翼</title>
+    <!-- <style>
+        .container {
+            border: 1px solid black;
+        }
+
+        /* 清除浮动 */
+        .clearfix:after {
+            content: '';
+            display: block;
+            clear: both;
+        }
+
+        .wrap,
+        .left,
+        .right {
+            float: left;
+        }
+
+        /* 容器宽度100% */
+        .wrap {
+            background: rgb(175, 173, 173);
+            width: 100%;
+        }
+
+        /* main左右margin分别为left、right的宽度 */
+        .main {
+            margin-left: 100px;
+            margin-right: 120px;
+        }
+
+        .left {
+            margin-left: -100%;
+            background: red;
+            width: 100px;
+        }
+
+        .right {
+            margin-left: -120px;
+            background: blue;
+            width: 120px;
+        }
+    </style> -->
+
+
+    <style>
+        .container {
+            overflow: hidden;
+        }
+        .wrap {
+            width: 100%;background: lightcoral;
+        }
+        .wrap,.left,.right {
+            float: left;
+            height: 60px;
+        }
+        .main {
+            margin: 0 100px 0 120px;
+        }
+        .left {
+            width: 120px;
+            margin-left: -100%;
+            background: skyblue;
+        }
+        .right {
+            width: 100px;
+            margin-left: -100px;
+            background: orange;
+        }
+
+    </style>
+</head>
+
+<body>
+    <div class="container clearfix">
+        <div class="wrap">
+            <div class="main">
+                main
+            </div>
+        </div>
+        <div class="left">left</div>
+        <div class="right">right</div>
+    </div>
+</body>
+
+</html>

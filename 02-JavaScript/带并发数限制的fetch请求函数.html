@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      // 递归
+      function sendRequest(urls, max, callback) {
+        const urlsCopy = [...urls];
+        function request() {
+          const handle = () => {
+            count--;
+            console.log("end 当前并发数为: " + count);
+
+            if (urlsCopy.length) {
+              request();
+            }
+            if (count === 0) {
+              callback();
+            }
+          };
+
+          count++;
+          console.log("start 当前并发数为: " + count);
+
+          fetch(urlsCopy.shift()).then(handle).catch(handle);
+          count < max && urlsCopy.length && request();
+        }
+        let count = 0;
+        request();
+      }
+      let urls = Array.from({ length: 2 }, (v, k) => k);
+      console.log(urls);
+      let fetch = function (idx) {
+        return new Promise((resolve) => {
+          let timeout = Math.random() * 10 * 1000;
+          setTimeout(() => {
+            resolve(idx);
+          }, timeout);
+        });
+      };
+
+      let max = 4;
+
+      let callback = () => {
+        console.log("run callback");
+      };
+      //执行
+      sendRequest(urls, max, callback);
+    </script>
+  </body>
+</html>

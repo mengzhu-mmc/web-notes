@@ -1,0 +1,4 @@
+@import url(common.css) all; /* 默认为all 所以可以不写all  */
+@import url(print.css) print;
+@import url(screen.css) screen;
+@import url(navbar.css) screen;

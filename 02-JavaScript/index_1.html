@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我要节流</title>
+    <style>
+        body {
+            height: 3000px;
+        }
+        .centerNum {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            -webkit-transform:translate(-50%,-50%);
+            transform:translate(-50%,-50%);
+            width: 300px;
+            height: 200px;
+            line-height: 200px;
+            text-align: center;
+            font-size: 60px;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="centerNum">0</h1>
+
+    <script>
+        let centerNum = document.getElementsByClassName('centerNum')[0]
+        function debounce(fn, delay=1000) {
+            if (typeof(fn) !== 'function') {
+                throw new Error('fn is not function')
+            }
+            let timeout = null
+            return function() {
+                timeout && clearTimeout(timeout)
+                timeout = setTimeout(fn, delay)
+            }
+        }
+        function handle () {
+            centerNum.innerHTML++
+        }
+
+        window.onscroll = debounce(handle)
+    </script>
+</body>
+</html>

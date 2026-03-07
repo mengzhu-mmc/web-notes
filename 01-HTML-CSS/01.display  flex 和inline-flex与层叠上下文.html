@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS中的层叠上下文和层叠顺序</title>
+    <style>
+        /* 
+            要满足两个条件才能形成层叠上下文：
+                条件1.父级需要是 display:flex 或者 display:inline-flex 
+                条件2.子元素的 z-index 不是 auto，必须是数值。
+            
+            此时，这个子元素为层叠上下文元素，没错，注意了，是子元素，不是flex父级元素。
+        */
+
+        /* div蓝色背景把 img 图片遮挡 */
+        /* .box>div {
+            background: skyblue;
+            z-index: 1;  这里div 是普通 block元素，z-index 无效
+        }
+        .box>div>img {
+            position: relative;
+            z-index: -1;
+        } */
+
+
+        /* .box>div  是层叠上下文， 层级低于z-index为负值 */
+        .box {
+            display: flex;
+        }
+        .box>div {
+            background: orange;
+            z-index: 0;
+        }
+        .box>div>img {
+            position: relative;
+            width: 600px;
+            z-index: -1;
+        }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <div>
+            <img src="../../assist/img/3.jpg" alt="">
+        </div>
+    </div>
+</body>
+</html>

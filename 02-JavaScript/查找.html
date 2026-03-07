@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      const arr = [1, 2, 3, 4];
+
+      const res = arr.find((val, index, arr) => val > 2);
+      const res2 = arr.findIndex((val, index, arr) => val > 2);
+      const res3 = arr.findLast((val, index, arr) => val > 2);
+      const res4 = arr.findLastIndex((val, index, arr) => val > 2);
+      console.log(res, res2, res3, res4);
+    </script>
+  </body>
+</html>

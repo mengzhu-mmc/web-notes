@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        article {
+            margin: 50px;
+            display: grid;
+            width: 300px;
+            height: 300px;
+            border: 2px solid rgb(238, 37, 37);
+            grid-template-rows: repeat(3, 1fr );
+            grid-template-columns: repeat(3, 1fr );
+        }
+        div {
+            padding: 10px;
+            background-color: slateblue;
+            background-clip: content-box;
+            border: 1px solid orange;
+            box-sizing: content-box;
+        }
+        div:first-child {
+            /* grid-row-start: 2;
+            grid-column-start: 2;
+            grid-column-end: span 1;
+            grid-row-end: span 1; */
+             
+            /* 简写 */
+            /* grid-row: 1 / 2;
+            grid-column: 1 /4; */ 
+            grid-row: 1 / span 3;
+            grid-column: 1/ span 1;
+        }
+        div:nth-child(2) {
+            grid-row: 1 / span 2;   
+            grid-column: 2 / span 2;
+        }
+        div:last-child {
+            grid-column: span 2;
+        }
+    </style>
+    <style>
+        
+    </style>
+</head>
+<body>
+    <article>
+        <div>1</div>
+        <div>2</div>
+        <div>3</div>
+    </article>
+</body>
+</html>

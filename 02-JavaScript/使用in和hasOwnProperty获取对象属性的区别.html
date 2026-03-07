@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        /* 
+            in判断的是对象的所有属性，包括对象实例及其原型的属性；
+            而hasOwnProperty则是判断对象实例的是否具有某个属性。
+        */
+       function Person(name) {
+           this.name
+       }
+       // 实例公共的属性
+       Person.prototype.say = function() {
+           console.log('My name is' + this.name);
+       }
+       
+       let person1 = new Person('zhangsan');
+       // person1实例私有属性    
+       person1.age = 12;
+
+       console.log('say' in person1); // true
+       console.log(person1.hasOwnProperty('say')); //false
+
+       console.log('age' in person1); // true
+       console.log(person1.hasOwnProperty('age')); // true
+    </script>
+</body>
+</html>

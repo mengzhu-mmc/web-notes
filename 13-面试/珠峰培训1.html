@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+/* 
+对象的所有键名都是字符串（ES6 又引入了 Symbol 值也可以作为键名），所以加不加引号都可以。
+如果键名是数值，会被自动转为字符串。
+如果键名不符合标识名的条件（比如第一个字符为数字，或者含有空格或运算符），且也不是数字，则必须加上引号，否则会报错。
+*/
+    // 1
+        // let a = {},
+        //     b = '0',
+        //     c = 0;
+        // a[b] = '珠峰';
+        // a[c] = '培训';
+        // console.log(a[b]);
+
+    // 2
+    // async function async1() {
+    //     console.log('async1 start');
+    //     await async2() // 从右向左执行，先执行async2()在遇到await,先打印async2，后打印的script start
+    //     console.log('async1 end');
+    // }
+    // async function async2() {
+    //     console.log('async2');
+    // }
+    // console.log('script start');
+    // setTimeout(function () {
+    //     console.log('setTimeout');
+    // })
+    // async1();
+    // new Promise(function (resolve) {
+    //     console.log('promise1');
+    //     resolve()
+    // }).then(function () {
+    //     console.log('promise2');
+    // })
+    // console.log('script end');
+/* 
+    script start
+    async1 start
+    async2
+    promise1
+    script end
+    async1 end
+    promise2
+    setTimeout
+*/
+var a = b = 1;
+(function() {
+    var a = b = 2;
+})()
+console.log(a,b); //=> 1,2
+
+    </script>
+</body>
+</html>

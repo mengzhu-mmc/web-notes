@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>懒加载</title>
+    <style>
+        /* * {
+            padding: 0;
+            margin: 0;
+        }
+
+        body {
+            height: 6000px;
+        }
+
+        ul {
+            margin: 60px auto;
+            width: 1200px;
+            list-style: none;
+        }
+
+        li {
+            float: left;
+            padding: 0 10px;
+            max-width: 1200px;
+            box-sizing: border-box;
+        }
+
+        img {
+            margin-top: 300px;
+            width: 100%;
+            height: auto;
+        }
+         */
+
+         .image-item {
+    display: inline-block;
+    width: 100%;
+    height: 300px;
+    background: gray;
+}
+    </style>
+</head>
+
+<body>
+    <ul>
+        <img src="" class="image-item" lazyload="true"  alt="">
+        <img src="" class="image-item" lazyload="true"  alt="">
+        <img src="" class="image-item" lazyload="true"  alt="">
+        <img src="" class="image-item" lazyload="true"  alt="">
+        <img src="" class="image-item" lazyload="true"  alt="">
+        <img src="" class="image-item" lazyload="true"  alt="">
+        <img src="" class="image-item" lazyload="true"  alt="">
+    </ul>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script>
+        /* 图片懒加载的实现方式我们只需要了解一个API就行了：
+        getBoundingClientRect()//获取元素的大小及位置 */
+
+        let instance = axios.create({
+            baseURL: 'http://127.0.0.1:3000'
+        })
+        
+        // 添加响应拦截器
+        instance.interceptors.response.use(function (res) {
+            return res.data.data
+        }, function (err) {
+            return Promise.reject(err)
+        })
+
+        // 把图片链接放到 data-img 里
+        let imgList = [...document.querySelectorAll('img[lazyload]')]
+        imgList.forEach((val, index) => {
+            instance.get()
+                .then((data) => {
+                    imgList[index].dataset.img = data[index]
+                })
+        })
+        let viewHeight = document.documentElement.clientHeight;
+
+        // Promise 方式处理图片加载
+        function fn(url) {
+            let promise = new Promise((resolve, reject) => {
+                const img = new Image()
+                img.src = url
+                img.onload = () => { resolve() }
+                img.onerror = () => { reject() }
+            })
+            return promise
+        }
+        
+        function lazyLoad () {
+            console.log(123)
+            imgList.forEach(item => {
+                if (!item.dataset.img) {
+                    return
+                }
+            
+                // getBoundingClientRect() 用于获取某个元素相对于视窗的位置集合。集合中有top, right, bottom, left等属性
+                let rect = item.getBoundingClientRect()
+
+                if (rect.bottom >= 0 && rect.top < viewHeight) {
+
+                    // !function () {
+                    //     let img = new Image()
+                    //     img.src = item.dataset.img;
+                    //     img.onload = function () {
+                    //         // img.onload 图片加载完成后，立即执行该函数
+                    //         item.src = img.src
+                    //     }
+                    //     item.removeAttribute('data-img')
+                    //     item.removeAttribute('lazyload')
+                    // }()
+                    fn(item.dataset.img).then(() => {
+                        item.src = item.dataset.img
+                        item.removeAttribute('data-img')
+                    })
+
+                }
+            })
+        }
+        
+        document.addEventListener('scroll', lazyLoad)        
+        setTimeout(lazyLoad, 100)
+
+        // let length = imgList.length;
+        // const imgLazyLoad = function () {
+        //     let count = 0
+        //     return (function () {
+        //         let deleteIndexList = []
+        //         imgList.forEach((img, index) => {
+        //             let rect = img.getBoundingClientRect()
+
+        //             if (rect.top < document.documentElement.clientHeight) {
+        //                 img.src = img.dataset.img
+        //                 deleteIndexList.push(index)
+        //                 count++
+        //                 if (count === length) {
+        //                     document.removeEventListener('scroll', imgLazyLoad)
+        //                 }
+        //             }
+        //         })
+        //         imgList = imgList.filter((img, index) => !deleteIndexList.includes(index))
+        //     })()
+        // }
+        // document.addEventListener('scroll', imgLazyLoad)
+    </script>
+</body>
+
+</html>

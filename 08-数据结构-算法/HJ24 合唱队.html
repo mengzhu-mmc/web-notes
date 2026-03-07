@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      const num = 8,
+        list = "186 186 150 200 160 130 197 200".split(" ").map(Number);
+      const dp1 = handle(list),
+        dp2 = handle(list.reverse()).reverse();
+
+      let max = 0;
+      for (let i = 0; i < num; i++) {
+        max = Math.max(max, dp1[i] + dp2[i]);
+      }
+      function handle(arr) {
+        const dp = [1];
+        for (let i = 1; i < arr.length; i++) {
+          dp[i] = 1;
+          for (let j = 0; j < i; j++) {
+            if (arr[j] < arr[i]) {
+              dp[i] = Math.max(dp[j] + 1, dp[i]);
+            }
+          }
+        }
+        return dp;
+      }
+      console.log(num - max + 1);
+    </script>
+  </body>
+</html>

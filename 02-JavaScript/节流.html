@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>节流</title>
+    <style>
+      #demo {
+        width: 300px;
+        height: 300px;
+        background: skyblue;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="demo"></div>
+
+    <script>
+      // throttle => 节流阀    threshhold => 阈值
+      // function throttle(fn, threshhold = 500) {
+      //     let timeout = null;
+      //     // 计算开始时间
+      //     let start = new Date()
+      //     console.log(start);
+      //     return function () {
+      //         // 触发时间
+      //         const current = new Date()
+      //         timeout && clearTimeout(timeout)
+
+      //         if (current - start >= threshhold) {
+      //             fn.call(this, ...arguments)
+      //             start = current
+      //         } else {
+      //             timeout = setTimeout(fn.bind(this), threshhold, ...arguments)
+      //         }
+      //     }
+      // }
+
+      // function throttle(fn, threshhold = 2000) {
+      //   // let timeout = null
+      //   let start = new Date();
+      //   return function () {
+      //     const current = new Date();
+      //     if (current - start >= threshhold) {
+      //       fn.call(this, ...arguments);
+      //       start = current;
+      //     }
+      //     // else {
+      //     //     timeout = setTimeout(fn.bind(this), threshhold, ...arguments)
+      //     // }
+      //   };
+      // }
+
+      function throttle(fn, delay = 1000) {
+        let start = new Date();
+        return function (...args) {
+          const current = new Date();
+          if (current - start >= delay) {
+            start = current;
+            fn.apply(this, args);
+          }
+        };
+      }
+
+      function throttle2(fn, delay) {
+        let start = new Date();
+        return function () {
+          const current = new Date();
+          if (current - start >= delay) {
+            start = current;
+            fn.apply(this, argument);
+          }
+        };
+      }
+      let handleMouseMove = throttle(function (e) {
+        console.log(this);
+        console.log(e.pageX, e.pageY);
+      });
+      document
+        .getElementById("demo")
+        .addEventListener("mouseover", handleMouseMove);
+    </script>
+  </body>
+</html>

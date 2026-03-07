@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+        let arr = [1, 1, 0, 1, 1, 0, 1, 1, 0, 1]
+
+        function fn1(nums) {
+            // 假设数组全部是1，那么直接返回数组length即可
+            if (nums.indexOf(0) < 0) {
+                return nums.length;
+            };
+            // 如果数组全部是0，那就直接返回0
+            if (nums.indexOf(1) < 0) {
+                return 0;
+            };
+            var nums_ = nums.join("").match(/1+/g).sort(function (a, b) {
+                return a.length - b.length;
+            });
+            return nums_[nums_.length - 1].length;
+        }
+
+        // 更优的做法
+        var findMaxConsecutiveOnes = function (nums) {
+            // 计数器，每次遇到1让其自增
+            let count = 0;
+            // 当遇到0，就比较count与maxCount，将较大的值赋予maxCount
+            let maxCount = 0;
+            for (let i = 0; i < nums.length; i++) {
+                if (nums[i] === 1) {
+                    count += 1;
+                } else if (nums[i] == 0) {
+                    maxCount = Math.max(count, maxCount);
+                    count = 0;
+                };
+            };
+            maxCount = Math.max(count, maxCount);
+            return maxCount;
+        };
+        
+        console.log(findMax(arr))
+    </script>
+</body>
+
+</html>

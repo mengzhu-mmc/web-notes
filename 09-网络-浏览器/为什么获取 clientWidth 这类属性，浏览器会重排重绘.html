@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        #box{
+            width: 300px;
+            height: 200px;
+            background:orange
+        }
+    </style>
+</head>
+<body>
+    <div id='box'></div>
+    <script>
+        // 请思考这样一个问题，下面这份代码的 js 脚本部分产生了几次重排和重绘。
+        // 一次重排和一次重绘
+        box.style.height='100px'
+        box.style.width='100px'
+    </script>
+
+    <!-- 
+        在 js 脚本部分，我们两次改动了 box 的 style 属性，由于浏览器存在渲染队列，执行一行后，发现第二行也是改变一个元素的 style 时，浏览器会把所有对 style 的改动放到一个队列里面，当脚本结束，或者发现下一行代码不在是对元素 style 的改动时，浏览器会把渲染队列里的改动一次性取出，进行一次重排和重绘。 
+
+        但是，当遇到 clientWidth, clientHeight, OffsetWidth, OffsetHeight 这些属性的时候，浏览器的缓存渲染队列机制将不再生效，这是因为，clientWidth 是一个元素的实时宽度，必须重排重绘以后才能得到，如果不提前进行重排重绘，clientWidth 有可能拿到的是浏览器缓存队列没执行完的时候的值。
+     -->
+    
+</body>
+</html>

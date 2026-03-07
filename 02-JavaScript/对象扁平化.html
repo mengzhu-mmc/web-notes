@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      // let objFlatten = (obj) => {
+      //   const res = {};
+      //   const process = (key, value) => {
+      //     if (typeof value !== "object" || value === null) {
+      //       key ? (res[key] = value) : null;
+      //     } else if (Array.isArray(value)) {
+      //       if (value.length === 0) {
+      //         res[key] = [];
+      //         return;
+      //       }
+      //       value.forEach((item, index) => {
+      //         process(`${key}[${index}]`, item);
+      //       });
+      //     } else {
+      //       const keys = Object.keys(value);
+      //       if (keys.length === 0) {
+      //         res[key] = {};
+      //         return;
+      //       }
+      //       keys.forEach((item) => {
+      //         process(key ? `${key}.${item}` : item, value[item]);
+      //       });
+      //     }
+      //   };
+      //   process("", obj);
+      //   return res;
+      // };
+
+      function flattenObject(obj, prefix = "") {
+        let res = {};
+
+        for (const key in obj) {
+          if (obj.hasOwnProperty(key)) {
+            const currentKey = prefix ? `${prefix}.${key}` : key;
+            const value = obj[key];
+
+            if (Array.isArray(value)) {
+              value.forEach((item, index) => {
+                const arrayKey = `${currentKey}[${index}]`;
+                if (typeof item === "object" && item !== null) {
+                  Object.assign(res, flattenObject(item, arrayKey));
+                } else {
+                  res[arrayKey] = item;
+                }
+              });
+            } else if (typeof value === "object" && value !== null) {
+              Object.assign(res, flattenObject(value, currentKey));
+            } else {
+              res[currentKey] = value;
+            }
+          }
+        }
+        return res;
+      }
+
+      const obj = {
+        a: 1,
+        b: [1, 2, { c: true }],
+        c: { e: 2, f: 3 },
+        g: null,
+      };
+      console.log(flattenObject(obj));
+      // 转换为
+      // let objRes = {
+      //     a: 1,
+      //     "b[0]": 1,
+      //     "b[1]": 2,
+      //     "b[2].c": true,
+      //     "c.e": 2,
+      //     "c.f": 3,
+      //     g: null,
+      // };
+    </script>
+  </body>
+</html>

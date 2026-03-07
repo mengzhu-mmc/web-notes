@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Generator函数</title>
+  </head>
+  <body>
+    <script>
+      // 模拟 Iterator
+      // function makeIterator(array) {
+      //   let nextIndex = 0;
+      //   return {
+      //     next() {
+      //       return nextIndex < array.length ? {value: array[nextIndex++], done: false} : {value: undefined, done: true}
+      //     }
+      //   }
+      // }
+      // const test = makeIterator(['a', 'b'])
+      // console.log(test.next());
+      // console.log(test.next())
+      // console.log(test.next())
+
+      // generator 与 iterator
+      // const arr = ['a', 'b', 'c']
+      // const ite = arr[Symbol.iterator]()
+      // console.log(ite.next());
+      // console.log(ite.next());
+      // console.log(ite.next());
+      // console.log(ite.next());
+
+      // const myIterator = {};
+      // myIterator[Symbol.iterator] = function* () {
+      //   yield 1;
+      //   yield 2;
+      //   yield 3;
+      // }
+      // console.log([...myIterator]); // [1,2,3]
+
+      // function* gen() {
+      // }
+      // const g = gen()
+      // console.log(g[Symbol.iterator]() === g) // true
+
+      // next方法
+      // function* f() {
+      //   for(var i = 0; i < 4; i++) {
+      //     var reset = yield i;
+      //     if (reset) {
+      //       i = -1;
+      //     }
+      //   }
+      // }
+      // var g = f()
+      // console.log(g.next());
+      // console.log(g.next());
+      // console.log(g.next(true));
+
+      // 如何在第一次调用next时传入参数
+      // 包裹一层处理函数，在里面先执行一次next
+      // function wrapper(generatorFn) {
+      //   return function(...args) {
+      //     const generatorObject = generatorFn(args)
+      //     generatorObject.next();
+      //     return generatorObject
+      //   }
+      // }
+
+      // const wrapped = wrapper(function* () {
+      //   console.log(`first input: ${yield}`);
+      //   return 'DONE'
+      // })
+      // wrapped().next('hello world')
+
+      // generator 自动执行 === ⚠注意---存疑
+
+      function run(gen) {
+        console.log("开始");
+        const g = gen();
+
+        function _next(value) {
+          const res = g.next(value);
+          if (res.done) {
+            return res.value;
+          }
+
+          res.value.then((res) => {
+            _next(res);
+          });
+        }
+
+        _next();
+      }
+
+      function* myGenerator() {
+        console.log(yield Promise.resolve(1)); //1
+        console.log(yield Promise.resolve(2)); //2
+        console.log(yield Promise.resolve(3)); //3
+      }
+
+      run(myGenerator);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        /* 
+            reduce中回调函数的参数： 
+                prev: 第一项的值或上一次叠加的结果值
+                cur: 当前会参与叠加的项
+                index： 当前值的索引
+                arr: 数组本身
+        */
+        
+        let arr = [1,2,3,4]
+        sum = arr.reduce(function (prev, cur, index, arr) {
+            console.log(prev, cur, index)
+            return prev +cur
+        })
+        console.log(arr, sum)
+    </script>
+</body>
+</html>

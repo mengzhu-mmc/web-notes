@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script src="./栈的创建.js"></script>
+    <script>
+        // function divideBy2(decNumber) { 
+        //     let remStack = new Stack(),
+        //         rem,
+        //         binaryString = '';
+        //     while(decNumber > 0) {
+        //         rem = Math.floor(decNumber % 2);
+        //         remStack.push(rem)
+        //         decNumber = Math.floor(decNumber / 2)
+        //     }
+        //     while(!remStack.isEmpty()) {
+        //         binaryString += remStack.pop().toString()
+        //     }
+
+        //     return binaryString
+        //  }
+         function divideBy2(decNumber) { 
+            let remStack = new Stack(),
+                rem,
+                binaryString = '';
+            while(decNumber > 0) {
+                rem = Math.floor(decNumber % 2);
+                binaryString+=rem.toString()
+                decNumber = Math.floor(decNumber / 2)
+            }
+            return binaryString.split('').reverse().join('')
+         }
+         console.log(divideBy2(233));
+    </script>
+</body>
+</html>

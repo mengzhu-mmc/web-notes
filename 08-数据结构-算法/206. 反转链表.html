@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        // 给你单链表的头节点 head ，请你反转链表，并返回反转后的链表。
+        // function reverse(head) {
+        //     if(head == null || head.next == null) return head
+        //     let curr = head, 
+        //         pre = null;
+        //     while(curr) {
+        //         let next = curr.next;
+        //         curr.next = pre
+
+        //         pre = curr
+        //         curr = next;
+        //     }
+        //     return pre
+        // }
+
+        function reverse(head) {
+            let pre = null, cur = head;
+            while(cur) {
+                let next = cur.next;
+                cur.next = pre;
+
+                pre = cur;
+                cur = next
+            }
+            return pre
+        }
+    </script>
+</body>
+</html>

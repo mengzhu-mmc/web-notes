@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        /* 
+            我们先看一道阿里面试题：
+            编写一个 JavaScript 函数，接受一个仅包含数字的 多维数组 ，返回拍平以后的结果。
+            例如传入：[1, [[2], 3, 4], 5]，返回 [1, 2, 3, 4, 5]。
+        */
+       const arr = [1, [[2], 3, 4], 5];
+
+       const flatten = arr => {
+           return arr.reduce((flat, toFlat) => {
+               return flat.concat(Array.isArray(toFlat) ? flatten(toFlat) : toFlat);
+           }, []) 
+       }
+
+       const flatten = arr => {
+           return arr.reduce((flat, toFlat) => {
+               flat.concat(Array.isArray(toFlat) ? flatten(toFlat) : toFlat)
+           })
+       }
+
+    //    const flatten = arr => {
+    //         return arr.reduce((flat, toFlat) => {
+    //             return flat.concat(Array.isArray(toFlat) ? flatten(toFlat) : toFlat)
+    //         }, [])
+    //    }
+
+       const res = flatten(arr)
+
+       console.log(res)
+
+       /* flat 用于将嵌套的数组“拉平”。 该方法返回一个新数组，对原数据没有影响 */
+       [1,2,[3,4]].flat() //=> [1,2,3,4]
+
+       /* 默认只会“拉平”一层，如果想要“拉平”多层的嵌套数组，可以将flat方法的参数写成一个整数，表示想要拉平的层数，默认为1 */
+       [1,2,[3, [4,5]]].flat(2)
+
+       /* 
+        如果数组嵌套的层数不固定怎么办？把flat里的参数写成1000或者100000？
+        这样写太死板了，可以联想到 Infinity （无穷大）啊。
+        不管有多少层嵌套，如果都要转成一维数组，可以用 Infinity 关键字作为参数。
+       */
+
+       /* 
+            flatMap  方法对原数组的每个成员执行一个函数（相当于执行 Array.prototype.map），然后对返回值组成的数组执行 flat() 方法。该方法返回一个新数组，不改变原数组。 
+       */
+    </script>
+</body>
+</html>

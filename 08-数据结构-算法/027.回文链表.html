@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <script>
+  //   const head = {
+  //     val: 1,
+  //     next: null
+  //   }
+  //   var isPalindrome = function(head) {
+  //     let fast = slow = head;
+  //     let pre
+  //     while(fast && fast.next) {
+  //         fast = fast.next.next;
+
+  //         let next = slow.next
+  //         slow.next = pre
+  //         pre = slow
+  //         slow = next
+  //     }
+  //     debugger
+  //     while(fast) {
+  //         slow = slow.next // 如果是奇数个节点，则slow向前移一位
+  //     }
+  //     while(pre && slow) {
+  //         if(pre.val !== slow.val) {
+  //             return false
+  //         } else {
+  //             pre = pre.next;
+  //             slow = slow.next
+  //         }
+  //     }
+  //     return true
+  // };
+  // console.log(isPalindrome(head));
+    const test = new Map()
+    test.set('a', 1)
+    test.set('b', 1)
+    test.set('c', 1)
+    const keys = test.keys()
+    console.log(keys.next(), keys.next(), test.length, test.size);
+  </script>
+</body>
+</html>

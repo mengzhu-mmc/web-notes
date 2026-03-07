@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        #box {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: .5;
+            width: 250px;
+            height: 250px;
+            background: orange;
+        }
+    </style>
+</head>
+<body>
+    <a href="https://www.baidu.com">百度</a>
+    <div id="box">DIV</div>
+    <script>
+        let box = document.querySelector('#box')
+        box.addEventListener('touchstart', function(e) {
+            box.style.display = 'none';
+            // 可以在touchstart中用preventDefault（）在阻止浏览器的默认行为，进而不再触发click事件，或者在touchend中使用preventDefault也可以。
+            e.preventDefault()
+        })
+
+        /* 
+            事件点透：
+                点击时上层元素消失，触发到下层被遮挡的元素的事件
+
+            产生的原因：移动端 click 事件有 200ms-300ms 的延迟
+            
+            鼠标事件在移动端的延迟
+                触碰元素之后，会立即执行 touch 事件，然后记录手指触碰的坐标点，延迟300ms，在该坐标去找元素，查看该元素上是否有鼠标事件，有的话就立即执行
+            
+            解决方法：
+                1.给 touch 操作添加延迟
+                2.在移动端不使用鼠标事件（包括 a 和 href）
+                3.在 touch 事件中阻止默认事件
+        */
+    </script>
+</body>
+</html>

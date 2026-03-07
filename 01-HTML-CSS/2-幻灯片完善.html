@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        html {
+            font-size: 10vw;
+        }
+
+        body {
+            margin: 0;
+        }
+
+        ul {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        #wrap {
+            position: relative;
+            width: 100vw;
+            overflow: hidden;
+        }
+
+        #list {
+            float: left;
+            display: flex;
+            display: -webkit-box;
+        }
+
+        #list li {
+            flex: none;
+            width: 100vw;
+        }
+
+        #list img {
+            width: 100%;
+            display: block;
+        }
+
+        .nav {
+            position: absolute;
+            left: 0;
+            bottom: .2rem;
+            width: 100%;
+            text-align: center;
+            vertical-align: top;
+        }
+
+        .nav a {
+            display: inline-block;
+            width: .3rem;
+            height: .3rem;
+            background: #fff;
+            margin: 0 .1rem;
+            border-radius: .15rem;
+            transition: .3s;
+        }
+
+        .nav .active {
+            width: .6rem;
+            color: #fff;
+        }
+
+        .textList {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .textList li {
+            font: 14px/40px "宋体";
+            padding-left: 20px;
+            border-bottom: 1px solid #000;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="wrap">
+        <ul id="list">
+            <li><img src="img/banner01.png" /></li>
+            <li><img src="img/banner02.png" /></li>
+            <li><img src="img/banner03.png" /></li>
+            <li><img src="img/banner04.png" /></li>
+        </ul>
+        <nav class="nav">
+            <a class="active"></a><a></a><a></a><a></a>
+        </nav>
+    </div>
+    <ul class="textList">
+        <li>我曾经跨国山河大海</li>
+        <li>我曾经跨国山河大海</li>
+        <li>我曾经跨国山河大海</li>
+        <li>我曾经跨国山河大海</li>
+        <li>我曾经跨国山河大海</li>
+        <li>我曾经跨国山河大海</li>
+        <li>我曾经跨国山河大海</li>
+        <li>我曾经跨国山河大海</li>
+        <li>我曾经跨国山河大海</li>
+        <li>我曾经跨国山河大海</li>
+    </ul>
+    <script>
+        /* 
+            在两个方向的滑动上，如果有一些不同的操作，这里要注意我们要进行方向判断
+            每次滑动时判断方向，一旦判断方向，就不再判断
+        */
+        {
+            let wrap = document.querySelector("#wrap");
+            let list = document.querySelector("#list");
+            let navs = document.querySelectorAll(".nav a");
+            let startPoint = {};
+            let translateX = 0;
+            let startTranslateX = 0;
+            let now = 0;
+            let wrapW = wrap.clientWidth
+            const range = .3 * wrapW
+            let isFirst = true;
+            let isMove = true
+            list.innerHTML += list.innerHTML
+            wrap.addEventListener('touchstart', (e) => {
+                let touch = e.changedTouches[0]
+                list.style.transition = "none";
+                startPoint = {
+                    x: touch.pageX,
+                    y: touch.pageY
+                }
+                if (now == 0) {
+                    now = navs.length;
+                    translateX = -now * wrapW;
+                    list.style.transform = `translateX(${translateX}px)`;
+                } else if (now == navs.length * 2 - 1) {
+                    now = navs.length - 1;
+                    translateX = -now * wrapW;
+                    list.style.transform = `translateX(${translateX}px)`;
+                }
+                startTranslateX = translateX;
+                isFirst = true
+            })
+            wrap.addEventListener('touchmove', (e) => {
+                let touch = e.changedTouches[0]
+                let nowPoint = {
+                    x: touch.pageX,
+                    y: touch.pageY
+                }
+                let dis = {
+                    x: nowPoint.x - startPoint.x,
+                    y: nowPoint.y - startPoint.y
+                }
+                // 在安卓下，手指按下时，如果触摸面积比较大，容易误触 touchmove
+                if (isFirst) {
+                    if (Math.abs(dis.x) - Math.abs(dis.y) > 5) {
+                        // 阻止滚动条上下滚动，让幻灯片滑动
+                        // console.log("左右");
+                        isMove = true;
+                        isFirst = false
+                    } else if (Math.abs(dis.y) - Math.abs(dis.x) > 5) {
+                        // 阻止幻灯片滚动，让滚动条上下滚动
+                        // console.log("上下");
+                        isMove = false
+                        isFirst = false
+                    }    
+                }
+                if (isMove) {
+                    e.preventDefault()
+                    if (!isFirst) {
+                        translateX = startTranslateX + dis.x
+                        list.style.transform = `translateX(${translateX}px)`
+                    }
+                }
+            })
+            wrap.addEventListener('touchend', (e) => {
+                let touch = e.changedTouches[0]
+                let nowPoint = {
+                    x: touch.pageX,
+                    y: touch.pageY
+                }
+                let dis = {
+                    x: nowPoint.x - startPoint.x,
+                    y: nowPoint.y - startPoint.y
+                }
+                if (Math.abs(dis.x) > range && isMove) {
+                    now -= dis.x / Math.abs(dis.x);
+                }
+                navs.forEach(item=> {
+                    item.className = ""
+                })
+               
+                translateX = -now * wrapW;
+                list.style.transition = ".3s";
+                list.style.transform = `translateX(${translateX}px)`
+              
+                navs[now%navs.length].classList.add('active') 
+            })
+        }
+    </script>
+</body>
+
+</html>

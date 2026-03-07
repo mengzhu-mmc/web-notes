@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+    /*     function camel(data) {
+            if (typeof data !== 'object' || !data) return data
+            if (Array.isArray(data)) {
+                return data.map(item => camel(item))
+            }
+            const newData = {}
+            for (let key in data) {
+                let newKey = key.replace(/_([a-z])/g, (p,m,a,b) => { 
+                    // 第一个参数是匹配模式的字符串，第二个参数是与模式中的子表达式匹配的字符串，可以有 0 个或多个这样的参数,第三个参数是一个整数，声明了匹配在 stringObject 中出现的位置，最后一个参数是 stringObject 本身。
+                    console.log(p,m, a, b); // _n n
+                    return m.toUpperCase()
+                })
+                newData[newKey] = camel(data[key])
+            }
+
+            return newData
+        } */
+
+        function camel(data) {
+            if (typeof data !== 'object' || !data) return data
+            if (Array.isArray(data)) {
+                return data.map(item => camel(item))
+            }
+            let newData = {}
+            for(let key in data) {
+                let newKey = key.replace(/_([a-z])/g, (p,m) => { console.log(p, m); m.toUpperCase()})
+                newData[newKey] = camel(data[key])
+            }
+            return newData
+        }
+
+        function underline(data) {
+            if (typeof data !== 'object' || !data) return data
+            if (Array.isArray(data)) {
+                return data.map(item => underline(item))
+            }
+            let newData = {}
+            for(let key in data) {
+                let newKey = key.replace(/([A-Z])/g, (p,m,a,b) => { // 小括号必须加
+                   return "_"+ m.toLowerCase()
+                })
+                newData[newKey] = underline(data[key])
+            }
+            return newData
+        }
+
+        console.log(camel({
+            first_name: "xiaoming",
+            second_name: 'zhangsan'
+        }));
+        console.log(underline({
+            firstName: "xiaoMing",
+            secondName: 'zhangSan'
+        }));
+    </script>
+</body>
+</html>

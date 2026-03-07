@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        :root, body {
+            height: 100%;
+        }
+        img {
+            margin: 30px auto;
+            display: block;
+            width: 300px;
+            height: 260px;
+        }
+    </style>
+</head>
+<body>
+    <img src="" data-src="../assets/img/1.jpeg">
+    <img src="" data-src="../assets/img/2.jpeg">
+    <img src="" data-src="../assets/img/3.jpeg">
+    <img src="" data-src="../assets/img/4.jpeg">
+    <img src="" data-src="../assets/img/5.jpeg">
+    <img src="" data-src="../assets/img/1.jpeg">
+    <img src="" data-src="../assets/img/2.jpeg">
+    <img src="" data-src="../assets/img/3.jpeg">
+    <img src="" data-src="../assets/img/4.jpeg">
+    <img src="" data-src="../assets/img/5.jpeg">
+    
+    <script>
+        function lazyload() {
+            console.log(this);
+            let viewHeight = document.body.clientHeight; // 获取可视区的高度
+            let imgs = document.querySelectorAll('img[data-src]');
+
+            // imgs.forEach(item => {
+            //     if(item.dataset.src === '') return
+
+            //     // 用于获取页面中某个元素的上，下，左，右 分别相对浏览器视窗的位置
+            //     let rect = item.getBoundingClientRect()
+            //     if (rect.bottom >= 0 && rect.top < viewHeight) {
+            //         item.src = item.dataset.src;
+            //         item.removeAttribute('data-src')
+            //     }
+            // })
+
+            // IntersectionObserver版
+            // const config = {
+            //     rootMargin: '50px',
+            //     threshold: '50px'
+            // }
+            // let observer = new IntersectionObserver((entries, self) => {
+            //     entries.forEach((entry) => {
+            //         if (entry.isIntersecting) {
+            //             let img = entry.target
+            //             let src = img.dataset.src
+            //             if (src) {
+            //                 img.src = src
+            //                 img.removeAttribute('data-src')
+            //             }
+            //             // 解除观察
+            //             self.unobserve(entry.target)
+            //         }
+            //     })
+            // })
+
+            // imgs.forEach((image) => {
+            //     observer.observe(image)
+            // })
+
+            const config = {
+                rootMargin: '50px',
+                threshold: '20px'
+            }
+
+            const observer = new IntersectionObserver((entries, self) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        let img = entry.target
+                        let src = img.dataset.src
+                        if (src) {
+                            img.src = src;
+                            img.removeAttribute('data-src')
+                        }
+                        self.unobserve(img)
+                    }
+                })
+            })
+            imgs.forEach((image) => {
+                observer.observe(image)
+            })
+        }
+
+        
+         
+
+        // 简易版（有缺陷）
+        // function throttle(fn, delay) {
+        //     let timer=0; // 初始时间
+            
+        //     return function() {
+        //         const current = new Date();
+        //         if (current - timer > delay) {
+        //             fn.apply(this, arguments);
+        //             timer = current;
+        //         }
+        //     }
+        // }
+        // function throttle(fn, delay) {
+        //     let timer,
+        //         prevTime = 0;
+            
+        //     return function(...args) {
+        //         const current = Date.now();
+        //         const context = this;
+        //         if (timer) clearTimeout(timer);
+
+        //         if (current - prevTime > delay) {
+        //             prevTime = current;
+        //             fn.apply(this, args);
+        //             clearTimeout(timer);
+        //             return
+        //         }
+
+        //         timer = setTimeout(function () {
+        //             // 延时器触发后，需要重新设置 prevTime
+        //             prevTime = Date.now();
+        //             fn.apply(context, args)
+        //         }, delay)
+        //     }
+        // }
+
+        function throttle(fn, delay) {
+            let start = Date.now(),
+                timer;
+            return function(...args) {
+                let current = Date.now(),
+                    _this=this
+
+                if (current - start > delay) {
+                    if (timer) clearTimeout(timer);
+                    timer = setTimeout(function() {
+                        start = Date.now()
+                        fn.apply(_this, args);
+                    }, delay)
+                    fn.apply(this, args);
+                    start = current;
+                    return
+                }
+
+                if (!timer) timer = setTimeout(function() {
+                    start = Date.now()
+                    fn.apply(_this, args);
+                }, delay)
+            }
+        }
+
+        document.addEventListener('scroll', throttle( lazyload, 2000))
+    </script>
+</body>
+</html>

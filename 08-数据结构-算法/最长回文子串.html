@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      // let fn = (s) => {
+      //     let str = '';
+      //     for (let i = 0; i < s.length; i++) {
+      //         for (let j = i+1; j <= s.length; j++) {
+      //             let temp = s.slice(i, j)
+      //             if (temp == temp.split('').reverse().join('') && temp.length > str.length) {
+      //                 str = temp
+      //             }
+      //         }
+      //     }
+      //     return str
+      // }
+      // let fn = str => {
+      //     let res = '';
+      //     for(let i = 0; i < str.length; i++) {
+      //         for(let j = i+1; j < str.length; j++) {
+      //             let temp = str.slice(i, j)
+      //             if(temp == temp.split('').reverse().join('') && temp.length > res.length) {
+      //                 res = temp
+      //             }
+      //         }
+      //     }
+      //     return res
+      // }
+      function fn2(line) {
+        if (line.length <= 1) return line.length;
+
+        let maxLen = 0;
+        for (let i = 0; i < line.length; i++) {
+          let dp1 = getPsd(line, i, i);
+          // console.log(dp1, i)
+          let dp2 = getPsd(line, i, i + 1);
+          maxLen = Math.max(maxLen, dp1, dp2);
+        }
+
+        function getPsd(s, l, r) {
+          let res = "";
+          while (l >= 0 && r < s.length) {
+            if (s[l] === s[r]) {
+              res = s.slice(l, r + 1);
+              l--;
+              r++;
+            } else break;
+          }
+          return res.length;
+        }
+        console.log(maxLen);
+      }
+
+      fn2("ABBA");
+    </script>
+  </body>
+</html>

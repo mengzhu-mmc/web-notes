@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      function sum(arr) {
+        // return arr.reduce((sum, current) => sum + current, 0);
+        const sum = arr.reduce(
+          (accumulator, currentValue) => accumulator + currentValue,
+          0
+        );
+        return sum;
+      }
+
+      /**
+       * @param {number[]} nums
+       * @param {number} k
+       * @return {number}
+       */
+      var findMaxAverage = function (nums, k) {
+        let current = sum(nums.slice(0, k)),
+          left = 0,
+          right = k - 1,
+          max = current;
+        console.log(current, nums.slice(0, k), sum(nums.slice(0, k)), "----");
+        while (left < nums.length - k) {
+          left++;
+          right++;
+          if (nums[left - 1] < nums[right]) {
+            current += nums[right] - nums[left - 1];
+          } else {
+            current -= nums[left - 1] - nums[right];
+          }
+
+          max = Math.max(current, max);
+          console.log(current, max, "current---");
+        }
+        console.log(max);
+        return max / k;
+      };
+      console.log(findMaxAverage([5], 1));
+    </script>
+  </body>
+</html>

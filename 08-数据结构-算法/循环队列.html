@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <!-- 
+        循环队列的一个列子就是 击鼓传花游戏：
+     -->
+    <script src="./队列的创建.js"></script>
+    <script>
+        function hostPotato (nameList, num) {
+            const queue = new Queue();
+
+            for (let i = 0; i < nameList.length; i++) {
+                queue.enqueue(nameList[i])
+            }
+
+            let eliminated = ''
+
+            while(queue.size() > 1) {
+                for (let i = 0; i < num; i++) {
+                    // dequeue删除首项
+                    queue.enqueue(queue.dequeue())
+                }
+                eliminated = queue.dequeue();
+                console.log(eliminated + "在击鼓传花游戏中被淘汰。");
+            }
+            return queue.dequeue()
+        }
+        const names = ['zs', 'lisi', 'wangsu', 'zhaoliu'];
+        const winner = hostPotato(names, 2)
+        console.log(winner);
+    </script>
+</body>
+</html>

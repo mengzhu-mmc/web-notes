@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      var subsets = function (nums) {
+        const n = nums.length;
+        const path = [];
+        const ans = [];
+
+        const dfs = (i) => {
+          if (i === n) {
+            ans.push([...path]);
+            return;
+          }
+
+          dfs(i + 1);
+
+          path.push(nums[i]);
+          dfs(i + 1);
+          // path.pop();
+        };
+
+        dfs(0);
+        return ans;
+      };
+      console.log(subsets([1, 2]));
+    </script>
+  </body>
+</html>

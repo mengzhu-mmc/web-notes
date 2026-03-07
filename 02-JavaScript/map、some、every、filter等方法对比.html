@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>map、some、every、filter、forEach等方法对比</title>
+</head>
+
+<body>
+    <script>
+    /*  共同点：
+
+            不会对原数组发生修改，而是返回新的变量，用变量接收。
+
+        不同点：
+
+            1、some():返回一个Boolean类型变量，判断是否有元素符合func条件
+        
+            2、every():返回一个Boolean类型变量，判断每个元素是否都符合func条件
+        
+            3、filter():返回一个新数组类型变量，数组符合func条件，新数组中的元素来源于原数组，新数组长度<=原数组长度
+        
+            4、map():返回一个新数组类型变量，新数组元素由每一次调用函数产生结果组成，新数组中的元素与原数组可完全不一样
+        
+            5、forEach():用法和map()相似，但是forEach()方法不返回值，forEach无法中断执行，如果需要中断需要改用for 
+    */
+    let arr = [1,2,3,4]
+    // let someRes = arr.some((val, index, arr) => {
+    //     return val < 2
+    // })
+    // console.log(someRes)
+
+    // let everyRes = arr.every((val, index, arr) => {
+    //     return val <2
+    // })
+    // console.log(everyRes)
+
+    var removeDuplicates = function(nums) {
+    return nums.filter((item, index) => nums.indexOf(item) == index)
+};
+console.log(removeDuplicates([1,2,3,4,4,2]));
+    let filterRes = arr.filter((val, index, arr) => {
+        return val % 2 == 0
+    })
+    console.log(filterRes)
+
+    // let mapRes = arr.map((val, index, arr) => {
+    //     return val * 4 
+    // })
+    // console.log(mapRes)
+
+    /* forEach 没有参数 */
+    /* forEach 可接收第二个参数 解决this的问题 (可以用箭头函数规避这个问题) */
+    // let info = [];
+    // [1,2,3,4,5].forEach(function (val, index, arr) {
+    //     console.log(val)
+    //     console.log(this)
+    // }, info)
+    // console.log(info)
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      //   输入：s = "3[a]2[bc]"
+      //   输出："aaabcbc"
+      var decodeString = function (s) {
+        const strStack = [],
+          numStack = [];
+        let num = 0,
+          res = "";
+        for (let i of s) {
+          if (/[0-9]/.test(i)) {
+            num = num * 10 + Number(i);
+          } else if (i === "[") {
+            strStack.push(res);
+            numStack.push(num);
+            res = "";
+            num = 0;
+          } else if (i === "]") {
+            let repeatTimes = numStack.pop();
+            res = strStack.pop() + res.repeat(repeatTimes);
+          } else {
+            res += i;
+          }
+          console.log(strStack, numStack);
+        }
+        return res;
+      };
+      const decodeString2 = (s) => {
+        const strStack = [],
+          numStack = [];
+        let num = 0,
+          res = "";
+
+        for (let i of s) {
+          if (/[0-9]/.test(i)) {
+            num = num * 10 + Number(i);
+          } else if (i === "[") {
+            strStack.push(res);
+            numStack.push(num);
+            res = "";
+            num = 0;
+          } else if (i === "]") {
+            const repeatTimes = numStack.pop();
+            res = strStack.pop() + res.repeat(repeatTimes);
+          } else {
+            res += i;
+          }
+        }
+        return res;
+      };
+      console.log(decodeString("3[a2[c]]"));
+      console.log(decodeString2("3[a2[c]]"));
+    </script>
+  </body>
+</html>

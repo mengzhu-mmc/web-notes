@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>fill</title>
+</head>
+<body>
+    <script>
+        /* fill 使用给定的值，填充一个数组 */
+        let arr1 = [1,2,3,4,5].fill('a')
+        console.log(arr1) //=> ['a','a','a','a','a']
+        let arr2 = new Array(3).fill(12)
+        console.log(arr2) //=> [12,12,12]
+
+        /* fill 方法用于空数组的初始化非常方便。数组中已有的元素，会被全部抹去。
+        fill方法还可以接受第二个和第三个参数，用于指定填充的起始位置和结束位置。 */
+        let arr3 = [1,2,3,4,5].fill('a', 2, 4)
+        console.log(arr3) //=> [1,2,'a','a',5]
+
+        /* !!!注意，如果填充的类型为对象，那么被赋值的是同一个内存地址的对象，而不是深拷贝对象。 */
+    </script>
+</body>
+</html>

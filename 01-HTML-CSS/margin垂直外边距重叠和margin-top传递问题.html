@@ -1,0 +1,65 @@
+ <!DOCTYPE html>
+ <html lang="en">
+ <head>
+     <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>Document</title>
+     <style>
+         body, .wrap, .inner {
+             margin: 0;
+             padding: 0;
+         }
+        .wrap {
+            width: 300px;
+            height: 299px;
+            background-color: rgb(224, 11, 11);
+            /* overflow: hidden; */
+            /* padding-top: 1px; */
+            border-top: 1px solid transparent;
+        }
+        .inner {
+            margin-top: 20px;
+            width: 140px;
+            height: 140px;
+            background-color: rgb(29, 108, 211);
+        }
+
+        .demo1,
+        .demo2 {
+            margin: 100px;
+            width: 200px;
+            height: 200px;
+            background: skyblue;
+        }
+        .wrap2 {
+            overflow: hidden;
+        }
+     </style>
+ </head>
+ <body>
+    <div class="wrap">
+        <div class="inner"></div>
+    </div>
+    <div class="demo1"></div>
+    <div class="wrap2">
+        <div class="demo2"></div>
+    </div>
+    
+    <script>
+        /* 
+            1. 一个盒子有上边距，另一个有下边距，会出现margin边距重叠的问题
+               => 取最大值
+            2. margin的兼容问题：margin-top的传递问题
+                大盒子里面嵌套小盒子，给小盒子加margin-top值，没有实现和大盒子之间的间距，反而传递到大盒子上，导致整体下移
+                =>解决margin-top传递问题的方法：
+                    1.给大盒子加 overflow:hidden
+                    2.给大盒子加 padding-top:1px （需要在width/height基础上减掉相应的宽/高）
+                    3.给大盒子加 border-top:1px  (也会影响盒子的大小，需要减去相应的宽/高)
+        */
+
+        /* 
+            W3C规范 ：“如果”margin-top“或”margin-bottom“为”auto“，则其使用值为0”
+         */
+    </script>
+ </body>
+ </html>

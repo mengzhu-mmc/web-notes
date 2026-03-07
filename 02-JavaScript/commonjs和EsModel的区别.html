@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      /* 
+    1. 模块导入导出语法：
+      CommonJS使用module.exports或exports导出，以及require导入。而ES Module则使用export导出，import导入。
+    2. 加载时机：CommonJS是运行时加载模块，而ES Module在静态编译期间就确定模块的依赖。
+    3. 值引用与拷贝：CommonJS导出的是值的拷贝，且具备缓存机制。而ESModule导出的是值的引用，因此导出值的变化会影响到导入的值。
+    4. 作用域与全局污染：ES Module的模块作用域是静态的，模块内的变量和函数不会污染全局作用域。而CommonJS的模块作用域是动态的，其定义的变量和函数可能会添加到全局作用域中。
+
+    5. 循环依赖处理：由于ES Module使用静态作用域，它可以更好地处理循环依赖问题。而CommonJS可能会因为循环依赖导致程序崩溃。
+    6.生态系统兼容性：ES Module是ECMAScript标准的一部分，得到了现代浏览器的原生支持。而CommonJS主要用于Node.js，尽管Node.js现在也支持ES Module，但由于历史原因，其生态系统中大多数包仍然是CommonJS格式。
+
+    */
+    </script>
+  </body>
+</html>

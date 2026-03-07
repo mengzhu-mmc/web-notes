@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+        function fn(n, m, k, arrays) {
+            let str = '', path = new Set()
+            const d = [[0, 1], [1, 0], [0, -1], [-1, 0]]
+            const dfs = function(str, x, y) {
+                // 如果步数已经达到，或超出范围就退出方法
+                if(str.length === k+1) {
+                    path.add(str)
+                    return
+                }
+                str += arrays[x][y]
+                // console.log(str);
+                for(let i = 0; i < 4; i++) {
+                    x+=d[i][0]
+                    y+=d[i][1]
+                    if(x >= 0 && x < n && y >= 0 && y < m) {
+                        dfs(str, x, y)
+                    }
+                    x-=d[i][0]
+                    y-=d[i][1]
+                }
+                
+            }
+            for(let i = 0; i < n; i++) {
+                for(let j = 0; j < m; j++) {
+                    dfs(str,i,j)
+                }
+            }
+            return path
+            
+        }
+        function fn(n, m, k, arrays) {
+            let str='', path = new Set()
+            let d = [[0,1], [1,0], [0,-1], [-1,0]]
+
+            const dfs = function(str, x, y) {
+                if(str.length == k+1) {
+                    path.add(str);
+                    return
+                }
+                str+=arrays[x][y]
+                for(let i = 0; i < 4; i++) {
+                    x+=d[i][0]
+                    y+=d[i][1]
+                    if(x >= 0 && x < n && y >= 0 && y < m) {
+                        dfs(str, x, y)
+                    }
+                    x-=d[i][0]
+                    y-=d[i][1]
+                }
+            }
+            for(let i = 0; i < n; i++) {
+                for(let j = 0; j < m; j++) {
+                    dfs(str, i, j)
+                }
+            }
+            return path.size
+        }
+        console.log(fn(3, 3, 2, [[1,1,1], [1,1,1], [2,1,1]]))
+    </script>
+</body>
+
+</html>

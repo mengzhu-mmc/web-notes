@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        /* 
+            Array.of()
+            参数个数大于1时，Array() 才会返回由参数组成的新数组。当参数个数只有一个时，实际上是指定数组的长度。 
+        */
+
+        Array() //=> []
+        Array(3) //=> [empty × 3]
+        Array(undefined)  //=> [undefined]
+        Array(3,4,5) //=> [3,4,5]
+
+        /* 
+            由于参数个数的不同，会导致 Array() 的行为有差异。
+
+            然而 Array.of 弥补了数组构造函数 Array() 的不足，Array.of 将参数依次转化为数组中的一项，然后返回这个新数组，而不管这个参数是数字还是其它，它的行为非常统一。
+        */
+       Array.of() //=> []
+       Array.of(3) //=> [3]
+       Array.of(undefined)  //=> [undefined]
+       array.of(3,4,5) //=> [3,4,5]
+    </script>
+</body>
+</html>

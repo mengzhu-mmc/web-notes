@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      const list = [7, 2, 1, 10];
+      let flag = false;
+      const dfs = (arr, res) => {
+        if (res > 24) {
+          return;
+        }
+        if (res == 24) {
+          flag = true;
+          return true;
+        }
+        if (res < 24) {
+          for (let i = 0; i < arr.length; i++) {
+            const temp = [...arr];
+            temp.splice(i, 1);
+            if (res == 0) {
+              dfs(temp, list[i]);
+            } else {
+              dfs(temp, list[i] + res);
+              dfs(temp, list[i] - res);
+              dfs(temp, list[i] * res);
+              dfs(temp, list[i] / res);
+            }
+          }
+        }
+      };
+      dfs(list, 0);
+      console.log(flag);
+    </script>
+  </body>
+</html>

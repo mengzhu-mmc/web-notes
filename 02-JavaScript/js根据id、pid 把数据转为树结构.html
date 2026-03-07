@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+         const arr = [
+            { 'id': '29', 'pid': '', 'name': '总裁办' },
+            { 'id': '2c', 'pid': '', 'name': '财务部' },
+            { 'id': '2d', 'pid': '2c', 'name': '财务核算部' },
+            { 'id': '2f', 'pid': '2c', 'name': '薪资管理部' },
+            { 'id': 'd2', 'pid': '', 'name': '技术部' },
+            { 'id': 'd3', 'pid': 'd2', 'name': 'Java研发部' },
+            { 'id': 'd4', 'pid': '2d', 'name': 'Java研发部2' }
+        ]
+
+        
+        // function tranListToTreeData(list) {
+        //     // 1. 定义两个中间变量
+        //     const treeList = [], // 最终要产出的树状数据的数组
+        //         map = {} // 存储映射关系
+
+        //     // 2. 建立一个映射关系，并给每个元素补充children属性.
+        //     // 映射关系: 目的是让我们能通过id快速找到对应的元素
+        //     // 补充children：让后边的计算更方便
+        //     list.forEach(item => {
+        //         if (!item.children) {
+        //             item.children = []
+        //         }
+        //         map[item.id] = item
+        //     })
+        //     //  {
+        //     //    "29": { 'id': '29', 'pid': '',     'name': '总裁办', children:[] },
+        //     //    '2c': { 'id': '2c', 'pid': '',     'name': '财务部', children:[] },
+        //     //    '2d': { 'id': '2d', 'pid': '2c', 'name': '财务核算部', children:[]},
+        //     //    '2f': { 'id': '2f', 'pid': '2c', 'name': '薪资管理部', children:[]},
+        //     //    'd2': { 'id': 'd2', 'pid': '',     'name': '技术部', children:[]},
+        //     //    'd3': { 'id': 'd3', 'pid': 'd2', 'name': 'Java研发部', children:[]}
+        //     //  }
+
+        //     // 3. 循环
+        //     list.forEach(item => {
+        //         // 对于每一个元素来说，先找它的上级
+        //         //    如果能找到，说明它有上级，则要把它添加到上级的children中去
+        //         //    如果找不到，说明它没有上级，直接添加到 tree3List
+        //         const parent = map[item.pid]
+        //         if (parent) {
+        //             parent.children.push(item)
+        //         } else {
+        //             treeList.push(item)
+        //         }
+        //     })
+        //     // 4. 返回出去
+        //     return treeList
+        // }
+        function tranListToTreeData(arr) {
+            let res = [], map = new Map();
+            arr.forEach((item, index) => {
+                map[item.id] = item
+            })
+            arr.map((item, index) => {
+                const parent = map[item.pid]
+                if(parent) {
+                    parent.children = parent.children || []
+                    parent.children.push(item)
+                } else {
+                    res.push(item)
+                }
+            })
+            return res
+        }
+
+        const treeList = tranListToTreeData(arr)
+        console.log(treeList);
+    </script>
+</body>
+
+</html>

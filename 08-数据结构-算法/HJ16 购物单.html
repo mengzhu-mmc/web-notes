@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      const N = 50,
+        m = 5;
+      const v = [0, 20, 20, 10, 10, 10];
+      const p = [0, 3, 3, 3, 2, 1];
+      const q = [0, 5, 5, 0, 0, 0];
+      const dp = new Array(m + 1)
+        .fill(0)
+        .map((item) => new Array(N + 1).fill(0));
+      let res = 0;
+
+      for (let i = 1; i <= m; i++) {
+        for (let j = 0; j <= N; j++) {
+          if (!q[i] && j > v[i]) {
+            const sub = [];
+            q.forEach((item, index) => {
+              if (item === i) sub.push(index);
+            });
+            dp[i][j] = Math.max(
+              dp[i - 1][j],
+              dp[i - 1][j - v[i]] + p[i] * v[i]
+            );
+            console.log(dp[i][j], dp[i - 1][j - v[i]] + p[i] * v[i]);
+            if (sub[0] && j >= v[i] + v[sub[0]]) {
+              dp[i][j] = Math.max(
+                dp[i][j],
+                dp[i - 1][j - v[i] - v[sub[0]]] +
+                  v[i] * p[i] +
+                  v[sub[0]] * p[sub[0]]
+              );
+            }
+            if (sub[1] && j >= v[i] + v[sub[1]]) {
+              dp[i][j] = Math.max(
+                dp[i][j],
+                dp[i - 1][j - v[i] - v[sub[1]]] +
+                  v[i] * p[i] +
+                  v[sub[1]] * p[sub[1]]
+              );
+              console.log(
+                dp[i - 1][j - v[i] - v[sub[1]]] +
+                  v[i] * p[i] +
+                  v[sub[1]] * p[sub[1]]
+              );
+            }
+            if (sub[0] && sub[1] && j >= v[i] + v[sub[1]] + v[sub[0]]) {
+              dp[i][j] = Math.max(
+                dp[i][j],
+                dp[i - 1][j - v[i] - v[sub[1]] - v[sub[0]]] +
+                  v[i] * p[i] +
+                  v[sub[1]] * p[sub[1]] +
+                  v[sub[0]] * p[sub[0]]
+              );
+            }
+
+            res = Math.max(dp[i][j]);
+          } else {
+            dp[i][j] = dp[i - 1][j];
+          }
+        }
+      }
+      console.log(res);
+    </script>
+  </body>
+</html>

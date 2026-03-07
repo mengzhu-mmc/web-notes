@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <!-- console.log("========数字提取=========");
+    console.log(findNum("asfs123fasde;lkjjiwdf2;kj;;l;io55fsa")); // [123,2,55] -->
+
+    <script>
+        function findNum(str) {
+            return str.match(/\d+/g)
+        }
+        console.log(findNum("asfs123fasde;lkjjiwdf2;kj;;l;io55fsa"))
+    </script>
+</body>
+</html>

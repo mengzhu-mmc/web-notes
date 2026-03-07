@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      .wrap {
+        border: 1px solid orange;
+        display: flex;
+      }
+      .demo {
+        width: 300px;
+        height: 300px;
+        float: left;
+        background: skyblue;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- 
+        触发BFC：
+            根元素HTML
+            overflow的值为 hidden scroll auto
+            float的值为 left right
+            display的值为 flex table-ceil table-caption inline-block
+            position的值为 absolute fixed
+
+        可以解决的问题：
+            解决 子元素脱离文档流 父元素高度塌陷
+            解决 两个块元素上下margin值重叠 （给其中一个元素 加一个父元素，父元素触发BFC）
+
+
+        脱离文档流：
+        float
+            注意！！！：使用float脱离文档流时，其他盒子会无视这个元素，但其他盒子内的文本依然会为这个元素让出位置，环绕在该元素的周围。
+
+            
+        position: absolute
+        position: fixed
+     -->
+
+    <div class="wrap">
+      <div class="demo"></div>
+    </div>
+  </body>
+</html>

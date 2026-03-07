@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        //  Array.from的设计目的是快速便捷把一个类似数组的可迭代对象创建成一个新的数组实例。
+        // 通俗的讲，只要一个对象有length，Array.from就能把它变成一个数组，返回新的数组，而不改变原对象。
+        
+        let likeArr = {
+            '0': 'a',
+            '1': 'b',
+            '2': 'c',
+            length: 3
+        }
+
+        // ES5的写法
+        let arr1 = [].slice.call(likeArr)
+        console.log(arr1)
+
+        // ES6的写法
+        let arr2 = Array.from(likeArr)
+        console.log(arr2)
+
+        /* 常见的类似数组的对象还有 DOM 操作返回的 NodeList 集合，以及函数内部的 arguments 对象。Array.from都可以将它们转为真正的数组。 */
+
+        /* Array.from 对 String，Set，Map 等拥有迭代器的对象也可以进行转换。
+            // String
+            Array.from('abc'); // ["a", "b", "c"]
+            // Set
+            Array.from(new Set(['abc', 'def'])); // ["abc", "def"]
+            // Map
+            Array.from(new Map([[1, 'abc'], [2, 'def']])); // [[1, 'abc'], [2, 'def']]
+         */
+    </script>
+</body>
+</html>

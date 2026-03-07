@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      const str1 = "abcdefg",
+        str2 = "abcdef";
+      const len1 = str1.length,
+        len2 = str2.length;
+      const dp = [];
+      for (let i = 0; i < len1; i++) {
+        dp.push([]);
+        for (let j = 0; j < len2; j++) {
+          if (i == 0) {
+            dp[i][j] = j;
+          } else if (j == 0) {
+            dp[i][j] = i;
+          } else if (str1[i] == str2[j]) {
+            dp[i][j] = dp[i - 1][j - 1];
+          } else {
+            dp[i][j] = Math.min(
+              dp[i - 1][j - 1] + 1,
+              dp[i - 1][j] + 1,
+              dp[i][j - 1] + 1
+            );
+          }
+        }
+      }
+      console.log(dp[len1 - 1][len2 - 1]);
+    </script>
+  </body>
+</html>

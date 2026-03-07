@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="font/iconfont.css" />
+    <style>
+      main {
+        position: relative;
+        margin: 100px 200px;
+      }
+      span.iconfont {
+        position: absolute;
+        font-size: 3rem;
+        color: coral;
+        transition-duration: 1s;
+      }
+      span.demo2 {
+        transition: none;
+      }
+
+      main:hover span.demo2 {
+        color: coral;
+        font-size: 3rem;
+        transform: scale(3);
+        opacity: 0;
+        transition: 1s;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <span class="iconfont icon-hongxin demo1"></span>
+      <span class="iconfont icon-hongxin demo2"></span>
+    </main>
+  </body>
+</html>

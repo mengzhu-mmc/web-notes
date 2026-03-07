@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        // 以fn函数中返回值组成新的数组返回(不改变原数组)
+        let arr = [4,9,16,25],
+            res = arr.map((item, index, arr) => console.log(item, index, arr));
+                            // 4  0 Array(4)
+                            // 9  1 Array(4)
+                            // 16 2 Array(4)
+                            // 25 3 Array(4)
+            sq = arr.map(item => Math.sqrt(item))
+            console.log(sq) 
+            //=> (4) [2, 3, 4, 5]
+
+    </script>
+</body>
+</html>

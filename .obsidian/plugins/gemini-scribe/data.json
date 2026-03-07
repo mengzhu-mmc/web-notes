@@ -1,0 +1,37 @@
+{
+  "apiKey": "AIzaSyB_g-rTUDfK7saWfvYR_h2ZL-unWGsuipU",
+  "chatModelName": "gemini-2.5-pro",
+  "summaryModelName": "gemini-2.5-pro",
+  "completionsModelName": "gemini-2.5-pro",
+  "imageModelName": "gemini-2.5-flash-image",
+  "summaryFrontmatterKey": "summary",
+  "userName": "User",
+  "chatHistory": false,
+  "historyFolder": "gemini-scribe",
+  "debugMode": false,
+  "maxRetries": 3,
+  "initialBackoffDelay": 1000,
+  "streamingEnabled": true,
+  "modelDiscovery": {
+    "enabled": true,
+    "autoUpdateInterval": 24,
+    "lastUpdate": 1769701597049,
+    "fallbackToStatic": true
+  },
+  "allowSystemPromptOverride": false,
+  "temperature": 0.7,
+  "topP": 1,
+  "stopOnToolError": true,
+  "loopDetectionEnabled": true,
+  "loopDetectionThreshold": 3,
+  "loopDetectionTimeWindowSeconds": 30,
+  "hasSeenV4Welcome": true,
+  "lastSeenVersion": "4.3.1",
+  "ragIndexing": {
+    "enabled": false,
+    "fileSearchStoreName": null,
+    "excludeFolders": [],
+    "autoSync": true,
+    "includeAttachments": false
+  }
+}

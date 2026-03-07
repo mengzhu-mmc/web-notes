@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <script src="./common.js"></script>
+  <script>
+    const list = new LinkNodeList();
+    list.appendList([1,2,6,3,4,5,6])
+    // list.append(5)
+    console.log(list);
+
+    var removeElements = function(head, val) {
+      const elm = new ListNode(0);
+        elm.next = head;
+        let p = elm;
+        while(p.next !== null) {
+            if(p.next.val === val) {
+                p.next = p.next.next
+            } else {
+                p = p.next
+            }
+        }
+        return elm.next
+
+    };
+    const res = removeElements(list.head, 6)
+    console.log('res--', res)
+  </script>
+</body>
+</html>
