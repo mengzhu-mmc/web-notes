@@ -159,41 +159,106 @@ type MyNonNullable<T> = T extends null | undefined ? never : T;
 
 ## 三、泛型进阶
 
-### 3.1 泛型约束（extends）
+### 先理解：泛型到底解决什么问题？
+
+泛型的核心价值用一句话概括：**让你写出"类型也能当参数传"的代码**。
+
+没有泛型的世界里，你要么放弃类型安全（用 any），要么为每种类型写一遍重复代码：
 
 ```typescript
-// 基本约束：T 必须有 length 属性
+// ❌ 没有泛型：要么用 any 丢失类型信息
+function firstItem(arr: any[]): any {
+  return arr[0];
+}
+const item = firstItem([1, 2, 3]); // item 是 any，IDE 没有任何提示
+
+// ❌ 或者为每种类型写一遍
+function firstNumber(arr: number[]): number { return arr[0]; }
+function firstString(arr: string[]): string { return arr[0]; }
+
+// ✅ 有泛型：一份代码，类型自动推导
+function first<T>(arr: T[]): T {
+  return arr[0];
+}
+const a = first([1, 2, 3]);     // a 的类型是 number ✅
+const b = first(['x', 'y']);    // b 的类型是 string ✅
+```
+
+你可以把 `<T>` 理解为"类型的占位符"——调用时传入什么类型，T 就变成什么类型，整条链路的类型信息都不会丢失。
+
+### 3.1 泛型约束（extends）
+
+泛型虽然灵活，但有时候太灵活了——你想访问 `.length`，但 T 可能是 number，根本没有 length。这时候就需要用 `extends` 给泛型加约束，告诉 TS："T 不是什么都行，它至少得满足某个条件"。
+
+```typescript
+// 没有约束：报错，因为 T 可能是任何类型
+// function getLength<T>(arg: T): number {
+//   return arg.length; // ❌ Property 'length' does not exist on type 'T'
+// }
+
+// ✅ 加约束：T 必须有 length 属性
 function getLength<T extends { length: number }>(arg: T): number {
   return arg.length;
 }
-getLength('hello');    // ✅
-getLength([1, 2, 3]); // ✅
-// getLength(123);     // ❌ number 没有 length
+getLength('hello');    // ✅ string 有 length
+getLength([1, 2, 3]); // ✅ 数组有 length
+// getLength(123);     // ❌ number 没有 length，编译报错
+```
 
-// keyof 约束：K 必须是 T 的键
+另一个极其常用的约束是 `K extends keyof T`，意思是"K 必须是 T 的某个属性名"：
+
+```typescript
+// 场景：安全地从对象中取值，且返回类型精确
 function getProperty<T, K extends keyof T>(obj: T, key: K): T[K] {
   return obj[key];
 }
 const user = { name: 'mmc', age: 27 };
-getProperty(user, 'name'); // ✅ 返回类型是 string
-// getProperty(user, 'email'); // ❌ 'email' 不在 keyof User 中
+const name = getProperty(user, 'name');  // 返回类型是 string ✅
+const age = getProperty(user, 'age');    // 返回类型是 number ✅
+// getProperty(user, 'email');           // ❌ 编译报错：'email' 不在 'name' | 'age' 中
+
+// 对比没有泛型约束的写法：
+// function unsafeGet(obj: any, key: string): any { return obj[key]; }
+// 返回 any，完全没有类型提示，还可能传入不存在的 key
 ```
+
+> [!tip] 一句话记忆
+> `extends` 在泛型里不是"继承"，而是"约束"——`T extends X` 意思是"T 至少得是 X 这个样子"。
 
 ### 3.2 条件类型与 infer
 
+条件类型就是**类型层面的 if-else**，语法是 `T extends U ? X : Y`（如果 T 满足 U 的约束，则结果是 X，否则是 Y）。
+
 ```typescript
-// 条件类型：T extends U ? X : Y
+// 最简单的例子：判断一个类型是不是 string
 type IsString<T> = T extends string ? true : false;
 type A = IsString<'hello'>; // true
 type B = IsString<123>;     // false
 
-// infer：在条件类型中推断类型变量
+// 实际用途：根据输入类型决定输出类型
+type ApiResponse<T> = T extends 'user'
+  ? { name: string; age: number }
+  : T extends 'post'
+  ? { title: string; content: string }
+  : never;
+
+type UserResp = ApiResponse<'user'>; // { name: string; age: number }
+type PostResp = ApiResponse<'post'>; // { title: string; content: string }
+```
+
+**infer 关键字**是条件类型中最强大的工具，它的作用是"在模式匹配中声明一个待推断的类型变量"。你可以把它理解为**类型层面的正则捕获组**：
+
+```typescript
+// 类比理解：
+// 正则：/Promise<(.+)>/  →  捕获组提取 Promise 里的类型
+// TS：  T extends Promise<infer U> ? U : T  →  infer U 就是那个捕获组
+
 // 提取 Promise 的内部类型
 type UnwrapPromise<T> = T extends Promise<infer U> ? U : T;
-type C = UnwrapPromise<Promise<string>>; // string
-type D = UnwrapPromise<number>;          // number
+type C = UnwrapPromise<Promise<string>>; // string（匹配成功，U = string）
+type D = UnwrapPromise<number>;          // number（匹配失败，返回 T 本身）
 
-// 递归解包嵌套 Promise
+// 递归解包嵌套 Promise（像剥洋葱一样一层层拆）
 type DeepUnwrap<T> = T extends Promise<infer U> ? DeepUnwrap<U> : T;
 type E = DeepUnwrap<Promise<Promise<string>>>; // string
 
@@ -206,20 +271,27 @@ type FirstArg<T> = T extends (first: infer F, ...rest: any[]) => any ? F : never
 type G = FirstArg<(name: string, age: number) => void>; // string
 ```
 
+> [!tip] infer 的使用口诀
+> 在 `extends` 右边的类型结构中，把你想"抠出来"的那部分用 `infer X` 替代，然后在 `?` 后面的 true 分支中使用 X。就像在类型上"挖洞"，让 TS 帮你填上实际的类型。
+
 ### 3.3 模板字面量类型
 
+模板字面量类型让你能在**类型层面**做字符串拼接和模式匹配，这在处理事件名、路由参数、CSS 值等场景非常实用。
+
 ```typescript
-// 基本用法
+// 基本用法：自动生成事件处理器名称
 type EventName = `on${Capitalize<'click' | 'focus' | 'blur'>}`;
 // 'onClick' | 'onFocus' | 'onBlur'
+// 联合类型会自动展开做排列组合
 
-// 实际场景：CSS 属性类型
+// 实际场景：约束 CSS 值的格式
 type CSSUnit = 'px' | 'em' | 'rem' | '%';
 type CSSValue = `${number}${CSSUnit}`;
 const width: CSSValue = '100px';  // ✅
-// const bad: CSSValue = '100vw'; // ❌
+// const bad: CSSValue = '100vw'; // ❌ vw 不在 CSSUnit 中
 
-// 配合 infer 解析字符串
+// 高级场景：配合 infer 从路由字符串中提取参数名
+// 这就像在类型层面写了一个路由解析器
 type ParseRoute<T> = T extends `${string}/:${infer Param}/${infer Rest}`
   ? Param | ParseRoute<`/${Rest}`>
   : T extends `${string}/:${infer Param}`
@@ -227,6 +299,9 @@ type ParseRoute<T> = T extends `${string}/:${infer Param}/${infer Rest}`
   : never;
 
 type Params = ParseRoute<'/user/:id/post/:postId'>; // 'id' | 'postId'
+// 第一次匹配：Param = 'id', Rest = 'post/:postId'
+// 递归匹配：Param = 'postId'
+// 最终结果：'id' | 'postId'
 ```
 
 ---
@@ -294,35 +369,142 @@ type U = TupleToUnion<[string, number, boolean]>; // string | number | boolean
 
 ### 5.1 类型守卫
 
+#### 为什么需要类型守卫？
+
+当一个变量的类型是联合类型（比如 `string | number`）或者 `unknown` 时，TS 不允许你直接使用某个具体类型的方法——因为它不确定运行时到底是哪个类型。类型守卫就是告诉 TS "我已经检查过了，这里一定是某个类型"，让 TS 在 if 分支内自动把类型**缩窄**（Narrowing）。
+
 ```typescript
-// typeof 守卫
+function double(input: string | number) {
+  // return input * 2;           // ❌ 报错：string 不能乘以 2
+  // return input.toUpperCase(); // ❌ 报错：number 没有 toUpperCase
+
+  // 必须先判断类型，TS 才知道你在做什么
+  if (typeof input === 'number') {
+    return input * 2;            // ✅ 这里 input 被缩窄为 number
+  }
+  return input.toUpperCase();    // ✅ 这里 input 被缩窄为 string
+}
+```
+
+#### 四种类型守卫方式
+
+**1. typeof 守卫**——最常用，适合原始类型判断：
+
+```typescript
 function padLeft(value: string, padding: string | number) {
   if (typeof padding === 'number') {
     return ' '.repeat(padding) + value; // padding 被缩窄为 number
   }
   return padding + value; // padding 被缩窄为 string
 }
+// typeof 只能判断：string / number / boolean / symbol / undefined / function / bigint
+// 对于 null、数组、对象都返回 'object'，所以复杂类型需要其他方式
+```
 
-// in 守卫
-interface Bird { fly(): void; }
-interface Fish { swim(): void; }
-function move(animal: Bird | Fish) {
-  if ('fly' in animal) {
-    animal.fly();  // Bird
-  } else {
-    animal.swim(); // Fish
+**2. instanceof 守卫**——适合类的实例判断：
+
+```typescript
+class ApiError extends Error {
+  code: number;
+  constructor(code: number, message: string) {
+    super(message);
+    this.code = code;
   }
 }
 
-// 自定义类型守卫（is 关键字）
+function handleError(err: Error | ApiError) {
+  if (err instanceof ApiError) {
+    console.log(err.code);    // ✅ 缩窄为 ApiError，可以访问 code
+  } else {
+    console.log(err.message); // ✅ 缩窄为 Error
+  }
+}
+```
+
+**3. in 守卫**——通过检查属性是否存在来区分类型，适合接口/对象的判断：
+
+```typescript
+interface Bird { fly(): void; layEggs(): void; }
+interface Fish { swim(): void; layEggs(): void; }
+
+function move(animal: Bird | Fish) {
+  if ('fly' in animal) {
+    animal.fly();  // ✅ 缩窄为 Bird
+  } else {
+    animal.swim(); // ✅ 缩窄为 Fish
+  }
+  animal.layEggs(); // ✅ 两者都有的方法，不需要守卫
+}
+// 适用场景：后端返回的数据可能是不同结构，根据某个字段判断具体类型
+```
+
+**4. 自定义类型守卫（is 关键字）**——最灵活，适合复杂判断逻辑：
+
+```typescript
+// 语法：返回值类型写成 "参数 is 类型"
 function isString(val: unknown): val is string {
   return typeof val === 'string';
 }
-function process(val: unknown) {
-  if (isString(val)) {
-    val.toUpperCase(); // ✅ val 被缩窄为 string
+
+// 为什么不直接用 typeof？因为自定义守卫可以封装复杂逻辑：
+interface User {
+  name: string;
+  age: number;
+  email: string;
+}
+
+// 判断一个 unknown 值是否是 User 类型
+function isUser(val: unknown): val is User {
+  return (
+    typeof val === 'object' &&
+    val !== null &&
+    'name' in val &&
+    'age' in val &&
+    'email' in val &&
+    typeof (val as User).name === 'string' &&
+    typeof (val as User).age === 'number'
+  );
+}
+
+// 使用：处理 API 返回的不确定数据
+function handleApiData(data: unknown) {
+  if (isUser(data)) {
+    // ✅ data 被缩窄为 User，所有属性都有类型提示
+    console.log(data.name, data.age, data.email);
   }
 }
+```
+
+> [!tip] 什么时候用哪种守卫？
+> 原始类型用 `typeof`，类实例用 `instanceof`，接口/对象用 `in`，复杂判断逻辑封装成 `is` 函数。实际项目中最常用的是 `typeof` 和自定义 `is` 守卫。
+
+#### 可辨识联合（Discriminated Unions）
+
+这是类型守卫在实际项目中最常见的模式——给联合类型的每个成员加一个"标签字段"，通过判断标签来缩窄类型：
+
+```typescript
+// 每个类型都有一个 type 字段作为"标签"
+interface LoadingState { type: 'loading'; }
+interface SuccessState { type: 'success'; data: string[]; }
+interface ErrorState   { type: 'error'; message: string; }
+
+type RequestState = LoadingState | SuccessState | ErrorState;
+
+function render(state: RequestState) {
+  switch (state.type) {
+    case 'loading':
+      return 'Loading...';
+    case 'success':
+      return state.data.join(', ');  // ✅ 自动缩窄，能访问 data
+    case 'error':
+      return state.message;          // ✅ 自动缩窄，能访问 message
+  }
+}
+
+// 这个模式在 React 中非常常见：
+// - Redux action 的 type 字段
+// - API 响应的 status 字段
+// - 组件 props 的 variant 字段
 ```
 
 ### 5.2 函数重载
