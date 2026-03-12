@@ -200,7 +200,40 @@ main().catch(console.error);
 
 ---
 
-## 八、参考资料
+## 八、MCP Server 与 Skill 的区别
+
+在 CatPaw 等 AI 工具中，MCP Server 和 Skill 都是给 AI 扩展能力的方式，但实现机制完全不同。
+
+### 8.1 MCP Server：给 AI 新的"手脚"（能力）
+
+MCP Server 是通过**协议层**扩展能力。它是一个独立运行的程序，通过 JSON-RPC 协议暴露 Tool 给 LLM 调用。LLM 在运行时能"看到"这些 Tool 的名称和参数描述，然后自主决定什么时候调用、传什么参数。整个过程是结构化的、程序化的。
+
+例如 `sdk-browser-use` 这个 MCP Server，它提供了 `browser_action` Tool，AI 通过调用这个 Tool 才能控制浏览器截图、点击、导航——这是 AI 自身做不到的能力。
+
+### 8.2 Skill：给 AI 新的"经验"（知识和方法论）
+
+Skill 是通过**提示词层**扩展能力。它本质上是一份 Markdown 指导文档（SKILL.md），当 AI 判断某个任务需要用到某个 Skill 时，会先读取这份文档，然后按照里面的指引去完成任务。Skill 不涉及协议通信，不需要启动独立进程。
+
+**关键区别**：Skill 不是"命令集合"，AI 读完后会**理解意图并自主决定怎么做**，而不是机械地逐条执行。同样的 Skill，面对不同的需求会产出完全不同的执行路径。
+
+例如 `frontend-design` Skill 并没有提供任何新的 Tool，它做的事情是告诉 AI 设计网页时应该注重排版、选独特字体、用大胆配色、加动画微交互等审美标准，AI 最终还是用已有的 `write` 工具写 HTML 文件来完成的。
+
+### 8.3 对比总结
+
+| 维度 | MCP Server | Skill |
+|------|-----------|-------|
+| 本质 | 独立运行的程序 | Markdown 指导文档 |
+| 扩展方式 | 协议层（提供新 Tool） | 提示词层（提供知识和方法论） |
+| 通信机制 | JSON-RPC 结构化调用 | AI 读取文档后自主理解执行 |
+| 是否需要部署 | 需要启动独立进程 | 不需要，只是一份文件 |
+| 执行方式 | 精确调用，固定输入输出格式 | 灵活应对，同一 Skill 不同任务产出不同路径 |
+| 比喻 | 给 AI 装了一个新 App | 给 AI 一本操作指南 |
+
+两者也经常配合使用：Skill 提供领域知识和最佳实践，MCP Server 提供具体的执行能力。
+
+---
+
+## 九、参考资料
 
 - [MCP 官方文档](https://modelcontextprotocol.io/docs/getting-started/intro)
 - [MCP 官方 Demo](https://modelcontextprotocol.io/examples)
