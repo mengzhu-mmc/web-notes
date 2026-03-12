@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      var trap = function (height) {
+        const stack = [];
+        let ans = 0;
+        for (let i = 0; i < height.length; i++) {
+          while (stack.length && height[i] > height[stack.at(-1)]) {
+            const currIdx = stack.pop();
+            if (!stack.length) break;
+            const leftIdx = stack.at(-1),
+              right = height[i];
+            const currWidth = i - leftIdx - 1;
+            const currHeight =
+              Math.min(height[leftIdx], right) - height[currIdx];
+            ans += currWidth * currHeight;
+          }
+          stack.push(i);
+        }
+        return ans;
+      };
+      console.log(trap([4, 2, 0, 3, 2, 5]));
+    </script>
+  </body>
+</html>
