@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MCP 协作时序图 · 浅色版</title>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #faf9f6;
+    --bg-warm: #f5f3ee;
+    --bg-card: #ffffff;
+    --shadow-soft: 0 2px 12px rgba(0,0,0,0.06);
+    --shadow-hover: 0 6px 24px rgba(0,0,0,0.1);
+    --border: #e8e5de;
+    --border-light: #f0ede6;
+
+    --user-color: #b45309;
+    --user-bg: #fef3c7;
+    --user-border: #f59e0b;
+    --user-light: #fffbeb;
+
+    --host-color: #1d4ed8;
+    --host-bg: #dbeafe;
+    --host-border: #3b82f6;
+    --host-light: #eff6ff;
+
+    --llm-color: #6d28d9;
+    --llm-bg: #ede9fe;
+    --llm-border: #8b5cf6;
+    --llm-light: #f5f3ff;
+
+    --client-color: #0e7490;
+    --client-bg: #cffafe;
+    --client-border: #06b6d4;
+    --client-light: #ecfeff;
+
+    --server-color: #047857;
+    --server-bg: #d1fae5;
+    --server-border: #10b981;
+    --server-light: #ecfdf5;
+
+    --text: #0f172a;
+    --text-secondary: #334155;
+    --text-dim: #64748b;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    font-family: 'Noto Sans SC', sans-serif;
+    color: var(--text);
+    overflow-x: auto;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* 纸质纹理背景 */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 900px 700px at 15% 5%, rgba(37,99,235,0.03), transparent),
+      radial-gradient(ellipse 700px 500px at 85% 90%, rgba(124,58,237,0.03), transparent);
+    pointer-events: none;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      linear-gradient(rgba(0,0,0,0.015) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,0,0,0.015) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+    opacity: 0.5;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    min-width: 960px;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 52px 40px 72px;
+  }
+
+  /* ── 标题 ── */
+  .title-area {
+    text-align: center;
+    margin-bottom: 52px;
+    animation: fadeIn 0.6s ease-out;
+  }
+
+  .title-area .badge {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--host-color);
+    border: 1.5px solid var(--host-border);
+    background: var(--host-light);
+    padding: 5px 18px;
+    border-radius: 20px;
+    margin-bottom: 18px;
+  }
+
+  .title-area h1 {
+    font-size: 38px;
+    font-weight: 900;
+    color: var(--text);
+    letter-spacing: -0.5px;
+    line-height: 1.3;
+  }
+
+  .title-area h1 span {
+    background: linear-gradient(135deg, var(--host-color), var(--llm-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .title-area p {
+    margin-top: 10px;
+    font-size: 14px;
+    color: var(--text-dim);
+    font-weight: 400;
+  }
+
+  /* ── 角色头部 ── */
+  .actors {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: var(--bg);
+    padding-bottom: 16px;
+  }
+
+  .actor {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .actor-box {
+    padding: 16px 14px;
+    border-radius: 14px;
+    text-align: center;
+    border: 2px solid;
+    min-width: 128px;
+    transition: all 0.35s cubic-bezier(0.4,0,0.2,1);
+    cursor: default;
+    position: relative;
+  }
+
+  .actor-box:hover {
+    transform: translateY(-3px);
+  }
+
+  .actor-box .actor-emoji {
+    font-size: 28px;
+    margin-bottom: 6px;
+    display: block;
+  }
+
+  .actor-box h3 {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+
+  .actor-box span {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    opacity: 0.7;
+  }
+
+  .actor.user .actor-box { background: var(--user-light); border-color: var(--user-border); color: var(--user-color); }
+  .actor.user .actor-box:hover { box-shadow: 0 8px 24px rgba(217,119,6,0.12); }
+  .actor.host .actor-box { background: var(--host-light); border-color: var(--host-border); color: var(--host-color); }
+  .actor.host .actor-box:hover { box-shadow: 0 8px 24px rgba(37,99,235,0.12); }
+  .actor.llm .actor-box { background: var(--llm-light); border-color: var(--llm-border); color: var(--llm-color); }
+  .actor.llm .actor-box:hover { box-shadow: 0 8px 24px rgba(124,58,237,0.12); }
+  .actor.client .actor-box { background: var(--client-light); border-color: var(--client-border); color: var(--client-color); }
+  .actor.client .actor-box:hover { box-shadow: 0 8px 24px rgba(8,145,178,0.12); }
+  .actor.server .actor-box { background: var(--server-light); border-color: var(--server-border); color: var(--server-color); }
+  .actor.server .actor-box:hover { box-shadow: 0 8px 24px rgba(5,150,105,0.12); }
+
+  /* ── 生命线 ── */
+  .lifelines { position: relative; }
+
+  .lifeline-bg {
+    position: absolute;
+    top: 0; bottom: 0;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    width: 100%;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .lifeline-track {
+    display: flex;
+    justify-content: center;
+  }
+
+  .lifeline-track .line {
+    width: 2px;
+    height: 100%;
+  }
+
+  .lifeline-track:nth-child(1) .line { background: repeating-linear-gradient(to bottom, var(--user-border) 0px, var(--user-border) 5px, transparent 5px, transparent 11px); opacity: 0.7; }
+  .lifeline-track:nth-child(2) .line { background: repeating-linear-gradient(to bottom, var(--host-border) 0px, var(--host-border) 5px, transparent 5px, transparent 11px); opacity: 0.7; }
+  .lifeline-track:nth-child(3) .line { background: repeating-linear-gradient(to bottom, var(--llm-border) 0px, var(--llm-border) 5px, transparent 5px, transparent 11px); opacity: 0.7; }
+  .lifeline-track:nth-child(4) .line { background: repeating-linear-gradient(to bottom, var(--client-border) 0px, var(--client-border) 5px, transparent 5px, transparent 11px); opacity: 0.7; }
+  .lifeline-track:nth-child(5) .line { background: repeating-linear-gradient(to bottom, var(--server-border) 0px, var(--server-border) 5px, transparent 5px, transparent 11px); opacity: 0.7; }
+
+  /* ── 消息区 ── */
+  .messages {
+    position: relative;
+    z-index: 10;
+    padding-top: 8px;
+  }
+
+  /* 阶段分隔 */
+  .phase-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 20px 0 14px;
+  }
+
+  .phase-divider .phase-tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 6px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .phase-divider .phase-name {
+    font-size: 14px;
+    font-weight: 700;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .phase-divider .phase-line {
+    flex: 1;
+    height: 1.5px;
+  }
+
+  .phase-divider.p1 .phase-tag { background: var(--client-bg); color: var(--client-color); border: 1.5px solid var(--client-border); }
+  .phase-divider.p1 .phase-name { color: var(--client-color); }
+  .phase-divider.p1 .phase-line { background: var(--client-border); opacity: 0.45; }
+  .phase-divider.p2 .phase-tag { background: var(--llm-bg); color: var(--llm-color); border: 1px solid var(--llm-border); }
+  .phase-divider.p2 .phase-name { color: var(--llm-color); }
+  .phase-divider.p2 .phase-line { background: var(--llm-border); opacity: 0.45; }
+  .phase-divider.p3 .phase-tag { background: var(--server-bg); color: var(--server-color); border: 1px solid var(--server-border); }
+  .phase-divider.p3 .phase-name { color: var(--server-color); }
+  .phase-divider.p3 .phase-line { background: var(--server-border); opacity: 0.45; }
+  .phase-divider.p4 .phase-tag { background: var(--user-bg); color: var(--user-color); border: 1px solid var(--user-border); }
+  .phase-divider.p4 .phase-name { color: var(--user-color); }
+  .phase-divider.p4 .phase-line { background: var(--user-border); opacity: 0.45; }
+
+  /* 消息行 */
+  .msg-row {
+    position: relative;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    opacity: 0;
+    animation: msgSlide 0.45s ease-out forwards;
+  }
+
+  .msg-row .arrow-line {
+    position: absolute;
+    height: 2.5px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-radius: 2px;
+  }
+
+  .msg-row .arrow-head {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0; height: 0;
+    border-style: solid;
+  }
+
+  .msg-row .arrow-head.right {
+    border-width: 6px 0 6px 10px;
+    border-color: transparent transparent transparent currentColor;
+  }
+
+  .msg-row .arrow-head.left {
+    border-width: 6px 10px 6px 0;
+    border-color: transparent currentColor transparent transparent;
+  }
+
+  .msg-row .msg-label {
+    position: absolute;
+    top: 5px;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.4;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+
+  .msg-row .msg-label .step-badge {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-right: 5px;
+    vertical-align: 1px;
+  }
+
+  .msg-row .msg-label code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10.5px;
+    background: rgba(37,99,235,0.08);
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid rgba(37,99,235,0.18);
+    color: #1e40af;
+    font-weight: 500;
+  }
+
+  /* 自身动作 */
+  .msg-row .self-action {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 500;
+    border: 2px dashed;
+    text-align: center;
+    max-width: 190px;
+    line-height: 1.4;
+  }
+
+  .self-action .step-badge {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-right: 4px;
+    vertical-align: 1px;
+  }
+
+  /* ── 底部 ── */
+  .footer-note {
+    margin-top: 44px;
+    padding: 22px 26px;
+    background: var(--bg-card);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    box-shadow: var(--shadow-soft);
+    animation: fadeIn 0.6s ease-out 2s both;
+  }
+
+  .footer-note h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--llm-color);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .footer-note p {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.8;
+    font-weight: 400;
+  }
+
+  .footer-note strong { color: var(--text); font-weight: 600; }
+
+  /* 手写风格装饰 */
+  .handwritten {
+    font-family: 'Caveat', cursive;
+    position: absolute;
+    color: #475569;
+    opacity: 0.6;
+    pointer-events: none;
+    z-index: 5;
+    font-weight: 600;
+  }
+
+  .hw-1 { top: 180px; right: 30px; font-size: 16px; transform: rotate(-3deg); }
+  .hw-2 { top: 580px; left: 20px; font-size: 15px; transform: rotate(2deg); }
+  .hw-3 { top: 920px; right: 25px; font-size: 15px; transform: rotate(-2deg); }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes msgSlide {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- 手写装饰 -->
+  <div class="handwritten hw-1">← one Client per Server</div>
+  <div class="handwritten hw-2">LLM only "thinks" !</div>
+  <div class="handwritten hw-3">results flow back ↩</div>
+
+  <div class="title-area">
+    <div class="badge">Sequence Diagram</div>
+    <h1>MCP <span>协作时序图</span></h1>
+    <p>User → MCP Host → LLM → MCP Client → MCP Server 完整交互流程</p>
+  </div>
+
+  <div class="seq-diagram">
+
+    <div class="actors">
+      <div class="actor user"><div class="actor-box"><span class="actor-emoji">👤</span><h3>用户</h3><span>User</span></div></div>
+      <div class="actor host"><div class="actor-box"><span class="actor-emoji">🖥</span><h3>MCP Host</h3><span>CatPaw Desk</span></div></div>
+      <div class="actor llm"><div class="actor-box"><span class="actor-emoji">🧠</span><h3>LLM</h3><span>Claude</span></div></div>
+      <div class="actor client"><div class="actor-box"><span class="actor-emoji">🔌</span><h3>MCP Client</h3><span>Host 内部模块</span></div></div>
+      <div class="actor server"><div class="actor-box"><span class="actor-emoji">⚙️</span><h3>MCP Server</h3><span>天气查询服务</span></div></div>
+    </div>
+
+    <div class="lifelines">
+      <div class="lifeline-bg">
+        <div class="lifeline-track"><div class="line"></div></div>
+        <div class="lifeline-track"><div class="line"></div></div>
+        <div class="lifeline-track"><div class="line"></div></div>
+        <div class="lifeline-track"><div class="line"></div></div>
+        <div class="lifeline-track"><div class="line"></div></div>
+      </div>
+      <div class="messages" id="messages"></div>
+    </div>
+
+  </div>
+
+  <div class="footer-note">
+    <h4>💡 核心洞察</h4>
+    <p><strong>LLM 是"大脑"</strong>，只输出文本，自身不执行任何操作；<strong>MCP Host 是"身体"</strong>，总调度中枢；<strong>MCP Client 是"神经"</strong>，按协议规范与 Server 通信，屏蔽传输差异；<strong>MCP Server 是"手脚"</strong>，执行真实业务逻辑。四者通过 MCP 协议协同工作，缺一不可。</p>
+  </div>
+
+</div>
+
+<script>
+const data = [
+  { type: 'phase', cls: 'p1', tag: 'PHASE 01', name: '初始化连接' },
+  { type: 'msg', from: 1, to: 3, step: '01', text: '根据配置创建 <code>MCP Client</code> 实例', color: 'host', delay: 0.3 },
+  { type: 'msg', from: 3, to: 4, step: '02', text: '建立通信通道（<code>stdio</code> / <code>HTTP</code>）', color: 'client', delay: 0.45 },
+  { type: 'msg', from: 3, to: 4, step: '03', text: '发送 <code>ListTools</code> 请求', color: 'client', delay: 0.6 },
+  { type: 'msg', from: 4, to: 3, step: '04', text: '返回 Tool 列表 & 参数 Schema', color: 'server', delay: 0.75, dashed: true },
+  { type: 'msg', from: 3, to: 1, step: '05', text: '上报可用 Tool 列表', color: 'client', delay: 0.9, dashed: true },
+
+  { type: 'phase', cls: 'p2', tag: 'PHASE 02', name: '用户提问 → LLM 决策' },
+  { type: 'msg', from: 0, to: 1, step: '06', text: '"北京今天需要带伞吗？"', color: 'user', delay: 1.1 },
+  { type: 'msg', from: 1, to: 2, step: '07', text: 'Prompt + 可用 Tool 列表', color: 'host', delay: 1.25 },
+  { type: 'self', col: 2, step: '08', text: '推理决策：需调用 get_weather', color: 'llm', delay: 1.4 },
+  { type: 'msg', from: 2, to: 1, step: '09', text: '<code>{"tool":"get_weather","args":{"city":"北京"}}</code>', color: 'llm', delay: 1.55, dashed: true },
+
+  { type: 'phase', cls: 'p3', tag: 'PHASE 03', name: '工具调用 → 结果回传' },
+  { type: 'msg', from: 1, to: 3, step: '10', text: '派发调用请求到对应 Client', color: 'host', delay: 1.75 },
+  { type: 'msg', from: 3, to: 4, step: '11', text: '<code>JSON-RPC</code> 调用 get_weather', color: 'client', delay: 1.9 },
+  { type: 'self', col: 4, step: '12', text: '调用天气 API → 解析数据', color: 'server', delay: 2.05 },
+  { type: 'msg', from: 4, to: 3, step: '13', text: '返回："午后有阵雨，22°C"', color: 'server', delay: 2.2, dashed: true },
+  { type: 'msg', from: 3, to: 1, step: '14', text: '将结果交还 Host', color: 'client', delay: 2.35, dashed: true },
+  { type: 'msg', from: 1, to: 2, step: '15', text: '将 Tool 执行结果喂回 LLM', color: 'host', delay: 2.5 },
+
+  { type: 'phase', cls: 'p4', tag: 'PHASE 04', name: '生成回答 → 展示结果' },
+  { type: 'self', col: 2, step: '16', text: '整合数据，生成自然语言', color: 'llm', delay: 2.7 },
+  { type: 'msg', from: 2, to: 1, step: '17', text: '返回最终回答文本', color: 'llm', delay: 2.85, dashed: true },
+  { type: 'msg', from: 1, to: 0, step: '18', text: '"午后有阵雨，建议携带雨具"', color: 'host', delay: 3.0, dashed: true },
+];
+
+const colorMap = {
+  user:   { arrow: '#b45309', bg: '#fef3c7', border: '#f59e0b', label: '#78350f' },
+  host:   { arrow: '#1d4ed8', bg: '#dbeafe', border: '#3b82f6', label: '#1e3a8a' },
+  llm:    { arrow: '#6d28d9', bg: '#ede9fe', border: '#8b5cf6', label: '#4c1d95' },
+  client: { arrow: '#0e7490', bg: '#cffafe', border: '#06b6d4', label: '#134e4a' },
+  server: { arrow: '#047857', bg: '#d1fae5', border: '#10b981', label: '#064e3b' },
+};
+
+function colCenter(i) { return 10 + i * 20; }
+
+const msgContainer = document.getElementById('messages');
+
+data.forEach(item => {
+  if (item.type === 'phase') {
+    const div = document.createElement('div');
+    div.className = `phase-divider ${item.cls}`;
+    div.innerHTML = `<span class="phase-tag">${item.tag}</span><span class="phase-name">${item.name}</span><span class="phase-line"></span>`;
+    msgContainer.appendChild(div);
+    return;
+  }
+
+  const c = colorMap[item.color];
+  const row = document.createElement('div');
+  row.className = 'msg-row';
+  row.style.animationDelay = `${item.delay}s`;
+
+  if (item.type === 'self') {
+    const cx = colCenter(item.col);
+    const selfDiv = document.createElement('div');
+    selfDiv.className = 'self-action';
+    selfDiv.style.left = `calc(${cx}% - 95px)`;
+    selfDiv.style.borderColor = c.arrow;
+    selfDiv.style.background = c.bg;
+    selfDiv.style.color = c.label;
+    selfDiv.innerHTML = `<span class="step-badge" style="background:${c.bg};color:${c.label};border:1px solid ${c.border}">${item.step}</span>${item.text}`;
+    row.appendChild(selfDiv);
+  } else {
+    const fromX = colCenter(item.from);
+    const toX = colCenter(item.to);
+    const leftX = Math.min(fromX, toX);
+    const rightX = Math.max(fromX, toX);
+    const goingRight = item.to > item.from;
+
+    const line = document.createElement('div');
+    line.className = 'arrow-line';
+    line.style.left = `${leftX}%`;
+    line.style.width = `${rightX - leftX}%`;
+    line.style.background = item.dashed
+      ? `repeating-linear-gradient(90deg, ${c.arrow} 0px, ${c.arrow} 7px, transparent 7px, transparent 13px)`
+      : c.arrow;
+    row.appendChild(line);
+
+    const head = document.createElement('div');
+    head.className = `arrow-head ${goingRight ? 'right' : 'left'}`;
+    head.style.color = c.arrow;
+    head.style.left = goingRight ? `calc(${toX}% - 10px)` : `${toX}%`;
+    row.appendChild(head);
+
+    const label = document.createElement('div');
+    label.className = 'msg-label';
+    const midX = (fromX + toX) / 2;
+    label.style.left = `${midX}%`;
+    label.style.transform = 'translateX(-50%)';
+    label.style.color = c.label;
+    label.innerHTML = `<span class="step-badge" style="background:${c.bg};color:${c.label};border:1px solid ${c.border}">${item.step}</span>${item.text}`;
+    row.appendChild(label);
+  }
+
+  msgContainer.appendChild(row);
+});
+</script>
+
+</body>
+</html>

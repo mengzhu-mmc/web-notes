@@ -11,6 +11,11 @@
 
 ## 一、基本类型系统
 
+> **补充说明**：TypeScript 的类型系统本质是“在编译阶段做约束与校验”。
+> - 它不会改变 JavaScript 运行时行为；
+> - 但能在开发期提前发现参数、返回值、属性访问等问题；
+> - 配合 IDE 可以获得更强的自动补全和重构能力。
+
 ### 1.1 原始类型
 
 ```typescript
@@ -65,6 +70,11 @@ function throwError(msg: string): never {
 // never 在联合类型中会被自动移除
 type T = string | never; // => string
 ```
+
+> ✅ **补充说明（1.3 小结）**
+> - `any`：跳过类型检查，适合临时过渡，不适合长期使用。
+> - `unknown`：更安全的顶层类型，必须先做类型缩窄再使用。
+> - `never`：表示“不可能出现的值”，常用于穷尽检查和类型运算。
 
 ### 1.4 字面量类型
 
@@ -130,6 +140,16 @@ type Impossible = string & number; // never
 
 ### 2.3 类型缩窄（Type Narrowing）
 
+> **类型缩窄是什么？**
+> 类型缩窄是指：TypeScript 根据运行时判断（如 `typeof`、`in`、`instanceof`、判空）把一个“宽类型”收窄成更具体的类型。
+>
+> **有何作用？**
+> 1. 让联合类型可以安全访问对应属性与方法；
+> 2. 减少滥用 `as` 断言，降低运行时出错风险；
+> 3. 让编译器做更精确的静态分析，提升可维护性。
+>
+> **一句话理解**：先判断，再使用；判断越充分，类型越精确。
+
 ```typescript
 function process(val: string | number | null) {
   // typeof guard
@@ -168,6 +188,11 @@ function isFish(pet: Fish | Bird): pet is Fish {
 ---
 
 ## 三、Interface vs Type
+
+> **补充说明**：`interface` 和 `type` 不是“二选一对立关系”，而是各有侧重。
+> 常见实践是：
+> - 对外暴露对象契约、可能被扩展的类型用 `interface`；
+> - 需要联合类型、条件类型、映射类型时用 `type`。
 
 ### 3.1 对比表
 
@@ -214,6 +239,9 @@ type Callback = (err: Error | null, data: unknown) => void;
 
 ## 四、泛型（Generics）深入
 
+> **补充说明**：泛型的核心价值是“在复用逻辑的同时保留类型信息”。
+> 你可以把它理解为“类型层面的参数化函数”，避免写一堆重复类型。
+
 ### 4.1 基本泛型
 
 ```typescript
@@ -238,6 +266,9 @@ class Stack<T> {
 ```
 
 ### 4.2 泛型约束（extends）
+
+> **补充说明**：这里的 `extends` 读作“满足约束”，不是“继承类”的那层语义。
+> 它的作用是给泛型参数加边界：既保留泛型灵活性，又保证你能安全访问某些属性。
 
 ```typescript
 // 约束 T 必须有 length 属性
@@ -277,6 +308,16 @@ type D = ToArrayNonDist<string | number>; // (string | number)[]
 ```
 
 ### 4.4 infer 关键字
+
+> **`infer`（你提到的 inter 大概率是这个）是做什么的？**
+> `infer` 只能出现在条件类型的 `extends` 子句里，用来声明一个“待推断的类型变量”，
+> 然后从已有类型结构中把这部分类型“提取出来”。
+>
+> **有何作用？**
+> - 自动提取函数返回值、参数类型；
+> - 自动提取 `Promise` 的内部值类型；
+> - 自动提取数组元素、元组片段等类型信息；
+> - 是 `ReturnType` / `Parameters` / `Awaited` 这类工具类型的底层基础。
 
 ```typescript
 // 提取函数返回值类型
