@@ -303,3 +303,78 @@ function Parent() {
   );
 }
 ```
+
+### Children as Props（内容提升）
+
+将稳定的子节点通过 `children` 传入，可以避免它们随父组件状态变化而重新渲染。
+
+```jsx
+// ❌ ScrollTracker 内部的 HeavyComponent 会随 scroll 变化重新渲染
+function ScrollTracker() {
+  const [scroll, setScroll] = useState(0);
+  return (
+    <div onScroll={e => setScroll(e.target.scrollTop)}>
+      <p>Scroll: {scroll}</p>
+      <HeavyComponent /> {/* 每次滚动都重新渲染！ */}
+    </div>
+  );
+}
+
+// ✅ 通过 children 传入，引用不变，不会重新渲染
+function ScrollTracker({ children }) {
+  const [scroll, setScroll] = useState(0);
+  return (
+    <div onScroll={e => setScroll(e.target.scrollTop)}>
+      <p>Scroll: {scroll}</p>
+      {children} {/* 引用稳定，不重新渲染 */}
+    </div>
+  );
+}
+
+// 使用时
+<ScrollTracker>
+  <HeavyComponent />
+</ScrollTracker>
+```
+
+### 路由预加载（悬停时提前加载）
+
+```jsx
+// 鼠标悬停时就开始加载，点击时已经加载完毕
+const importSettings = () => import('./pages/Settings');
+const Settings = lazy(importSettings);
+
+<Link to="/settings" onMouseEnter={importSettings}>
+  Settings
+</Link>
+```
+
+### 使用 @tanstack/react-virtual 虚拟滚动
+
+```jsx
+import { useVirtualizer } from '@tanstack/react-virtual';
+
+function VirtualList({ items }) {
+  const parentRef = useRef(null);
+  const virtualizer = useVirtualizer({
+    count: items.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 50,
+  });
+
+  return (
+    <div ref={parentRef} style={{ height: 400, overflow: 'auto' }}>
+      <div style={{ height: virtualizer.getTotalSize(), position: 'relative' }}>
+        {virtualizer.getVirtualItems().map(row => (
+          <div
+            key={row.key}
+            style={{ position: 'absolute', top: row.start, height: row.size, width: '100%' }}
+          >
+            {items[row.index].name}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+```
