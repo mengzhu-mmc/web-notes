@@ -110,6 +110,14 @@ function EmailField() {
 }
 ```
 
+### 7. useSyncExternalStore
+
+用于订阅外部数据源（如 Redux store），解决并发渲染下外部 store 的**撕裂问题**（tearing）——同一次渲染中不同组件读到不同版本的数据。
+
+### 8. 双缓存与并发渲染的关系
+
+双缓存机制（Double Buffering）在 React 16 引入 Fiber 架构时就已存在：内存中同时维护 `current Tree`（当前显示）和 `workInProgress Tree`（构建中），更新完成后通过指针切换完成视图更新。React 16/17 虽有双缓存结构，但默认同步执行；React 18 正式开放基于双缓存的并发特性，支持在 `workInProgress` 树上计算到一半时挂起，先处理高优先级任务。
+
 ---
 
 ## React 19 核心特性
@@ -180,11 +188,22 @@ function LikeButton() {
 }
 ```
 
-### 5. 其他改进
+### 5. useOptimistic
+
+乐观 UI Hook，在异步操作完成前先在界面显示预期结果。`useOptimistic(state, updateFn)` 返回 `[optimisticState, addOptimistic]`，乐观状态只存在于当前 Action 执行周期内，一旦真实数据更新或 Action 结束自动销毁，无需手动回滚。
+
+### 6. 其他改进
 
 - **ref 作为 prop**：不再需要 forwardRef
 - **Context 直接作为 provider**：`<ThemeContext value={theme}>`
 - **文档 metadata 支持**：`<title>` `<meta>` 在组件中直接写
+- **资源预加载 API**：`preload()`、`preinit()` 优化资源加载时机
+
+---
+
+## useTransition vs useDeferredValue
+
+`useTransition` 控制状态更新函数的执行（"这个更新不着急"），适用于能控制 `setState` 触发时机的场景（如点击按钮、Tab 切换），返回 `isPending` 状态。`useDeferredValue` 控制数据值（"先用旧值顶一下"），适用于无法控制状态更新触发的场景（如从父组件接收 props），仅返回延迟后的值。
 
 ---
 
