@@ -53,6 +53,21 @@ Compilation
 └── 提供了很多模块和依赖相关的 API
 ```
 
+| 对比项 | Compiler | Compilation |
+| --- | --- | --- |
+| 创建次数 | 整个生命周期只创建一次 | 每次构建都重新创建 |
+| 角色 | 总指挥，统筹全局 | 具体战役的指挥官 |
+| 包含内容 | 配置信息、插件注册、文件系统接口 | 本次构建的模块、依赖、Chunk、资源 |
+| 生命周期 | 从启动到进程结束 | 一次构建开始到结束 |
+
+**不同场景的创建时机：**
+
+普通构建（`webpack build`）：每次执行命令都是新进程，Compiler 和 Compilation 都重新创建。
+
+Watch 模式：Compiler 只创建一次，文件变化时销毁旧 Compilation，创建新 Compilation 进行增量编译。
+
+HMR 热更新：同 Watch 模式，Compiler 持久存在，新 Compilation 只编译变化的模块，生成热更新补丁通过 WebSocket 推送到浏览器。
+
 ---
 
 ## 二、Loader
@@ -178,7 +193,26 @@ module.exports = {
 };
 ```
 
-### 3.3 Loader 和 Plugin 的区别
+### 3.3 Plugin 常用生命周期钩子
+
+开发插件时，最常接触的三个节点：`make`（开始分析依赖）、`processAssets`（处理代码压缩转换）、`emit`（最终生成文件前）。
+
+| 阶段 | 钩子 | 说明 |
+|------|------|------|
+| 初始化 | `entryOption` | entry 处理后 |
+| 初始化 | `afterPlugins` | 插件设置完成后 |
+| 开始编译 | `run` / `watchRun` | 开始读取记录前 |
+| 编译构建 | `compile` | 新 Compilation 创建前 |
+| 编译构建 | `compilation` | 编译创建后，可监听模块处理 |
+| 编译构建 | `make` | 从入口分析依赖、构建模块的递归过程 |
+| 优化资源 | `optimize` | 优化开始 |
+| 优化资源 | `processAssets` | 处理生成的资源（Webpack 5 推荐） |
+| 输出 | `emit` | 生成资源到 output 目录前（最后修改机会） |
+| 输出 | `afterEmit` | 文件写入磁盘后 |
+| 结束 | `done` | 编译完成（无论成功失败） |
+| 结束 | `failed` | 编译失败 |
+
+### 3.4 Loader 和 Plugin 的区别
 
 | 维度 | Loader | Plugin |
 |------|--------|--------|
@@ -408,6 +442,8 @@ hash 是整个项目的 hash，任何文件变化都会改变。chunkhash 是根
 ### Q2：Webpack 的 Module、Chunk、Bundle 分别是什么？
 
 Module 是源代码中的每个文件（一个 JS、一个 CSS、一张图片都是一个 Module）。Chunk 是 Webpack 打包过程中的代码块，由多个 Module 组成（入口 chunk、异步 chunk、splitChunks 产生的 chunk）。Bundle 是最终输出的文件，一个 Chunk 通常对应一个 Bundle。
+
+**Entry 与 Chunk Group 的关系（进阶）：** 一个入口（Entry）对应一个"Chunk Group"，而非简单的一个 Chunk。Chunk Group 包含 Initial Chunk（入口文件自身代码）、Split Chunks（被 `cacheGroups` 拆分出的公共代码或第三方库）、Async Chunks（通过 `import()` 懒加载产生的代码块）。例如将 `node_modules` 下的 `react` 和 `lodash` 抽离为独立的 vendors Chunk，此时 1 个 Entry 对应 2 个 Chunk。
 
 ### Q3：babel-loader 和 ts-loader 的区别？
 
