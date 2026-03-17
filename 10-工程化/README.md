@@ -126,3 +126,23 @@
 | Monorepo | workspace、Turborepo | [[前端工程化全景#二、Monorepo 方案]] |
 | CI/CD | GitHub Actions | [[前端工程化全景#三、CI/CD 基础]] |
 | 代码规范 | ESLint+Prettier+Husky | [[前端工程化全景#四、代码规范]] |
+
+---
+
+## 📚 本模块文档（双链索引）
+
+- [[MCP协议原理与协作流程]]
+- [[npm包开发全流程]]
+- [[package-lock.json 有什么作用]]
+- [[Vite原理与配置实战]]
+- [[Vite深入理解]]
+- [[Webpack5核心特性]]
+- [[Webpack面试核心知识点]]
+- [[前端工程化全景]]
+- [[多人协作代码管理方案]]
+
+## 🔗 相关模块
+
+- [[03-TypeScript/README|TypeScript]]
+- [[09-网络与浏览器/README|网络与浏览器]]
+- [[11-Git与工具/README|Git 与工具]]
