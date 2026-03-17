@@ -1,10 +1,12 @@
-# TypeScript 知识地图
+# 03 · TypeScript 知识地图
+
+> [[README|← 返回知识库首页]]
 
 ## 关联笔记
 
-- [[02-JavaScript/README]]
-- [[05-框架-React/]]
-- [[10-工程化/README]]
+- [[02-JavaScript/README|← JavaScript]]
+- [[05-React/README|← React]]
+- [[10-工程化/README|← 工程化]]
 
 ---
 

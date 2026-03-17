@@ -1,14 +1,13 @@
-# 框架与跨端
+# 06 · 框架与跨端
 
-> 本模块涵盖 ArkTS 鸿蒙开发、跨端方案对比等知识点。
+> [[README|← 返回知识库首页]]
 
-## 📚 本模块文档
+## 跨端方案
 
-- [[ArkTS鸿蒙开发入门]]
 - [[跨端方案对比]]
 
-## 🔗 相关模块
+## 相关笔记
 
-- [[04-Vue/README|Vue]]
-- [[05-React/README|React]]
-- [[07-Node/README|Node.js]]
+- [[02-JavaScript/README|← JavaScript]]
+- [[05-React/README|← React]]
+- [[04-Vue/README|← Vue]]

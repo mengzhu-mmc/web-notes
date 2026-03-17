@@ -1,13 +1,12 @@
-# Node.js 知识地图
+# 07 · Node.js
 
-> 本模块涵盖 Node.js 面试核心知识点、服务端渲染、Serverless 等内容。
+> [[README|← 返回知识库首页]]
 
-## 📚 本模块文档
+## 面试核心
 
 - [[Node.js面试核心知识点]]
 
-## 🔗 相关模块
+## 相关知识
 
-- [[02-JavaScript/README|JavaScript]]
-- [[06-框架与跨端/README|框架与跨端]]
-- [[10-工程化/README|工程化]]
+- [[09-网络与浏览器/README|← 网络与浏览器]]
+- [[10-工程化/README|← 工程化]]

@@ -1,6 +1,6 @@
-# ⚛️ React 知识地图（MOC）
+# 05 · React 知识地图（MOC）
 
-> 这是 React 目录的索引页，所有 React 笔记都从这里链接。
+> [[README|← 返回知识库首页]] | 这是 React 目录的索引页，所有 React 笔记都从这里链接。
 
 ## 学习路径：基础 → 进阶 → 实战
 
@@ -44,16 +44,8 @@
 
 ---
 
-## 跨目录关联
-- [[02-JavaScript/EventLoop]] — 理解 React 批处理需要先懂 Event Loop
-- [[09-网络-浏览器/前端安全]] — React 的 XSS 防护（JSX 自动转义）
-- [[09-网络-浏览器/浏览器渲染和回流(重排)、重绘]] — 理解虚拟 DOM 为什么能减少回流
+## 独立笔记（精华）
 
----
-
-## 📚 本模块文档（双链索引）
-
-- [[Hooks深入实战]]
 - [[React18-19新特性]]
 - [[React-Fiber与虚拟DOM]]
 - [[React SSR实现原理]]
@@ -64,12 +56,15 @@
 - [[React自定义Hook与组件区别]]
 - [[React路由模式详解]]
 - [[React闭包陷阱详解]]
+- [[Hooks深入实战]]
 - [[Next.js与Nuxt.js对比]]
 - [[useReducer与useContext模拟Redux]]
-- [[手写自定义Hook合集]]
 
-## 🔗 相关模块
+---
 
-- [[02-JavaScript/README|JavaScript]]
-- [[03-TypeScript/README|TypeScript]]
-- [[09-网络与浏览器/README|网络与浏览器]]
+## 跨目录关联
+
+- [[02-JavaScript/异步编程与EventLoop|EventLoop]] — 理解 React 批处理需要先懂 Event Loop
+- [[09-网络与浏览器/跨域与安全/前端安全|前端安全]] — React 的 XSS 防护（JSX 自动转义）
+- [[09-网络与浏览器/浏览器原理/浏览器渲染和回流(重排)、重绘|浏览器渲染 & 回流 & 重绘]] — 理解虚拟 DOM 为什么能减少回流
+- [[03-TypeScript/TypeScript与React实战|TypeScript 与 React 实战]]
