@@ -1,14 +1,24 @@
+## 面试高频考点
 
+1. JWT 的结构是什么？三部分分别是什么？
+2. JWT 和 Session 的核心区别是什么？各自适合什么场景？
+3. JWT 如何实现无状态认证？服务端如何验证 JWT 的合法性？
+4. JWT 的安全问题有哪些？如何防止 token 被盗用？
+5. JWT 的 access token 和 refresh token 分别是什么？为什么要分开？
 
-
+---
 
 [JSON Web Token 入门教程](https://www.ruanyifeng.com/blog/2018/07/json_web_token-tutorial.html)
 
 JSON Web Token（缩写 JWT）是目前最流行的跨域认证解决方案。
 
+### JWT 结构
 
+JWT 由三部分组成，用 `.` 分隔：`Header.Payload.Signature`
 
-
+- **Header**：算法类型（如 HS256）和 token 类型（JWT）
+- **Payload**：声明（claims），包含用户信息和过期时间等
+- **Signature**：用密钥对前两部分签名，防止篡改
 
 ### JWT 和 Session Cookies 的不同
 
@@ -34,7 +44,73 @@ Session Cookies 只能用在`单个节点的域`或者它的`子域`中有效。
 
 使用 JWT 可以解决这个问题，使用 JWT 能够通过`多个节点`进行用户认证，也就是我们常说的`跨域认证`。
 
+---
 
+## 代码示例
+
+### 服务端生成和验证 JWT（Node.js / jsonwebtoken）
+
+```javascript
+const jwt = require('jsonwebtoken');
+const SECRET = 'your-secret-key'; // 生产环境应从环境变量读取
+
+// 登录时生成 token
+function generateTokens(userId) {
+  const accessToken = jwt.sign(
+    { userId, type: 'access' },
+    SECRET,
+    { expiresIn: '15m' }  // access token 短有效期
+  );
+  const refreshToken = jwt.sign(
+    { userId, type: 'refresh' },
+    SECRET,
+    { expiresIn: '7d' }   // refresh token 长有效期
+  );
+  return { accessToken, refreshToken };
+}
+
+// 验证 token 中间件
+function authMiddleware(req, res, next) {
+  const token = req.headers.authorization?.split(' ')[1]; // Bearer <token>
+  if (!token) return res.status(401).json({ error: 'No token' });
+
+  try {
+    const payload = jwt.verify(token, SECRET);
+    req.user = payload;
+    next();
+  } catch (err) {
+    // TokenExpiredError / JsonWebTokenError
+    return res.status(401).json({ error: 'Invalid or expired token' });
+  }
+}
+```
+
+### 前端存储和携带 JWT
+
+```javascript
+// 登录后存储 token
+function login(username, password) {
+  const res = await fetch('/api/login', {
+    method: 'POST',
+    body: JSON.stringify({ username, password }),
+  });
+  const { accessToken, refreshToken } = await res.json();
+
+  // access token 存内存或 sessionStorage（安全，但页面刷新丢失）
+  sessionStorage.setItem('accessToken', accessToken);
+  // refresh token 存 httpOnly cookie（防 XSS）
+  // 由服务端 Set-Cookie 设置
+}
+
+// 每次请求携带 token
+axios.interceptors.request.use(config => {
+  const token = sessionStorage.getItem('accessToken');
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});
+```
+
+---
 
 作者：程序员cxuan
 链接：https://juejin.cn/post/6844904115080790023

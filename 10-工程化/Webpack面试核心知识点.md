@@ -454,3 +454,101 @@ babel-loader 通过 `@babel/preset-typescript` 处理 TS，只做语法转换（
 ### Q4：如何分析 Webpack 打包产物？
 
 使用 `webpack-bundle-analyzer` 插件，它会生成一个可视化的 treemap，直观展示每个模块的体积占比，帮助发现体积过大的依赖。配合 `speed-measure-webpack-plugin` 可以分析每个 Loader 和 Plugin 的耗时。
+
+---
+
+## 易混淆点 & 面试陷阱
+
+### 1. Loader 和 Plugin 的区别
+
+> **一句话核心：** Loader 是文件转换器（处理单个模块），Plugin 是构建流程扩展器（介入整个编译生命周期）。
+
+| 维度 | Loader | Plugin |
+|------|--------|--------|
+| 本质 | 一个函数，接收文件内容返回转换结果 | 一个带 `apply(compiler)` 方法的类 |
+| 作用范围 | 只能处理特定类型的文件（module.rules） | 可介入构建任意阶段（通过 Tapable 钩子） |
+| 执行时机 | 编译阶段，模块被加载时 | 从初始化到输出，贯穿全流程 |
+| 链式调用 | 是，从右到左 | 否，各自独立 |
+| 典型例子 | babel-loader、css-loader、ts-loader | HtmlWebpackPlugin、MiniCssExtractPlugin |
+
+**陷阱：** 面试官常问"css-loader 和 style-loader 的区别"——css-loader 负责解析 CSS 文件中的 `@import` 和 `url()`，把 CSS 变成 JS 模块；style-loader 负责将 CSS 注入到 DOM 的 `<style>` 标签中。两者缺一不可，且顺序不能颠倒。
+
+---
+
+### 2. Webpack vs Vite 各自适合的场景
+
+| 场景 | 推荐 | 原因 |
+|------|------|------|
+| 大型企业级项目、复杂构建需求 | **Webpack** | 生态最成熟、插件最多、配置最灵活，支持各种复杂场景 |
+| 中小型项目、追求开发体验 | **Vite** | 开发启动极快、HMR 毫秒级，配置简单开箱即用 |
+| 需要兼容旧浏览器（IE11） | **Webpack** | Vite 基于原生 ESM，对旧浏览器兼容性较差 |
+| Vue3 / React 新项目 | **Vite** | 官方推荐，与现代框架深度集成 |
+| 微前端 / Module Federation | **Webpack 5** | Module Federation 是 Webpack 5 独有特性 |
+| 组件库 / npm 包构建 | **Rollup**（Vite底层） | 产物更干净，Tree Shaking 更彻底 |
+
+> **陷阱：** Vite 生产环境底层用 Rollup 打包，**不是**原生 ESM 直接部署——大量小模块会产生网络瀑布流问题，必须打包。
+
+---
+
+### 3. hash / chunkhash / contenthash 的区别（高频考点）
+
+| 类型 | 生成依据 | 变化范围 | 适用场景 |
+|------|---------|---------|---------|
+| `hash` | 整个项目的编译 hash | 任意文件改变，所有 hash 都变 | 不推荐在生产环境使用 |
+| `chunkhash` | 同一个 Chunk（入口）的内容 | 只有该 Chunk 内容变化时才变 | **JS 文件**（`output.filename`） |
+| `contenthash` | 文件自身内容 | 只有该文件内容变化时才变 | **CSS 文件**（MiniCssExtractPlugin） |
+
+**为什么 CSS 要用 contenthash 而不是 chunkhash？**
+
+CSS 通过 MiniCssExtractPlugin 从 JS Chunk 中提取出来。如果 JS 代码改变（但 CSS 没变），用 `chunkhash` 会导致 CSS 文件的 hash 也跟着变，破坏缓存。用 `contenthash` 则 CSS 只在自身内容变化时才更新 hash，最大化缓存利用率。
+
+```javascript
+// 推荐配置
+module.exports = {
+  output: {
+    filename: 'js/[name].[chunkhash:8].js',        // JS 用 chunkhash
+  },
+  plugins: [
+    new MiniCssExtractPlugin({
+      filename: 'css/[name].[contenthash:8].css',  // CSS 用 contenthash
+    }),
+  ],
+};
+```
+
+---
+
+### 4. Tree Shaking 的前提条件
+
+> **核心：必须是 ES Module（`import/export`），且模块不能有副作用。**
+
+```
+Tree Shaking 生效的必要条件：
+✅ 使用 ES Module 语法（import / export），不能用 CommonJS（require）
+    → 原因：ES Module 是静态结构，编译时即可分析依赖；CommonJS 是动态的，运行时才能确定
+✅ mode: 'production'（Webpack 默认开启 Tree Shaking + Terser 压缩）
+✅ package.json 中标记 "sideEffects": false（或指定有副作用的文件）
+    → 如果不设置，Webpack 会保守地保留所有模块，防止误删有副作用的代码
+
+常见陷阱：
+❌ 第三方库用 CommonJS 格式（如旧版 lodash）→ Tree Shaking 无效，需改用 lodash-es
+❌ 模块有副作用（如修改全局变量、CSS 文件）→ 必须在 sideEffects 中声明
+❌ Babel 将 ES Module 转成 CommonJS → 需配置 @babel/preset-env 的 modules: false
+```
+
+```javascript
+// babel.config.js - 必须保留 ES Module 语法，让 Webpack 做 Tree Shaking
+module.exports = {
+  presets: [
+    ['@babel/preset-env', {
+      modules: false, // ⚠️ 关键！不让 Babel 转换 import/export，交给 Webpack 处理
+    }]
+  ]
+};
+
+// package.json
+{
+  "sideEffects": ["*.css", "*.less", "./src/polyfill.js"] // 声明有副作用的文件
+  // "sideEffects": false  // 所有模块无副作用（纯函数库适用）
+}
+```

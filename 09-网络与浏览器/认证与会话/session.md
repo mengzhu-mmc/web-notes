@@ -1,3 +1,13 @@
+## 面试高频考点
+
+1. Session 的认证流程是怎样的？
+2. Session 存储在哪里？有哪些存储方式，各自的优缺点？
+3. 分布式系统中 Session 如何共享？有哪些解决方案？
+4. Session 和 Cookie 的区别是什么？
+5. Session 有哪些安全问题？如何防止 Session 劫持？
+
+---
+
 ### session认证流程
 
 1. 浏览器登陆发送账号和密码，服务器查数据库校验
@@ -35,3 +45,58 @@
 * 存取值的类型不同：Cookie 只支持存字符串数据，想要设置其他类型的数据，需要将其转换成字符串，Session 可以存任意数据类型。
 * 有效期不同：cookie可以长时间保持，但是session一般失效事件短，默认客户端关闭就失效了
 * 存储大小不同：单个 Cookie 保存的数据不能超过4K，Session 可存储数据远高于 Cookie，但是当访问量过多，会占用过多的服务器资源。
+
+---
+
+## 代码示例
+
+### Express + express-session 基本用法
+
+```javascript
+const express = require('express');
+const session = require('express-session');
+const RedisStore = require('connect-redis').default;
+const { createClient } = require('redis');
+
+const redisClient = createClient({ url: 'redis://localhost:6379' });
+await redisClient.connect();
+
+const app = express();
+
+app.use(session({
+  store: new RedisStore({ client: redisClient }), // 存 Redis，解决分布式问题
+  secret: 'your-secret',    // 用于签名 sessionId cookie
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,          // 防 XSS
+    secure: true,            // 仅 HTTPS
+    maxAge: 24 * 60 * 60 * 1000, // 1天过期
+  }
+}));
+
+// 登录接口：将用户信息存入 session
+app.post('/login', (req, res) => {
+  const { username, password } = req.body;
+  // 校验用户名密码...
+  req.session.userId = user.id;    // 存入 session
+  req.session.role = user.role;
+  res.json({ success: true });
+});
+
+// 鉴权中间件：从 session 获取用户信息
+function authMiddleware(req, res, next) {
+  if (!req.session.userId) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+  next();
+}
+
+// 登出：销毁 session
+app.post('/logout', (req, res) => {
+  req.session.destroy(err => {
+    res.clearCookie('connect.sid'); // 清除客户端 cookie
+    res.json({ success: true });
+  });
+});
+```

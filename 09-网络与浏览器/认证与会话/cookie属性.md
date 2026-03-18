@@ -1,3 +1,13 @@
+## 面试高频考点
+
+1. Cookie 的 HttpOnly 属性有什么作用？为什么能防止 XSS？
+2. SameSite 属性的三个值有什么区别？如何防止 CSRF？
+3. Secure 属性的作用是什么？
+4. 如何实现跨子域共享 Cookie（单点登录场景）？
+5. Cookie 的 Domain 和 Path 属性如何控制访问范围？
+
+---
+
 ### cookie属性
 
 <img src="./cookie属性.jpg" width=600 align=left />
@@ -28,4 +38,37 @@ domain表示的是cookie所在的域，默认为请求的地址，如网址为ww
 确保携带Cookie发起请求的网站和请求目标的服务是同站。
 
 作用：SameSite 属性可以让 Cookie 在跨站请求时不会被发送，从而可以阻止跨站请求伪造攻击（CSRF）。
+
+---
+
+## 代码示例
+
+### 服务端设置安全 Cookie（Node.js / Express）
+
+```javascript
+// 登录成功后设置安全 Cookie
+res.cookie('sessionId', sessionId, {
+  httpOnly: true,       // 禁止 JS 读取，防 XSS
+  secure: true,         // 仅 HTTPS 传输
+  sameSite: 'Strict',   // 禁止跨站携带，防 CSRF
+  domain: '.study.com', // 允许所有子域访问（单点登录场景）
+  maxAge: 7 * 24 * 60 * 60 * 1000, // 7天过期
+});
+```
+
+### 前端读取 Cookie（非 HttpOnly）
+
+```javascript
+// 读取指定 Cookie 的工具函数
+function getCookie(name) {
+  const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+  return match ? decodeURIComponent(match[2]) : null;
+}
+
+// 设置 Cookie（JS 设置的 cookie 不能带 httpOnly）
+document.cookie = `theme=dark; path=/; max-age=${7 * 24 * 3600}`;
+
+// 删除 Cookie（将过期时间设为过去）
+document.cookie = 'theme=; path=/; max-age=0';
+```
 
