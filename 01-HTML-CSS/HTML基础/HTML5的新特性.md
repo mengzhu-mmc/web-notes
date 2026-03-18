@@ -197,6 +197,216 @@ function successPos (pos){
 
 **注意：由于Worker属于外部文件，因此它不能获取`javascript`这些对象：` window `对象，`document` 对象，`parent` 对象**。
 
+---
+
+## 现代 HTML API 补充（面试加分 + 日常实用）
+
+### `<dialog>` 元素 — 原生模态框
+
+无需第三方库，浏览器原生支持模态对话框（Chrome 37+，主流浏览器全支持）。
+
+```html
+<dialog id="myDialog">
+  <h2>确认删除</h2>
+  <p>此操作不可撤销，确定要删除吗？</p>
+  <button id="confirmBtn">确认</button>
+  <button id="cancelBtn">取消</button>
+</dialog>
+
+<button id="openBtn">打开对话框</button>
+```
+
+```js
+const dialog = document.getElementById('myDialog')
+
+// 打开：show() 非模态（不阻断背景交互）
+dialog.show()
+
+// 打开：showModal() 模态（背景不可点击，ESC 键可关闭）
+document.getElementById('openBtn').onclick = () => dialog.showModal()
+
+// 关闭
+document.getElementById('cancelBtn').onclick = () => dialog.close()
+document.getElementById('confirmBtn').onclick = () => {
+  dialog.close('confirmed') // 可传返回值
+  deleteItem()
+}
+
+// 监听关闭事件
+dialog.addEventListener('close', () => {
+  console.log('返回值:', dialog.returnValue) // 'confirmed' 或 ''
+})
+
+// 点击背景关闭
+dialog.addEventListener('click', (e) => {
+  if (e.target === dialog) dialog.close()
+})
+```
+
+```css
+/* CSS 样式 */
+dialog::backdrop {
+  background: rgba(0, 0, 0, 0.5); /* 半透明遮罩 */
+  backdrop-filter: blur(2px);
+}
+dialog[open] {
+  border-radius: 8px;
+  padding: 24px;
+}
+```
+
+### `popover` Attribute — HTML Popover API
+
+无需 JS 即可实现弹出层/气泡框（Chrome 114+）。
+
+```html
+<!-- 触发按钮 + popovertarget 指向弹出层 id -->
+<button popovertarget="my-popover">打开 Popover</button>
+
+<div id="my-popover" popover>
+  <p>这是一个 Popover 内容</p>
+  <button popovertarget="my-popover" popovertargetaction="hide">关闭</button>
+</div>
+```
+
+```js
+// 也可以用 JS 控制
+const popover = document.getElementById('my-popover')
+popover.showPopover()  // 显示
+popover.hidePopover()  // 隐藏
+popover.togglePopover() // 切换
+
+// popover 和 dialog 的区别：
+// - popover 默认点击外部会关闭（light dismiss）
+// - popover 不阻断背景交互
+// - dialog 是模态，必须主动关闭
+```
+
+### `<details>` + `<summary>` — 原生折叠
+
+不用 JS 实现手风琴/折叠展开效果：
+
+```html
+<details>
+  <summary>点击展开详情</summary>
+  <p>这里是折叠的内容，可以包含任意 HTML</p>
+  <ul>
+    <li>列表项 1</li>
+    <li>列表项 2</li>
+  </ul>
+</details>
+
+<!-- 默认展开 -->
+<details open>
+  <summary>默认展开的内容</summary>
+  <p>这个默认是展开状态</p>
+</details>
+```
+
+```js
+// JS 监听折叠/展开
+const details = document.querySelector('details')
+details.addEventListener('toggle', () => {
+  console.log(details.open ? '展开了' : '折叠了')
+})
+```
+
+### View Transitions API — 页面切换动画
+
+实现流畅的页面/状态切换动画（Chrome 111+）。
+
+```js
+// 基本用法：用 startViewTransition 包裹 DOM 更新
+document.startViewTransition(() => {
+  // 更新 DOM（如路由切换、内容更新）
+  document.getElementById('content').innerHTML = newContent
+})
+
+// 自定义过渡动画（CSS）
+// ::view-transition-old(root) — 旧页面
+// ::view-transition-new(root) — 新页面
+```
+
+```css
+/* 自定义淡入淡出 */
+@keyframes slide-in {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slide-out {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(-100%); opacity: 0; }
+}
+
+::view-transition-old(root) {
+  animation: 300ms ease slide-out;
+}
+
+::view-transition-new(root) {
+  animation: 300ms ease slide-in;
+}
+
+/* 对指定元素单独设置过渡（需要 view-transition-name）*/
+.hero-image {
+  view-transition-name: hero; /* 跨页面共享元素动画 */
+}
+```
+
+```js
+// React Router / SPA 中使用
+async function navigate(newUrl) {
+  if (!document.startViewTransition) {
+    // 降级处理
+    updatePage(newUrl)
+    return
+  }
+  await document.startViewTransition(() => updatePage(newUrl)).ready
+}
+```
+
+### `inert` 属性 — 无障碍重要属性
+
+让元素及其所有子元素变为不可交互状态（不可点击、不可 Tab 聚焦、不被屏幕阅读器读取）。
+
+```html
+<!-- 当 dialog 打开时，背景内容应该 inert -->
+<main id="mainContent">
+  <!-- 主要内容 -->
+</main>
+
+<dialog id="modal">
+  <!-- 对话框内容 -->
+</dialog>
+```
+
+```js
+const modal = document.getElementById('modal')
+const main = document.getElementById('mainContent')
+
+// 打开 modal 时，背景内容设为 inert
+modal.showModal()
+main.inert = true  // 背景不可交互，屏幕阅读器会忽略
+
+// 关闭 modal 时，恢复交互
+modal.close()
+main.inert = false
+```
+
+```html
+<!-- 骨架屏加载时禁止交互 -->
+<section inert aria-busy="true">
+  <!-- 内容加载中... -->
+</section>
+
+<!-- 分步表单中隐藏非当前步骤 -->
+<div id="step2" inert hidden>
+  <!-- 第二步内容，当前步骤不在这里 -->
+</div>
+```
+
+**为什么比 `pointer-events: none` 更好**：`pointer-events: none` 只禁止鼠标事件，不禁止键盘 Tab 导航；`inert` 同时禁止鼠标、键盘和屏幕阅读器，是无障碍访问（a11y）的最佳实践。
+
 ### 10.[Web Workers](4.Web Workers.html)
 
 web worker 是运行在后台的 JavaScript，独立于其他脚本，不会影响页面的性能。您可以继续做任何愿意做的事情：点击、选取内容等等，而此时 web worker 在后台运行。 关于web worker的应用大概分为三个部分：

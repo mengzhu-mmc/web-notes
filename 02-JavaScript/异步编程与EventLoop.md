@@ -151,6 +151,60 @@ Promise.reject(reason)  // 创建一个 rejected 的 Promise
 
 ---
 
+## 现代 Promise API 补充
+
+### AbortSignal.timeout() — 简洁超时控制（Chrome 103+）
+
+比自己手写 `Promise.race` + `setTimeout` 更简洁：
+
+```js
+// 旧写法：手动 Promise.race
+function withTimeout(promise, ms) {
+  const timeout = new Promise((_, reject) =>
+    setTimeout(() => reject(new Error('Timeout')), ms)
+  )
+  return Promise.race([promise, timeout])
+}
+
+// ✅ 新写法：AbortSignal.timeout
+try {
+  const res = await fetch('/api/data', {
+    signal: AbortSignal.timeout(5000) // 5 秒超时
+  })
+  const data = await res.json()
+} catch (err) {
+  if (err.name === 'TimeoutError') {
+    console.log('请求超时')
+  }
+}
+```
+
+### structuredClone() — 原生深拷贝
+
+`structuredClone` 是原生深拷贝 API（Chrome 98+、Node 17+），替代 `JSON.parse(JSON.stringify())`：
+
+```js
+// JSON 方案的缺陷
+const obj = { date: new Date(), map: new Map([['key', 1]]), fn: () => {} }
+const bad = JSON.parse(JSON.stringify(obj))
+// bad.date → 字符串（不是 Date 对象）
+// bad.map  → {} （Map 丢失）
+// bad.fn   → undefined（函数丢失）
+
+// ✅ structuredClone：支持 Date/Map/Set/RegExp/ArrayBuffer/Blob，支持循环引用
+const good = structuredClone(obj) // 注意：函数仍然会抛出错误
+good.date instanceof Date   // true ✅
+good.map instanceof Map     // true ✅
+
+// 不支持的类型（会抛出 DataCloneError）
+structuredClone({ fn: () => {} }) // ❌ 函数不支持
+structuredClone(document.body)    // ❌ DOM 节点不支持
+```
+
+详见：[深拷贝方案对比.md](../深拷贝方案对比.md)
+
+---
+
 ## 实用异步模式
 
 ### 并发控制

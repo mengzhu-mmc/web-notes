@@ -210,7 +210,82 @@ const big2 = BigInt('9007199254740995');
 
 ---
 
-## 五、Symbol 的使用场景
+## 五、现代数组与对象 API（ES2022+）
+
+### 数组新方法
+
+```js
+// Array.prototype.at() — 支持负索引（ES2022）
+const arr = [1, 2, 3, 4, 5]
+arr.at(0)   // 1
+arr.at(-1)  // 5（最后一个，等同于 arr[arr.length - 1]）
+arr.at(-2)  // 4
+
+// findLast / findLastIndex — 从末尾开始查找（ES2023）
+const nums = [1, 2, 3, 4, 3, 5]
+nums.findLast(n => n === 3)      // 3（找到最后一个 3）
+nums.findLastIndex(n => n === 3) // 4（最后一个 3 的索引）
+
+// 不可变数组方法 — 返回新数组，不修改原数组（ES2023）
+const original = [3, 1, 2]
+
+original.toSorted()           // [1, 2, 3]，原数组不变
+original.toSorted((a, b) => b - a) // [3, 2, 1]，降序
+
+original.toReversed()         // [2, 1, 3]，原数组不变
+
+original.toSpliced(1, 1, 10)  // [3, 10, 2]，原数组不变
+// 对比：original.splice(1, 1, 10) 会修改原数组
+
+original.with(0, 99)          // [99, 1, 2]，修改指定索引，返回新数组
+// 对比：original[0] = 99 会修改原数组
+
+console.log(original) // [3, 1, 2] — 始终不变 ✅
+```
+
+**面试考点**：为什么要有不可变数组方法？函数式编程/Redux 要求数据不可变；Vue3/React 的响应式需要检测数组变化（直接修改 vs 返回新引用）。
+
+### Object 新方法
+
+```js
+// Object.hasOwn() — 替代 hasOwnProperty（ES2022）
+const obj = { name: 'Alice' }
+
+// ❌ 旧方式：可能被覆盖
+obj.hasOwnProperty('name')              // true
+Object.prototype.hasOwnProperty.call(obj, 'name') // 更安全但繁琐
+
+// ✅ 新方式：更简洁、更安全（即使对象没有原型也有效）
+Object.hasOwn(obj, 'name')    // true
+Object.hasOwn(obj, 'age')     // false
+
+// 对 Object.create(null) 创建的纯对象也有效
+const pureObj = Object.create(null)
+pureObj.x = 1
+Object.hasOwn(pureObj, 'x')   // true ✅
+// pureObj.hasOwnProperty('x') // ❌ 会报错，因为没有原型
+
+// Object.groupBy() — 分组（ES2024）
+const people = [
+  { name: 'Alice', dept: 'eng' },
+  { name: 'Bob', dept: 'design' },
+  { name: 'Charlie', dept: 'eng' },
+]
+
+const byDept = Object.groupBy(people, p => p.dept)
+// {
+//   eng: [{ name: 'Alice', ... }, { name: 'Charlie', ... }],
+//   design: [{ name: 'Bob', ... }]
+// }
+
+// Map.groupBy() — 当 key 需要是非字符串类型时使用
+const grouped = Map.groupBy(people, p => p.dept)
+grouped.get('eng') // [{...}, {...}]
+```
+
+---
+
+## 六、Symbol 的使用场景
 
 ```js
 // 1. 作为对象的唯一属性键，避免命名冲突

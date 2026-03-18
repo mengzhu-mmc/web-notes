@@ -226,3 +226,80 @@ npm audit fix
 
 # 使用 Snyk 等工具持续监控
 ```
+
+---
+
+## 六、Trusted Types API — 防止 DOM XSS（现代浏览器）
+
+Trusted Types 是一种浏览器原生防御机制，通过限制危险 DOM API 的输入来源，从根本上阻断 DOM 型 XSS。
+
+```js
+// 1. 创建 Trusted Types 策略
+const policy = trustedTypes.createPolicy('my-policy', {
+  createHTML: (input) => {
+    // 在这里做净化处理（如使用 DOMPurify）
+    return DOMPurify.sanitize(input)
+  },
+  createScript: (input) => {
+    // 对脚本内容做校验
+    if (!allowedScripts.includes(input)) {
+      throw new Error('不允许的脚本内容')
+    }
+    return input
+  },
+  createScriptURL: (input) => {
+    // 只允许白名单 URL
+    const url = new URL(input)
+    if (url.hostname !== 'trusted.example.com') {
+      throw new Error('不允许的脚本来源')
+    }
+    return input
+  }
+})
+
+// 2. 使用策略创建受信任的值
+const safeHtml = policy.createHTML('<b>安全内容</b>')
+element.innerHTML = safeHtml // ✅ 传入的是 TrustedHTML 对象，不是原始字符串
+
+// 3. 直接传字符串会报错（需要开启 CSP 策略）
+element.innerHTML = '<script>alert(1)</script>' // ❌ 抛出 TypeError
+
+// 4. 通过 CSP 响应头启用 Trusted Types 强制模式
+// Content-Security-Policy: require-trusted-types-for 'script'; trusted-types my-policy
+```
+
+**工作原理**：浏览器拦截 `innerHTML`、`document.write`、`eval` 等危险 API 的赋值，要求传入 `TrustedHTML`/`TrustedScript` 类型对象而非普通字符串，强制所有 DOM 写入都经过安全策略的校验。
+
+---
+
+## 七、Permissions-Policy 响应头
+
+`Permissions-Policy`（原 `Feature-Policy`）控制当前页面及其内嵌 `<iframe>` 可以使用哪些浏览器功能，是安全加固的重要手段。
+
+```
+# 常用指令示例
+Permissions-Policy:
+  camera=(),                    # 禁止使用摄像头（空括号 = 完全禁止）
+  microphone=(),                # 禁止使用麦克风
+  geolocation=(),               # 禁止获取地理位置
+  payment=(self),               # 只允许当前页面使用支付 API
+  autoplay=(self "https://cdn.example.com"), # 允许当前源和指定源自动播放
+  fullscreen=*,                 # 允许所有来源使用全屏
+  interest-cohort=()            # 禁用 FLoC 用户追踪（隐私保护）
+```
+
+```html
+<!-- 在 <iframe> 标签上控制子页面权限 -->
+<iframe
+  src="https://third-party.com/widget"
+  allow="camera 'none'; microphone 'none'; payment 'self'"
+></iframe>
+```
+
+**与 CSP 的区别**：
+
+| 对比项 | CSP | Permissions-Policy |
+| --- | --- | --- |
+| 防御目标 | 资源加载来源控制（防 XSS/注入） | 浏览器能力访问控制（防功能滥用） |
+| 控制粒度 | 资源类型（script/style/img...） | 浏览器 API（camera/mic/geo...） |
+| 典型用途 | 防止脚本注入、限制资源来源 | 保护用户隐私、限制第三方 iframe |
