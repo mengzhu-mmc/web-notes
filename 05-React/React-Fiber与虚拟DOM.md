@@ -230,21 +230,97 @@ function completeUnitOfWork(unitOfWork) {
 
 ---
 
-## 五、React 渲染流程总结
+## 五、Fiber 节点核心字段
+
+```js
+{
+  type,         // 节点类型（'div' | App | () => {}）
+  props,        // 当前属性
+  stateNode,    // 真实 DOM 节点或组件实例
+  return,       // 父 Fiber 节点
+  child,        // 第一个子 Fiber 节点
+  sibling,      // 下一个兄弟 Fiber 节点
+  alternate,    // 双缓存：指向另一棵树的对应节点
+  flags,        // 副作用标记（Placement/Update/Deletion）
+  lanes,        // 优先级（31位二进制 Lane）
+}
+```
+
+- `alternate`：`currentFiber.alternate = wipFiber`，两棵树互相指向，构建时不销毁旧树
+- `flags`：Placement（新增）、Update（更新）、Deletion（删除）
+- `lanes`：31 位二进制表示优先级，同步 > 交互事件 > 网络返回 > 懒加载
+
+---
+
+## 六、时间切片：为什么用 MessageChannel 而非 requestIdleCallback？
+
+React 时间切片底层用的是 **MessageChannel**，不是 `requestIdleCallback`，原因如下：
+
+| 对比项 | requestIdleCallback | MessageChannel |
+|--------|---------------------|----------------|
+| 执行时机 | 浏览器空闲时才执行，用户交互频繁时可能一直被推迟 | 每帧都能稳定执行（宏任务） |
+| 给的时间 | 可能不足 1ms | 可以精确控制（React 设为 5ms） |
+| 兼容性 | Safari 不支持 | 全面支持 |
+| 优先级控制 | React 无法自定义优先级 | 可配合 Scheduler 精确调度 |
+
+```js
+// React 借用 MessageChannel 产生"干净的宏任务"
+const channel = new MessageChannel();
+// port1 发消息，port2 收消息（自己给自己发）
+// 时间片用完 → 停止工作 → port1.postMessage() → 产生宏任务
+// 浏览器执行渲染 → onmessage 触发 → 恢复工作
+
+// 源码佐证
+export const frameYieldMs = 5; // 5ms 时间片
+
+function shouldYieldToHost() {
+  return getCurrentTime() - startTime >= frameYieldMs;
+}
+```
+
+---
+
+## 七、协调阶段 vs 提交阶段
+
+### 协调阶段（render/reconcile）——可中断
+
+- 深度优先遍历，基于 current 树增量构建 workInProgress 树
+- 为每个 Fiber 节点打 flags 标记
+- 每处理完一个任务单元检查时间（5ms），超时立即让出主线程
+- 高优先级更新可**抛弃**低优先级的 workInProgress，重新构建
+
+### 提交阶段（commit）——不可中断，分3个子阶段
+
+| 子阶段 | 时机 | 执行内容 |
+|--------|------|----------|
+| **before mutation** | DOM 修改前 | 处理 `useEffect` 清理函数、`getSnapshotBeforeUpdate` |
+| **mutation** | 真正操作 DOM | 根据 flags 执行插入/更新/删除 |
+| **layout** | DOM 更新后、绘制前 | 执行 `componentDidMount/Update`、`useLayoutEffect` |
+
+`useEffect` 在提交阶段完成后**异步**执行（不阻塞浏览器绘制）。
+
+---
+
+## 八、React 渲染流程总结
 
 ```
 触发更新（setState / props 变化 / forceUpdate）
     ↓
 Scheduler（调度器）：根据优先级决定何时执行
     ↓
-Reconciler（协调器）：Render 阶段
+Reconciler（协调器）：Render 阶段（可中断）
   - 遍历 Fiber 树（beginWork + completeWork）
-  - 对比新旧 Fiber，标记副作用（effectTag）
+  - 对比新 element vs 旧 Fiber，标记 flags
   - 构建 workInProgress 树
+  - 时间切片：5ms 到就让出主线程（MessageChannel）
     ↓
-Renderer（渲染器）：Commit 阶段
-  - Before Mutation：执行 getSnapshotBeforeUpdate
-  - Mutation：操作真实 DOM（插入/更新/删除）
-  - Layout：执行 componentDidMount/Update、useLayoutEffect
+Renderer（渲染器）：Commit 阶段（不可中断）
+  - before mutation：处理 useEffect 清理
+  - mutation：操作真实 DOM（插入/更新/删除）
+  - layout：执行 componentDidMount/Update、useLayoutEffect
   - 异步执行 useEffect
 ```
+
+### 一句话面试标准答案
+
+> React Fiber 采用**双缓存 + 时间切片 + 优先级调度**：协调阶段基于 current 树增量构建 workInProgress 树，可中断、可恢复、可插队；时间片默认 **5ms**，时间到立即通过 **MessageChannel** 释放主线程，不阻塞浏览器；高优先级更新可抛弃低优先级的构建进度，重新开始；提交阶段分 before mutation / mutation / layout 三个子阶段，一次性将变更应用到 DOM，保证视图一致性。

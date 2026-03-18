@@ -246,3 +246,75 @@ git fetch --prune
 # 查看仓库大小和大文件
 git count-objects -vH
 ```
+
+---
+
+## 八、GitHub 推送冲突解决全流程
+
+### 方式一：本地解决冲突（推荐）
+
+```bash
+# 1. 先拉取最新代码（会自动合并，有冲突则标记冲突）
+git pull
+
+# 冲突文件内容如下，手动处理：
+# <<<<<<< HEAD
+# 你本地改的代码
+# =======
+# GitHub 远程的代码
+# >>>>>>> origin/main
+
+# 2. 手动编辑：删掉 <<<<<<<、=======、>>>>>>> 符号，保留想要的代码
+
+# 3. 标记冲突已解决
+git add .
+
+# 4. 提交合并结果
+git commit -m "解决合并冲突"
+
+# 5. 推送
+git push
+```
+
+### 方式二：Stash 暂存法（本地有未提交改动时）
+
+```bash
+git stash                  # 暂存本地未提交改动
+git pull origin main       # 拉取最新代码
+git stash pop              # 恢复本地改动
+# 如果有冲突，按方式一解决；然后提交推送
+git add . && git commit -m "合并并解决冲突"
+git push
+```
+
+### 方式三：GitHub 网页端解决（PR 场景）
+
+1. 打开 Pull Request 页面
+2. 点击 **Resolve conflicts**
+3. 删掉冲突符号，保留正确代码
+4. 点 **Mark as resolved** → **Commit merge**
+
+### 遇到 "master had recent pushes" 的完整流程
+
+```bash
+# 第一步：保存本地修改（先提交）
+git add .
+git commit -m "修复XX功能/新增XX页面"
+
+# 第二步：拉取远程最新代码
+git pull origin main
+# Already up to date → 直接推送
+# Automatic merge failed → 解决冲突后再推送
+
+# 第三步：推送
+git push origin main
+```
+
+### 避坑要点
+
+- ❌ **禁止 `git push -f`（强制推送）**：会覆盖他人代码，团队协作中严禁使用
+- ✅ 冲突符号（`<<<<<<<` / `=======` / `>>>>>>>`）必须**全部删干净**，不能残留
+- ✅ 解决冲突后先跑一遍项目，确认功能正常再推送
+- ✅ 拉取前先确认分支：`git branch` 检查当前是否在正确分支
+
+> **核心逻辑**：先同步远程 → 解决冲突 → 再推送（Pull before Push）

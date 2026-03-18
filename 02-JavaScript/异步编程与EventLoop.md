@@ -236,6 +236,33 @@ async function asyncPool(limit, items, fn) {
 await asyncPool(3, urls, url => fetch(url))
 ```
 
+接收任务函数数组（而非数据 + 转换函数）的写法：
+
+```js
+// 控制最大并发数（接收 task 函数数组）
+async function concurrentControl(tasks, limit) {
+  const results = [];
+  const executing = new Set();
+
+  for (const task of tasks) {
+    const p = Promise.resolve().then(() => task());
+    results.push(p);
+    executing.add(p);
+    p.finally(() => executing.delete(p));
+
+    if (executing.size >= limit) {
+      await Promise.race(executing);
+    }
+  }
+
+  return Promise.all(results);
+}
+
+// 使用示例
+const tasks = urls.map(url => () => fetch(url).then(r => r.json()));
+const results = await concurrentControl(tasks, 3); // 最多同时 3 个
+```
+
 ### 超时控制
 
 ```js

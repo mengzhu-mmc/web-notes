@@ -324,3 +324,89 @@ for (const n of new Range(1, 5)) {
   console.log(n); // 1 2 3 4 5
 }
 ```
+
+---
+
+## 七、Map / Set 遍历方式对比
+
+### Map 遍历
+
+```js
+const map = new Map([['name', '张三'], ['age', 20]]);
+
+// ✅ for...of（推荐，可解构键值对）
+for (const [key, value] of map) {
+  console.log(key, value);
+}
+
+// ✅ forEach（注意：value 在前，key 在后，与普通 forEach 相反！）
+map.forEach((value, key) => {
+  console.log(key, value);
+});
+
+// ❌ for...in：无输出！Map 的键值对不是普通对象属性
+for (const key in map) {
+  console.log(key); // 什么都不会打印
+}
+
+// 转数组操作
+[...map.keys()]     // ['name', 'age']
+[...map.values()]   // ['张三', 20]
+[...map.entries()]  // [['name','张三'], ['age',20]]
+```
+
+### Set 遍历
+
+```js
+const set = new Set([1, 2, 3]);
+
+for (const item of set) { console.log(item); }
+set.forEach(value => { console.log(value); });
+[...set] // 转数组
+```
+
+### for...in vs for...of 核心区别
+
+| 特性 | for...in | for...of |
+|------|----------|----------|
+| 遍历目标 | 对象的**可枚举属性** | **可迭代对象**的元素 |
+| 适用类型 | 普通对象 | Map/Set/数组/字符串等 |
+| 遍历 Map | ❌ 无输出 | ✅ 正常遍历键值对 |
+| 遍历数组 | 遍历下标（字符串形式） | 遍历元素值 |
+| 原型链属性 | 会遍历到（需 hasOwnProperty 过滤） | 不会 |
+
+---
+
+## 八、JS 截取 / 分割方法对比
+
+| 方法 | 适用对象 | 返回值 | 是否修改原对象 | 特殊说明 |
+|------|----------|--------|---------------|----------|
+| `slice(start, end)` | 数组 / 字符串 | 新数组 / 字符串 | ❌ | 支持负索引 |
+| `splice(start, count, ...items)` | 数组 | 删除的元素数组 | ✅ | 可增/删/改 |
+| `split(sep, limit?)` | 字符串 | 字符串数组 | ❌ | 字符串→数组 |
+| `substring(start, end)` | 字符串 | 字符串 | ❌ | 不支持负索引 |
+| `substr(start, length)` ⚠️ | 字符串 | 字符串 | ❌ | 已废弃，第二参是长度 |
+
+```js
+// slice
+[1,2,3,4].slice(1, 3)     // [2, 3]
+'hello'.slice(1, 3)        // 'el'
+[1,2,3].slice(-1)          // [3]（支持负索引）
+
+// splice（修改原数组）
+const arr = [1,2,3,4];
+arr.splice(1, 2, 'a', 'b'); // 返回 [2,3]，arr变为 [1,'a','b',4]
+
+// split
+'a,b,c'.split(',')         // ['a','b','c']
+'hello'.split('')           // ['h','e','l','l','o']
+
+// substring
+'hello'.substring(1, 3)    // 'el'（不含end）
+```
+
+**记忆技巧**：
+- `slice` = 切片（数组/字符串通用，不改原值）
+- `splice` = 手术（只针对数组，会改原值）
+- `split` = 分裂（字符串→数组，只针对字符串）
+- `substring` = 子串（字符串专用，不支持负索引）

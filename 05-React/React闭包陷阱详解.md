@@ -179,3 +179,71 @@ render() {
 | `setState(fn)` | 最新的状态值 | 新值依赖旧值 |
 
 当更新依赖当前状态时，永远使用函数式更新。其他解决方案包括正确设置 `useEffect` 依赖项，以及使用 `useRef` 存储不需要触发渲染的可变值。
+
+---
+
+## useMemo / useCallback 空数组依赖 = 只执行一次
+
+传空数组 `[]` 作为依赖时，仅在**首次渲染时执行一次**，之后永远复用缓存值。这本身是合法的，但如果内部依赖了 state，会形成闭包陷阱：
+
+```js
+const [count, setCount] = useState(0);
+
+// useMemo 空依赖：只计算一次，count 变化后 expensiveValue 仍为旧值
+const expensiveValue = useMemo(() => {
+  return count * 1000; // count 变化后不会重新计算！
+}, []);
+// count=1 之后，expensiveValue 仍然是 0
+
+// useCallback 空依赖：只创建一次函数，捕获初始 count（闭包陷阱）
+const handleClick = useCallback(() => {
+  console.log('count:', count); // 永远打印 0
+}, []);
+// 点击后 count=1，再调用 handleClick 仍然输出 0！
+```
+
+**正确用法**：内部依赖什么 state/props，就把它加入依赖数组；无依赖时传 `[]` 才安全。
+
+---
+
+## useState 连续三次 setState 四种方案对比
+
+```js
+// 问题：连续三次调用，如何让每次都生效（值不丢）？
+
+// 方案1：函数式更新（推荐）
+setCount(prev => prev + 1);
+setCount(prev => prev + 1);
+setCount(prev => prev + 1);
+// ✅ 三次值全部生效，但只触发 1 次渲染（React 批处理合并）
+
+// 方案2：flushSync（React 18+，强制同步）
+import { flushSync } from 'react-dom';
+flushSync(() => setCount(c => c + 1));
+flushSync(() => setCount(c => c + 1));
+flushSync(() => setCount(c => c + 1));
+// ✅ 三次值全部生效，触发 3 次渲染
+
+// 方案3：setTimeout 宏任务（绕开批处理）
+setTimeout(() => setCount(count + 1), 0);
+setTimeout(() => setCount(count + 1), 0);
+setTimeout(() => setCount(count + 1), 0);
+// ⚠️ React 18 中仍会批处理，值可能丢；React 17 中可以绕开
+
+// 方案4：回调嵌套（串行执行，不推荐）
+setState({ count: count + 1 }, () => {
+  setState({ count: this.state.count + 1 }, () => {
+    setState({ count: this.state.count + 1 });
+  });
+});
+// ✅ 三次都生效，但触发 3 次渲染，且是"回调地狱"
+```
+
+| 方式 | 触发几次渲染 | 值是否都生效 | 推荐度 |
+|------|-------------|-------------|--------|
+| 函数式更新 | 1 次（批处理合并） | ✅ 都生效 | ⭐⭐⭐⭐⭐ |
+| flushSync | 3 次 | ✅ 都生效 | ⭐⭐⭐ |
+| setTimeout | 3 次（React 17）/ 1 次（React 18） | ⚠️ 视版本 | ⭐⭐ |
+| 回调嵌套 | 3 次 | ✅ 都生效 | ⭐（回调地狱） |
+
+**面试要点**：函数式更新是最优解，值一定不丢，且渲染次数最少。
