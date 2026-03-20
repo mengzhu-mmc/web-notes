@@ -895,3 +895,273 @@ function Provider({ children }) {
 ---
 
 *本文件共约 30 道题，涵盖 React 核心全部高频考点。*
+
+---
+
+## 六、性能优化实践（Vercel Engineering 45 Rules）
+
+> 来源：Vercel React Best Practices v1.0（2026-01），已整理为面试问答格式
+
+### Q: React/Next.js 中最常见的性能瓶颈是什么？如何系统性地解决？
+
+**难度**：⭐⭐⭐⭐ | **频率**：🔥🔥🔥🔥🔥
+
+**答：**
+
+Vercel 工程团队将 React 性能问题按影响优先级分为 8 类：
+
+| 优先级 | 类别 | 影响 |
+|--------|------|------|
+| 🔴 CRITICAL | 消除瀑布流（Waterfall） | 最大 |
+| 🔴 CRITICAL | Bundle Size 优化 | 最大 |
+| 🟠 HIGH | 服务端性能 | 高 |
+| 🟡 MEDIUM-HIGH | 客户端数据获取 | 中高 |
+| 🟡 MEDIUM | 重渲染优化 | 中 |
+| 🟡 MEDIUM | 渲染性能 | 中 |
+| 🟢 LOW-MEDIUM | JS 性能 | 低中 |
+| 🟢 LOW | 高级模式 | 低 |
+
+---
+
+### Q: 什么是"瀑布流"问题？如何避免？
+
+**难度**：⭐⭐⭐⭐ | **频率**：🔥🔥🔥🔥
+
+**答：**
+
+**瀑布流**是指多个 async 操作串行执行，每个 await 都要等上一个完成，累积网络延迟。
+
+**❌ 错误：无脑 await，串行阻塞**
+```ts
+async function handleRequest(userId: string, skipProcessing: boolean) {
+  const userData = await fetchUserData(userId)  // 总是等待
+  if (skipProcessing) return { skipped: true }  // 但这里根本不用 userData
+  return processUserData(userData)
+}
+```
+
+**✅ 正确：延迟 await 到真正需要时**
+```ts
+async function handleRequest(userId: string, skipProcessing: boolean) {
+  if (skipProcessing) return { skipped: true }  // 提前返回，不触发 fetch
+  const userData = await fetchUserData(userId)   // 只在需要时才 await
+  return processUserData(userData)
+}
+```
+
+**✅ 独立请求用 Promise.all 并行**
+```ts
+// ❌ 串行：总耗时 = A + B + C
+const user = await fetchUser(id)
+const posts = await fetchPosts(id)
+const comments = await fetchComments(id)
+
+// ✅ 并行：总耗时 = max(A, B, C)
+const [user, posts, comments] = await Promise.all([
+  fetchUser(id),
+  fetchPosts(id),
+  fetchComments(id)
+])
+```
+
+---
+
+### Q: 如何优化 React 应用的 Bundle Size？
+
+**难度**：⭐⭐⭐⭐ | **频率**：🔥🔥🔥🔥
+
+**答：**
+
+**1. 避免 barrel 文件全量导入**
+```ts
+// ❌ barrel 导入会导致整个 lodash 被打包
+import { debounce } from 'lodash'
+
+// ✅ 按需导入（Tree Shaking 友好）
+import debounce from 'lodash/debounce'
+```
+
+**2. 动态导入重型组件**
+```ts
+// ❌ 首屏就加载了 HeavyChart
+import HeavyChart from './HeavyChart'
+
+// ✅ 懒加载，只在需要时加载
+const HeavyChart = dynamic(() => import('./HeavyChart'), {
+  loading: () => <Spinner />,
+  ssr: false
+})
+```
+
+**3. 延迟加载非关键第三方库（等 hydration 后再加载分析工具）**
+```ts
+useEffect(() => {
+  // 在 hydration 完成后再加载 analytics，不阻塞首屏
+  import('./analytics').then(({ init }) => init())
+}, [])
+```
+
+**4. 悬停时预加载（感知速度优化）**
+```ts
+const prefetch = () => import('./HeavyPage')
+
+<Link onMouseEnter={prefetch} href="/heavy">
+  Go to heavy page
+</Link>
+```
+
+---
+
+### Q: 如何减少 React 组件的不必要重渲染？
+
+**难度**：⭐⭐⭐⭐ | **频率**：🔥🔥🔥🔥
+
+**答：**
+
+**1. 不要在回调里读 state（订阅 state 只在实际渲染用到时）**
+```ts
+// ❌ 每次 count 变化都重渲染，但 count 只在 handleClick 里用
+const [count, setCount] = useState(0)
+const handleClick = () => console.log(count)
+
+// ✅ 用 ref 存只在回调用的值，不触发重渲染
+const countRef = useRef(0)
+const [count, setCount] = useState(0)
+useEffect(() => { countRef.current = count }, [count])
+const handleClick = () => console.log(countRef.current)
+```
+
+**2. 用 primitive 值作为 useEffect 依赖**
+```ts
+// ❌ 每次渲染都是新对象引用，effect 不停执行
+useEffect(() => { fetch(user.id) }, [user])
+
+// ✅ 使用基础类型，引用稳定
+useEffect(() => { fetch(userId) }, [user.id])
+```
+
+**3. 用 functional setState 避免闭包陷阱**
+```ts
+// ❌ 闭包捕获旧值
+setCount(count + 1)
+
+// ✅ 函数式更新，永远拿到最新值
+setCount(prev => prev + 1)
+```
+
+**4. 用 lazy state initialization 避免昂贵初始值**
+```ts
+// ❌ 每次渲染都执行 expensiveCompute()
+const [state, setState] = useState(expensiveCompute())
+
+// ✅ 传函数，只在初始化时执行一次
+const [state, setState] = useState(() => expensiveCompute())
+```
+
+**5. 非紧急更新用 startTransition**
+```ts
+import { startTransition } from 'react'
+
+// 标记为低优先级，不阻塞用户输入
+startTransition(() => {
+  setSearchResults(filterLargeList(query))
+})
+```
+
+---
+
+### Q: JS 层面有哪些常被忽视的性能优化点？
+
+**难度**：⭐⭐⭐ | **频率**：🔥🔥🔥
+
+**答：**
+
+```ts
+// 1. 重复查找用 Map 代替数组 find（O(1) vs O(n)）
+const userMap = new Map(users.map(u => [u.id, u]))
+const user = userMap.get(targetId) // O(1)
+
+// 2. 循环内缓存属性访问
+// ❌
+for (let i = 0; i < arr.length; i++) { ... } // 每次都访问 arr.length
+// ✅
+const len = arr.length
+for (let i = 0; i < len; i++) { ... }
+
+// 3. 正则提到循环外
+// ❌
+items.forEach(s => /^\d+$/.test(s)) // 每次都新建 RegExp
+// ✅
+const re = /^\d+$/
+items.forEach(s => re.test(s))
+
+// 4. 多次 filter/map 合并为一次遍历
+// ❌
+const result = arr.filter(x => x > 0).map(x => x * 2)
+// ✅
+const result = arr.reduce((acc, x) => {
+  if (x > 0) acc.push(x * 2)
+  return acc
+}, [])
+
+// 5. 用 toSorted() 保持不可变性（ES2023）
+const sorted = arr.toSorted((a, b) => a - b) // 不改变原数组
+```
+
+---
+
+### Q: Next.js 服务端组件（RSC）有哪些性能陷阱？
+
+**难度**：⭐⭐⭐⭐⭐ | **频率**：🔥🔥🔥🔥
+
+**答：**
+
+**1. 用 React.cache() 做请求级别去重**
+```ts
+// 同一请求内多次调用同一函数，只执行一次
+const getUser = React.cache(async (id: string) => {
+  return db.user.findUnique({ where: { id } })
+})
+
+// 两个组件都调用，只发一次 DB 查询
+await getUser('123') // 组件A
+await getUser('123') // 组件B — 命中缓存
+```
+
+**2. 跨请求缓存用 LRU**
+```ts
+import { LRUCache } from 'lru-cache'
+const cache = new LRUCache({ max: 100, ttl: 60_000 })
+
+async function getProduct(id: string) {
+  if (cache.has(id)) return cache.get(id)
+  const product = await db.product.findUnique({ where: { id } })
+  cache.set(id, product)
+  return product
+}
+```
+
+**3. 最小化传给客户端组件的数据**
+```ts
+// ❌ 传整个 user 对象（含敏感字段）
+<ClientComponent user={user} />
+
+// ✅ 只传需要的字段
+<ClientComponent name={user.name} avatar={user.avatar} />
+```
+
+**4. 用 after() 处理非阻塞的副作用**
+```ts
+import { after } from 'next/server'
+
+export async function POST(req: Request) {
+  const data = await processRequest(req)
+  
+  // 日志记录不阻塞响应
+  after(async () => {
+    await logToAnalytics(data)
+  })
+  
+  return Response.json(data) // 立即返回，after 在后台执行
+}
+```
