@@ -69,6 +69,272 @@ var largestRectangleArea = function(heights) {
 
 ---
 
+### 场景题：设计一个前端错误监控 SDK
+
+> 面试考察维度：系统设计能力、对浏览器 API 的熟悉度、工程化思维
+
+#### 核心功能拆解
+
+一个完整的前端错误监控 SDK 需要覆盖以下几类错误：
+
+| 错误类型 | 捕获方式 |
+|---------|---------|
+| JS 运行时错误 | `window.onerror` / `window.addEventListener('error')` |
+| Promise 未捕获异常 | `window.addEventListener('unhandledrejection')` |
+| 资源加载失败 | `window.addEventListener('error', e => e.target instanceof HTMLElement)` |
+| React/Vue 组件错误 | ErrorBoundary / `app.config.errorHandler` |
+| 接口请求错误 | 拦截 `XMLHttpRequest` / `fetch` |
+| 白屏检测 | `MutationObserver` / 定时检查关键节点 |
+
+#### 完整实现
+
+```js
+class ErrorMonitorSDK {
+  constructor(options = {}) {
+    this.options = {
+      dsn: '',           // 上报地址
+      appId: '',         // 应用 ID
+      userId: '',        // 用户 ID
+      maxQueueSize: 10,  // 批量上报队列大小
+      sampleRate: 1,     // 采样率 0-1
+      ...options
+    };
+    this.queue = [];     // 待上报队列
+    this.init();
+  }
+
+  init() {
+    this._listenJSError();
+    this._listenPromiseError();
+    this._listenResourceError();
+    this._interceptXHR();
+    this._interceptFetch();
+    // 页面卸载前上报剩余队列
+    window.addEventListener('beforeunload', () => this._flush());
+  }
+
+  // 1. 监听 JS 运行时错误
+  _listenJSError() {
+    window.addEventListener('error', (e) => {
+      // 区分 JS 错误和资源加载错误
+      if (e.target instanceof HTMLElement) return; // 资源错误由 _listenResourceError 处理
+      this._capture({
+        type: 'js_error',
+        message: e.message,
+        filename: e.filename,
+        lineno: e.lineno,
+        colno: e.colno,
+        stack: e.error?.stack || '',
+      });
+    }, true); // 捕获阶段（资源错误不冒泡，必须捕获阶段）
+  }
+
+  // 2. 监听 Promise 未捕获异常
+  _listenPromiseError() {
+    window.addEventListener('unhandledrejection', (e) => {
+      const reason = e.reason;
+      this._capture({
+        type: 'promise_error',
+        message: reason instanceof Error ? reason.message : String(reason),
+        stack: reason instanceof Error ? reason.stack : '',
+      });
+    });
+  }
+
+  // 3. 监听资源加载失败（图片、脚本、样式等）
+  _listenResourceError() {
+    window.addEventListener('error', (e) => {
+      const target = e.target;
+      if (!(target instanceof HTMLElement)) return;
+      this._capture({
+        type: 'resource_error',
+        tagName: target.tagName,
+        src: target.src || target.href || '',
+        outerHTML: target.outerHTML.slice(0, 200),
+      });
+    }, true);
+  }
+
+  // 4. 拦截 XMLHttpRequest
+  _interceptXHR() {
+    const originalOpen = XMLHttpRequest.prototype.open;
+    const originalSend = XMLHttpRequest.prototype.send;
+    const capture = this._capture.bind(this);
+
+    XMLHttpRequest.prototype.open = function(method, url, ...args) {
+      this._monitor = { method, url, startTime: Date.now() };
+      return originalOpen.apply(this, [method, url, ...args]);
+    };
+
+    XMLHttpRequest.prototype.send = function(body) {
+      this.addEventListener('loadend', () => {
+        if (this.status >= 400 || this.status === 0) {
+          capture({
+            type: 'xhr_error',
+            method: this._monitor?.method,
+            url: this._monitor?.url,
+            status: this.status,
+            duration: Date.now() - (this._monitor?.startTime || 0),
+          });
+        }
+      });
+      return originalSend.apply(this, [body]);
+    };
+  }
+
+  // 5. 拦截 fetch
+  _interceptFetch() {
+    const originalFetch = window.fetch;
+    const capture = this._capture.bind(this);
+
+    window.fetch = function(input, init = {}) {
+      const url = typeof input === 'string' ? input : input.url;
+      const method = init.method || 'GET';
+      const startTime = Date.now();
+
+      return originalFetch.apply(this, [input, init])
+        .then((response) => {
+          if (!response.ok) {
+            capture({
+              type: 'fetch_error',
+              method,
+              url,
+              status: response.status,
+              duration: Date.now() - startTime,
+            });
+          }
+          return response;
+        })
+        .catch((err) => {
+          capture({
+            type: 'fetch_error',
+            method,
+            url,
+            status: 0,
+            message: err.message,
+            duration: Date.now() - startTime,
+          });
+          throw err; // 不吞掉错误，继续向上抛
+        });
+    };
+  }
+
+  // 核心：采集错误信息
+  _capture(errorInfo) {
+    // 采样率过滤
+    if (Math.random() > this.options.sampleRate) return;
+
+    const data = {
+      ...errorInfo,
+      timestamp: Date.now(),
+      url: location.href,
+      userAgent: navigator.userAgent,
+      appId: this.options.appId,
+      userId: this.options.userId,
+      // 设备信息
+      screen: `${screen.width}x${screen.height}`,
+    };
+
+    this.queue.push(data);
+
+    // 达到批量大小则上报
+    if (this.queue.length >= this.options.maxQueueSize) {
+      this._flush();
+    }
+  }
+
+  // 上报（优先用 sendBeacon，降级用 fetch）
+  _flush() {
+    if (!this.queue.length || !this.options.dsn) return;
+
+    const payload = JSON.stringify({ errors: [...this.queue] });
+    this.queue = [];
+
+    // sendBeacon：即使页面关闭也能上报，不阻塞页面卸载
+    if (navigator.sendBeacon) {
+      const blob = new Blob([payload], { type: 'application/json' });
+      navigator.sendBeacon(this.options.dsn, blob);
+    } else {
+      // 降级方案
+      fetch(this.options.dsn, {
+        method: 'POST',
+        body: payload,
+        headers: { 'Content-Type': 'application/json' },
+        keepalive: true, // 页面卸载时仍能发送
+      }).catch(() => {}); // 上报失败不影响主业务
+    }
+  }
+
+  // 手动上报（业务代码主动调用）
+  report(errorInfo) {
+    this._capture({ type: 'manual', ...errorInfo });
+  }
+}
+
+// 使用示例
+const monitor = new ErrorMonitorSDK({
+  dsn: 'https://error-collect.example.com/report',
+  appId: 'my-app',
+  userId: 'user-123',
+  sampleRate: 0.8, // 80% 采样
+});
+
+// 手动上报业务异常
+try {
+  // some risky operation
+} catch (e) {
+  monitor.report({ message: e.message, stack: e.stack, extra: { page: 'checkout' } });
+}
+```
+
+#### 进阶设计要点
+
+**1. 错误去重**：同一错误频繁上报浪费资源
+```js
+// 用 Map 记录最近上报的错误指纹，1 分钟内相同错误只报一次
+const errorCache = new Map();
+_isDuplicate(errorInfo) {
+  const key = `${errorInfo.type}_${errorInfo.message}_${errorInfo.filename}`;
+  const now = Date.now();
+  if (errorCache.has(key) && now - errorCache.get(key) < 60000) return true;
+  errorCache.set(key, now);
+  return false;
+}
+```
+
+**2. Source Map 还原**：生产代码压缩后堆栈无意义，服务端用 `source-map` 包还原行列号到源码位置。
+
+**3. 面包屑（Breadcrumbs）**：记录错误发生前的用户操作轨迹（点击、路由跳转、XHR 请求），帮助复现问题。
+
+**4. 白屏检测**：
+```js
+// 检查关键节点是否存在，连续检测 3 次都为空则上报白屏
+const checkWhiteScreen = () => {
+  const rootEl = document.getElementById('app');
+  return !rootEl || rootEl.children.length === 0;
+};
+```
+
+#### 面试常见追问
+
+**Q: `window.onerror` 和 `addEventListener('error')` 有什么区别？**
+
+A: `window.onerror` 只能捕获 JS 运行时错误，且同一时间只能绑定一个处理函数（后绑定覆盖前绑定）。`addEventListener('error', fn, true)` 使用捕获阶段，既能捕获 JS 错误，也能捕获资源加载错误（img/script/link），还支持多个监听器共存，推荐使用。
+
+**Q: 为什么上报要用 `sendBeacon` 而不是 `fetch`？**
+
+A: 页面卸载时（`beforeunload`/`unload`），浏览器会中断异步请求，导致 `fetch/XHR` 上报丢失。`sendBeacon` 是浏览器提供的专门用于「页面关闭时可靠上报」的 API，会在后台异步发送，不阻塞页面关闭，也不会因页面卸载而中断。`fetch` 加 `keepalive: true` 是降级方案。
+
+**Q: 如何避免 SDK 影响页面性能？**
+
+A: ① 使用批量上报而非逐条发送；② 使用 `requestIdleCallback` 或 `setTimeout` 异步处理；③ 采样率控制上报量；④ 错误去重减少重复上报；⑤ 上报接口失败静默处理，不抛错影响主业务。
+
+**Q: 跨域脚本的错误为何只显示 `Script error.`？**
+
+A: 浏览器出于安全考虑，跨域脚本的错误信息会被屏蔽。解决方案：① `<script>` 标签加 `crossorigin="anonymous"`；② 服务端响应头加 `Access-Control-Allow-Origin: *`。两者缺一不可。
+
+---
+
 ## Day 16 — 链表复习
 
 ### [206] 反转链表 — Easy
@@ -910,6 +1176,39 @@ Function.prototype.myCall = function(context, ...args) {
   return result;
 };
 ```
+
+### 手写 apply
+
+```js
+Function.prototype.myApply = function(context, args = []) {
+  context = context ?? globalThis;
+  const sym = Symbol();
+  context[sym] = this;
+  const result = context[sym](...args);
+  delete context[sym];
+  return result;
+};
+```
+
+### 手写 bind
+
+```js
+Function.prototype.myBind = function(context, ...outerArgs) {
+  const fn = this;
+  return function(...innerArgs) {
+    // 处理 new 调用：new BoundFn() 时 this 指向新实例，忽略绑定的 context
+    if (new.target) {
+      return new fn(...outerArgs, ...innerArgs);
+    }
+    return fn.apply(context, [...outerArgs, ...innerArgs]);
+  };
+};
+```
+
+**关键点**：
+- `bind` 返回一个新函数，支持柯里化传参（外层参数 + 内层参数合并）
+- 用 `new.target` 检测是否被 `new` 调用，`new` 时忽略绑定的 `this`，指向新实例
+- `call/apply` 直接执行，`bind` 返回函数不执行
 
 ---
 
