@@ -1,37 +1,36 @@
-# Day 17 — Hard 精选 3（数组/哈希 Hard）
+# Day 17 (03-23) — 树 + 图复习（今天）
 
-> 日期：03-23 | Week 3 | 状态：⬜
+## 算法题
 
-## 🧠 今日套路
+### 1. [102] 二叉树层序遍历 — Medium
+- 链接：https://leetcode.cn/problems/binary-tree-level-order-traversal/
+- 思路：BFS 队列，每次循环开始时记录 `size = queue.length`，只处理这一层的节点
 
-原地哈希：利用数组自身作为哈希表，把 nums[i] 放到「它该在的位置」。
-十叉树计数：字典序问题转化为前缀树节点计数。
+### 2. [236] 二叉树的最近公共祖先 — Medium
+- 链接：https://leetcode.cn/problems/lowest-common-ancestor-of-a-binary-tree/
+- 思路：后序递归，左右子树分别找 p/q；若当前节点左右均返回非 null，则当前节点就是 LCA
 
-## 🔢 算法题（2h）
+### 3. [124] 二叉树中的最大路径和 🔴 Hard
+- 链接：https://leetcode.cn/problems/binary-tree-maximum-path-sum/
+- 思路：DFS 后序，每个节点返回"单边最大贡献值"（负则取 0）；在节点内用 `left + right + val` 更新全局最大值
 
-### [41] 缺失的第一个正数 🔴 Hard
-- 链接：https://leetcode.cn/problems/first-missing-positive/
-- 核心：原地哈希，将 nums[i] 放到索引 nums[i]-1 的位置，再遍历找第一个不满足的
+### 4. [200] 岛屿数量 — Medium
+- 链接：https://leetcode.cn/problems/number-of-islands/
+- 思路：遍历网格，遇 '1' 则 count++，然后 DFS/BFS 把相连的 '1' 全部标记为 '0'（原地消除）
 
-### [128] 最长连续序列 Medium（Hard变体热身）
-- 链接：https://leetcode.cn/problems/longest-consecutive-sequence/
-- 核心：Set 存所有数，只从序列起点（num-1 不在Set中）开始往后数
+### 5. [207] 课程表 — Medium
+- 链接：https://leetcode.cn/problems/course-schedule/
+- 思路：拓扑排序（BFS Kahn's）；建邻接表 + 入度数组，入度为 0 入队，出队时减少邻居入度；最终判断出队数是否等于总节点数
 
-### [440] 字典序的第 K 小数字 🔴 Hard
-- 链接：https://leetcode.cn/problems/k-th-smallest-in-lexicographical-order/
-- 核心：十叉树，计算每棵子树节点数，决定向下走还是向右走
+## 场景题
+- 手写深拷贝 deepClone（处理循环引用 + 多种类型）
 
-### [164] 最大间距 🔴 Hard
-- 链接：https://leetcode.cn/problems/maximum-gap/
-- 核心：桶排序，相邻最大间距必然跨桶，桶内间距不会是最大值
+## 知识点：浏览器渲染原理 + HTTP 缓存（复习）
+- **渲染流程**：解析 HTML→DOM，解析 CSS→CSSOM，合并 Render Tree，Layout（回流），Paint（重绘），Composite
+- **回流 vs 重绘**：回流（几何属性变化）代价 > 重绘（颜色变化）；减少方式：批量修改、用 transform 代替 top/left
+- **HTTP 强缓存**：`Cache-Control: max-age` / `Expires`，不发请求
+- **协商缓存**：`ETag` / `Last-Modified`，发请求但可返回 304
 
-## 🎨 场景题（1h）
-
-- 设计题：扫码登录流程
-
-## 📚 知识点
-
-复习所有手写题模板：Promise、深拷贝、LRU、防抖节流、call/apply/bind
-
----
-[[README]]
+## 核心套路
+> **树的遍历**：前序处理当前再递归，后序先递归再处理（LCA / 路径和 必须后序）。  
+> **图的遍历**：DFS 用递归/栈 + visited 集合；BFS 用队列 + 层级记录；拓扑排序用入度 + 队列。

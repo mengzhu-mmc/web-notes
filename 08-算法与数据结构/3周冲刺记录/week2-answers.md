@@ -1376,3 +1376,1602 @@ A: Webpack 内部的事件流/钩子系统，类似 Node.js 的 EventEmitter。P
 - `i > 0 && arr[i] === arr[i-1] && !used[i-1]`：全排列去重
 - start 参数控制起始位置，避免重复组合
 
+---
+
+## Day 12 — 滑动窗口（03-18）
+
+> 核心模板：双指针维护窗口，左指针收缩条件是关键。
+
+### [209] 长度最小的子数组 ⭐ Medium
+
+**思路**：滑动窗口经典题。维护窗口 `[left, right]`，不断向右扩展 right，累加 sum；当 sum ≥ target 时，记录当前窗口长度，然后收缩 left（减去 nums[left]，left++），继续尝试更短的窗口。整个过程 left、right 各最多移动 n 次，总体 O(n)。
+
+**代码**：
+```js
+/**
+ * @param {number} target
+ * @param {number[]} nums
+ * @return {number}
+ */
+var minSubArrayLen = function(target, nums) {
+  const n = nums.length;
+  let left = 0, sum = 0;
+  let ans = Infinity;
+
+  for (let right = 0; right < n; right++) {
+    sum += nums[right];
+    // 窗口内 sum >= target 时，尝试收缩左边界
+    while (sum >= target) {
+      ans = Math.min(ans, right - left + 1);
+      sum -= nums[left];
+      left++;
+    }
+  }
+
+  return ans === Infinity ? 0 : ans;
+};
+```
+
+**复杂度**：时间 O(n) | 空间 O(1)
+
+**常见追问**：
+
+Q: 为什么用 while 而不是 if？
+
+A: 收缩 left 后 sum 可能依然 ≥ target，还能继续收缩找更小窗口，所以要循环直到不满足条件为止。
+
+---
+
+### [76] 最小覆盖子串 🔴 Hard
+
+**思路**：经典滑动窗口 + 哈希表计数。用 `need` 记录 t 中每个字符的需求数，用 `window` 记录当前窗口中对应字符的计数，用 `valid` 统计「已满足需求」的字符种数（当 window[c] === need[c] 时 valid++）。扩展 right 直到 valid === need 的 key 数，说明找到一个覆盖子串；然后收缩 left 直到不再满足，记录最短。
+
+**代码**：
+```js
+/**
+ * @param {string} s
+ * @param {string} t
+ * @return {string}
+ */
+var minWindow = function(s, t) {
+  const need = new Map();
+  for (const c of t) need.set(c, (need.get(c) || 0) + 1);
+
+  const window = new Map();
+  let left = 0, valid = 0;
+  let start = 0, minLen = Infinity;
+
+  for (let right = 0; right < s.length; right++) {
+    const c = s[right];
+    // 扩展右边界
+    if (need.has(c)) {
+      window.set(c, (window.get(c) || 0) + 1);
+      if (window.get(c) === need.get(c)) valid++;
+    }
+
+    // 当所有字符都覆盖时，收缩左边界
+    while (valid === need.size) {
+      // 更新最小窗口
+      if (right - left + 1 < minLen) {
+        minLen = right - left + 1;
+        start = left;
+      }
+      const d = s[left];
+      left++;
+      if (need.has(d)) {
+        if (window.get(d) === need.get(d)) valid--;
+        window.set(d, window.get(d) - 1);
+      }
+    }
+  }
+
+  return minLen === Infinity ? '' : s.substring(start, start + minLen);
+};
+```
+
+**复杂度**：时间 O(|s| + |t|) | 空间 O(|s| + |t|)
+
+**常见追问**：
+
+Q: valid 的作用是什么，为什么不直接比较 window 和 need？
+
+A: 每次比较两个 Map 的代价是 O(k)（k 为字符种数），而 valid 只需 O(1) 更新和比较，大幅提升效率。
+
+Q: 什么时候 valid++，什么时候 valid--？
+
+A: 只有当某字符恰好从「不足」变「刚好满足」时 valid++（`window[c]` 从 need[c]-1 变为 need[c]）；收缩时若 `window[d] === need[d]`，减掉后会不足，valid--。多出来的字符不影响 valid。
+
+---
+
+### [239] 滑动窗口最大值 🔴 Hard
+
+**思路**：单调递减双端队列（Deque）。队列中存下标，维护单调递减性质（队头始终是当前窗口最大值）。扩展 right 时：
+1. 从队尾移除所有小于 `nums[right]` 的元素（它们不可能成为后续窗口的最大值）
+2. 将 right 入队
+3. 如果队头下标 `<= right - k`，说明已超出窗口，弹出队头
+4. 当 `right >= k - 1` 时，队头就是当前窗口最大值
+
+**代码**：
+```js
+/**
+ * @param {number[]} nums
+ * @param {number} k
+ * @return {number[]}
+ */
+var maxSlidingWindow = function(nums, k) {
+  const n = nums.length;
+  const deque = []; // 存下标，单调递减队列
+  const result = [];
+
+  for (let right = 0; right < n; right++) {
+    // 1. 维护单调性：移除队尾所有小于当前值的下标
+    while (deque.length > 0 && nums[deque[deque.length - 1]] <= nums[right]) {
+      deque.pop();
+    }
+    deque.push(right);
+
+    // 2. 移除超出窗口的队头
+    if (deque[0] <= right - k) {
+      deque.shift();
+    }
+
+    // 3. 窗口形成后记录结果
+    if (right >= k - 1) {
+      result.push(nums[deque[0]]);
+    }
+  }
+
+  return result;
+};
+```
+
+**复杂度**：时间 O(n) | 空间 O(k)（每个元素最多入队/出队一次）
+
+**常见追问**：
+
+Q: 为什么队尾移除条件是 `<=` 而不是 `<`？
+
+A: 相等时旧元素也应移除——若两者相等，新元素下标更靠右，旧元素出窗口后新元素依然可以表达最大值，保留旧的无意义且会增加判断复杂度。
+
+Q: 为什么不用最大堆（优先队列）？
+
+A: 最大堆可以做，但移除过期元素时需要懒删除，整体 O(n log n)。单调队列直接 O(n)，更优。
+
+---
+
+### [424] 替换后的最长重复字符 ⭐ Medium
+
+**思路**：滑动窗口变种。维护窗口 `[left, right]`，同时记录窗口内出现次数最多的字符数 `maxCount`。窗口合法条件：`窗口长度 - maxCount <= k`（最多换掉 k 个非主角字符）。若不合法，left 右移（注意：maxCount 不需要重新计算最大值，因为只有更大的 maxCount 才能让窗口扩展）。
+
+**代码**：
+```js
+/**
+ * @param {string} s
+ * @param {number} k
+ * @return {number}
+ */
+var characterReplacement = function(s, k) {
+  const count = new Array(26).fill(0);
+  let left = 0, maxCount = 0, ans = 0;
+
+  for (let right = 0; right < s.length; right++) {
+    const idx = s.charCodeAt(right) - 65; // 'A'
+    count[idx]++;
+    maxCount = Math.max(maxCount, count[idx]);
+
+    // 窗口不合法：需要替换的字符数 > k
+    if (right - left + 1 - maxCount > k) {
+      count[s.charCodeAt(left) - 65]--;
+      left++;
+    }
+
+    ans = Math.max(ans, right - left + 1);
+  }
+
+  return ans;
+};
+```
+
+**复杂度**：时间 O(n) | 空间 O(26) = O(1)
+
+**常见追问**：
+
+Q: 为什么 left 右移后不更新 maxCount？
+
+A: 这是一个关键的优化点：我们只关心答案是否能变得更大，而 maxCount 只有变大时窗口才能扩展。left 右移只是维持窗口大小不变（不缩小），不需要精确跟踪当前最大值，答案不会因此错误。
+
+---
+
+### 场景题：手写 LRU 缓存（Map + 双向链表）
+
+**思路**：LRU（Least Recently Used）最近最少使用缓存。核心要求：get/put 都是 O(1)。
+
+- **哈希表**：O(1) 查找节点
+- **双向链表**：O(1) 删除/插入节点，维护访问顺序（头部 = 最近使用，尾部 = 最久未使用）
+- 每次 get/put 都把节点移到链表头部；超容量时删除尾部节点
+
+**代码**：
+```js
+class LRUCache {
+  constructor(capacity) {
+    this.capacity = capacity;
+    this.map = new Map(); // key -> node
+
+    // 哑节点（dummy）简化边界处理
+    this.head = { key: 0, val: 0, prev: null, next: null }; // 最近使用端
+    this.tail = { key: 0, val: 0, prev: null, next: null }; // 最久未使用端
+    this.head.next = this.tail;
+    this.tail.prev = this.head;
+  }
+
+  // 从链表中移除节点
+  _remove(node) {
+    node.prev.next = node.next;
+    node.next.prev = node.prev;
+  }
+
+  // 插入到链表头部（head 之后）
+  _insertToHead(node) {
+    node.next = this.head.next;
+    node.prev = this.head;
+    this.head.next.prev = node;
+    this.head.next = node;
+  }
+
+  /**
+   * @param {number} key
+   * @return {number}
+   */
+  get(key) {
+    if (!this.map.has(key)) return -1;
+    const node = this.map.get(key);
+    // 移到头部（最近使用）
+    this._remove(node);
+    this._insertToHead(node);
+    return node.val;
+  }
+
+  /**
+   * @param {number} key
+   * @param {number} value
+   * @return {void}
+   */
+  put(key, value) {
+    if (this.map.has(key)) {
+      // 更新已有节点
+      const node = this.map.get(key);
+      node.val = value;
+      this._remove(node);
+      this._insertToHead(node);
+    } else {
+      // 插入新节点
+      const node = { key, val: value, prev: null, next: null };
+      this.map.set(key, node);
+      this._insertToHead(node);
+
+      // 超容量：删除尾部节点
+      if (this.map.size > this.capacity) {
+        const lruNode = this.tail.prev; // 最久未使用
+        this._remove(lruNode);
+        this.map.delete(lruNode.key);
+      }
+    }
+  }
+}
+
+// 测试
+const lru = new LRUCache(2);
+lru.put(1, 1);   // {1:1}
+lru.put(2, 2);   // {1:1, 2:2}
+lru.get(1);      // 返回 1，顺序变为 {2:2, 1:1}（1 最近使用）
+lru.put(3, 3);   // 超容量，淘汰 2，{1:1, 3:3}
+lru.get(2);      // 返回 -1（已淘汰）
+lru.put(4, 4);   // 超容量，淘汰 1（最久未使用），{3:3, 4:4}
+lru.get(1);      // 返回 -1
+lru.get(3);      // 返回 3
+lru.get(4);      // 返回 4
+```
+
+**复杂度**：get/put 均 O(1)
+
+**追问**：
+
+Q: 为什么不直接用 JS 的 Map 实现 LRU？
+
+A: JS 的 Map 是有序的（按插入顺序），可以用 Map 模拟 LRU：get 时删掉再重新 set（移到末尾），put 超容量时删掉 `map.keys().next().value`（最老的 key）。这是一个取巧写法，面试中可提，但手写链表更能展示对数据结构的理解。
+
+```js
+// Map 取巧版
+class LRUCacheSimple {
+  constructor(capacity) {
+    this.capacity = capacity;
+    this.map = new Map();
+  }
+  get(key) {
+    if (!this.map.has(key)) return -1;
+    const val = this.map.get(key);
+    this.map.delete(key);
+    this.map.set(key, val); // 移到末尾
+    return val;
+  }
+  put(key, value) {
+    if (this.map.has(key)) this.map.delete(key);
+    this.map.set(key, value);
+    if (this.map.size > this.capacity) {
+      this.map.delete(this.map.keys().next().value); // 删最老
+    }
+  }
+}
+```
+
+---
+
+### 知识点：React Fiber 架构
+
+**背景**：React 15 的 Stack Reconciler 是同步递归的，一旦开始更新就无法中断，长列表渲染会导致主线程被占用，造成卡帧（丢帧 > 16ms）。React 16 引入 Fiber 架构重写了协调器，核心目标：**可中断渲染 + 优先级调度**。
+
+**Fiber 是什么**：
+
+Fiber 是一种链表结构的虚拟 DOM 节点，每个组件对应一个 Fiber 节点：
+
+```js
+// Fiber 节点的核心字段（简化）
+{
+  type,           // 组件类型（'div' / MyComponent / ...)
+  key,            // diff key
+  stateNode,      // 对应的真实 DOM 或组件实例
+
+  // 链表指针
+  return,         // 父节点
+  child,          // 第一个子节点
+  sibling,        // 下一个兄弟节点
+
+  // 工作状态
+  pendingProps,   // 新 props
+  memoizedProps,  // 已生效的 props
+  memoizedState,  // 已生效的 state
+  flags,          // 副作用标记（Placement / Update / Deletion）
+  lanes,          // 优先级通道（Lane 模型）
+}
+```
+
+**两棵树：current 树 & workInProgress 树**：
+
+React 维护两棵 Fiber 树：
+- **current 树**：当前渲染在屏幕上的状态
+- **workInProgress 树**：正在构建的新状态（可被中断和重建）
+
+更新完成后，`workInProgress` 树变成新的 `current` 树（指针交换，称为 double buffering 双缓冲）。
+
+**三个阶段**：
+
+```
+触发更新
+   ↓
+①  Schedule（调度）  ← Scheduler：根据优先级决定何时执行
+   ↓
+②  Render/Reconcile（协调，可中断）
+   - beginWork：向下遍历，构建 workInProgress 树，标记 flags
+   - completeWork：向上回溯，收集副作用链表
+   ↓
+③  Commit（提交，不可中断，同步执行）
+   - Before Mutation：执行 getSnapshotBeforeUpdate
+   - Mutation：操作真实 DOM（插入/更新/删除）
+   - Layout：执行 useLayoutEffect / componentDidMount/Update
+```
+
+**时间切片（Time Slicing）**：
+
+Render 阶段利用 `MessageChannel`（模拟 requestIdleCallback）将长任务切割为 5ms 的小片。每执行完一个 Fiber 节点后检查时间是否用完：
+- 时间未用完：继续处理下一个 Fiber
+- 时间用完：暂停，将控制权交还给浏览器（处理用户输入、动画等），下一帧继续
+
+```
+主线程时间轴：
+[render 5ms] → [浏览器处理] → [render 5ms] → [浏览器处理] → ... → [commit]
+```
+
+**优先级调度（Lane 模型）**：
+
+React 18 用 Lane 模型替代了早期的 expirationTime，用二进制位表示优先级，支持批处理：
+
+| 优先级 | 场景 | Lane |
+|--------|------|------|
+| SyncLane（同步） | `flushSync`、受控输入 | 最高 |
+| InputContinuousLane | 连续用户输入（scroll/drag） | 高 |
+| DefaultLane | 普通 setState | 中 |
+| TransitionLane | `startTransition` | 低 |
+| IdleLane | 后台任务 | 最低 |
+
+`startTransition` 将状态更新标记为低优先级 Transition，紧急更新（如输入）可以打断它，从而保持 UI 响应。
+
+**可中断渲染示例**：
+
+```jsx
+import { startTransition, useState } from 'react';
+
+function SearchResults() {
+  const [query, setQuery] = useState('');
+  const [results, setResults] = useState([]);
+
+  const handleChange = (e) => {
+    // 紧急更新：立刻更新输入框（SyncLane）
+    setQuery(e.target.value);
+
+    // 非紧急更新：搜索结果可以延迟（TransitionLane）
+    startTransition(() => {
+      setResults(heavySearch(e.target.value));
+    });
+  };
+
+  return (
+    <>
+      <input value={query} onChange={handleChange} />
+      <ResultList results={results} />
+    </>
+  );
+}
+```
+
+**常见追问**：
+
+Q: Fiber 架构中 Render 阶段为什么可以中断，Commit 阶段为什么不能？
+
+A: Render 阶段只是在内存中构建 workInProgress 树，没有实际 DOM 操作，中断后可以从断点重新开始（或丢弃重做），不影响用户看到的界面。Commit 阶段要实际操作 DOM，必须一次性完成，否则会出现 DOM 状态不一致（用户看到半更新的界面）。
+
+Q: useEffect 和 useLayoutEffect 的区别？
+
+A: 两者都在 Commit 阶段执行，但时机不同：`useLayoutEffect` 在 Mutation 阶段完成后、浏览器 Paint 之前同步执行（可以读取 DOM 布局）；`useEffect` 在 Paint 之后异步执行（不阻塞渲染）。大多数场景用 `useEffect`，只有需要在绘制前同步读取/修改 DOM 时才用 `useLayoutEffect`。
+
+Q: React 18 的并发特性有哪些？
+
+A: 主要有：`startTransition`（标记低优先级更新）、`useDeferredValue`（延迟非紧急值）、`Suspense` 流式 SSR、自动批处理（Automatic Batching，setTimeout/Promise 内的多次 setState 自动合并）。
+
+---
+
+## Day 13 — 链表进阶（03-19）
+
+> 链表操作核心：画图理清指针顺序，注意 null 边界。
+
+### [25] K 个一组翻转链表 🔴 Hard
+
+**思路**：每次检查从当前位置往后是否有 k 个节点；有则翻转这 k 个节点，然后递归/迭代处理剩余部分。翻转时用哑节点 dummy 简化头节点处理，记录翻转区间的前驱节点 prevGroupTail，将每组翻转后重新连接。
+
+**代码**：
+```js
+/**
+ * @param {ListNode} head
+ * @param {number} k
+ * @return {ListNode}
+ */
+var reverseKGroup = function(head, k) {
+  const dummy = new ListNode(0, head);
+  let prevGroupTail = dummy;
+
+  while (true) {
+    // 找到下一组的 kth 节点
+    let kth = getKth(prevGroupTail, k);
+    if (!kth) break; // 剩余不足 k 个，停止
+
+    const groupHead = prevGroupTail.next;
+    const nextGroupHead = kth.next;
+
+    // 翻转 [groupHead, kth] 这 k 个节点
+    let prev = nextGroupHead;
+    let cur = groupHead;
+    while (cur !== nextGroupHead) {
+      const next = cur.next;
+      cur.next = prev;
+      prev = cur;
+      cur = next;
+    }
+
+    // 重新连接
+    prevGroupTail.next = kth;      // 前驱 → 新头（原kth）
+    prevGroupTail = groupHead;     // 下一组的前驱 = 原头（翻转后的尾）
+  }
+
+  return dummy.next;
+};
+
+// 辅助：从 node 往后数 k 步，返回第 k 个节点（不存在返回 null）
+function getKth(node, k) {
+  while (node && k > 0) {
+    node = node.next;
+    k--;
+  }
+  return k === 0 ? node : null;
+}
+```
+
+**复杂度**：时间 O(n) | 空间 O(1)
+
+**常见追问**：
+
+Q: 如果要求不足 k 个时也翻转，怎么修改？
+
+A: 去掉 `if (!kth) break` 的判断，遇到末尾直接翻转剩余节点即可。
+
+---
+
+### [82] 删除排序链表中的重复元素 II ⭐ Medium
+
+**思路**：删除所有出现超过一次的节点（一个不留）。用哑节点 dummy，prev 指针跟在不重复的节点后面。当发现 `cur.next` 与 `cur` 值相同时，向前跑到重复段末尾，然后让 `prev.next` 跳过整段；否则 prev 正常后移。
+
+**代码**：
+```js
+/**
+ * @param {ListNode} head
+ * @return {ListNode}
+ */
+var deleteDuplicates = function(head) {
+  const dummy = new ListNode(0, head);
+  let prev = dummy;
+  let cur = head;
+
+  while (cur) {
+    // 检测是否有重复：cur 和 cur.next 值相同
+    if (cur.next && cur.val === cur.next.val) {
+      const dupVal = cur.val;
+      // 跳过所有值为 dupVal 的节点
+      while (cur && cur.val === dupVal) {
+        cur = cur.next;
+      }
+      prev.next = cur; // 跳过整段重复节点
+    } else {
+      prev = cur;
+      cur = cur.next;
+    }
+  }
+
+  return dummy.next;
+};
+```
+
+**复杂度**：时间 O(n) | 空间 O(1)
+
+**与 [83] 的区别**：[83] 是保留一个重复节点，[82] 是一个不留。面试常问，要分清楚。
+
+---
+
+### [148] 排序链表 ⭐ Medium
+
+**思路**：链表归并排序。自顶向下：用快慢指针找中点，断开两段，分别递归排序后合并。时间 O(n log n)，空间 O(log n)（递归栈）。
+
+进阶：迭代归并排序（O(1) 空间）——从步长 1 开始，每次合并相邻的两个长度为 step 的子链，step 倍增。
+
+**代码（递归版）**：
+```js
+/**
+ * @param {ListNode} head
+ * @return {ListNode}
+ */
+var sortList = function(head) {
+  // 终止条件：0 或 1 个节点
+  if (!head || !head.next) return head;
+
+  // 快慢指针找中点（slow 停在左半段末尾）
+  let slow = head, fast = head.next;
+  while (fast && fast.next) {
+    slow = slow.next;
+    fast = fast.next.next;
+  }
+
+  const mid = slow.next;
+  slow.next = null; // 断开两段
+
+  const left = sortList(head);
+  const right = sortList(mid);
+  return mergeTwoSortedLists(left, right);
+};
+
+// 合并两个有序链表（[21] 的逻辑）
+function mergeTwoSortedLists(l1, l2) {
+  const dummy = new ListNode(0);
+  let cur = dummy;
+  while (l1 && l2) {
+    if (l1.val <= l2.val) {
+      cur.next = l1;
+      l1 = l1.next;
+    } else {
+      cur.next = l2;
+      l2 = l2.next;
+    }
+    cur = cur.next;
+  }
+  cur.next = l1 || l2;
+  return dummy.next;
+}
+```
+
+**复杂度**：时间 O(n log n) | 空间 O(log n)（递归）
+
+**常见追问**：
+
+Q: 如何实现 O(1) 空间的链表排序？
+
+A: 迭代归并排序。step 从 1 开始，每轮对链表按 step 大小两两合并，step 翻倍，共 log n 轮，每轮 O(n)。实现较复杂，面试了解思路即可。
+
+---
+
+### [138] 复制带随机指针的链表 ⭐ Medium
+
+**思路**：哈希表法。第一遍遍历创建所有新节点，用 Map 存 `原节点 → 新节点` 的映射；第二遍遍历设置新节点的 next 和 random 指针。
+
+进阶：O(1) 空间——将新节点插在每个原节点后面（1→1'→2→2'→...），设置 random，再拆分。
+
+**代码（哈希表法）**：
+```js
+/**
+ * @param {Node} head
+ * @return {Node}
+ */
+var copyRandomList = function(head) {
+  if (!head) return null;
+
+  const map = new Map(); // 原节点 → 新节点
+
+  // 第一遍：创建所有新节点
+  let cur = head;
+  while (cur) {
+    map.set(cur, new Node(cur.val));
+    cur = cur.next;
+  }
+
+  // 第二遍：设置 next 和 random
+  cur = head;
+  while (cur) {
+    const newNode = map.get(cur);
+    newNode.next = map.get(cur.next) || null;
+    newNode.random = map.get(cur.random) || null;
+    cur = cur.next;
+  }
+
+  return map.get(head);
+};
+```
+
+**复杂度**：时间 O(n) | 空间 O(n)（哈希表）
+
+**常见追问**：
+
+Q: 如何做到 O(1) 空间？
+
+A: 三步法：
+1. 在每个原节点后插入克隆节点：`1 → 1' → 2 → 2' → 3 → 3'`
+2. 设置克隆节点的 random：`node.next.random = node.random.next`（若 random 不为 null）
+3. 拆分链表，恢复原链表并提取克隆链表
+
+---
+
+### 场景题：手写 reduce + 手写 map
+
+**Array.prototype.reduce 实现**：
+
+```js
+/**
+ * Array.prototype.reduce 手写实现
+ * @param {Function} callback - (accumulator, currentValue, currentIndex, array) => newAcc
+ * @param {*} [initialValue] - 可选初始值
+ */
+Array.prototype.myReduce = function(callback, initialValue) {
+  if (typeof callback !== 'function') {
+    throw new TypeError(callback + ' is not a function');
+  }
+
+  const arr = this;
+  const len = arr.length;
+
+  let acc;       // 累积器
+  let startIdx;  // 遍历起始下标
+
+  if (arguments.length >= 2) {
+    // 提供了初始值
+    acc = initialValue;
+    startIdx = 0;
+  } else {
+    // 没有初始值：跳过空位，找第一个有效元素作为初始值
+    if (len === 0) {
+      throw new TypeError('Reduce of empty array with no initial value');
+    }
+    let i = 0;
+    while (i < len && !(i in arr)) i++; // 跳过稀疏数组空位
+    if (i >= len) {
+      throw new TypeError('Reduce of empty array with no initial value');
+    }
+    acc = arr[i];
+    startIdx = i + 1;
+  }
+
+  for (let i = startIdx; i < len; i++) {
+    if (i in arr) { // 跳过稀疏数组空位
+      acc = callback(acc, arr[i], i, arr);
+    }
+  }
+
+  return acc;
+};
+
+// 测试
+console.log([1, 2, 3, 4].myReduce((acc, cur) => acc + cur, 0));    // 10
+console.log([1, 2, 3, 4].myReduce((acc, cur) => acc + cur));       // 10
+console.log([[1,2],[3,4]].myReduce((acc, cur) => acc.concat(cur))); // [1,2,3,4]
+```
+
+**Array.prototype.map 实现**：
+
+```js
+/**
+ * Array.prototype.map 手写实现
+ * @param {Function} callback - (currentValue, index, array) => newValue
+ * @param {*} [thisArg] - callback 执行时的 this
+ */
+Array.prototype.myMap = function(callback, thisArg) {
+  if (typeof callback !== 'function') {
+    throw new TypeError(callback + ' is not a function');
+  }
+
+  const arr = this;
+  const len = arr.length;
+  const result = new Array(len); // 预分配，保持稀疏数组特性
+
+  for (let i = 0; i < len; i++) {
+    if (i in arr) { // 跳过稀疏数组空位（map 不处理空位）
+      result[i] = callback.call(thisArg, arr[i], i, arr);
+    }
+  }
+
+  return result;
+};
+
+// 测试
+console.log([1, 2, 3].myMap(x => x * 2));             // [2, 4, 6]
+console.log([1, 2, 3].myMap(function(x) {             // [2, 4, 6]
+  return x * this.multiplier;
+}, { multiplier: 2 }));
+```
+
+**常见追问**：
+
+Q: map 和 forEach 的区别？
+
+A: map 返回新数组，forEach 返回 undefined；map 可链式调用，forEach 不能；两者都不修改原数组（除非在 callback 中手动修改）。
+
+Q: reduce 能实现哪些数组方法？
+
+A: 几乎所有数组方法都能用 reduce 实现：`map`（acc.push(transform(cur)）、`filter`（cur 满足条件才 push）、`flat`（递归展开）、`every`/`some` 等。
+
+---
+
+### 知识点：Vue 响应式原理
+
+**核心思想**：数据劫持 + 依赖收集 + 派发更新。当数据被读取时收集依赖（谁在用我），当数据被修改时通知依赖（我变了，你们更新）。
+
+#### Vue 2 — Object.defineProperty
+
+**实现原理**：
+
+```js
+// Vue 2 响应式核心（简化）
+function defineReactive(obj, key, val) {
+  const dep = new Dep(); // 依赖收集器
+
+  // 递归处理嵌套对象
+  observe(val);
+
+  Object.defineProperty(obj, key, {
+    enumerable: true,
+    configurable: true,
+    get() {
+      // 依赖收集：当前正在渲染的 Watcher 订阅此 dep
+      if (Dep.target) {
+        dep.depend();
+      }
+      return val;
+    },
+    set(newVal) {
+      if (newVal === val) return;
+      val = newVal;
+      observe(newVal); // 新值也需要响应式处理
+      dep.notify();    // 派发更新：通知所有 Watcher
+    }
+  });
+}
+
+function observe(obj) {
+  if (typeof obj !== 'object' || obj === null) return;
+  Object.keys(obj).forEach(key => defineReactive(obj, key, obj[key]));
+}
+
+// Dep：依赖管理器，存储所有依赖此数据的 Watcher
+class Dep {
+  constructor() { this.subs = []; }
+  depend() { this.subs.push(Dep.target); }
+  notify() { this.subs.forEach(watcher => watcher.update()); }
+}
+```
+
+**Vue 2 的缺陷**：
+
+| 问题 | 原因 | 解决方案 |
+|------|------|----------|
+| 新增属性无法检测 | defineProperty 只能拦截已存在的 key | `Vue.set(obj, key, val)` |
+| 删除属性无法检测 | 同上 | `Vue.delete(obj, key)` |
+| 数组下标赋值无法检测 | `arr[0] = val` 不触发 setter | 使用 splice/push 等方法 |
+| 数组 length 变化无法检测 | 同上 | 重写了 7 个数组变异方法 |
+| 深层嵌套初始化性能差 | 递归遍历所有 key | — |
+
+#### Vue 3 — Proxy
+
+**实现原理**：
+
+```js
+// Vue 3 响应式核心（简化）
+function reactive(target) {
+  return new Proxy(target, {
+    get(target, key, receiver) {
+      const res = Reflect.get(target, key, receiver);
+      track(target, key); // 依赖收集
+      // 深层响应式：懒处理（访问时才转换）
+      if (typeof res === 'object' && res !== null) {
+        return reactive(res);
+      }
+      return res;
+    },
+    set(target, key, value, receiver) {
+      const oldVal = target[key];
+      const result = Reflect.set(target, key, value, receiver);
+      if (oldVal !== value) {
+        trigger(target, key); // 派发更新
+      }
+      return result;
+    },
+    deleteProperty(target, key) {
+      const result = Reflect.deleteProperty(target, key);
+      trigger(target, key); // 删除属性也能触发
+      return result;
+    }
+  });
+}
+
+// 依赖存储：WeakMap<target, Map<key, Set<effect>>>
+const targetMap = new WeakMap();
+
+function track(target, key) {
+  if (!activeEffect) return;
+  let depsMap = targetMap.get(target);
+  if (!depsMap) targetMap.set(target, (depsMap = new Map()));
+  let dep = depsMap.get(key);
+  if (!dep) depsMap.set(key, (dep = new Set()));
+  dep.add(activeEffect);
+}
+
+function trigger(target, key) {
+  const depsMap = targetMap.get(target);
+  if (!depsMap) return;
+  const dep = depsMap.get(key);
+  if (dep) dep.forEach(effect => effect());
+}
+```
+
+**Vue 3 相比 Vue 2 的优势**：
+
+| 维度 | Vue 2 (defineProperty) | Vue 3 (Proxy) |
+|------|------------------------|---------------|
+| 新增属性 | 不支持，需 Vue.set | ✅ 自动检测 |
+| 删除属性 | 不支持，需 Vue.delete | ✅ 自动检测 |
+| 数组下标 | 不支持 | ✅ 自动检测 |
+| 深层嵌套 | 初始化时递归，性能差 | 懒处理（访问时才递归），性能好 |
+| Map/Set | 不支持 | ✅ 通过 collectionHandlers 支持 |
+| 代码量 | 大量边界处理 | 统一由 Proxy 拦截 |
+
+**ref vs reactive**：
+
+```js
+// ref：包装基本类型（或任意值）为响应式对象
+const count = ref(0);
+count.value++;        // 通过 .value 访问
+
+// reactive：包装对象/数组为响应式（深度）
+const state = reactive({ name: 'Vue', version: 3 });
+state.name = 'Vue 3'; // 直接访问
+
+// 解构会失去响应式！需要用 toRefs
+const { name } = toRefs(state); // name.value 仍然响应式
+```
+
+**常见追问**：
+
+Q: Proxy 和 Object.defineProperty 的本质区别？
+
+A: defineProperty 是在对象的每个属性上定义 getter/setter，只能拦截单个属性，需要递归遍历；Proxy 是在对象层面代理，可以拦截所有操作（get/set/deleteProperty/has/ownKeys 等），无需递归，也能处理新增/删除属性。
+
+Q: Vue 3 的 watchEffect 和 watch 的区别？
+
+A: `watchEffect` 立即执行，自动追踪回调内访问的响应式数据，不需要明确指定依赖；`watch` 需要明确指定数据源，只有数据变化时才执行，可以获取新值和旧值，默认懒执行（不立即触发）。
+
+---
+
+## Day 14 — 复习 + 查漏（03-20）
+
+> 收尾日：查漏补缺，把 LRU/LFU 做扎实，整理模板。
+
+### [146] LRU 缓存 ⭐ Medium
+
+> 今日第二次练习 LRU，验证 Day 12 手写成果，力扣版本完整代码。
+
+**思路**：与 Day 12 场景题相同，Map + 双向链表。重点是 get/put 都需要将节点移到链表头部（最近使用位置），超容量时删除链表尾部节点（最久未使用）。
+
+**代码（力扣完整版）**：
+```js
+class ListNode {
+  constructor(key = 0, val = 0) {
+    this.key = key;
+    this.val = val;
+    this.prev = null;
+    this.next = null;
+  }
+}
+
+/**
+ * @param {number} capacity
+ */
+var LRUCache = function(capacity) {
+  this.capacity = capacity;
+  this.map = new Map();
+  // 哑头尾节点
+  this.head = new ListNode(); // 最近使用端
+  this.tail = new ListNode(); // 最久未使用端
+  this.head.next = this.tail;
+  this.tail.prev = this.head;
+};
+
+LRUCache.prototype._remove = function(node) {
+  node.prev.next = node.next;
+  node.next.prev = node.prev;
+};
+
+LRUCache.prototype._addToHead = function(node) {
+  node.next = this.head.next;
+  node.prev = this.head;
+  this.head.next.prev = node;
+  this.head.next = node;
+};
+
+/**
+ * @param {number} key
+ * @return {number}
+ */
+LRUCache.prototype.get = function(key) {
+  if (!this.map.has(key)) return -1;
+  const node = this.map.get(key);
+  this._remove(node);
+  this._addToHead(node);
+  return node.val;
+};
+
+/**
+ * @param {number} key
+ * @param {number} value
+ * @return {void}
+ */
+LRUCache.prototype.put = function(key, value) {
+  if (this.map.has(key)) {
+    const node = this.map.get(key);
+    node.val = value;
+    this._remove(node);
+    this._addToHead(node);
+  } else {
+    const node = new ListNode(key, value);
+    this.map.set(key, node);
+    this._addToHead(node);
+    if (this.map.size > this.capacity) {
+      const lru = this.tail.prev;
+      this._remove(lru);
+      this.map.delete(lru.key);
+    }
+  }
+};
+```
+
+**复杂度**：get/put 均 O(1)
+
+---
+
+### [460] LFU 缓存 🔴 Hard
+
+**思路**：LFU（Least Frequently Used）按访问频率淘汰，频率相同时淘汰最久未访问的。需要三个数据结构：
+
+1. **keyMap**：`key → {val, freq}` — O(1) 查值和频率
+2. **freqMap**：`freq → LinkedHashSet(有序 Set，按访问时间)` — O(1) 按频率找节点集合
+3. **minFreq**：当前最小频率（用于淘汰）
+
+每次 get/put 将 key 的频率 +1，从 `freqMap[oldFreq]` 移到 `freqMap[newFreq]`；若 `freqMap[minFreq]` 为空，minFreq++。插入新 key 时 minFreq 重置为 1。
+
+**代码**：
+```js
+/**
+ * @param {number} capacity
+ */
+var LFUCache = function(capacity) {
+  this.capacity = capacity;
+  this.size = 0;
+  this.minFreq = 0;
+  this.keyMap = new Map();  // key → {val, freq}
+  this.freqMap = new Map(); // freq → Map<key, val>（用 Map 保持插入顺序，模拟有序集合）
+};
+
+LFUCache.prototype._getFreqBucket = function(freq) {
+  if (!this.freqMap.has(freq)) {
+    this.freqMap.set(freq, new Map());
+  }
+  return this.freqMap.get(freq);
+};
+
+LFUCache.prototype._increaseFreq = function(key) {
+  const { val, freq } = this.keyMap.get(key);
+  const newFreq = freq + 1;
+
+  // 更新 keyMap
+  this.keyMap.set(key, { val, freq: newFreq });
+
+  // 从旧频率桶移除
+  const oldBucket = this.freqMap.get(freq);
+  oldBucket.delete(key);
+  if (oldBucket.size === 0) {
+    this.freqMap.delete(freq);
+    if (this.minFreq === freq) this.minFreq = newFreq; // 最小频率更新
+  }
+
+  // 加入新频率桶
+  this._getFreqBucket(newFreq).set(key, val);
+};
+
+/**
+ * @param {number} key
+ * @return {number}
+ */
+LFUCache.prototype.get = function(key) {
+  if (!this.keyMap.has(key)) return -1;
+  this._increaseFreq(key);
+  return this.keyMap.get(key).val;
+};
+
+/**
+ * @param {number} key
+ * @param {number} value
+ * @return {void}
+ */
+LFUCache.prototype.put = function(key, value) {
+  if (this.capacity <= 0) return;
+
+  if (this.keyMap.has(key)) {
+    // 更新值
+    this.keyMap.get(key).val = value;
+    // 同步更新 freqMap 中的值（需要先增频，再把 freqMap 里的 val 也更新）
+    this._increaseFreq(key);
+    // _increaseFreq 内读的是 keyMap 的旧 val，需修正：直接更新 keyMap
+    this.keyMap.get(key).val = value;
+    // 同步到新频率桶
+    const { freq } = this.keyMap.get(key);
+    this.freqMap.get(freq).set(key, value);
+  } else {
+    // 超容量，淘汰 minFreq 桶中最久未访问的
+    if (this.size >= this.capacity) {
+      const minBucket = this.freqMap.get(this.minFreq);
+      const evictKey = minBucket.keys().next().value; // Map 迭代器首个 key = 最久未访问
+      minBucket.delete(evictKey);
+      if (minBucket.size === 0) this.freqMap.delete(this.minFreq);
+      this.keyMap.delete(evictKey);
+      this.size--;
+    }
+
+    // 插入新 key，频率为 1
+    this.keyMap.set(key, { val: value, freq: 1 });
+    this._getFreqBucket(1).set(key, value);
+    this.minFreq = 1;
+    this.size++;
+  }
+};
+```
+
+**复杂度**：get/put 均 O(1)
+
+**LRU vs LFU 对比**：
+
+| 维度 | LRU | LFU |
+|------|-----|-----|
+| 淘汰策略 | 最久未访问 | 访问频率最低（频率相同则最久未访问） |
+| 数据结构 | Map + 双向链表 | keyMap + freqMap（Map of Map） + minFreq |
+| 实现复杂度 | 中 | 高 |
+| 适用场景 | 热点数据具有时间局部性 | 热点数据访问频率差异明显 |
+
+---
+
+### Week 2 错题思路整理
+
+#### 滑动窗口模板
+
+```js
+// 通用滑动窗口框架
+function slidingWindow(s, t) {
+  const need = new Map(); // 需求
+  const window = new Map(); // 窗口状态
+
+  let left = 0, right = 0;
+  let valid = 0; // 满足条件的字符数
+
+  while (right < s.length) {
+    const c = s[right];
+    right++;
+    // ① 扩展窗口：更新 window 数据
+    if (need.has(c)) {
+      window.set(c, (window.get(c) || 0) + 1);
+      if (window.get(c) === need.get(c)) valid++;
+    }
+
+    // ② 判断是否需要收缩（具体条件因题而异）
+    while (/* 窗口需要收缩 */ valid === need.size) {
+      // ③ 记录结果（最小窗口在此处记录）
+      // update answer...
+
+      const d = s[left];
+      left++;
+      // ④ 收缩窗口：更新 window 数据
+      if (need.has(d)) {
+        if (window.get(d) === need.get(d)) valid--;
+        window.set(d, window.get(d) - 1);
+      }
+    }
+    // ⑤ 记录结果（最大窗口在此处记录）
+  }
+}
+
+// 变体总结：
+// [76]  最小覆盖子串：收缩条件 valid===need.size，最小窗口在收缩前记录
+// [209] 最小长度子数组：收缩条件 sum>=target，最小长度在收缩前记录
+// [424] 最长重复字符：不合法时 left 右移（窗口不缩小），最大窗口在 right 处记录
+// [239] 最大滑动窗口：单调递减队列，队头即最大值
+```
+
+**易错点**：
+
+- **扩展 right 时**先更新 window，再判断 valid
+- **收缩 left 时**先判断（记录/更新 valid），再更新 window
+- 顺序颠倒会导致漏记或多记
+
+#### 回溯去重模板
+
+```js
+// 组合/子集去重（元素不可重复选，数组有重复元素）
+// 关键：先排序，同层相同元素跳过
+function backtrack(nums, start, path, result) {
+  result.push([...path]);
+  for (let i = start; i < nums.length; i++) {
+    // 同层去重：i > start 且与前一个相同
+    if (i > start && nums[i] === nums[i - 1]) continue;
+    path.push(nums[i]);
+    backtrack(nums, i + 1, path, result);
+    path.pop();
+  }
+}
+
+// 全排列去重（元素不可重复选，数组有重复元素）
+// 关键：先排序，used 数组标记
+function backtrackPerm(nums, used, path, result) {
+  if (path.length === nums.length) {
+    result.push([...path]);
+    return;
+  }
+  for (let i = 0; i < nums.length; i++) {
+    if (used[i]) continue;
+    // 同层去重：相邻相同且前一个未使用（说明是同层的）
+    if (i > 0 && nums[i] === nums[i - 1] && !used[i - 1]) continue;
+    used[i] = true;
+    path.push(nums[i]);
+    backtrackPerm(nums, used, path, result);
+    path.pop();
+    used[i] = false;
+  }
+}
+
+// 两种去重的本质区别：
+// i > start && nums[i]===nums[i-1]          → 用于组合/子集（start 标记同层起点）
+// i > 0 && nums[i]===nums[i-1] && !used[i-1] → 用于全排列（used 标记同层）
+```
+
+---
+
+### 场景题：手写发布订阅 + 观察者模式
+
+#### 发布订阅模式（EventEmitter）
+
+**核心思想**：事件中心（EventBus）解耦发布者和订阅者，两者互不知晓，通过事件名通信。
+
+```js
+class EventEmitter {
+  constructor() {
+    // 事件名 → 回调函数数组
+    this._events = Object.create(null);
+  }
+
+  /**
+   * 订阅事件
+   * @param {string} event - 事件名
+   * @param {Function} listener - 回调
+   */
+  on(event, listener) {
+    if (!this._events[event]) {
+      this._events[event] = [];
+    }
+    this._events[event].push(listener);
+    return this; // 支持链式调用
+  }
+
+  /**
+   * 取消订阅
+   */
+  off(event, listener) {
+    if (!this._events[event]) return this;
+    this._events[event] = this._events[event].filter(fn => fn !== listener);
+    return this;
+  }
+
+  /**
+   * 只订阅一次（触发后自动取消）
+   */
+  once(event, listener) {
+    const wrapper = (...args) => {
+      listener.apply(this, args);
+      this.off(event, wrapper);
+    };
+    wrapper._original = listener; // 保存原始函数，方便 off 时匹配
+    this.on(event, wrapper);
+    return this;
+  }
+
+  /**
+   * 发布事件
+   * @param {string} event - 事件名
+   * @param {...*} args - 传递给回调的参数
+   */
+  emit(event, ...args) {
+    if (!this._events[event]) return false;
+    // 复制一份，防止回调内 off 导致迭代异常
+    const listeners = [...this._events[event]];
+    listeners.forEach(listener => listener.apply(this, args));
+    return true;
+  }
+
+  /**
+   * 移除某事件的所有监听器（或全部事件）
+   */
+  removeAllListeners(event) {
+    if (event) {
+      delete this._events[event];
+    } else {
+      this._events = Object.create(null);
+    }
+    return this;
+  }
+}
+
+// 测试
+const emitter = new EventEmitter();
+
+const handler = (msg) => console.log('收到消息:', msg);
+emitter.on('message', handler);
+emitter.once('connect', () => console.log('已连接（只触发一次）'));
+
+emitter.emit('message', 'Hello');   // 收到消息: Hello
+emitter.emit('connect');             // 已连接（只触发一次）
+emitter.emit('connect');             // 不再触发
+
+emitter.off('message', handler);
+emitter.emit('message', 'World');    // 不再触发
+```
+
+#### 观察者模式
+
+**核心思想**：被观察者（Subject）维护观察者（Observer）列表，状态变化时直接通知所有观察者。观察者和被观察者存在直接依赖关系。
+
+```js
+// 观察者接口
+class Observer {
+  /**
+   * @param {string} name - 观察者名称
+   */
+  constructor(name) {
+    this.name = name;
+  }
+
+  /**
+   * 被通知时调用
+   * @param {Subject} subject - 被观察者
+   */
+  update(subject) {
+    console.log(`${this.name} 收到通知：${subject.name} 状态变为 ${subject.getState()}`);
+  }
+}
+
+// 被观察者（Subject）
+class Subject {
+  constructor(name) {
+    this.name = name;
+    this._state = null;
+    this._observers = [];
+  }
+
+  // 注册观察者
+  subscribe(observer) {
+    if (!this._observers.includes(observer)) {
+      this._observers.push(observer);
+    }
+  }
+
+  // 移除观察者
+  unsubscribe(observer) {
+    this._observers = this._observers.filter(obs => obs !== observer);
+  }
+
+  // 通知所有观察者
+  notify() {
+    this._observers.forEach(observer => observer.update(this));
+  }
+
+  getState() { return this._state; }
+
+  setState(state) {
+    this._state = state;
+    this.notify(); // 状态变化，自动通知
+  }
+}
+
+// 测试
+const store = new Subject('Store');
+const componentA = new Observer('ComponentA');
+const componentB = new Observer('ComponentB');
+
+store.subscribe(componentA);
+store.subscribe(componentB);
+
+store.setState('loading'); // ComponentA 和 ComponentB 都收到通知
+store.setState('success');
+
+store.unsubscribe(componentB);
+store.setState('error');   // 只有 ComponentA 收到通知
+```
+
+**发布订阅 vs 观察者模式对比**：
+
+| 维度 | 观察者模式 | 发布订阅模式 |
+|------|-----------|-------------|
+| 耦合度 | 观察者和被观察者直接依赖 | 通过事件中心解耦，互不知晓 |
+| 事件中心 | 无 | 有（EventEmitter / EventBus） |
+| 通信方式 | 被观察者直接调用观察者的 update | 发布者 emit，订阅者 on |
+| 跨模块通信 | 较难 | 容易（适合跨模块、跨组件通信） |
+| 典型应用 | Vue 响应式（Dep/Watcher）、MobX | Node.js EventEmitter、Vue $on/$emit、Redux |
+
+---
+
+### 知识点：性能优化综合
+
+#### 首屏优化
+
+**指标**：FCP（First Contentful Paint 首次内容绘制）、LCP（Largest Contentful Paint 最大内容绘制）、TTI（Time to Interactive 可交互时间）
+
+**优化手段**：
+
+```
+1. 减少资源体积
+   ├── 代码压缩（Terser / UglifyJS）
+   ├── Tree Shaking（删除死代码）
+   ├── 图片压缩（WebP/AVIF 替代 JPG/PNG）
+   └── Gzip/Brotli 压缩传输
+
+2. 减少请求数/请求时间
+   ├── HTTP/2（多路复用，消除队头阻塞）
+   ├── CDN（静态资源分发，缩短物理距离）
+   ├── 合理缓存策略（强缓存 + 协商缓存）
+   └── DNS 预解析（<link rel="dns-prefetch">）
+
+3. 关键渲染路径优化
+   ├── CSS 放 <head>（避免 FOUC）
+   ├── JS 放 <body> 底部 或 async/defer
+   ├── 内联关键 CSS（Critical CSS）
+   └── 减少阻塞渲染的资源
+
+4. 代码分割（Code Splitting）
+   ├── 路由懒加载（按需加载页面）
+   ├── 动态 import（按需加载组件）
+   └── Vendor chunk 分离（第三方库单独缓存）
+```
+
+#### 懒加载 vs 预加载
+
+```html
+<!-- 图片懒加载：使用 loading="lazy" 属性（原生支持） -->
+<img src="placeholder.jpg" data-src="real-image.jpg" loading="lazy" alt="">
+
+<!-- Intersection Observer API 实现懒加载 -->
+<script>
+const images = document.querySelectorAll('img[data-src]');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const img = entry.target;
+      img.src = img.dataset.src;
+      observer.unobserve(img); // 加载后取消观察
+    }
+  });
+}, { threshold: 0.1 });
+
+images.forEach(img => observer.observe(img));
+</script>
+
+<!-- 预加载：提前加载关键资源 -->
+<link rel="preload" href="critical.css" as="style">
+<link rel="preload" href="hero.jpg" as="image">
+<link rel="prefetch" href="next-page.js"> <!-- 低优先级，空闲时预取下一页 -->
+<link rel="preconnect" href="https://api.example.com"> <!-- 预建连接 -->
+```
+
+**懒加载 vs 预加载**：
+
+| | 懒加载 | 预加载 |
+|-|-------|-------|
+| 目的 | 推迟加载，节省首屏带宽 | 提前加载，减少后续等待 |
+| 时机 | 需要时才加载（进入视口） | 提前加载（空闲时或立即） |
+| 适用 | 图片、非关键 JS、长列表 | 首屏关键资源、下一页资源 |
+| 指令 | `loading="lazy"` / 动态 import | `<link rel="preload/prefetch">` |
+
+#### SSR（服务端渲染）
+
+```
+CSR（客户端渲染）流程：
+请求 → 返回空 HTML → 下载 JS → 执行 JS → 请求 API → 渲染页面
+  首屏白屏时间长，SEO 不友好
+
+SSR（服务端渲染）流程：
+请求 → 服务端拼接 HTML（含数据） → 返回完整 HTML → 浏览器渲染 → Hydration
+  首屏速度快，SEO 友好，但服务端压力大，TTFB 可能更长
+
+SSG（静态生成）：
+构建时生成静态 HTML，直接 CDN 分发，最快但不适合动态内容
+
+ISR（增量静态再生，Next.js）：
+静态页面 + 定时/按需重新生成，兼顾速度和动态性
+```
+
+**Next.js SSR 示例**：
+
+```jsx
+// pages/products.js
+export async function getServerSideProps(context) {
+  const res = await fetch('https://api.example.com/products');
+  const products = await res.json();
+  return {
+    props: { products }, // 注入到组件 props
+  };
+}
+
+export default function Products({ products }) {
+  return (
+    <ul>
+      {products.map(p => <li key={p.id}>{p.name}</li>)}
+    </ul>
+  );
+}
+```
+
+#### Service Worker
+
+```js
+// sw.js — 拦截网络请求实现离线缓存
+const CACHE_NAME = 'v1';
+const STATIC_ASSETS = ['/', '/index.html', '/main.css', '/app.js'];
+
+// 安装：预缓存静态资源
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(cache => cache.addAll(STATIC_ASSETS))
+  );
+  self.skipWaiting(); // 立即激活，不等待旧 SW 退出
+});
+
+// 激活：清理旧缓存
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
+    )
+  );
+  self.clients.claim(); // 立即控制所有页面
+});
+
+// 拦截请求：Cache First 策略（先走缓存，缓存没有再走网络）
+self.addEventListener('fetch', (event) => {
+  event.respondWith(
+    caches.match(event.request).then(cached => {
+      if (cached) return cached; // 命中缓存
+      return fetch(event.request).then(response => {
+        // 动态缓存新请求
+        const cloned = response.clone();
+        caches.open(CACHE_NAME).then(cache => cache.put(event.request, cloned));
+        return response;
+      });
+    })
+  );
+});
+```
+
+**注册 Service Worker**：
+
+```js
+// main.js
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').then(reg => {
+      console.log('SW registered:', reg.scope);
+    }).catch(err => {
+      console.error('SW registration failed:', err);
+    });
+  });
+}
+```
+
+**Service Worker 缓存策略**：
+
+| 策略 | 描述 | 适用场景 |
+|------|------|---------|
+| Cache First | 优先缓存，没有才请求网络 | 静态资源（JS/CSS/图片） |
+| Network First | 优先网络，失败才用缓存 | API 请求（需要最新数据） |
+| Stale While Revalidate | 立即返回缓存，同时后台更新缓存 | 频繁更新但可接受短暂旧数据 |
+| Cache Only | 只用缓存 | 离线应用 |
+| Network Only | 只走网络 | 实时数据（不缓存） |
+
+**常见追问**：
+
+Q: Service Worker 和普通 Web Worker 的区别？
+
+A: Web Worker 是为了分担主线程 CPU 密集型任务（没有网络拦截能力，不持久化）；Service Worker 是一种特殊的 Web Worker，独立于页面运行，可以拦截网络请求、管理缓存、支持离线、实现推送通知，即使页面关闭也可以在后台运行（由浏览器管理生命周期）。
+
+Q: 首屏优化的关键指标和目标值？
+
+A: Core Web Vitals 三项核心指标：LCP（Largest Contentful Paint）< 2.5s（良好）、FID/INP（交互延迟）< 100ms、CLS（布局偏移）< 0.1。实践中常用 Lighthouse 或 Web Vitals 库监控。
+
+---
+
+## Week 2 总结（Day 8-14）
+
+| Day | 核心主题 | 算法题数 | 场景题 | 知识点 |
+|-----|----------|----------|--------|--------|
+| Day 8  | DP 基础（背包） | 4 题 | 手写 flat | 跨域解决方案 |
+| Day 9  | DP 进阶（子序列） | 4 题 | Promise 三兄弟 | TCP 握手挥手 |
+| Day 10 | 回溯基础 | 4 题 | async/await | HTTPS & TLS |
+| Day 11 | 回溯去重 | 4 题 | 虚拟 DOM diff | Webpack 构建流程 |
+| Day 12 | 滑动窗口 | 4 题 | 手写 LRU | React Fiber 架构 |
+| Day 13 | 链表进阶 | 4 题 | 手写 reduce/map | Vue 响应式原理 |
+| Day 14 | 复习查漏 | 2 题+模板 | 发布订阅/观察者 | 性能优化综合 |
+
+**Week 2 核心要点汇总**：
+
+**滑动窗口**：
+- 扩展 right → 更新 window → 判断收缩条件 → 收缩 left → 更新 window（顺序不能乱）
+- 最小窗口在收缩前记录；最大窗口在 right 处记录
+- 单调队列（[239]）：队头存最大值，队尾维护单调性
+
+**链表**：
+- 哑节点（dummy）简化头节点边界
+- 快慢指针找中点：`fast = head.next` 时 slow 停在左半段末尾
+- 翻转时记录 groupHead + nextGroupHead，翻转后重连
+
+**缓存**：
+- LRU = Map + 双向链表，哑头尾节点
+- LFU = keyMap + freqMap（Map of Map）+ minFreq 变量
+- 关键：put 新节点时 minFreq 重置为 1
+
+**设计模式**：
+- 观察者：Subject 直接持有 Observer 引用（紧耦合）
+- 发布订阅：通过 EventEmitter 解耦（松耦合）
+- Vue 2 响应式 = 观察者模式（Dep = Subject，Watcher = Observer）
