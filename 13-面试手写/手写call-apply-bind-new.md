@@ -3,7 +3,9 @@
 ## 面试高频考点
 
 - 手写 `Function.prototype.call`
-- 手写 `Function.prototype.new`
+- 手写 `Function.prototype.apply`
+- 手写 `Function.prototype.bind`
+- 手写 `new`
 - `Object.create` 和直接赋值 `__proto__` 的区别？
 - 为什么 call 实现中要用 `Object(ctx)` 包装原始值？
 
@@ -47,7 +49,72 @@ console.log(numObj.foo); // 'bar' ✅
 
 Node.js 环境中没有 `window`，`globalThis` 是跨环境通用的全局对象引用。
 
-## 二、手写 new
+## 二、手写 apply
+
+`apply` 与 `call` 的唯一区别：参数以数组形式传入。
+
+```js
+Function.prototype.myApply = function (ctx, argsArray) {
+  ctx = ctx == null ? globalThis : Object(ctx);
+  argsArray = argsArray || []; // 参数可以是 null/undefined
+  const symbol = Symbol();
+  ctx[symbol] = this;
+  const res = ctx[symbol](...argsArray);
+  delete ctx[symbol];
+  return res;
+};
+
+// 使用示例
+Math.max.myApply(null, [1, 2, 3]); // 3
+// 等价于 Math.max.apply(null, [1, 2, 3])
+```
+
+---
+
+## 三、手写 bind
+
+`bind` 返回一个新函数，支持柯里化参数拼接，且绑定后不可再次改变 this。
+
+```js
+Function.prototype.myBind = function (ctx, ...bindArgs) {
+  const fn = this; // 保存原函数引用
+
+  const bound = function (...callArgs) {
+    // 关键：如果 bound 被 new 调用，this 指向新对象（忽略绑定的 ctx）
+    const thisArg = this instanceof bound ? this : Object(ctx == null ? globalThis : ctx);
+    return fn.apply(thisArg, [...bindArgs, ...callArgs]); // 参数拼接
+  };
+
+  // 维护原型链（使 bound 可以 new）
+  if (fn.prototype) {
+    bound.prototype = Object.create(fn.prototype);
+  }
+
+  return bound;
+};
+
+// 使用示例
+function greet(greeting, punctuation) {
+  return `${greeting}, ${this.name}${punctuation}`;
+}
+const user = { name: '张三' };
+const greetUser = greet.myBind(user, 'Hello');
+greetUser('!');  // 'Hello, 张三!'
+greetUser('?');  // 'Hello, 张三?'
+```
+
+### bind 关键点总结
+
+| 特性 | 说明 |
+|------|------|
+| 返回新函数 | 不立即执行，返回绑定了 this 的新函数 |
+| 参数预设（柯里化） | `bind` 时传的参数和调用时传的参数会合并 |
+| `new` 优先 | `new boundFn()` 时，绑定的 this 会被忽略 |
+| 无法再次 bind | 对 `bind` 返回的函数再次 `bind` 不会改变 this |
+
+---
+
+## 四、手写 new
 
 ```js
 function myNew(Constructor, ...args) {
@@ -96,7 +163,7 @@ p.sayHi(); // hi, I'm 张三
 console.log(p instanceof Person); // true
 ```
 
-## 三、手写 instanceof
+## 五、手写 instanceof
 
 ```js
 function myInstanceof(left, right) {
