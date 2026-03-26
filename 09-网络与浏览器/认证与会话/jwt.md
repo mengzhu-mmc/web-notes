@@ -1,3 +1,5 @@
+# JWT（JSON Web Token）详解
+
 ## 面试高频考点
 
 1. JWT 的结构是什么？三部分分别是什么？
@@ -8,63 +10,135 @@
 
 ---
 
-[JSON Web Token 入门教程](https://www.ruanyifeng.com/blog/2018/07/json_web_token-tutorial.html)
+## JWT 是什么
 
-JSON Web Token（缩写 JWT）是目前最流行的跨域认证解决方案。
+JSON Web Token（JWT）是一种开放标准（RFC 7519），定义了一种**紧凑且自包含**的方式，用于在各方之间以 JSON 对象安全传输信息。常用于**无状态身份认证**和**跨域认证**场景。
 
-### JWT 结构
+参考：[阮一峰 JWT 入门教程](https://www.ruanyifeng.com/blog/2018/07/json_web_token-tutorial.html)
 
-JWT 由三部分组成，用 `.` 分隔：`Header.Payload.Signature`
+---
 
-- **Header**：算法类型（如 HS256）和 token 类型（JWT）
-- **Payload**：声明（claims），包含用户信息和过期时间等
-- **Signature**：用密钥对前两部分签名，防止篡改
+## JWT 结构
 
-### JWT 和 Session Cookies 的不同
+JWT 由三部分组成，用 `.` 分隔：
 
-JWT 和 Session Cookies 都提供安全的用户身份验证，但是它们有以下几点不同
+```
+Header.Payload.Signature
+```
 
-#### 密码签名
+### Header（头部）
 
-JWT 具有加密签名，而 Session Cookies 则没有。
+```json
+{
+  "alg": "HS256",   // 签名算法（HS256 / RS256 等）
+  "typ": "JWT"      // token 类型
+}
+```
 
-#### JSON 是无状态的
+### Payload（载荷）
 
-JWT 是`无状态`的，因为声明被存储在`客户端`，而不是服务端内存中。
+包含声明（Claims）——关于实体（用户）和其他数据的陈述：
 
-身份验证可以在`本地`进行，而不是在请求必须通过服务器数据库或类似位置中进行。 这意味着可以对用户进行多次身份验证，而无需与站点或应用程序的数据库进行通信，也无需在此过程中消耗大量资源。
+```json
+{
+  "sub": "1234567",        // subject，通常是用户 ID
+  "name": "张三",
+  "role": "admin",
+  "iat": 1700000000,       // issued at，签发时间（Unix 时间戳）
+  "exp": 1700003600        // expiration，过期时间
+}
+```
 
-#### 可扩展性
+> ⚠️ Payload 只是 Base64URL 编码，**不是加密**，任何人都可以解码读取。**不要在 Payload 中存储密码等敏感信息！**
 
-Session Cookies 是存储在服务器内存中，这就意味着如果网站或者应用很大的情况下会耗费大量的资源。由于 JWT 是无状态的，在许多情况下，它们可以节省服务器资源。因此 JWT 要比 Session Cookies 具有更强的`可扩展性`。
+### Signature（签名）
 
-#### JWT 支持跨域认证
+```
+HMACSHA256(
+  base64UrlEncode(header) + "." + base64UrlEncode(payload),
+  secret
+)
+```
 
-Session Cookies 只能用在`单个节点的域`或者它的`子域`中有效。如果它们尝试通过第三个节点访问，就会被禁止。如果你希望自己的网站和其他站点建立安全连接时，这是一个问题。
+签名用于验证 token 没有被篡改。只有持有 `secret` 的服务端才能验证签名是否有效。
 
-使用 JWT 可以解决这个问题，使用 JWT 能够通过`多个节点`进行用户认证，也就是我们常说的`跨域认证`。
+---
+
+## JWT 认证流程
+
+```
+1. 用户登录（POST /login，发送用户名+密码）
+2. 服务端验证成功 → 生成 JWT → 返回给客户端
+3. 客户端存储 JWT（localStorage / sessionStorage / httpOnly Cookie）
+4. 后续请求在 Header 中携带 JWT：
+   Authorization: Bearer <token>
+5. 服务端接收请求 → 验证签名 → 解析 Payload → 识别用户
+```
+
+---
+
+## JWT vs Session 对比
+
+| 维度 | JWT | Session |
+|------|-----|---------|
+| **存储位置** | 客户端 | 服务端（Redis/内存/DB）|
+| **有无状态** | 无状态 ✅ | 有状态 |
+| **可扩展性** | 好（无需共享存储） | 差（分布式需共享 Redis）|
+| **跨域支持** | 好（放 Header）| 受限（依赖 Cookie SameSite）|
+| **主动失效** | 难（需黑名单，破坏无状态）| 容易（删除服务端 session）|
+| **安全性** | 中（payload 可解码，签名防篡改）| 较高（数据在服务端）|
+| **适合场景** | 前后端分离 / 微服务 / 移动端 | 传统服务端渲染 / 单体服务 |
+
+---
+
+## JWT 安全问题与防护
+
+### 1. 算法漏洞：alg=none 攻击
+早期 JWT 库允许客户端指定 `"alg": "none"` 跳过签名验证。
+
+**防护**：服务端强制指定算法，不接受 `none`。
+
+### 2. 密钥强度不足
+HS256 密钥如果太弱，可被暴力破解。
+
+**防护**：密钥长度 ≥ 256 bit，从环境变量读取，不要硬编码。
+
+### 3. Token 被盗用（XSS）
+如果 token 存在 localStorage，XSS 攻击可直接读走。
+
+**防护**：
+- access token 存内存（`sessionStorage` 或 JS 变量）
+- refresh token 存 `httpOnly Cookie`，JS 无法读取
+
+### 4. 无法主动吊销 JWT
+JWT 是无状态的，过期前无法直接作废（如踢人下线）。
+
+**解决方案**：
+- **黑名单**：将需要吊销的 `jti`（JWT ID）存入 Redis，验证时检查
+- **短有效期**：access token 设 15min，配合 refresh token 自动续期
+- **版本号**：用户表加 `tokenVersion` 字段，JWT 携带版本号，修改密码时版本+1
 
 ---
 
 ## 代码示例
 
-### 服务端生成和验证 JWT（Node.js / jsonwebtoken）
+### 服务端生成和验证 JWT（Node.js）
 
 ```javascript
 const jwt = require('jsonwebtoken');
-const SECRET = 'your-secret-key'; // 生产环境应从环境变量读取
+const SECRET = process.env.JWT_SECRET; // 从环境变量读取，勿硬编码
 
-// 登录时生成 token
+// 登录时生成双 token
 function generateTokens(userId) {
   const accessToken = jwt.sign(
     { userId, type: 'access' },
     SECRET,
-    { expiresIn: '15m' }  // access token 短有效期
+    { expiresIn: '15m' }  // access token：短有效期
   );
   const refreshToken = jwt.sign(
     { userId, type: 'refresh' },
     SECRET,
-    { expiresIn: '7d' }   // refresh token 长有效期
+    { expiresIn: '7d' }   // refresh token：长有效期
   );
   return { accessToken, refreshToken };
 }
@@ -76,6 +150,7 @@ function authMiddleware(req, res, next) {
 
   try {
     const payload = jwt.verify(token, SECRET);
+    if (payload.type !== 'access') throw new Error('Wrong token type');
     req.user = payload;
     next();
   } catch (err) {
@@ -89,30 +164,22 @@ function authMiddleware(req, res, next) {
 
 ```javascript
 // 登录后存储 token
-function login(username, password) {
+async function login(username, password) {
   const res = await fetch('/api/login', {
     method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ username, password }),
+    credentials: 'include', // 允许服务端设置 httpOnly Cookie（存 refresh token）
   });
-  const { accessToken, refreshToken } = await res.json();
-
-  // access token 存内存或 sessionStorage（安全，但页面刷新丢失）
+  const { accessToken } = await res.json();
+  // access token 存 sessionStorage（关闭页面自动清除）
   sessionStorage.setItem('accessToken', accessToken);
-  // refresh token 存 httpOnly cookie（防 XSS）
-  // 由服务端 Set-Cookie 设置
 }
 
-// 每次请求携带 token
+// 每次请求自动携带 token（axios 拦截器）
 axios.interceptors.request.use(config => {
   const token = sessionStorage.getItem('accessToken');
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
 ```
-
----
-
-作者：程序员cxuan
-链接：https://juejin.cn/post/6844904115080790023
-来源：稀土掘金
-著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
