@@ -254,7 +254,118 @@ const useStore = create(
 
 ---
 
+## MobX：响应式状态管理
+
+MobX 是基于**观察者模式**的响应式状态管理库，设计哲学与 Redux 截然相反——它不强调不可变数据和单向数据流，而是通过让状态变得"可观察"，自动追踪依赖并触发更新。在 Angular/Vue 生态中类似的思想随处可见，MobX 把这套机制带进了 React。
+
+### 核心概念
+
+MobX 有三个核心角色：
+
+- **Observable**：可观察的状态，相当于数据源
+- **Computed**：由 observable 派生的计算值，自动缓存，依赖不变不重算
+- **Action**：修改 observable 的函数，推荐在 strict mode 下强制要求所有状态变更必须在 action 内发生
+
+```js
+import { makeAutoObservable, runInAction } from 'mobx';
+import { observer } from 'mobx-react-lite';
+
+// 定义 Store 类
+class TodoStore {
+  todos = [];
+  filter = 'all'; // 'all' | 'active' | 'done'
+
+  constructor() {
+    // 自动将所有属性变为 observable，方法变为 action
+    makeAutoObservable(this);
+  }
+
+  // action：直接"修改"状态，MobX 内部处理响应式更新
+  addTodo(text) {
+    this.todos.push({ id: Date.now(), text, done: false });
+  }
+
+  toggleTodo(id) {
+    const todo = this.todos.find(t => t.id === id);
+    if (todo) todo.done = !todo.done;
+  }
+
+  setFilter(filter) {
+    this.filter = filter;
+  }
+
+  // computed：依赖变化时自动重算，组件读取时返回缓存值
+  get filteredTodos() {
+    if (this.filter === 'active') return this.todos.filter(t => !t.done);
+    if (this.filter === 'done') return this.todos.filter(t => t.done);
+    return this.todos;
+  }
+
+  get doneCount() {
+    return this.todos.filter(t => t.done).length;
+  }
+
+  // 异步 action：需要用 runInAction 包裹状态变更
+  async fetchTodos() {
+    const response = await fetch('/api/todos');
+    const data = await response.json();
+    // 异步回调中的状态修改必须放在 runInAction 内
+    runInAction(() => {
+      this.todos = data;
+    });
+  }
+}
+
+// 创建 store 实例（可以是单例，也可以用 React Context 注入）
+const todoStore = new TodoStore();
+
+// 用 observer 包裹组件，自动订阅用到的 observable
+const TodoList = observer(function TodoList() {
+  return (
+    <ul>
+      {todoStore.filteredTodos.map(todo => (
+        <li
+          key={todo.id}
+          style={{ textDecoration: todo.done ? 'line-through' : 'none' }}
+          onClick={() => todoStore.toggleTodo(todo.id)}
+        >
+          {todo.text}
+        </li>
+      ))}
+      <p>已完成：{todoStore.doneCount}</p>
+    </ul>
+  );
+});
+```
+
+### 响应式原理
+
+MobX 通过 ES5 的 `Object.defineProperty`（或 ES6 Proxy）拦截对 observable 属性的读取和写入：
+
+- **读取时（track）**：记录"当前是谁在读我"，建立依赖关系图
+- **写入时（trigger）**：通知所有依赖这个属性的 computed/reaction 重新计算或触发更新
+
+`observer(Component)` 本质上是在组件渲染期间开启一个 "autorun"，记录这次渲染读取了哪些 observable。下次这些 observable 变化时，组件自动重渲染，且只重渲染真正用到该数据的组件。这种**细粒度的自动订阅**是 MobX 性能好的核心原因。
+
+### 与 Redux 的对比视角
+
+| | MobX | Redux |
+|---|---|---|
+| 数据可变性 | 直接修改（Mutable） | 不可变（Immutable） |
+| 更新方式 | 自动追踪依赖，响应式触发 | 手动 dispatch action |
+| 样板代码 | 极少 | 较多（RTK 已大幅减少） |
+| 调试能力 | 较弱（状态变更分散） | 强（时间旅行、action 日志）|
+| 适合团队 | 小团队、快速迭代 | 大团队、需要严格规范 |
+
+### 适用场景
+
+MobX 特别适合**数据模型复杂、对象关系深**的应用（如 ERP、复杂表单、数据可视化编辑器），因为 OOP 的 Store 类写法能很自然地建模领域对象。在有 Angular/Vue 背景的团队中接受度也更高。缺点是代码风格和其他 React 状态管理库差异较大，混用时会产生心智割裂；同时由于状态可以随处修改，大型项目中需要额外的纪律约束。
+
+---
+
 ## Jotai：原子化状态管理
+
+> **说明**：Jotai 在实际项目中使用范围较小，主流选型通常在 Redux、Zustand、MobX 中产生。但 Jotai 的原子化模型有其独特的设计价值，在状态依赖关系复杂的场景下仍值得了解。面试中提到它会加分，但不作为首选推荐。
 
 Jotai 受 Recoil 启发，采用自底向上的原子化（atomic）模型，每个状态单元称为一个 atom。
 
@@ -305,32 +416,69 @@ function Counter() {
 
 ---
 
-## 方案对比总结
+## 方案横向对比
 
-### 设计理念对比
+### 一张表看清所有方案
 
-Redux 采用集中式单一 store 的设计，所有状态集中管理，通过 action → reducer 的单向数据流更新状态，强调可预测性和可追溯性。Zustand 同样是单一 store 模式，但去掉了 action type、reducer 等概念，直接通过函数更新状态，追求极简。Jotai 则是分散式的原子模型，每个 atom 独立存在，通过依赖关系自动组合，更接近 React 本身的心智模型。
+| 维度 | Context + useReducer | Redux (RTK) | Zustand | MobX | Jotai |
+|------|---------------------|-------------|---------|------|-------|
+| **设计模式** | 依赖注入 | Flux 单向数据流 | 发布订阅 | 响应式（观察者） | 原子化 |
+| **数据结构** | 树形 Context | 单一 Store 树 | 单一 Store | 可观察对象/类 | 分散原子图 |
+| **状态可变性** | 不可变 | 不可变（Immer） | 不可变（Immer 可选） | **可变**（直接修改） | 不可变 |
+| **更新方式** | dispatch action | dispatch action | 直接调用函数 | 直接修改属性 | set atom |
+| **精确订阅** | ❌ 无 selector | ✅ useSelector | ✅ selector | ✅ observer 自动追踪 | ✅ 原子级订阅 |
+| **样板代码** | 少 | 中（RTK 已优化） | **极少** | 少 | 少 |
+| **学习曲线** | 低 | 高 | **最低** | 中（OOP 思维） | 中 |
+| **需要 Provider** | ✅ 必须 | ✅ 必须 | ❌ 不需要 | 可选 | ❌ 不需要 |
+| **DevTools 支持** | ❌ | ✅ 一流 | ✅（中间件） | ✅ MobX DevTools | ✅ jotai-devtools |
+| **异步处理** | 手动 | thunk / saga | 直接 async | runInAction | async atom |
+| **服务端状态** | ❌ | ✅ RTK Query | 配合 TanStack Query | 配合 TanStack Query | 配合 TanStack Query |
+| **包体积** | 0（内置） | ~40KB | **~1KB** | ~16KB | ~3KB |
+| **npm 周下载量** | — | ~8M（redux） | ~4M | ~1.5M | ~700K |
+| **适合规模** | 小型 | 中大型 | 小~中型 | 中型（复杂模型） | 中型（复杂依赖） |
+| **典型使用方** | 小应用/组件库 | 企业级应用 | 个人/中小项目 | ERP/编辑器类 | 原子化 UI 状态 |
 
-### 性能特征对比
+### 选型决策树
 
-Context 方案的性能最差，因为没有 selector 机制，任何 value 变化都会导致所有消费者重渲染。Redux 通过 `useSelector` + 浅比较实现了精确订阅，只有 selector 返回值变化时才触发重渲染。Zustand 的 selector 机制与 Redux 类似，但由于不需要 Provider 包裹，避免了 Context 层面的开销。Jotai 的原子模型天然实现了最细粒度的订阅，每个 atom 的变化只影响订阅了该 atom 的组件。
+```
+你的项目需要状态管理吗？
+│
+├─ 状态只在少数几个组件间共享，更新不频繁
+│   └─ Context + useReducer（无需引入额外依赖）
+│
+├─ 快速开发，追求极简 API
+│   └─ Zustand ✅（主流推荐，npm 下载量第二）
+│
+├─ 大型团队 / 需要严格规范 / 复杂异步流程
+│   └─ Redux Toolkit ✅（生态最成熟，调试能力最强）
+│
+├─ 有复杂的领域模型（嵌套对象、对象关系）/ 来自 OOP 背景
+│   └─ MobX（响应式，天然支持 class 模型）
+│
+└─ 状态之间有复杂依赖关系，需要细粒度派生
+    └─ Jotai（原子化，适合联动表单/可视化配置）
 
-### 代码量与学习成本
+另外：服务端数据（接口请求）推荐单独用 TanStack Query 管理，
+     不要混进客户端状态管理库里。
+```
 
-从代码量来看，Zustand 最少，创建一个 store 只需要几行代码。Jotai 次之，定义 atom 也很简洁。Redux（即使使用 RTK）仍然需要定义 slice、配置 store、设置 Provider，代码量最多。学习成本方面，Zustand 最低，API 直觉且少；Jotai 需要理解原子化和派生的概念；Redux 需要理解单向数据流、中间件、不可变更新等概念，学习曲线最陡。
+### 现实项目中的分布
 
-### 生态与工具链
+根据 2024 年 npm 下载量和社区调查：
 
-Redux 的生态最成熟，拥有 Redux DevTools、RTK Query、redux-saga、redux-observable 等丰富的工具链，社区资源和最佳实践也最多。Zustand 支持 Redux DevTools（通过 devtools 中间件），生态在快速增长。Jotai 的生态相对较小，但提供了 jotai-devtools 和与 React Query 的集成方案。
+- **Redux**：仍是企业级项目首选，历史项目存量大，RTK 已大幅改善开发体验
+- **Zustand**：增长最快，新项目首选，简单直接，越来越多中小团队从 Redux 迁移过来
+- **MobX**：在特定领域（复杂数据模型、来自 Angular 的团队）有稳定用户群
+- **Jotai / Recoil**：实际项目使用偏少，Recoil 已停止维护，Jotai 社区还在活跃但规模较小
 
 ### 选型建议
 
 ```
-项目规模小、状态简单 → Context + useReducer 或 Zustand
-中大型项目、团队协作 → Redux Toolkit（规范性强，新人容易上手统一模式）
-状态依赖关系复杂 → Jotai（原子化模型天然适合）
-追求极简、快速开发 → Zustand（API 最少，上手最快）
-需要服务端状态管理 → RTK Query 或 TanStack Query（与上述方案配合使用）
+新项目首选：Zustand（小~中型）/ Redux Toolkit（大型/团队）
+旧项目迁移：RTK 是 Redux 的直接升级，迁移成本低
+复杂领域模型：MobX（OOP 写法更自然）
+了解即可：Jotai（面试加分项，实际选型排第四）
+不用在项目里混用多个状态管理库，选一个就够
 ```
 
 ---
