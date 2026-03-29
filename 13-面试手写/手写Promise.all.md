@@ -1,6 +1,138 @@
-# 手写 Promise 静态方法
+# 手写 Promise 完整实现
 
-> 面试高频：Promise.all / race / allSettled / any 手写
+> 面试高频：Promise 核心原理 + all / race / allSettled / any 完整手写
+
+---
+
+## 零、Promise 核心实现（then / catch / finally）
+
+```javascript
+const PENDING = 'pending';
+const FULFILLED = 'fulfilled';
+const REJECTED = 'rejected';
+
+class MyPromise {
+  constructor(executor) {
+    this.state = PENDING;
+    this.value = undefined;
+    this.reason = undefined;
+    this.onFulfilledCallbacks = [];
+    this.onRejectedCallbacks = [];
+
+    const resolve = (value) => {
+      if (this.state === PENDING) {
+        this.state = FULFILLED;
+        this.value = value;
+        this.onFulfilledCallbacks.forEach(fn => fn());
+      }
+    };
+
+    const reject = (reason) => {
+      if (this.state === PENDING) {
+        this.state = REJECTED;
+        this.reason = reason;
+        this.onRejectedCallbacks.forEach(fn => fn());
+      }
+    };
+
+    try {
+      executor(resolve, reject);
+    } catch (error) {
+      reject(error);
+    }
+  }
+
+  then(onFulfilled, onRejected) {
+    // 值穿透处理
+    onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : value => value;
+    onRejected = typeof onRejected === 'function' ? onRejected : reason => { throw reason; };
+
+    const promise2 = new MyPromise((resolve, reject) => {
+      const handleFulfilled = () => {
+        setTimeout(() => {
+          try {
+            const x = onFulfilled(this.value);
+            resolvePromise(promise2, x, resolve, reject);
+          } catch (error) {
+            reject(error);
+          }
+        }, 0);
+      };
+
+      const handleRejected = () => {
+        setTimeout(() => {
+          try {
+            const x = onRejected(this.reason);
+            resolvePromise(promise2, x, resolve, reject);
+          } catch (error) {
+            reject(error);
+          }
+        }, 0);
+      };
+
+      if (this.state === FULFILLED) handleFulfilled();
+      else if (this.state === REJECTED) handleRejected();
+      else {
+        this.onFulfilledCallbacks.push(handleFulfilled);
+        this.onRejectedCallbacks.push(handleRejected);
+      }
+    });
+
+    return promise2;
+  }
+
+  catch(onRejected) {
+    return this.then(null, onRejected);
+  }
+
+  finally(onFinally) {
+    return this.then(
+      value => MyPromise.resolve(onFinally()).then(() => value),
+      reason => MyPromise.resolve(onFinally()).then(() => { throw reason; })
+    );
+  }
+
+  static resolve(value) {
+    if (value instanceof MyPromise) return value;
+    return new MyPromise(resolve => resolve(value));
+  }
+
+  static reject(reason) {
+    return new MyPromise((_, reject) => reject(reason));
+  }
+}
+
+// 处理 then 返回值（支持链式调用）
+function resolvePromise(promise2, x, resolve, reject) {
+  if (promise2 === x) return reject(new TypeError('Chaining cycle detected'));
+
+  if (x !== null && (typeof x === 'object' || typeof x === 'function')) {
+    let called = false;
+    try {
+      const then = x.then;
+      if (typeof then === 'function') {
+        then.call(x,
+          y => { if (!called) { called = true; resolvePromise(promise2, y, resolve, reject); } },
+          r => { if (!called) { called = true; reject(r); } }
+        );
+      } else {
+        resolve(x);
+      }
+    } catch (error) {
+      if (!called) { called = true; reject(error); }
+    }
+  } else {
+    resolve(x);
+  }
+}
+```
+
+### Promise 核心要点
+
+1. **三种状态**：pending → fulfilled/rejected（不可逆）
+2. **then 链式调用**：每次返回新的 Promise
+3. **值穿透**：then 不传函数参数会透传值/错误
+4. **微任务**：Promise 回调是微任务，优先级高于宏任务（setTimeout）
 
 ---
 
