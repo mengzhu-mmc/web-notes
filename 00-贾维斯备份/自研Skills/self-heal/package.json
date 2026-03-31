@@ -1,0 +1,6 @@
+{
+  "name": "self-heal",
+  "version": "1.0.0",
+  "description": "系统自愈 skill — 检测并修复断连、进程异常、cron target 失效",
+  "main": "index.js"
+}

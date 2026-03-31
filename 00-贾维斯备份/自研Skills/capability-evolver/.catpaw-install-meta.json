@@ -1,0 +1,8 @@
+{
+  "source": "market",
+  "id": 1759,
+  "updateTime": 1772676680000,
+  "downloadTime": 1773286033628,
+  "alias": "CapabilityEvolver",
+  "intro": "A self-evolution engine for AI agents. Analyzes runtime history to identify improvements and applies protocol-constrained evolution."
+}

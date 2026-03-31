@@ -1,0 +1,6 @@
+{
+  "ddingtalk_staff_id": "5155014812-513450819",
+  "daxiang_user_id": "3694469245",
+  "last_updated": "2026-03-24",
+  "note": "用户确认的 userId，cron target 失效时自动使用此值修复"
+}
