@@ -1,5 +1,10 @@
 # Promise 实现原理
 
+## 相关笔记
+
+- [异步编程与 EventLoop](../异步编程与EventLoop.md) — Promise 链式调用、静态方法、并发控制
+- [async/await 实现原理](./async-await实现原理.md) — Promise + Generator 语法糖原理
+
 ## 面试高频考点
 
 - Promise 的三种状态及转换规则？

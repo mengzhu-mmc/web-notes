@@ -772,3 +772,261 @@ declare module 'express-serve-static-core' {
   }
 }
 ```
+
+---
+
+## 十一、现代 TypeScript 新特性
+
+### 11.1 satisfies 操作符（TS 4.9+）
+
+`satisfies` 在**保留推断类型**的同时进行类型校验。与 `as` 断言不同，`satisfies` 不会丢失具体类型信息。
+
+**核心价值**：既能享受类型检查（防止写错），又能保留字面量类型（让后续代码更精确）。
+
+```typescript
+// 场景：颜色配置对象，值可以是 string 或 [number, number, number]
+type Color = string | [number, number, number]
+
+// ❌ 显式声明：丢失具体类型，palette.red 是 Color，不知道是 string 还是数组
+const palette: Record<string, Color> = {
+  red: [255, 0, 0],
+  green: '#00ff00',
+  blue: [0, 0, 255],
+}
+palette.red.toUpperCase() // ❌ TS 报错，因为 Color 可能是数组
+
+// ✅ satisfies：保留推断类型，red 是 number[]，green 是 string
+const palette2 = {
+  red: [255, 0, 0],
+  green: '#00ff00',
+  blue: [0, 0, 255],
+} satisfies Record<string, Color>
+
+palette2.red.map(x => x * 2)        // ✅ TS 知道 red 是数组
+palette2.green.toUpperCase()         // ✅ TS 知道 green 是 string
+palette2.typo                        // ❌ TS 报错，satisfies 校验了 key 是 string，但不允许访问未定义属性（视配置而定）
+
+// 实际应用：路由配置
+type Route = {
+  path: string
+  component: string
+  exact?: boolean
+}
+
+const routes = [
+  { path: '/', component: 'Home', exact: true },
+  { path: '/about', component: 'About' },
+  { path: '/typo', componnet: 'Typo' }, // ❌ satisfies 会发现 typo
+] satisfies Route[]
+```
+
+**`satisfies` vs `as` vs 显式类型注解对比**：
+
+| | 类型校验 | 保留具体类型 | 用途 |
+|--|---------|------------|------|
+| `const x: T = val` | ✅ | ❌（宽化为 T） | 声明类型 |
+| `val as T` | ❌ | ❌（强转） | 类型断言（不安全） |
+| `val satisfies T` | ✅ | ✅（保留推断） | 验证 + 保留推断 |
+
+---
+
+### 11.2 using 关键字（TS 5.2+，显式资源管理）
+
+`using` 关键字实现**显式资源管理**（Explicit Resource Management，TC39 提案），类似 C# 的 `using` 或 Java 的 `try-with-resources`。
+
+**核心原理**：当变量离开作用域时，自动调用对象的 `[Symbol.dispose]()` 方法，确保资源被释放。
+
+```typescript
+// 为对象实现 Symbol.dispose
+class DatabaseConnection {
+  constructor(private url: string) {
+    console.log(`连接到 ${url}`)
+  }
+
+  query(sql: string) {
+    return `结果: ${sql}`
+  }
+
+  [Symbol.dispose]() {
+    console.log('自动断开数据库连接')
+  }
+}
+
+// using 声明：离开作用域时自动调用 [Symbol.dispose]
+function getUser(id: string) {
+  using conn = new DatabaseConnection('mysql://localhost')
+  // conn 可以正常使用
+  return conn.query(`SELECT * FROM users WHERE id = '${id}'`)
+} // ← 函数返回时自动调用 conn[Symbol.dispose]()，打印"自动断开数据库连接"
+
+// await using：异步资源管理（配合 Symbol.asyncDispose）
+class AsyncResource {
+  async [Symbol.asyncDispose]() {
+    await cleanup() // 异步清理
+    console.log('异步资源已释放')
+  }
+}
+
+async function processFile() {
+  await using resource = new AsyncResource()
+  // 处理文件...
+} // ← 自动 await resource[Symbol.asyncDispose]()
+
+// 实用场景
+function createTimer(label: string) {
+  console.time(label)
+  return {
+    [Symbol.dispose]() {
+      console.timeEnd(label) // 离开作用域时自动打印计时结果
+    }
+  }
+}
+
+function expensiveOperation() {
+  using _ = createTimer('expensiveOp')
+  // 做一些耗时操作...
+  return heavyCompute()
+} // 自动打印：expensiveOp: 123.45ms
+```
+
+**`using` vs `try/finally` 对比**：
+
+```typescript
+// 旧写法：手动 try/finally，容易忘记
+function oldWay() {
+  const conn = new DatabaseConnection('...')
+  try {
+    return conn.query('SELECT 1')
+  } finally {
+    conn.close() // 手动清理
+  }
+}
+
+// ✅ 新写法：using 自动处理
+function newWay() {
+  using conn = new DatabaseConnection('...')
+  return conn.query('SELECT 1')
+  // 自动清理，即使抛出异常也会执行 dispose
+}
+```
+
+> **浏览器/Node 兼容性**：需要 TS 5.2+ 和目标环境支持 `Symbol.dispose`（Chrome 122+、Node 20.4+），或使用 polyfill。
+
+---
+
+### 11.3 Template Literal Types 实用场景（TS 4.1+）
+
+模板字面量类型（Template Literal Types）允许在类型层面拼接字符串，解锁了很多强大的类型编程模式。
+
+#### 场景1：事件名类型自动生成
+
+```typescript
+type EventName = 'click' | 'focus' | 'blur'
+
+// 自动生成 'onClick' | 'onFocus' | 'onBlur'
+type EventHandlers = `on${Capitalize<EventName>}`
+// "onClick" | "onFocus" | "onBlur"
+
+// 构建完整的事件 handler 对象类型
+type HandlerProps = {
+  [K in EventName as `on${Capitalize<K>}`]: (event: Event) => void
+}
+// { onClick: ...; onFocus: ...; onBlur: ... }
+```
+
+#### 场景2：API 路径类型
+
+```typescript
+type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE'
+type ApiPath = '/users' | '/posts' | '/comments'
+
+// 生成所有合法的 API 描述符
+type ApiDescriptor = `${HttpMethod} ${ApiPath}`
+// "GET /users" | "GET /posts" | "POST /users" | ...（12 种组合）
+
+// 实用：类型安全的路由注册
+function registerRoute(descriptor: ApiDescriptor, handler: Function) {
+  // ...
+}
+registerRoute('GET /users', handler)   // ✅
+registerRoute('PATCH /users', handler) // ❌ TS 报错
+```
+
+#### 场景3：CSS 属性类型
+
+```typescript
+type CSSUnit = 'px' | 'em' | 'rem' | 'vh' | 'vw' | '%'
+type CSSValue = `${number}${CSSUnit}`
+
+// ⚠️ 注意：TS 无法表达"任意数字"的模板字面量，number 会生成很多组合
+// 实际上 `${number}px` 是合法的，接受任何数字
+function setWidth(value: `${number}px` | `${number}%`) {
+  element.style.width = value
+}
+setWidth('100px') // ✅
+setWidth('50%')   // ✅
+setWidth('100em') // ❌
+```
+
+#### 场景4：深层路径类型（点分路径）
+
+```typescript
+// 将对象类型转换为点分路径字符串类型
+type DotPath<T, P extends string = ''> = {
+  [K in keyof T & string]: T[K] extends object
+    ? DotPath<T[K], P extends '' ? K : `${P}.${K}`>
+    : P extends '' ? K : `${P}.${K}`
+}[keyof T & string]
+
+type Config = {
+  server: { host: string; port: number }
+  db: { url: string; name: string }
+}
+
+type ConfigPath = DotPath<Config>
+// "server.host" | "server.port" | "db.url" | "db.name"
+
+// 类型安全的配置读取
+function getConfig(path: ConfigPath): string {
+  // ...
+}
+getConfig('server.host')    // ✅
+getConfig('server.typo')    // ❌ TS 报错
+```
+
+#### 场景5：CSS 变量名
+
+```typescript
+type CSSVar<T extends string> = `--${T}`
+type ThemeVar = CSSVar<'primary' | 'secondary' | 'background'>
+// "--primary" | "--secondary" | "--background"
+
+function setCSSVar(name: ThemeVar, value: string) {
+  document.documentElement.style.setProperty(name, value)
+}
+setCSSVar('--primary', '#1677ff')  // ✅
+setCSSVar('primary', '#1677ff')    // ❌ 缺少 --
+```
+
+#### 内置字符串操作类型
+
+TS 提供了 4 个内置字符串操作工具类型：
+
+```typescript
+type S = 'hello world'
+
+type A = Uppercase<S>    // "HELLO WORLD"
+type B = Lowercase<S>    // "hello world"
+type C = Capitalize<S>   // "Hello world"（首字母大写）
+type D = Uncapitalize<S> // "hello world"（首字母小写）
+
+// 实用：将 camelCase 转为 kebab-case（类型层面）
+type CamelToKebab<S extends string> =
+  S extends `${infer L}${infer R}`
+    ? L extends Uppercase<L>
+      ? `-${Lowercase<L>}${CamelToKebab<R>}`
+      : `${L}${CamelToKebab<R>}`
+    : S
+
+type K = CamelToKebab<'backgroundColor'> // "background-color"
+```

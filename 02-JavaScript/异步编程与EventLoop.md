@@ -2,6 +2,11 @@
 
 > 面试高频考点 | JS 异步机制核心
 
+## 相关笔记
+
+- [async/await 实现原理](./异步编程/async-await实现原理.md) — Generator 原理、手写自动执行器
+- [Promise 实现原理](./异步编程/Promise实现原理.md) — 手写 SimplePromise、Promise/A+ 规范
+
 ## Event Loop 事件循环（面试必考）
 
 JavaScript 是单线程语言，通过事件循环机制实现异步非阻塞。

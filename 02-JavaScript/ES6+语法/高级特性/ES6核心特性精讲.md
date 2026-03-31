@@ -272,3 +272,144 @@ proxy.age = 'abc'; // TypeError
 // 2. 可以拦截属性的新增和删除
 // 3. 可以拦截 in 操作符、for...in 等
 ```
+
+---
+
+## 八、现代 JavaScript 新增实用 API
+
+### Array.at()（ES2022）
+
+用于支持**负索引**访问数组元素，比 `arr[arr.length - 1]` 更简洁：
+
+```js
+const arr = [1, 2, 3, 4, 5]
+
+arr.at(0)   // 1（正索引，同 arr[0]）
+arr.at(-1)  // 5（最后一个，等价于 arr[arr.length - 1]）
+arr.at(-2)  // 4（倒数第二个）
+
+// 字符串同样支持
+'hello'.at(-1) // 'o'
+
+// 旧写法 vs 新写法
+const last = arr[arr.length - 1]  // 繁琐
+const last2 = arr.at(-1)          // ✅ 简洁
+```
+
+### Object.hasOwn()（ES2022）
+
+更安全的 `hasOwnProperty` 替代，解决继承对象可能覆盖 `hasOwnProperty` 的问题：
+
+```js
+const obj = { name: 'Alice', age: 25 }
+
+// 旧写法（有风险）
+obj.hasOwnProperty('name')  // true，但如果 obj 覆盖了该方法会出错
+Object.prototype.hasOwnProperty.call(obj, 'name')  // 安全但啰嗦
+
+// ✅ 新写法：Object.hasOwn
+Object.hasOwn(obj, 'name')   // true
+Object.hasOwn(obj, 'toString')  // false（继承属性返回 false）
+
+// 特别场景：null 原型对象（Object.create(null)）
+const noProto = Object.create(null)
+noProto.foo = 1
+// noProto.hasOwnProperty('foo') // ❌ TypeError: noProto.hasOwnProperty is not a function
+Object.hasOwn(noProto, 'foo')   // ✅ true
+```
+
+### Array.fromAsync()（ES2024 Stage 4）
+
+类似 `Array.from()`，但支持异步迭代器：
+
+```js
+// 基本用法：异步生成器 → 数组
+async function* generateNumbers() {
+  yield 1
+  yield 2
+  yield 3
+}
+
+const arr = await Array.fromAsync(generateNumbers()) // [1, 2, 3]
+
+// 配合映射函数
+const doubled = await Array.fromAsync(generateNumbers(), x => x * 2) // [2, 4, 6]
+
+// 处理 Promise 数组（类似 Promise.all，但逐个 await）
+const promises = [Promise.resolve(1), Promise.resolve(2), Promise.resolve(3)]
+const results = await Array.fromAsync(promises) // [1, 2, 3]
+```
+
+### Promise.withResolvers()（ES2024）
+
+直接返回 `{ promise, resolve, reject }` 三元组，告别手动提取 resolve/reject 的模板代码：
+
+```js
+// ❌ 旧写法：提取 resolve/reject 很繁琐
+let resolve, reject
+const promise = new Promise((res, rej) => {
+  resolve = res
+  reject = rej
+})
+
+// ✅ 新写法：一行搞定
+const { promise, resolve, reject } = Promise.withResolvers()
+
+// 实际应用：实现可中断的加载状态
+function createAbortableTask(fn) {
+  const { promise, resolve, reject } = Promise.withResolvers()
+  fn(resolve, reject)
+  return {
+    result: promise,
+    cancel: () => reject(new Error('cancelled'))
+  }
+}
+
+const task = createAbortableTask((resolve) => {
+  setTimeout(() => resolve('done'), 3000)
+})
+
+// 3 秒前取消
+task.cancel()
+task.result.catch(err => console.log(err.message)) // 'cancelled'
+```
+
+### 顶层 await（Top-level await，ES2022）
+
+在 ES 模块（`.mjs` 或 `type: "module"`）中，可以在模块顶层直接使用 `await`，无需包裹在 async 函数中：
+
+```js
+// config.mjs — 顶层 await 加载配置
+const config = await fetch('/api/config').then(r => r.json())
+export { config }
+
+// db.mjs — 等待数据库连接
+const db = await connectDatabase()
+export { db }
+
+// main.mjs — 导入时自动等待上面的 await 完成
+import { config } from './config.mjs' // 等 fetch 完成后才执行
+import { db } from './db.mjs'        // 等 connectDatabase 完成后才执行
+```
+
+**注意事项**：
+
+```js
+// ⚠️ 顶层 await 会阻塞所有导入该模块的模块
+// 避免在顶层 await 耗时操作，以免影响应用启动速度
+
+// ✅ 适合的场景
+export const data = await loadStaticData()       // 一次性初始化
+export const wasm = await WebAssembly.compile(wasmBytes)  // WASM 编译
+
+// ❌ 不适合的场景
+export const result = await heavyComputation()  // 耗时计算，会拖慢整个模块加载
+```
+
+| 特性 | 引入版本 | Chrome | Node.js | 备注 |
+|------|---------|--------|---------|------|
+| `Array.at()` | ES2022 | 92+ | 16.6+ | 字符串也支持 |
+| `Object.hasOwn()` | ES2022 | 93+ | 16.9+ | 替代 `hasOwnProperty` |
+| `Array.fromAsync()` | ES2024 | 121+ | 22+ | 仍需关注兼容性 |
+| `Promise.withResolvers()` | ES2024 | 119+ | 22+ | 简化 Deferred 模式 |
+| 顶层 `await` | ES2022 | 89+ | 14.8+ | 仅在 ES 模块中有效 |
