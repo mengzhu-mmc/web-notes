@@ -38,7 +38,9 @@
 
 ### ⚡ 进阶篇（新增）
 25. [[React18-19新特性]] — ⭐ 并发渲染、自动批处理、Server Components
-26. [[React性能优化实战]] — ⭐ 渲染优化、虚拟滚动、代码分割
+26. [[react-19-new-features]] — ⭐ React 19 深度：use() / Server Actions / useOptimistic / useFormStatus
+27. [[React性能优化深入]] — ⭐ 渲染优化、虚拟滚动、代码分割
+28. [[react-performance-optimization]] — ⭐ memo / useMemo / useCallback / startTransition 正确使用场景
 27. [[[4868] 22  思路拓展：如何打造高性能的 React 应用？]]
 28. [[[4869] 23  跟 React 学设计模式：掌握编程"套路"，打造高质量应用]]
 
@@ -47,10 +49,12 @@
 ## 独立笔记（精华）
 
 - [[React18-19新特性]]
+- [[react-19-new-features]] — React 19 新特性深度指南（use / Server Actions / useOptimistic / useFormStatus）
 - [[React-Fiber与虚拟DOM]]
 - [[React SSR实现原理]]
 - [[React合成事件机制]]
 - [[React性能优化深入]]
+- [[react-performance-optimization]] — 性能优化实战（正确使用场景）
 - [[React状态管理方案对比]]
 - [[React组件单根元素原因]]
 - [[React自定义Hook与组件区别]]
