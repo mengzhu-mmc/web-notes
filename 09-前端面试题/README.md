@@ -2,20 +2,34 @@
 
 > 前端面试八股文题库，面向 2-3 年经验前端开发，涵盖核心知识点，深度适中。
 > 
-> 更新时间：2026-03-20
+> 更新时间：2026-03-31
 
 ---
 
-## 📚 题库索引
+## 📚 题库索引（完整）
 
-| 文件 | 题目数 | 涵盖考点 |
-|---|---|---|
-| [面试题-JavaScript.md](./面试题-JavaScript.md) | ~40 题 | 数据类型、原型链、闭包、this、异步、ES6+、内存管理、手写题 |
-| [面试题-React.md](./面试题-React.md) | ~30 题 | 虚拟DOM、Fiber、Hooks、状态管理、性能优化、React 18 |
-| [面试题-工程化.md](./面试题-工程化.md) | ~25 题 | Webpack、Vite、Babel、模块化、CI/CD、微前端、Monorepo |
-| [面试题-网络.md](./面试题-网络.md) | ~30 题 | HTTP 版本、TLS、TCP、缓存、跨域、XSS/CSRF、DNS、WebSocket |
-| [面试题-性能优化.md](./面试题-性能优化.md) | ~25 题 | 首屏优化、SSR/SSG、回流重绘、虚拟列表、Core Web Vitals、Lighthouse |
-| [面试题-场景设计.md](./面试题-场景设计.md) | 20 题 | 虚拟列表、大文件上传、Promise、LRU、埋点SDK、错误监控、权限系统等 |
+### 牛客网高频题系列
+
+| 文件 | 涵盖考点 |
+|---|---|
+| [牛客网-面试题-JavaScript.md](./牛客网-面试题-JavaScript.md) | 数据类型、原型链、闭包、this、异步、ES6+、内存管理、手写题（~40题） |
+| [牛客网-面试题-React.md](./牛客网-面试题-React.md) ⚠️ | 虚拟DOM、Fiber、Hooks、状态管理、性能优化、React 18（~30题，含旧版内容） |
+| [牛客网-面试题-工程化.md](./牛客网-面试题-工程化.md) | Webpack、Vite、Babel、模块化、CI/CD、微前端（~25题） |
+| [牛客网-面试题-网络.md](./牛客网-面试题-网络.md) | HTTP 版本、TLS、TCP、缓存、跨域、安全、DNS、WebSocket（~30题） |
+| [牛客网-面试题-性能优化.md](./牛客网-面试题-性能优化.md) | 首屏优化、SSR/SSG、回流重绘、虚拟列表、Core Web Vitals、Lighthouse（~25题） |
+| [牛客网-面试题-场景设计.md](./牛客网-面试题-场景设计.md) | 虚拟列表、大文件上传、LRU、埋点SDK、错误监控、权限系统等（20道） |
+| [牛客网-面试题-HTML-CSS.md](./牛客网-面试题-HTML-CSS.md) | 盒模型、BFC、Flex/Grid、CSS 优先级、选择器、动画 |
+| [牛客网前端手撕题TOP20.md](./牛客网-前端手撕题TOP20.md) | 防抖节流、深拷贝、Promise、数组扁平化等高频手写 |
+
+### 专题深度笔记
+
+| 文件 | 考点 |
+|---|---|
+| [event-loop-microtask-macrotask.md](./event-loop-microtask-macrotask.md) | 事件循环、微任务/宏任务执行顺序、题目练习 |
+| [javascript-closures-scope.md](./javascript-closures-scope.md) | 闭包原理、作用域链、经典闭包题 |
+| [promise-async-await.md](./promise-async-await.md) | Promise 状态机、链式调用、async/await 原理 |
+| [prototype-chain-inheritance.md](./prototype-chain-inheritance.md) | 原型链、继承方式对比（5种）、手写 new/instanceof |
+| [W13-面试知识点-Canvas压缩-跨平台框架-文件监听.md](./W13-面试知识点-Canvas压缩-跨平台框架-文件监听.md) | Canvas 图片压缩、跨平台框架对比、文件监听 |
 
 ---
 
@@ -97,3 +111,5 @@
 ---
 
 > 💡 **刷题建议**：先过一遍所有题目了解考点，再针对薄弱点深入学习，最后做到能不看答案独立写出关键代码。
+> 
+> ⚠️ **注意**：`牛客网-面试题-React.md` 含有 React 16/17 历史内容，部分对比描述已过时，以 React 18/19 为准。
