@@ -46,3 +46,7 @@ shadow.innerHTML = '<my-card></my-card>';
 
 - [[Web Components 基础]]
 - [[Shadow DOM]]
+
+---
+
+→ 内容与 `01-HTML-CSS/CSS新特性/` 目录相关（Web Components / Shadow DOM 分类），可归入该目录
