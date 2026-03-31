@@ -255,6 +255,8 @@ dialog[open] {
 }
 ```
 
+> 📌 **扩展阅读**：`closedBy` 属性（控制 dialog 如何被关闭：`any` / `closerequest` / `none`）详见 [CSS新特性/dialog-closedby.md](../CSS新特性/dialog-closedby.md)
+
 ### `popover` Attribute — HTML Popover API
 
 无需 JS 即可实现弹出层/气泡框（Chrome 114+）。

@@ -116,3 +116,11 @@ request.interceptors.response.use(
 > - 前后端分离 / 移动端 → JWT（access token + refresh token 双 token 方案）
 > - 微服务 / 分布式 → JWT（无状态，无需共享存储）
 > - 需要精确控制登录状态（如强制下线）→ Session 或 Token 黑名单
+
+---
+
+## 相关笔记
+
+- [JWT 详解（JWT 是 Token 的一种具体实现，包含签名算法/结构/安全实践）](./jwt.md)
+- [双 Token 无感刷新](./双Token无感刷新.md)
+- [Session 认证机制（与 Token 对比）](./session.md)
