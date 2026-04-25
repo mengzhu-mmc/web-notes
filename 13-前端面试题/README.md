@@ -1,115 +1,70 @@
-# 09-前端面试题
+# 前端面试题库
 
-> 前端面试八股文题库，面向 2-3 年经验前端开发，涵盖核心知识点，深度适中。
-> 
-> 更新时间：2026-03-31
+> 面向 2-3 年经验前端开发 | 刷题 + 速记 + 错题管理
 
 ---
 
-## 📚 题库索引（完整）
+## 🚀 快速入口
 
-### 牛客网高频题系列
-
-| 文件 | 涵盖考点 |
+| 你要做什么 | 去哪 |
 |---|---|
-| [牛客网-面试题-JavaScript.md](./牛客网-面试题-JavaScript.md) | 数据类型、原型链、闭包、this、异步、ES6+、内存管理、手写题（~40题） |
-| [牛客网-面试题-React.md](./牛客网-面试题-React.md) ⚠️ | 虚拟DOM、Fiber、Hooks、状态管理、性能优化、React 18（~30题，含旧版内容） |
-| [牛客网-面试题-工程化.md](./牛客网-面试题-工程化.md) | Webpack、Vite、Babel、模块化、CI/CD、微前端（~25题） |
-| [牛客网-面试题-网络.md](./牛客网-面试题-网络.md) | HTTP 版本、TLS、TCP、缓存、跨域、安全、DNS、WebSocket（~30题） |
-| [牛客网-面试题-性能优化.md](./牛客网-面试题-性能优化.md) | 首屏优化、SSR/SSG、回流重绘、虚拟列表、Core Web Vitals、Lighthouse（~25题） |
-| [牛客网-面试题-场景设计.md](./牛客网-面试题-场景设计.md) | 虚拟列表、大文件上传、LRU、埋点SDK、错误监控、权限系统等（20道） |
-| [牛客网-面试题-HTML-CSS.md](./牛客网-面试题-HTML-CSS.md) | 盒模型、BFC、Flex/Grid、CSS 优先级、选择器、动画 |
-| [牛客网前端手撕题TOP20.md](./牛客网-前端手撕题TOP20.md) | 防抖节流、深拷贝、Promise、数组扁平化等高频手写 |
-
-### 专题深度笔记
-
-| 文件 | 考点 |
-|---|---|
-| [event-loop-microtask-macrotask.md](./event-loop-microtask-macrotask.md) | 事件循环、微任务/宏任务执行顺序、题目练习 |
-| [javascript-closures-scope.md](./javascript-closures-scope.md) | 闭包原理、作用域链、经典闭包题 |
-| [promise-async-await.md](./promise-async-await.md) | Promise 状态机、链式调用、async/await 原理 |
-| [prototype-chain-inheritance.md](./prototype-chain-inheritance.md) | 原型链、继承方式对比（5种）、手写 new/instanceof |
-| [W13-面试知识点-Canvas压缩-跨平台框架-文件监听.md](./W13-面试知识点-Canvas压缩-跨平台框架-文件监听.md) | Canvas 图片压缩、跨平台框架对比、文件监听 |
+| **30 秒速记**（考前/通勤） | [速记目录](./速记/) |
+| **按主题找题**（系统复习） | [00-题库索引](./00-题库索引.md) |
+| **完整展开答案**（深度学习） | 见下方「题库分卷」 |
+| **手写题专项** | [牛客网-前端手撕题TOP20](./牛客网-前端手撕题TOP20.md) |
 
 ---
 
-## 🗂️ 各文件知识点速览
+## 📚 题库分卷（完整答案）
 
-### JavaScript 核心
-- **数据类型**：类型判断（typeof/instanceof/toString）、隐式转换、`==` vs `===`
-- **原型链**：`__proto__`、`prototype`、继承方式对比（5种）、手写 `new`
-- **作用域与闭包**：闭包原理与应用、var/let/const、TDZ、变量提升
-- **this**：四种绑定规则、call/apply/bind 手写
-- **异步**：事件循环、微任务/宏任务、Promise 手写（all/race/allSettled）、async/await
-- **ES6+**：Map/Set、Proxy/Reflect（Vue3 响应式基础）、Symbol、迭代器
-- **内存管理**：标记清除、内存泄漏场景（定时器/闭包/DOM引用）
-- **手写题**：防抖、节流、深拷贝、柯里化、instanceof、reduce
-
-### React
-- **核心原理**：虚拟DOM、O(n) Diff算法（三条假设）、Fiber 架构（双缓存、两阶段）
-- **Hooks**：useState 批处理、useEffect 闭包陷阱、useCallback/useMemo 使用时机、useRef 三大用途
-- **状态管理**：Redux 三原则、RTK 写法、Zustand 对比、Context 性能问题
-- **性能优化**：React.memo + useCallback 链路、lazy/Suspense 代码分割
-- **React 18**：并发模式、useTransition、自动批处理（flushSync 退出）
-- **常见问题**：key 的作用（避免用 index）、受控/非受控组件、ErrorBoundary
-
-### 工程化
-- **Webpack**：构建流程（5步）、Loader vs Plugin、Tree Shaking 原理与局限、Code Splitting、HMR
-- **Vite**：为什么快（不打包+esbuild）、依赖预构建、生产用 Rollup
-- **Babel**：Parse→Transform→Generate、preset-env vs polyfill
-- **模块化**：CJS（值拷贝/运行时）vs ESM（值引用/编译时）、循环依赖
-- **架构**：Monorepo（pnpm workspaces）、微前端（qiankun/Module Federation）、CI/CD
-
-### 网络
-- **HTTP 版本**：1.1 队头阻塞 → 2.0 多路复用 → 3.0 QUIC（彻底解决）
-- **HTTPS/TLS**：TLS 1.2 四次握手、会话密钥生成、TLS 1.3 改进（1-RTT）
-- **TCP**：三次握手（为什么三次）、四次挥手（TIME_WAIT）、拥塞控制四阶段
-- **缓存**：强缓存（Cache-Control/Expires）→ 协商缓存（ETag/Last-Modified）最佳实践
-- **跨域**：CORS 简单请求/预检请求、SameSite Cookie、Nginx 反向代理
-- **安全**：XSS（存储型/反射型/DOM型）+ 防御、CSRF 攻击流程 + CSRF Token/SameSite 防御、CSP
-
-### 性能优化
-- **加载**：代码分割+懒加载、preload/prefetch/preconnect、script defer vs async
-- **渲染**：回流重绘（如何减少：批量操作/transform/will-change）、虚拟列表原理+实现、RAF
-- **资源**：图片格式选择（WebP/AVIF）、picture 元素降级、IntersectionObserver 懒加载
-- **指标**：FCP/LCP/CLS/INP 含义和优化方向、Performance API + web-vitals 库
-- **工具**：Lighthouse 5个维度、DevTools Performance 火焰图分析
-
-### 场景设计（20道）
-| 题目 | 核心技术点 |
-|---|---|
-| 虚拟列表 | 可视区域渲染 + 滚动偏移计算 |
-| 大文件上传 | 分片 + MD5 hash + 断点续传 + 并发控制 |
-| 简易 Promise | 状态机 + queueMicrotask + 链式调用 |
-| 事件总线 | Map 存储监听器 + once 包装 |
-| LRU 缓存 | Map 有序特性 + O(1) get/put |
-| 并发请求控制 | Promise.race 控制并发池 |
-| JSON.stringify | 递归 + 类型处理 + 循环引用 |
-| compose/pipe | reduceRight/reduce 函数组合 |
-| useState 原理 | Hook 数组 + 索引 + 闭包 |
-| useEffect 原理 | deps 比较 + 清理函数 |
-| 埋点 SDK | sendBeacon + 批量队列 + 自动追踪 |
-| call/apply/bind | Symbol 挂载 + new.target 处理 |
-| URL 参数解析 | URLSearchParams + 同名参数处理 |
-| 模板字符串解析 | 正则 + new Function |
-| Vue 响应式 | Proxy + track/trigger + watchEffect |
-| 前端错误监控 | 错误采集 + 采样 + 面包屑 + sendBeacon |
-| 权限控制 | 路由守卫 + 动态路由 + 按钮级权限 |
-| 数组扁平化 | 递归/迭代/reduce 多种实现 |
-| Toast 组件 | createRoot 命令式调用 + 队列管理 |
-| 图片懒加载 | IntersectionObserver + 预加载 |
+| 分卷 | 文件 | 题量 | 状态 |
+|---|---|---|---|
+| JavaScript | [牛客网-面试题-JavaScript.md](./牛客网-面试题-JavaScript.md) | ~40 | ✅ |
+| React | [牛客网-面试题-React.md](./牛客网-面试题-React.md) | ~30 | ⚠️ 部分较旧，以 React 18/19 为准 |
+| 工程化 | [牛客网-面试题-工程化.md](./牛客网-面试题-工程化.md) | ~25 | ✅ |
+| 网络 | [牛客网-面试题-网络.md](./牛客网-面试题-网络.md) | ~30 | ✅ |
+| 性能优化 | [牛客网-面试题-性能优化.md](./牛客网-面试题-性能优化.md) | ~25 | ✅ |
+| 场景设计 | [牛客网-面试题-场景设计.md](./牛客网-面试题-场景设计.md) | 20 | ✅ |
+| HTML/CSS | [牛客网-面试题-HTML-CSS.md](./牛客网-面试题-HTML-CSS.md) | ~15 | ✅ |
 
 ---
 
-## 📖 相关目录
+## 📖 专题深度笔记
+
+| 主题 | 文件 |
+|---|---|
+| 事件循环 | [event-loop-microtask-macrotask.md](./event-loop-microtask-macrotask.md) |
+| 闭包与作用域 | [javascript-closures-scope.md](./javascript-closures-scope.md) |
+| Promise 与 async/await | [promise-async-await.md](./promise-async-await.md) |
+| 原型链与继承 | [prototype-chain-inheritance.md](./prototype-chain-inheritance.md) |
+| 综合杂项 | [W13-面试知识点-Canvas压缩-跨平台框架-文件监听.md](./W13-面试知识点-Canvas压缩-跨平台框架-文件监听.md) |
+
+---
+
+## 📋 复习策略
+
+### 三遍法
+1. **第一遍（速记）**：先看 [速记目录](./速记/) 每主题一页速记，建立知识骨架
+2. **第二遍（展开）**：针对标记 ⚠️ 的主题，打开对应分卷读完整答案
+3. **第三遍（手写）**：过一遍 [手撕题TOP20](./牛客网-前端手撕题TOP20.md)，能独立写出关键代码
+
+### 错题机制
+在速记文件里用以下标记追踪掌握程度：
+- ✅ 已掌握（能独立答出骨架）
+- ⚠️ 模糊（需要再看一遍）
+- ❌ 未掌握（需要重点突破）
+
+### 时间分配建议（每周 3 小时）
+- 速记复习：30 分钟
+- 1-2 个主题展开：90 分钟
+- 手写题练习：60 分钟
+
+---
+
+## 🔗 关联目录
 
 - [02-JavaScript/](../02-JavaScript/) - JS 基础知识笔记
 - [05-React/](../05-React/) - React 深度笔记
-- [10-工程化/](../10-工程化/) - 工程化专题
+- [09-工程化/](../09-工程化/) - 工程化专题
+- [08-网络与浏览器/](../08-网络与浏览器/) - 网络与浏览器原理
 - [13-面试手写/](../13-面试手写/) - 更多手写题
-
----
-
-> 💡 **刷题建议**：先过一遍所有题目了解考点，再针对薄弱点深入学习，最后做到能不看答案独立写出关键代码。
-> 
-> ⚠️ **注意**：`牛客网-面试题-React.md` 含有 React 16/17 历史内容，部分对比描述已过时，以 React 18/19 为准。
