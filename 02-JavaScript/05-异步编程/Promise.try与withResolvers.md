@@ -5,6 +5,7 @@
 ## 核心内容
 
 Promise 新增两个静态方法，解决实际开发中的高频痛点：
+
 - `Promise.try(fn)`：统一包装同步/异步函数
 - `Promise.withResolvers()`：在 Promise 外部控制 resolve/reject
 
@@ -19,7 +20,7 @@ Promise 新增两个静态方法，解决实际开发中的高频痛点：
 ```javascript
 // ❌ 直接 resolve(fn()) — 同步错误不会走 .catch()
 function run(fn) {
-  return new Promise(resolve => resolve(fn())); 
+  return new Promise((resolve) => resolve(fn()));
   // 如果 fn() 同步抛错，不会被 Promise catch！
 }
 
@@ -36,7 +37,7 @@ function run(fn) {
 function run(fn) {
   return Promise.try(fn);
   // 同步错误 → rejected promise
-  // 同步返回值 → resolved promise  
+  // 同步返回值 → resolved promise
   // 返回 Promise → 透传
 }
 
@@ -45,8 +46,8 @@ Promise.try(() => {
   const data = JSON.parse(userInput); // 可能同步抛错
   return fetchData(data); // 可能返回 Promise
 })
-.then(result => console.log(result))
-.catch(err => console.error('统一处理所有错误:', err));
+  .then((result) => console.log(result))
+  .catch((err) => console.error("统一处理所有错误:", err));
 ```
 
 ### 面试考点
@@ -67,12 +68,12 @@ Promise.try(() => {
 // 以前的写法（丑陋的 resolve 外漏）
 let resolve, reject;
 const promise = new Promise((res, rej) => {
-  resolve = res;  // 外漏
+  resolve = res; // 外漏
   reject = rej;
 });
 
 // 某个事件回调中
-eventEmitter.on('done', () => resolve(result));
+eventEmitter.on("done", () => resolve(result));
 ```
 
 ### 使用 Promise.withResolvers()
@@ -82,8 +83,8 @@ eventEmitter.on('done', () => resolve(result));
 const { promise, resolve, reject } = Promise.withResolvers();
 
 // 在任意地方调用
-setTimeout(() => resolve('done'), 1000);
-eventEmitter.on('error', (err) => reject(err));
+setTimeout(() => resolve("done"), 1000);
+eventEmitter.on("error", (err) => reject(err));
 
 // 使用 promise
 await promise;
@@ -107,8 +108,8 @@ function createCancellable() {
   const { promise, resolve, reject } = Promise.withResolvers();
   return {
     promise,
-    cancel: () => reject(new Error('cancelled')),
-    done: resolve
+    cancel: () => reject(new Error("cancelled")),
+    done: resolve,
   };
 }
 ```

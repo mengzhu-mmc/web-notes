@@ -1,7 +1,6 @@
 # JavaScript 四种数组遍历性能对比
 
-> 来源: 阮一峰周刊 #387 引用 | 2026-03-06
-> 原文: https://waspdev.com/articles/2026-01-01/javascript-for-of-loops-are-actually-fast
+> 来源: 阮一峰周刊 #387 引用 | 2026-03-06 原文: https://waspdev.com/articles/2026-01-01/javascript-for-of-loops-are-actually-fast
 
 ## 结论 (速度排名)
 
@@ -45,7 +44,7 @@ function bench(label, fn) {
 }
 
 // 1. 传统 for 循环
-bench('for-i', () => {
+bench("for-i", () => {
   let sum = 0;
   for (let i = 0; i < arr.length; i++) {
     sum += arr[i];
@@ -53,7 +52,7 @@ bench('for-i', () => {
 });
 
 // 优化版：缓存 length（减少属性查找）
-bench('for-i (cached length)', () => {
+bench("for-i (cached length)", () => {
   let sum = 0;
   const len = arr.length; // 缓存 length，避免每次重复读取
   for (let i = 0; i < len; i++) {
@@ -62,7 +61,7 @@ bench('for-i (cached length)', () => {
 });
 
 // 2. for...of
-bench('for-of', () => {
+bench("for-of", () => {
   let sum = 0;
   for (const item of arr) {
     sum += item;
@@ -70,13 +69,15 @@ bench('for-of', () => {
 });
 
 // 3. forEach
-bench('forEach', () => {
+bench("forEach", () => {
   let sum = 0;
-  arr.forEach(item => { sum += item; });
+  arr.forEach((item) => {
+    sum += item;
+  });
 });
 
 // 4. for...in（永远不要这样做！）
-bench('for-in ❌', () => {
+bench("for-in ❌", () => {
   let sum = 0;
   for (const key in arr) {
     sum += arr[key]; // key 是字符串！存在隐式类型转换
@@ -95,18 +96,20 @@ function precisionBench(label, fn, iterations = 5) {
     times.push(performance.now() - start);
   }
   const avg = times.reduce((a, b) => a + b, 0) / times.length;
-  console.log(`${label}: avg ${avg.toFixed(2)}ms (runs: ${times.map(t => t.toFixed(1)).join(', ')}ms)`);
+  console.log(
+    `${label}: avg ${avg.toFixed(2)}ms (runs: ${times.map((t) => t.toFixed(1)).join(", ")}ms)`,
+  );
 }
 
 const arr = new Int32Array(1_000_000); // TypedArray，极致性能
 arr.fill(1);
 
-precisionBench('for-i (TypedArray)', () => {
+precisionBench("for-i (TypedArray)", () => {
   let sum = 0;
   for (let i = 0; i < arr.length; i++) sum += arr[i];
 });
 
-precisionBench('for-of (TypedArray)', () => {
+precisionBench("for-of (TypedArray)", () => {
   let sum = 0;
   for (const item of arr) sum += item;
 });
@@ -153,6 +156,7 @@ const typedArr = new Float64Array(1_000_000);
 ### Q1：`for...of` 比 `forEach` 慢吗？
 
 **标准答案要点：**
+
 - 两者性能接近，`for...of` 有时甚至快于 `forEach`
 - `forEach` 的主要开销在于**回调函数调用**（函数帧入栈/出栈）
 - `for...of` 的开销在于创建**迭代器对象**，但 V8 已对数组迭代器做了内联优化
@@ -162,6 +166,7 @@ const typedArr = new Float64Array(1_000_000);
 ### Q2：如何在实际项目中做 JS 性能优化？
 
 **标准答案要点：**
+
 1. 避免在热路径（hot path）中使用 `for...in` 遍历数组
 2. 大数据量时考虑 `TypedArray`（`Int32Array`/`Float64Array`）
 3. 避免创建稀疏数组（数组空洞会触发性能降级）
@@ -171,6 +176,7 @@ const typedArr = new Float64Array(1_000_000);
 ### Q3：`forEach` 和 `map` 的区别？什么时候用哪个？
 
 **标准答案要点：**
+
 - `forEach`：无返回值（返回 `undefined`），用于**副作用**操作（打印、发请求、修改外部状态）
 - `map`：返回**新数组**，用于**纯变换**（每个元素映射为新值）
 - 原则：有无返回值决定选哪个；不要用 `forEach` 然后 push 到外部数组（用 `map`）
@@ -178,6 +184,7 @@ const typedArr = new Float64Array(1_000_000);
 ### Q4：为什么说 `for...in` 不适合遍历数组？
 
 **标准答案要点：**
+
 1. `for...in` 遍历所有**可枚举属性**（包括原型链上的），非纯粹的数组元素遍历
 2. 键是**字符串**类型（`'0'`, `'1'`...），不是数字，隐式类型转换有开销
 3. 遍历顺序**不完全保证**（规范对非整数键的顺序未做强制）

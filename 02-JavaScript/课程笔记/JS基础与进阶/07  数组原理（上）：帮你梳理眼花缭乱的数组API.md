@@ -381,47 +381,54 @@ arr.reduce(<span class="hljs-function"><span class="hljs-keyword">function</span
 
 ### 精选评论
 
-##### *亚：
+##### \*亚：
+
 > // 使用 Array 构造器，可以自定义长度var a = Array(6); // [undefined × 6]这里应该是【empty × 6】,empty表示是空位，undefined也是一种数据类型
 
-##### **6184：
-> // map 方法
-var array = [18, 9, 10, 35, 80];
-array.map(item = item + 1);
-console.log(array);  // [19, 10, 11, 36, 81]这里写错了吧？map是返回一个新数组不改变原数组的。应该是[18, 9, 10, 35, 80]
+##### \*\*6184：
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+> // map 方法 var array = [18, 9, 10, 35, 80]; array.map(item = item + 1); console.log(array); // [19, 10, 11, 36, 81]这里写错了吧？map是返回一个新数组不改变原数组的。应该是[18, 9, 10, 35, 80]
+
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 上面有说遍历的时候不会改变数组的，但是直接map会返回一个每个都加一的数组，我后面的注释是想表达这个，让你们感觉又错误了
 
-##### **开发：
+##### \*\*开发：
+
 > 'Array.from 的设计初衷是快速便捷地基于其他对象创建新数组，准确来说就是从一个类似数组的可迭代对象中创建一个新的数组实例。'这句话是不是不太对啊，可迭代对象要求部署了Symbol.iterator接口，下面例子中的obj对象不是具备这样的条件
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 你可能还是没太理解iterator
 
-##### **北：
+##### \*\*北：
+
 > 改变自身的例题中，splice （m）传入一个参数是什么意思呀🤔
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 这个基本的api你可以自己查一下学习一下呢，比较基础
 
-##### *浩：
+##### \*浩：
+
 > 老师总结的很到位，很全面。
 
-##### *峰：
+##### \*峰：
+
 > 测试了下，Array.from({length: 3}) 也是可以获得新数组的。这么看的话入参不一定要有Symbol.iterator？
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 是的
 
-##### **6605：
+##### \*\*6605：
+
 > mdn上copyWithin说不会改变原数组长度
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
-> &nbsp;&nbsp;&nbsp; var array = [1,2,3,4,5]; 
-var array2 = array.copyWithin(0,3);
-console.log(array===array2,array2);
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
 
-##### **帆：
+> &nbsp;&nbsp;&nbsp; var array = [1,2,3,4,5]; var array2 = array.copyWithin(0,3); console.log(array===array2,array2);
+
+##### \*\*帆：
+
 > 楼上说的对，会产生一个 hole Arrary 没有位置都是 empty
-

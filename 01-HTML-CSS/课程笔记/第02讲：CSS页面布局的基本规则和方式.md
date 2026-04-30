@@ -307,40 +307,6 @@
 </ul>
 <p data-nodeid="57081" class="te-preview-highlight">除了 <code data-backticks="1" data-nodeid="57083">clear</code> 清除浮动之外，这些方法为什么可以达到撑开父元素的效果呢，这是因为 BFC（Block Formatting Context，块格式化上下文）的特性。BFC 是 Web 页面的可视 CSS 渲染的一部分，是块盒子的布局过程发生的区域，也是浮动元素与其他元素交互的区域，详情大家可以私下了解下。</p>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 <p data-nodeid="3317">传统方式布局的优势在于兼容性较好，在一些版本较低的浏览器上也能给到用户较友好的体验。但传统布局需要掌握的知识较多也相对复杂，对于整个页面的布局和排版实现，常常是基于盒模型、使用<code data-backticks="1" data-nodeid="3850">display</code>属性+<code data-backticks="1" data-nodeid="3852">position</code>属性+<code data-backticks="1" data-nodeid="3854">float</code>属性的方式来进行，这个过程比较烦琐，因此更多时候我们都会使用开源库（比如 bootstrap）来完成页面布局。</p>
 <p data-nodeid="3318">后来 W3C 提出了新的布局方式，可以快速、简便地实现页面的排版布局，新的布局方式包括 Flex 布局和 Grid 布局。</p>
 <h4 data-nodeid="3319">使用 Flex 布局</h4>
@@ -447,70 +413,90 @@
 
 ### 精选评论
 
-##### **飞：
+##### \*\*飞：
+
 > 方法挺多的，我常用的主要是如下三种1. 知道元素宽高：margin: 0 auto; position: relative; top: 50%; margin-top: -1/2元素高度2. 不知道元素宽高：margin: 0 auto; position:relative; top:50%;transform: translateY(-50%)3. display: flex;align-items:center;justify-content:center;
 
- ###### &nbsp;&nbsp;&nbsp; 编辑回复：
+###### &nbsp;&nbsp;&nbsp; 编辑回复：
+
 > &nbsp;&nbsp;&nbsp; 赞哦
 
-##### **宇：
+##### \*\*宇：
+
 > 传统布局那一块 div4 和 div5重合是为什么呢。。
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 其实你在浏览器中进行观察，就会发现实际上 div4 和 div5 的占位并没有重合，如果你试试给它们加上背景颜色就能看的比较清楚了。之所以看起来它们重合了，是因为浮动元素会对相邻的元素造成影响，其中就包括了文字会尽可能围绕浮动元素。在 div4 上加上 clear: left; 就可以清除 float 带来的影响
 
 ##### Change：
+
 > 垂直居中的方式：1、通过 inline-block设置元素 height和 line-height 、text-align:center 来进行垂直居中。2、通过 position:absoulte 加偏移量3、通过 flex布局属性 justity-content:center; align-items:center;
 
-##### *聪：
+##### \*聪：
+
 > position还有一个可取值：sticky
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 你说的没错，sticky 可以进行粘性定位，在页面滚动的过程中很有用，是我这边写漏了
 
-##### **涛：
+##### \*\*涛：
+
 > 之前快手的面试官和我聊到：浮动的元素会不会脱离文档流，我的答案是会，但是面试官告诉我不会。文章里也提到了这一点，所以来讨论一下，就如这个问题中（https://segmentfault.com/q/1010000002870442/a-1020000002870502）提到的一样：float元素并不会彻底地脱离文档流
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
-> &nbsp;&nbsp;&nbsp; 可以查看 MDN 中的描述：“float CSS属性指定一个元素应沿其容器的左侧或右侧放置，允许文本和内联元素环绕它。该元素从网页的正常流动(文档流)中移除，尽管仍然保持部分的流动性。”可见，浮动元素的确会从文档流中删除，但它并不是完全彻底地移除。
-而我们常说的“脱离”二字并没有官方的定义，因此你和你的面试官理解或许不一样。如果将脱离认为是不符合正常的文档流，那么它便是脱离的；如果将脱离认为是彻底从文档流中移除，那么它便是不会脱离的。
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
 
-##### **圳：
+> &nbsp;&nbsp;&nbsp; 可以查看 MDN 中的描述：“float CSS属性指定一个元素应沿其容器的左侧或右侧放置，允许文本和内联元素环绕它。该元素从网页的正常流动(文档流)中移除，尽管仍然保持部分的流动性。”可见，浮动元素的确会从文档流中删除，但它并不是完全彻底地移除。而我们常说的“脱离”二字并没有官方的定义，因此你和你的面试官理解或许不一样。如果将脱离认为是不符合正常的文档流，那么它便是脱离的；如果将脱离认为是彻底从文档流中移除，那么它便是不会脱离的。
+
+##### \*\*圳：
+
 > 九种方式，定宽高3种，不定宽高6种
 
-##### **北：
+##### \*\*北：
+
 > 疑惑，float布局部分，div6也设置了float，按理说应该会向上同级浮动元素，不应该是div4嘛，为啥4.5还重叠了，6位置还是之前的
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 其实你在浏览器中进行观察，就会发现实际上 div4 和 div5 的占位并没有重合，如果你试试给它们加上背景颜色就能看的比较清楚了。之所以看起来它们重合了，是因为浮动元素会对相邻的元素造成影响，其中就包括了文字会尽可能围绕浮动元素。在 div4 上加上 clear: left; 就可以清除 float 带来的影响
 
-##### **星：
+##### \*\*星：
+
 > 老师，float布局这里我有一个疑问，div2, div3 设置了float:left, 脱离文档流，div2重叠到div4上面，为什么4被挤出了盒子和5重叠了而不是2与4重叠呢，我知道实际上是div2和div4重叠的，不理解的是为什么div4里边的文字4被挤了出去
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 因为浮动元素会对相邻的元素造成影响，其中就包括了文字会尽可能围绕浮动元素。在 div4 上加上 clear: left; 就可以清除 float 带来的影响
 
-##### *雅：
-> **飞的第一二两种方式，position:relative配top: 50%真的可以吗？试了不行啊，position:absolute时，top:50%才起效吧
+##### \*雅：
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+> \*\*飞的第一二两种方式，position:relative配top: 50%真的可以吗？试了不行啊，position:absolute时，top:50%才起效吧
+
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 是的，应该是父元素需要将 position 设置为 relative/absolute/fixed，同时子元素需要为 position:absolute
 
-##### *好：
+##### \*好：
+
 > 除了前面的还有tabel-cell
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 是的，不过 table-cell 现在很少人使用了，flexbox 使用要方便和简单很多
 
-##### **星：
+##### \*\*星：
+
 > 都是干货😀
 
-##### *聪：
+##### \*聪：
+
 > 纠正老师的读音：赘（zhuì）述😀
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; [哭泣]我的确想这么念的来着，可是我的广普不允许
 
-##### **贤：
-> 使用display:table-cell，还有一种就是使用grid网格行列去实现
+##### \*\*贤：
 
+> 使用display:table-cell，还有一种就是使用grid网格行列去实现

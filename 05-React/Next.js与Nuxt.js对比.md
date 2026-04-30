@@ -7,7 +7,7 @@
 ## 一、框架定位
 
 | 对比项 | Next.js | Nuxt.js |
-|--------|---------|---------|
+| --- | --- | --- |
 | 基础框架 | React | Vue 3 |
 | 维护团队 | Vercel | Nuxt 团队（社区驱动） |
 | 设计理念 | 灵活、显式、底层 | 开箱即用、约定优于配置 |
@@ -56,7 +56,7 @@ Nuxt 3 支持自动导入：`components/`、`composables/` 目录下的文件无
 两者都支持以下渲染模式：
 
 | 模式 | 说明 | 适合场景 |
-|------|------|---------|
+| --- | --- | --- |
 | **SSR** 服务端渲染 | 每次请求在服务器渲染 | 实时数据、个性化内容 |
 | **SSG** 静态生成 | 构建时预渲染为 HTML | 博客、文档、营销页 |
 | **CSR** 客户端渲染 | 纯 SPA | 后台管理系统 |
@@ -71,23 +71,27 @@ Nuxt 3 支持自动导入：`components/`、`composables/` 目录下的文件无
 ```tsx
 // 服务端组件直接 async/await（推荐）
 async function BlogPost({ params }: { params: { slug: string } }) {
-  const post = await fetch(`/api/posts/${params.slug}`).then(r => r.json());
+  const post = await fetch(`/api/posts/${params.slug}`).then((r) => r.json());
   return <article>{post.content}</article>;
 }
 
 // 客户端数据获取（用 'use client' 标记）
-'use client';
-import { useEffect, useState } from 'react';
+("use client");
+import { useEffect, useState } from "react";
 function ClientComponent() {
   const [data, setData] = useState(null);
-  useEffect(() => { fetch('/api/data').then(r => r.json()).then(setData); }, []);
+  useEffect(() => {
+    fetch("/api/data")
+      .then((r) => r.json())
+      .then(setData);
+  }, []);
 }
 
 // ISR：revalidate 控制缓存时间
 async function ProductList() {
-  const data = await fetch('/api/products', {
-    next: { revalidate: 60 } // 每 60 秒重新生成
-  }).then(r => r.json());
+  const data = await fetch("/api/products", {
+    next: { revalidate: 60 }, // 每 60 秒重新生成
+  }).then((r) => r.json());
 }
 ```
 
@@ -96,12 +100,12 @@ async function ProductList() {
 ```vue
 <script setup>
 // useFetch：SSR + 客户端复用数据（推荐）
-const { data: post } = await useFetch(`/api/posts/${route.params.slug}`)
+const { data: post } = await useFetch(`/api/posts/${route.params.slug}`);
 
 // useAsyncData：更灵活的异步数据获取
-const { data, pending, error } = await useAsyncData('products', () =>
-  $fetch('/api/products')
-)
+const { data, pending, error } = await useAsyncData("products", () =>
+  $fetch("/api/products"),
+);
 </script>
 ```
 
@@ -117,11 +121,17 @@ Next.js App Router 中组件默认是 Server Components，不会向客户端发�
 // server component（默认）— 零客户端 JS
 async function HeavyList() {
   const items = await db.items.findAll(); // 直接访问数据库
-  return <ul>{items.map(i => <li key={i.id}>{i.name}</li>)}</ul>;
+  return (
+    <ul>
+      {items.map((i) => (
+        <li key={i.id}>{i.name}</li>
+      ))}
+    </ul>
+  );
 }
 
 // client component — 需要交互时加 'use client'
-'use client';
+("use client");
 function LikeButton({ id }: { id: number }) {
   const [liked, setLiked] = useState(false);
   return <button onClick={() => setLiked(!liked)}>❤️</button>;
@@ -134,8 +144,8 @@ function LikeButton({ id }: { id: number }) {
 
 ## 六、部署对比
 
-| | Next.js | Nuxt.js |
-|--|---------|---------|
+|  | Next.js | Nuxt.js |
+| --- | --- | --- |
 | 最优平台 | **Vercel**（原生支持，自动优化） | 任意平台（Nitro 跨平台） |
 | 自托管 | Node.js 服务 / Docker | Node.js / Bun / Deno / Cloudflare Workers |
 | 静态导出 | `next export`（部分限制） | `nuxt generate`（全静态） |

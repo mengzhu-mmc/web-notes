@@ -85,7 +85,6 @@ ul.addEventListener(<span class="hljs-string">'click'</span>, <span class="hljs-
 <p data-nodeid="2403">合成事件是 React 自定义的事件对象，它符合<a href="https://www.w3.org/TR/DOM-Level-3-Events/" data-nodeid="2593">W3C</a>规范，<strong data-nodeid="2603">在底层抹平了不同浏览器的差异</strong>，<strong data-nodeid="2604">在上层面向开发者暴露统一的、稳定的、与 DOM 原生事件相同的事件接口</strong>。开发者们由此便不必再关注烦琐的兼容性问题，可以专注于业务逻辑的开发。</p>
 <p data-nodeid="4142" class=""><strong data-nodeid="4151">虽然合成事件并不是原生 DOM 事件，但它保存了原生 DOM 事件的引用</strong>。当你需要访问原生 DOM 事件对象时，可以通过合成事件对象的 <strong data-nodeid="4152">e.nativeEvent</strong> 属性获取到它，如下图所示：</p>
 
-
 <p data-nodeid="2405"><img src="https://s0.lgstatic.com/i/image/M00/78/86/CgqCHl_KCfyAEJw8AAFeUK36DtI133.png" alt="Drawing 4.png" data-nodeid="2617"></p>
 <p data-nodeid="2406">e.nativeEvent 将会输出 MouseEvent 这个原生事件，如下图所示：</p>
 <p data-nodeid="2407"><img src="https://s0.lgstatic.com/i/image/M00/78/86/CgqCHl_KCgOAZixsAACyXDjo4cs933.png" alt="Drawing 5.png" data-nodeid="2621"></p>
@@ -165,50 +164,15 @@ ul.addEventListener(<span class="hljs-string">'click'</span>, <span class="hljs-
   <span class="hljs-comment">// 定义一个 path 数组</span>
   <span class="hljs-keyword">var</span> path = [];
 
-  <span class="hljs-keyword">while</span> (inst) {
-    <span class="hljs-comment">// 将当前节点收集进 path 数组</span>
-    path.push(inst);
-    <span class="hljs-comment">// 向上收集 tag===HostComponent 的父节点</span>
-    inst = getParent(inst);
-  }
-  <span class="hljs-keyword">var</span> i;
-  <span class="hljs-comment">// 从后往前，收集 path 数组中会参与捕获过程的节点与对应回调</span>
-  <span class="hljs-keyword">for</span> (i = path.length; i-- &gt; <span class="hljs-number">0</span>;) {
-    fn(path[i], <span class="hljs-string">'captured'</span>, arg);
-  }
+<span class="hljs-keyword">while</span> (inst) { <span class="hljs-comment">// 将当前节点收集进 path 数组</span> path.push(inst); <span class="hljs-comment">// 向上收集 tag===HostComponent 的父节点</span> inst = getParent(inst); } <span class="hljs-keyword">var</span> i; <span class="hljs-comment">// 从后往前，收集 path 数组中会参与捕获过程的节点与对应回调</span> <span class="hljs-keyword">for</span> (i = path.length; i-- &gt; <span class="hljs-number">0</span>;) { fn(path[i], <span class="hljs-string">'captured'</span>, arg); }
 
-  <span class="hljs-comment">// 从前往后，收集 path 数组中会参与冒泡过程的节点与对应回调</span>
-  <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; path.length; i++) {
-    fn(path[i], <span class="hljs-string">'bubbled'</span>, arg);
-  }
-}
-</code></pre>
+<span class="hljs-comment">// 从前往后，收集 path 数组中会参与冒泡过程的节点与对应回调</span> <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; path.length; i++) { fn(path[i], <span class="hljs-string">'bubbled'</span>, arg); } } </code></pre>
+
 <p data-nodeid="2459">traverseTwoPhase 函数做了以下三件事情。</p>
 <p data-nodeid="2460"><strong data-nodeid="2768">1. 循环收集符合条件的父节点，存进 path 数组中</strong></p>
 <p data-nodeid="2461">traverseTwoPhase<strong data-nodeid="2774">会以当前节点（触发事件的目标节点）为起点，不断向上寻找 tag===HostComponent 的父节点，并将这些节点按顺序收集进 path 数组中</strong>。其中 tag===HostComponent 这个条件是在 getParent() 函数中管控的。</p>
 <p data-nodeid="2462"><strong data-nodeid="2787">为什么一定要求 tag===HostComponent 呢</strong>？前面介绍渲染链路时，我们曾经讲过，<strong data-nodeid="2788">HostComponent 是 DOM 元素对应的 Fiber 节点类型</strong>。此处限制 tag===HostComponent，也就是说<strong data-nodeid="2789">只收集 DOM 元素对应的 Fiber 节点</strong>。之所以这样做，是因为浏览器只认识 DOM 节点，浏览器事件也只会在 DOM 节点之间传播，收集其他节点是没有意义的。</p>
 <p data-nodeid="30173" class="">将这个过程对应到 Demo 示例的 Fiber 树中来看，button 节点是事件触发的起点，在它的父节点中，符合 tag===HostComponent 这个条件的只有 div#container 和 div.App（即下图高亮处）。</p>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 <p data-nodeid="2464"><img src="https://s0.lgstatic.com/i/image/M00/78/7C/Ciqc1F_KCz6AFPppAADdoA4lHx0444.png" alt="image (5).png" data-nodeid="2793"></p>
 <p data-nodeid="2465">因此最后收集上来的 path 数组内容就是 div#container、div.App 及 button 节点自身（button 节点别忘了，它是 while 循环的起点，一开始就会被推进 path 数组），如下图所示：</p>
@@ -224,10 +188,6 @@ ul.addEventListener(<span class="hljs-string">'click'</span>, <span class="hljs-
 <p data-nodeid="2475">需要注意的是，当前事件对应的 SyntheticEvent 实例有且仅有一个，因此在模拟捕获和模拟冒泡这两个过程中，收集到的实例会被推入同一个 SyntheticEvent._dispatchInstances，收集到的事件回调也会被推入同一个 SyntheticEvent._dispatchListeners。</p>
 </blockquote>
 <p data-nodeid="33747" class="">这样一来，我们在事件回调的执行阶段，只需要按照顺序执行 SyntheticEvent._dispatchListeners 数组中的回调函数，就能够一口气模拟出整个完整的 DOM 事件流，也就是 <strong data-nodeid="33755">“捕获-目标-冒泡”这三个阶段</strong>。</p>
-
-
-
-
 
 <p data-nodeid="2477">接下来仍然是以 Demo 为例，我们来看看 button 上触发的点击事件对应的 SyntheticEvent 对象上的 _dispatchInstances 和 _dispatchListeners 各是什么内容，请看下图：</p>
 <p data-nodeid="2478"><img src="https://s0.lgstatic.com/i/image/M00/78/87/CgqCHl_KC1GAecTRAAFEgV7Sms0914.png" alt="Drawing 21.png" data-nodeid="2893"></p>
@@ -253,21 +213,26 @@ ul.addEventListener(<span class="hljs-string">'click'</span>, <span class="hljs-
 
 ### 精选评论
 
-##### **宇：
+##### \*\*宇：
+
 > react合成事件不会省内存，如果你用循环给10个绑定事件，原生dom会存十个函数，react依然会存10个函数，只不过放在fiberNode里。react只是表面上利用事件委托作为调用入口，本质上还是模拟了目标dom的捕获冒泡流程，该走的路径没少，所以该保存的事件回调也没少。意义主要是对事件的管理，可以抹平兼容性，可以给事件包装一层自己的逻辑用于状态更新等等
 
-##### **潮：
+##### \*\*潮：
+
 > 合成事件更好的实现了事件管控，本质就是能更好的与react的生命周期和更新机制想结合，如果比如说用原生的dom事件去执行setstate就变成了同步更新
 
-##### **伟：
+##### \*\*伟：
+
 > 17 的挂载已经改为了顶层Component，对开发者在性能优化要注意更多。 基础知识真的非常重要。
 
-##### **8542：
+##### \*\*8542：
+
 > 用事件委托实现了事件中心化管控
 
-##### **谦：
+##### \*\*谦：
+
 > 现代浏览器对代理会产生更多的监听区间，并不会比全部监听到一个节点上好，React的设计初衷是对事件的统一管理考量的，和浏览器设计出发点是不一样的
 
-##### **梁：
-> 自己合成事件，掌握主动性
+##### \*\*梁：
 
+> 自己合成事件，掌握主动性

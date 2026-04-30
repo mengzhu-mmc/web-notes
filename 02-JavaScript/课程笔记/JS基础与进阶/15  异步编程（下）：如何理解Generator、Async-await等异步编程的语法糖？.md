@@ -164,7 +164,6 @@ run(g);
 run(g);
 </code></pre>
 
-
 <p data-nodeid="692">从上面的代码可以看出，thunk 函数的方式和通过 Promise 方式执行效果本质上是一样的，只不过通过 Promise 的方式也可以配合 Generator 函数实现同样的异步操作。希望你能参照上面 thunk 的例子，仔细体会一下递归调用的过程。</p>
 <h3 data-nodeid="693">co 函数库</h3>
 <p data-nodeid="694">co 函数库是著名程序员 TJ 发布的一个小工具，用于处理 Generator 函数的自动执行。核心原理其实就是上面讲的通过和 thunk 函数以及 Promise 对象进行配合，包装成一个库。它使用起来非常简单，比如还是用上面那段代码，第三段代码就可以省略了，直接引用 co 函数，包装起来就可以使用了，代码如下。</p>
@@ -249,18 +248,22 @@ co(g).then(res =&gt;{
 
 ### 精选评论
 
-##### *安：
+##### \*安：
+
 > 作者大神，请问封装成promise的那块代码，第三部分的赋予const next 的函数是不是多了个err形参啊？then的成功回调不是只有一个形参吗？不明白那个data怎么传进去的。。。
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 是留着做异常处理的，只不过那个里面我没加错误处理而已
 
-##### **恒：
+##### \*\*恒：
+
 > generator不是无法糖哈，是新的语法，需要js引擎实现的。只是可以通过Babel转义成es5的替代语法polyfill
 
-##### *超：
+##### \*超：
+
 > "Generator 和 Promise 结合"小节的run函数有错误，run函数中的next函数只能接收一个参数data，而不是(err, data）。传递两个参数100%报错
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
-> &nbsp;&nbsp;&nbsp; 没有用到err，可以去了
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
 
+> &nbsp;&nbsp;&nbsp; 没有用到err，可以去了

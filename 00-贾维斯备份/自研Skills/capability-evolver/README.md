@@ -9,6 +9,7 @@
 **"Evolution is not optional. Adapt or die."**
 
 **Three lines**
+
 - **What it is**: A protocol-constrained self-evolution engine for AI agents.
 - **Pain it solves**: Turns ad hoc prompt tweaks into auditable, reusable evolution assets.
 - **Use in 30 seconds**: `node index.js` to generate a GEP-guided evolution prompt.
@@ -37,11 +38,13 @@ The **Capability Evolver** inspects runtime history, extracts signals, selects a
 ## Who This Is For / Not For
 
 **For**
+
 - Teams maintaining agent prompts and logs at scale
 - Users who need auditable evolution traces (Genes, Capsules, Events)
 - Environments requiring deterministic, protocol-bound changes
 
 **Not For**
+
 - One-off scripts without logs or history
 - Projects that require free-form creative changes
 - Systems that cannot tolerate protocol overhead
@@ -72,14 +75,11 @@ The **Capability Evolver** inspects runtime history, extracts signals, selects a
 
 ## FAQ
 
-**Does this edit code automatically?**
-No. It generates a protocol-bound prompt and assets that guide evolution.
+**Does this edit code automatically?** No. It generates a protocol-bound prompt and assets that guide evolution.
 
-**Do I need to use all GEP assets?**
-No. You can start with default Genes and extend over time.
+**Do I need to use all GEP assets?** No. You can start with default Genes and extend over time.
 
-**Is this safe in production?**
-Use review mode and validation steps. Treat it as a safety-focused evolution tool, not a live patcher.
+**Is this safe in production?** Use review mode and validation steps. Treat it as a safety-focused evolution tool, not a live patcher.
 
 ## Roadmap
 
@@ -100,21 +100,25 @@ This repo includes a protocol-constrained prompt mode based on GEP (Genome Evolu
 ## Usage
 
 ### Standard Run (Automated)
+
 ```bash
 node index.js
 ```
 
 ### Review Mode (Human-in-the-Loop)
+
 ```bash
 node index.js --review
 ```
 
 ### Continuous Loop
+
 ```bash
 node index.js --loop
 ```
 
 ### With Strategy Preset
+
 ```bash
 EVOLVE_STRATEGY=innovate node index.js --loop   # maximize new features
 EVOLVE_STRATEGY=harden node index.js --loop     # focus on stability
@@ -122,6 +126,7 @@ EVOLVE_STRATEGY=repair-only node index.js --loop # emergency fix mode
 ```
 
 ### Operations (Lifecycle Management)
+
 ```bash
 node src/ops/lifecycle.js start    # start evolver loop in background
 node src/ops/lifecycle.js stop     # graceful stop (SIGTERM -> SIGKILL)
@@ -141,8 +146,8 @@ Required env vars:
 
 - `PUBLIC_REMOTE` (default: `public`)
 - `PUBLIC_REPO` (e.g. `autogame-17/evolver`)
- - `PUBLIC_OUT_DIR` (default: `dist-public`)
- - `PUBLIC_USE_BUILD_OUTPUT` (default: `true`)
+- `PUBLIC_OUT_DIR` (default: `dist-public`)
+- `PUBLIC_USE_BUILD_OUTPUT` (default: `true`)
 
 Optional env vars:
 
@@ -175,7 +180,7 @@ This section describes the execution boundaries and trust model of the Capabilit
 ### What Executes and What Does Not
 
 | Component | Behavior | Executes Shell Commands? |
-| :--- | :--- | :--- |
+| :-- | :-- | :-- |
 | `src/evolve.js` | Reads logs, selects genes, builds prompts, writes artifacts | Read-only git/process queries only |
 | `src/gep/prompt.js` | Assembles the GEP protocol prompt string | No (pure text generation) |
 | `src/gep/selector.js` | Scores and selects Genes/Capsules by signal matching | No (pure logic) |
@@ -209,16 +214,16 @@ The `sessions_spawn(...)` strings in `index.js` and `evolve.js` are **text outpu
 This skill is designed to be **environment-agnostic**. It uses standard OpenClaw tools by default.
 
 ### Local Overrides (Injection)
+
 You can inject local preferences (e.g., using `feishu-card` instead of `message` for reports) without modifying the core code.
 
-**Method 1: Environment Variables**
-Set `EVOLVE_REPORT_TOOL` in your `.env` file:
+**Method 1: Environment Variables** Set `EVOLVE_REPORT_TOOL` in your `.env` file:
+
 ```bash
 EVOLVE_REPORT_TOOL=feishu-card
 ```
 
-**Method 2: Dynamic Detection**
-The script automatically detects if compatible local skills (like `skills/feishu-card`) exist in your workspace and upgrades its behavior accordingly.
+**Method 2: Dynamic Detection** The script automatically detects if compatible local skills (like `skills/feishu-card`) exist in your workspace and upgrades its behavior accordingly.
 
 ## Star History
 
@@ -240,5 +245,3 @@ The script automatically detects if compatible local skills (like `skills/feishu
 ## License
 
 MIT
-
-

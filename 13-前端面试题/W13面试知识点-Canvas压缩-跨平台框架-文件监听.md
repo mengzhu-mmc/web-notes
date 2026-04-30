@@ -15,25 +15,29 @@
 ```js
 // 基本思路：将数据写入 ImageData → 导出为 Blob
 function compressData(data) {
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
   // 将数据编码到像素中...
-  canvas.toBlob((blob) => {
-    // blob 即为压缩后的"图片"
-  }, 'image/webp', 0.8);
+  canvas.toBlob(
+    (blob) => {
+      // blob 即为压缩后的"图片"
+    },
+    "image/webp",
+    0.8,
+  );
 }
 ```
 
 ### 关键 API
 
-| API | 说明 |
-|-----|------|
-| `canvas.getContext('2d')` | 获取 2D 渲染上下文 |
-| `ctx.createImageData(w, h)` | 创建空白 ImageData |
-| `ctx.putImageData(imageData, 0, 0)` | 将像素数据写入 canvas |
-| `canvas.toBlob(cb, type, quality)` | 导出为 Blob（支持格式和质量） |
-| `canvas.toDataURL(type, quality)` | 导出为 base64 Data URL |
-| `createImageBitmap(blob)` | 将 Blob 解码回图像 |
+| API                                 | 说明                          |
+| ----------------------------------- | ----------------------------- |
+| `canvas.getContext('2d')`           | 获取 2D 渲染上下文            |
+| `ctx.createImageData(w, h)`         | 创建空白 ImageData            |
+| `ctx.putImageData(imageData, 0, 0)` | 将像素数据写入 canvas         |
+| `canvas.toBlob(cb, type, quality)`  | 导出为 Blob（支持格式和质量） |
+| `canvas.toDataURL(type, quality)`   | 导出为 base64 Data URL        |
+| `createImageBitmap(blob)`           | 将 Blob 解码回图像            |
 
 ### 使用场景
 
@@ -51,8 +55,8 @@ function compressData(data) {
 
 ```js
 // 原生 fs.watch 问题多
-const fs = require('fs');
-fs.watch('./src', { recursive: true }, (event, filename) => {
+const fs = require("fs");
+fs.watch("./src", { recursive: true }, (event, filename) => {
   // ❌ 在 macOS 上可能触发两次
   // ❌ rename 事件不可靠（不知道是新建还是删除）
   // ❌ 大目录性能差
@@ -63,28 +67,28 @@ fs.watch('./src', { recursive: true }, (event, filename) => {
 ### Chokidar 优势
 
 ```js
-const chokidar = require('chokidar');
-const watcher = chokidar.watch('./src', {
+const chokidar = require("chokidar");
+const watcher = chokidar.watch("./src", {
   persistent: true,
   ignoreInitial: true,
-  awaitWriteFinish: { stabilityThreshold: 100 } // 防抖
+  awaitWriteFinish: { stabilityThreshold: 100 }, // 防抖
 });
 
 watcher
-  .on('add', path => console.log('新增:', path))
-  .on('change', path => console.log('修改:', path))
-  .on('unlink', path => console.log('删除:', path));
+  .on("add", (path) => console.log("新增:", path))
+  .on("change", (path) => console.log("修改:", path))
+  .on("unlink", (path) => console.log("删除:", path));
 ```
 
 ### 对比表
 
-| 问题 | `fs.watch` | Chokidar |
-|------|-----------|---------|
-| 跨平台一致性 | ❌ 差 | ✅ 好 |
-| 事件去重/防抖 | ❌ 无 | ✅ 内置 |
-| 子目录递归 | ⚠️ 不稳定 | ✅ 稳定 |
-| rename 事件 | ❌ 不可靠 | ✅ 可靠 |
-| 大目录性能 | ❌ 差 | ✅ 优化 |
+| 问题          | `fs.watch` | Chokidar |
+| ------------- | ---------- | -------- |
+| 跨平台一致性  | ❌ 差      | ✅ 好    |
+| 事件去重/防抖 | ❌ 无      | ✅ 内置  |
+| 子目录递归    | ⚠️ 不稳定  | ✅ 稳定  |
+| rename 事件   | ❌ 不可靠  | ✅ 可靠  |
+| 大目录性能    | ❌ 差      | ✅ 优化  |
 
 **在哪里用**：Vite HMR、webpack watch、nodemon 底层都依赖 Chokidar
 
@@ -97,7 +101,7 @@ watcher
 ### 主流方案对比
 
 | 框架 | 语言/语法 | 渲染方式 | 性能 | 发布方 |
-|------|---------|---------|------|--------|
+| --- | --- | --- | --- | --- |
 | React Native | JS/JSX | JS Bridge → 原生组件 | 中 | Meta |
 | Flutter | Dart | Skia Canvas 自绘 | 高 | Google |
 | **Valdi** | **类 React JSX** | **编译 → 原生组件** | **高** | **Snapchat** |
@@ -118,12 +122,12 @@ watcher
 
 ### 常见方案
 
-| 方案 | 特点 | 适用场景 |
-|------|------|---------|
-| Verdaccio | Node.js，轻量，开箱即用 | 小团队 |
-| Nexus Repository | 重量级，支持多语言 | 大企业 |
-| **Npflared** | Cloudflare Worker 驱动，Serverless | 无服务器场景 |
-| npm Orgs | 官方私有包（付费） | 有预算团队 |
+| 方案             | 特点                               | 适用场景     |
+| ---------------- | ---------------------------------- | ------------ |
+| Verdaccio        | Node.js，轻量，开箱即用            | 小团队       |
+| Nexus Repository | 重量级，支持多语言                 | 大企业       |
+| **Npflared**     | Cloudflare Worker 驱动，Serverless | 无服务器场景 |
+| npm Orgs         | 官方私有包（付费）                 | 有预算团队   |
 
 ### .npmrc 配置私有源
 
@@ -153,4 +157,4 @@ registry=https://registry.npmjs.org
 
 ---
 
-*参考来源：前端周报 2026-W13，阮一峰周刊第 390 期*
+_参考来源：前端周报 2026-W13，阮一峰周刊第 390 期_

@@ -152,9 +152,9 @@ export <span class="hljs-keyword">default</span> thunk;
       ...store,
       dispatch
     }
-  }
-}
-</code></pre>
+
+} } </code></pre>
+
 <p data-nodeid="12400">在这段源码中，我们着重需要搞清楚的是以下几个问题：</p>
 <ol data-nodeid="12401">
 <li data-nodeid="12402">
@@ -258,14 +258,8 @@ dispatch = compose(...chain)(store.dispatch)
     <span class="hljs-keyword">return</span> arg =&gt; arg
   }
 
-  <span class="hljs-comment">// 若只有一个函数，也就谈不上组合，直接返回</span>
-  <span class="hljs-keyword">if</span> (funcs.length === <span class="hljs-number">1</span>) {
-    <span class="hljs-keyword">return</span> funcs[<span class="hljs-number">0</span>]
-  }
-  <span class="hljs-comment">// 若有多个函数，那么调用 reduce 方法来实现函数的组合</span>
-  <span class="hljs-keyword">return</span> funcs.reduce((a, b) =&gt; (...args) =&gt; a(b(...args)))
-}
-</code></pre>
+<span class="hljs-comment">// 若只有一个函数，也就谈不上组合，直接返回</span> <span class="hljs-keyword">if</span> (funcs.length === <span class="hljs-number">1</span>) { <span class="hljs-keyword">return</span> funcs[<span class="hljs-number">0</span>] } <span class="hljs-comment">// 若有多个函数，那么调用 reduce 方法来实现函数的组合</span> <span class="hljs-keyword">return</span> funcs.reduce((a, b) =&gt; (...args) =&gt; a(b(...args))) } </code></pre>
+
 <p data-nodeid="12440">其实整段源码中值得你细细品味的只有最后这一行代码：</p>
 <pre class="lang-java" data-nodeid="12441"><code data-language="java"><span class="hljs-comment">// 若有多个函数，那么调用 reduce 方法来实现函数的组合</span>
 <span class="hljs-keyword">return</span> funcs.reduce((a, b) =&gt; (...args) =&gt; a(b(...args)))
@@ -301,18 +295,22 @@ dispatch = compose(...chain)(store.dispatch)
 
 ### 精选评论
 
-##### **8542：
+##### \*\*8542：
+
 > 面向切面说白了就是一系列的拦截函数
 
 ##### symboll：
+
 > 老师您好。 applyMiddleware.ts中第68行，有一个 对dispatch方法的定义，执行是 throw new Error('....')。 这个定义有什么用？
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 这样做是为了避免在接下来中间件链的串联过程中，dispatch被调用。error对象中”Dispatching while constructing your middleware is not allowed.“直译过来就是”在构建中间件的过程中，dispatch是不被允许的“。
 
-##### *琴：
+##### \*琴：
+
 > 老师讲得很棒，我自己理这一块理了好几次，都感觉自己懂了，但是过一段时间又忘了，还是没有透彻理解。不过看老师的文章，觉得讲得相当到位，我理一遍就能相对顺滑地口述出流程了，666啊~~
 
-##### **飞：
-> 打卡
+##### \*\*飞：
 
+> 打卡

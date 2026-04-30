@@ -114,7 +114,6 @@ export { BaseTask };
 <p data-nodeid="4965">对于前端开发来说，我们会用到各式各样的构建/打包工具，比如这些。</p>
 <p data-nodeid="4966" class="te-preview-highlight"><img src="https://s0.lgstatic.com/i/image6/M01/3F/7C/Cgp9HWCeSsSAHiJFAALlqT5qxqA460.png" alt="图片2.png" data-nodeid="4970"></p>
 
-
 <p data-nodeid="1234">其中，涉及模块化代码打包的主要有 Grunt/Gulp/Webpack/Rollup。很多同学会搞混这几个工具，这里我简单介绍下它们之间的区别。</p>
 <ol data-nodeid="1235">
 <li data-nodeid="1236">
@@ -142,7 +141,6 @@ export { BaseTask };
 <p data-nodeid="3797">实际上， Webpack 会从 entry 开始，通过解析模块间的依赖关系，递归地构建出一个依赖图。我们如果在项目中使用<code data-backticks="1" data-nodeid="3800">webpack-bundle-analyzer</code>插件，也可以看到生成的这样一个依赖图。</p>
 <p data-nodeid="3798" class=""><img src="https://s0.lgstatic.com/i/image6/M00/3F/85/CioPOWCeSrqACnYnABLbVfl-Zds569.png" alt="图片4.png" data-nodeid="3804"></p>
 
-
 <p data-nodeid="1252">Webpack 会根据依赖图来对各个模块进行整合，最终打包成一个或多个的文件，来提供给浏览器进行加载。</p>
 <p data-nodeid="1253" class="">既然有入口，那当然就有出口，Webpack 中的出口由输出（output）字段来描述。</p>
 <h4 data-nodeid="1254">输出（output）</h4>
@@ -161,10 +159,6 @@ export { BaseTask };
 <p data-nodeid="2039">而不同的应用场景需要不同的 Loader，比如我们经常会使用到的 CSS 相关 Loader 和其他资源 Loader。</p>
 <p data-nodeid="2631"><img src="https://s0.lgstatic.com/i/image6/M01/3F/7C/Cgp9HWCeSqyAWHwvAAHProznCQc246.png" alt="图片3.png" data-nodeid="2635"></p>
 <p data-nodeid="2632">前面我们说到，ES6 模块需要依赖 Babel 编译和 Webpack 打包，而 Babel 在 Webpack 中就是使用 Loader 的方式来进行编译的。</p>
-
-
-
-
 
 <p data-nodeid="1264">babel-loader 将 ES6/ES7 语法编译生成 ES5，其中部分特性还需要 babel-polyfill 支持。这是因为 Babel 默认只转换新的 JavaScript 语法（比如<code data-backticks="1" data-nodeid="1426">const/let</code>），但不会对新的 API（比如<code data-backticks="1" data-nodeid="1428">Promise</code>）进行处理。</p>
 <p data-nodeid="1265">Webpack 在编译过程中，支持多个 Loader 通过流水线的方式进行先后编译，编译的顺序为从后往前，最终以 JavaScript 模块的方式输出。</p>
@@ -216,36 +210,46 @@ export { BaseTask };
 
 ### 精选评论
 
-##### *庆：
+##### \*庆：
+
 > 在编译时自动给 Class 类加上指定装饰器的能力: 由于这需要在编译时进行处理，所以应该是使用Loader，因为Loader就是根据特定的规则对模块进行编译处理，而Plugins是对Loader编译后的代码进行处理
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 嗯，可以使用 babel loader 提供的能力实现
 
 ##### console_man：
+
 > 涉及到代码修改都是loader，plugin并不负责代码修改
 
-##### *振：
+##### \*振：
+
 > 我猜应该是插件吧，一旦 webpack 即将处理 js 文件，就加上装饰器，然后返回给 webpack 继续执行。
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; Loader 可以做到哦，babel loader 就提供了这样的能力
 
-##### *雨：
+##### \*雨：
+
 > 用Plugins，类似HtmlwebpackPlugin，生成文档DOM对象，遍历每个node的class
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 可以通过 loader 处理的 AST 对象中加上装饰器
 
-##### *军：
+##### \*军：
+
 > 简单点就是只要涉及改变输出结果的那就是plugin，loader只是辅助webpack进行解析
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 实际上，loader 在解析过程中可以拿到 AST，因此也可以对 AST 进行修改，比如 babel 相关的 loader 便会在适当的时候在代码中添加 polyfill。
 
-##### *聪：
+##### \*聪：
+
 > Loader 的作用就是把不同的模块和文件（比如 HTML、CSS、JSX、Typescript 等）转换为 JavaScript 模块。其他的功能应该都是使用Plugins吧
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
-> &nbsp;&nbsp;&nbsp; Loader 在转换过程中也可以进行自定义的处理哦
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
 
+> &nbsp;&nbsp;&nbsp; Loader 在转换过程中也可以进行自定义的处理哦

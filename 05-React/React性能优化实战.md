@@ -48,10 +48,14 @@ function Dashboard() {
 ```jsx
 // ✅ 场景2：列表中的每一项
 const ListItem = React.memo(function ListItem({ item, onToggle }) {
-  console.log('ListItem render:', item.id);
+  console.log("ListItem render:", item.id);
   return (
     <li>
-      <input type="checkbox" checked={item.done} onChange={() => onToggle(item.id)} />
+      <input
+        type="checkbox"
+        checked={item.done}
+        onChange={() => onToggle(item.id)}
+      />
       {item.title}
     </li>
   );
@@ -60,12 +64,14 @@ const ListItem = React.memo(function ListItem({ item, onToggle }) {
 // 配合 useCallback：只有修改的那一项重渲染
 function TodoList({ todos }) {
   const handleToggle = useCallback((id) => {
-    setTodos(prev => prev.map(t => t.id === id ? { ...t, done: !t.done } : t));
+    setTodos((prev) =>
+      prev.map((t) => (t.id === id ? { ...t, done: !t.done } : t)),
+    );
   }, []); // 稳定引用
 
   return (
     <ul>
-      {todos.map(item => (
+      {todos.map((item) => (
         <ListItem key={item.id} item={item} onToggle={handleToggle} />
       ))}
     </ul>
@@ -81,7 +87,7 @@ function TodoList({ todos }) {
 function Parent() {
   return (
     // 每次 Parent 渲染，{ color: 'red' } 都是新对象
-    <MemoChild style={{ color: 'red' }} items={[1, 2, 3]} />
+    <MemoChild style={{ color: "red" }} items={[1, 2, 3]} />
   );
 }
 
@@ -100,7 +106,11 @@ const Counter = React.memo(({ count }) => <div>{count}</div>);
 // 当 props 是复杂对象时，可以自定义比较逻辑
 const UserProfile = React.memo(
   function UserProfile({ user, settings }) {
-    return <div>{user.name} - {settings.theme}</div>;
+    return (
+      <div>
+        {user.name} - {settings.theme}
+      </div>
+    );
   },
   (prevProps, nextProps) => {
     // 只比较关心的字段，返回 true = 跳过渲染
@@ -108,7 +118,7 @@ const UserProfile = React.memo(
       prevProps.user.id === nextProps.user.id &&
       prevProps.settings.theme === nextProps.settings.theme
     );
-  }
+  },
 );
 ```
 
@@ -122,13 +132,19 @@ const UserProfile = React.memo(
 // ✅ 场景1：昂贵的计算（数组排序/过滤、复杂算法）
 function DataTable({ rows, sortKey, filterText }) {
   const processedData = useMemo(() => {
-    console.log('重新计算...'); // 只在依赖变化时执行
+    console.log("重新计算..."); // 只在依赖变化时执行
     return rows
-      .filter(row => row[filterText] !== undefined)
-      .sort((a, b) => a[sortKey] > b[sortKey] ? 1 : -1);
+      .filter((row) => row[filterText] !== undefined)
+      .sort((a, b) => (a[sortKey] > b[sortKey] ? 1 : -1));
   }, [rows, sortKey, filterText]); // 依赖项精确
 
-  return <table>{processedData.map(row => <Row key={row.id} row={row} />)}</table>;
+  return (
+    <table>
+      {processedData.map((row) => (
+        <Row key={row.id} row={row} />
+      ))}
+    </table>
+  );
 }
 ```
 
@@ -139,7 +155,7 @@ function Parent({ userId }) {
   // const config = { userId, theme: 'dark' };
 
   // ✅ userId 不变则引用稳定
-  const config = useMemo(() => ({ userId, theme: 'dark' }), [userId]);
+  const config = useMemo(() => ({ userId, theme: "dark" }), [userId]);
 
   return <MemoChild config={config} />;
 }
@@ -150,11 +166,14 @@ function Parent({ userId }) {
 function SearchComponent({ query }) {
   // 没有 useMemo：options 每次渲染都是新对象
   // → useEffect 每次都触发 → 可能造成无限循环
-  const options = useMemo(() => ({
-    query,
-    page: 1,
-    limit: 20,
-  }), [query]);
+  const options = useMemo(
+    () => ({
+      query,
+      page: 1,
+      limit: 20,
+    }),
+    [query],
+  );
 
   useEffect(() => {
     fetchData(options);
@@ -187,9 +206,9 @@ const doubled = count * 2; // ✅ 直接算
 
 ```jsx
 // 用 console.time 测量
-console.time('filter');
-const result = largeArray.filter(item => item.active);
-console.timeEnd('filter');
+console.time("filter");
+const result = largeArray.filter((item) => item.active);
+console.timeEnd("filter");
 // 如果 > 1ms，考虑 useMemo；< 0.1ms，不值得
 
 // 或者用 React DevTools Profiler 看重渲染耗时
@@ -203,10 +222,13 @@ console.timeEnd('filter');
 
 ```jsx
 // ✅ 场景1：传给 memo 子组件的回调函数（必须配合 memo 才有意义！）
-const ExpensiveList = React.memo(function ExpensiveList({ items, onItemClick }) {
+const ExpensiveList = React.memo(function ExpensiveList({
+  items,
+  onItemClick,
+}) {
   return (
     <ul>
-      {items.map(item => (
+      {items.map((item) => (
         <li key={item.id} onClick={() => onItemClick(item.id)}>
           {item.name}
         </li>
@@ -222,7 +244,7 @@ function Parent({ items }) {
 
   // ✅ 有 useCallback：函数引用稳定 → memo 生效
   const handleClick = useCallback((id) => {
-    console.log('点击了:', id);
+    console.log("点击了:", id);
   }, []); // 无依赖，永远稳定
 
   return <ExpensiveList items={items} onItemClick={handleClick} />;
@@ -252,12 +274,12 @@ function Parent() {
 // ✅ 场景3：自定义 Hook 中导出的函数
 function useCounter() {
   const [count, setCount] = useState(0);
-  
+
   // 稳定的 API，防止使用方不必要的重渲染
-  const increment = useCallback(() => setCount(c => c + 1), []);
-  const decrement = useCallback(() => setCount(c => c - 1), []);
+  const increment = useCallback(() => setCount((c) => c + 1), []);
+  const decrement = useCallback(() => setCount((c) => c - 1), []);
   const reset = useCallback(() => setCount(0), []);
-  
+
   return { count, increment, decrement, reset };
 }
 ```
@@ -269,7 +291,7 @@ function useCounter() {
 function Component() {
   // 没意义！这个函数不影响任何子组件
   const handleClick = useCallback(() => {
-    console.log('click');
+    console.log("click");
   }, []);
 
   return <button onClick={handleClick}>Click</button>;
@@ -277,7 +299,7 @@ function Component() {
 
 // ✅ 直接写就行
 function Component() {
-  const handleClick = () => console.log('click');
+  const handleClick = () => console.log("click");
   return <button onClick={handleClick}>Click</button>;
 }
 ```
@@ -306,23 +328,25 @@ const memoizedCallback2 = useMemo(() => fn, [a, b]); // 等价
 ### 什么时候该用
 
 ```jsx
-import { useTransition, startTransition } from 'react';
+import { useTransition, startTransition } from "react";
 
 // ✅ 场景1：搜索/过滤大列表
 function SearchPage({ allItems }) {
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
   const [filteredItems, setFilteredItems] = useState(allItems);
   const [isPending, startTransition] = useTransition();
 
   function handleSearch(e) {
     // 紧急：立即更新输入框，保持响应
     setQuery(e.target.value);
-    
+
     // 非紧急：过滤大量数据，可以延迟
     startTransition(() => {
-      setFilteredItems(allItems.filter(item =>
-        item.name.toLowerCase().includes(e.target.value.toLowerCase())
-      ));
+      setFilteredItems(
+        allItems.filter((item) =>
+          item.name.toLowerCase().includes(e.target.value.toLowerCase()),
+        ),
+      );
     });
   }
 
@@ -339,7 +363,7 @@ function SearchPage({ allItems }) {
 ```jsx
 // ✅ 场景2：Tab 切换 + 重量级内容
 function TabContainer() {
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState("overview");
   const [isPending, startTransition] = useTransition();
 
   function switchTab(tab) {
@@ -351,7 +375,7 @@ function TabContainer() {
   return (
     <div>
       <nav>
-        {['overview', 'details', 'reviews'].map(tab => (
+        {["overview", "details", "reviews"].map((tab) => (
           <button
             key={tab}
             onClick={() => switchTab(tab)}
@@ -382,7 +406,7 @@ startTransition(() => {
 
 // ❌ 简单、快速的状态更新（没必要，增加复杂度）
 startTransition(() => {
-  setCount(c => c + 1); // ❌ 简单计数不需要 transition
+  setCount((c) => c + 1); // ❌ 简单计数不需要 transition
 });
 ```
 
@@ -391,12 +415,12 @@ startTransition(() => {
 ```jsx
 // useTransition：当你能控制状态更新时
 function Parent() {
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
   const [isPending, startTransition] = useTransition();
 
   return (
     <input
-      onChange={e => {
+      onChange={(e) => {
         setQuery(e.target.value); // 立即更新输入框
         startTransition(() => setSearchQuery(e.target.value)); // 延迟搜索
       }}
@@ -408,7 +432,7 @@ function Parent() {
 function SearchResults({ query }) {
   // query 来自父组件，你控制不了何时更新
   const deferredQuery = useDeferredValue(query);
-  
+
   return <HeavyResultList query={deferredQuery} />;
 }
 ```
@@ -522,14 +546,14 @@ const TableRow = React.memo(function TableRow({ row }: { row: Row }) {
 
 ## 七、与 Vue 3 性能优化对比
 
-| 优化手段 | React | Vue 3 |
-|---------|-------|-------|
-| 跳过组件重渲染 | `React.memo` | 天生追踪（响应式自动）|
-| 缓存计算值 | `useMemo` | `computed`（自动缓存）|
-| 稳定函数引用 | `useCallback` | 方法定义天生稳定 |
-| 非紧急更新 | `startTransition` | 暂无直接对应 |
-| 列表虚拟化 | `react-virtual` | `vue-virtual-scroller` |
-| 代码分割 | `React.lazy` | `defineAsyncComponent` |
+| 优化手段       | React             | Vue 3                  |
+| -------------- | ----------------- | ---------------------- |
+| 跳过组件重渲染 | `React.memo`      | 天生追踪（响应式自动） |
+| 缓存计算值     | `useMemo`         | `computed`（自动缓存） |
+| 稳定函数引用   | `useCallback`     | 方法定义天生稳定       |
+| 非紧急更新     | `startTransition` | 暂无直接对应           |
+| 列表虚拟化     | `react-virtual`   | `vue-virtual-scroller` |
+| 代码分割       | `React.lazy`      | `defineAsyncComponent` |
 
 > 💡 **本质差异**：Vue 3 的响应式系统在依赖追踪层面自动优化，组件只在真正依赖的数据变化时更新。React 的重渲染默认向下传播，需要开发者手动用 memo/useMemo/useCallback "拦截"。React 19 的 Compiler 目标是让 React 也达到 Vue 那样的自动优化效果。
 
@@ -539,10 +563,10 @@ const TableRow = React.memo(function TableRow({ row }: { row: Row }) {
 
 ### Q1：useMemo 和 useCallback 的区别？
 
-`useMemo` 缓存**计算结果值**，`useCallback` 缓存**函数本身**。
-本质上 `useCallback(fn, deps)` 等价于 `useMemo(() => fn, deps)`。
+`useMemo` 缓存**计算结果值**，`useCallback` 缓存**函数本身**。本质上 `useCallback(fn, deps)` 等价于 `useMemo(() => fn, deps)`。
 
 使用场景：
+
 - `useMemo`：昂贵计算 / 需要稳定引用的对象
 - `useCallback`：传给 memo 子组件的回调 / 作为 useEffect 依赖
 

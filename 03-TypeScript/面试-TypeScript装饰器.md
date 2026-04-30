@@ -1,7 +1,6 @@
 # TypeScript 装饰器（Decorators）
 
-> 来源：前端面试每日推送 2026-04-25（周六·TypeScript + 进阶）
-> 难度：⭐⭐⭐
+> 来源：前端面试每日推送 2026-04-25（周六·TypeScript + 进阶）难度：⭐⭐⭐
 
 ## 关联笔记
 
@@ -39,7 +38,7 @@ class UserService {
   constructor(private db: Database) {}
 
   getUsers() {
-    return this.db.query('SELECT * FROM users');
+    return this.db.query("SELECT * FROM users");
   }
 }
 ```
@@ -47,10 +46,7 @@ class UserService {
 ### 2. 方法装饰器：日志和耗时统计（AOP 经典场景）
 
 ```typescript
-function Log(
-  target: Function,
-  context: ClassMethodDecoratorContext
-) {
+function Log(target: Function, context: ClassMethodDecoratorContext) {
   const methodName = String(context.name);
   // 替换原始方法
   return function (this: any, ...args: any[]) {
@@ -66,11 +62,11 @@ function Log(
 class OrderService {
   @Log
   createOrder(productId: string, quantity: number) {
-    return { orderId: 'ORD-001', productId, quantity };
+    return { orderId: "ORD-001", productId, quantity };
   }
 }
 
-new OrderService().createOrder('P001', 3);
+new OrderService().createOrder("P001", 3);
 // [LOG] createOrder 调用，参数: ['P001', 3]
 // [LOG] createOrder 完成，耗时: 0.12ms
 ```
@@ -78,14 +74,13 @@ new OrderService().createOrder('P001', 3);
 ### 3. 属性装饰器 + accessor：实现响应式（类 Vue3 reactive 简化版）
 
 ```typescript
-function Observable(
-  _target: undefined,
-  context: ClassFieldDecoratorContext
-) {
+function Observable(_target: undefined, context: ClassFieldDecoratorContext) {
   const key = context.name as string;
   return function (initialValue: any) {
     return {
-      get() { return this[`__${key}`]; },
+      get() {
+        return this[`__${key}`];
+      },
       set(value: any) {
         const oldValue = this[`__${key}`];
         this[`__${key}`] = value;
@@ -95,7 +90,7 @@ function Observable(
       },
       init(initialValue) {
         this[`__${key}`] = initialValue;
-      }
+      },
     };
   };
 }
@@ -109,8 +104,8 @@ class Store {
 }
 
 const s = new Store();
-s.count = 1;  // [REACTIVE] count: 0 → 1
-s.count = 5;  // [REACTIVE] count: 1 → 5
+s.count = 1; // [REACTIVE] count: 0 → 1
+s.count = 5; // [REACTIVE] count: 1 → 5
 ```
 
 ---

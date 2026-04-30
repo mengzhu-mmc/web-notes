@@ -35,9 +35,9 @@ CI 通过后
 持续部署（Deployment）：完全自动，直接推到生产环境
 ```
 
-| | 持续交付 | 持续部署 |
-|--|---------|---------|
-| 最后一步 | **手动触发** | **全自动** |
+|          | 持续交付           | 持续部署               |
+| -------- | ------------------ | ---------------------- |
+| 最后一步 | **手动触发**       | **全自动**             |
 | 适用场景 | 需要审批、灰度发布 | 快速迭代、自动化程度高 |
 
 ---
@@ -65,7 +65,7 @@ lint + type check + test + build
 ## 三、常见工具对比
 
 | 工具 | 特点 | 适用场景 |
-|------|------|---------|
+| --- | --- | --- |
 | GitHub Actions | 配置简单，免费额度大，生态丰富 | 开源项目、个人项目首选 |
 | GitLab CI | 内置于 GitLab，私有化部署常用 | 企业内网 GitLab |
 | Jenkins | 老牌，功能强大，插件多，配置繁琐 | 大型企业、复杂流水线 |
@@ -95,8 +95,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
-          cache: 'npm'
+          node-version: "18"
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -114,9 +114,9 @@ jobs:
         run: npm run build
 
   deploy:
-    needs: ci          # 依赖 ci job 通过
+    needs: ci # 依赖 ci job 通过
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'   # 只在 main 分支部署
+    if: github.ref == 'refs/heads/main' # 只在 main 分支部署
     steps:
       - uses: actions/checkout@v3
 
@@ -127,6 +127,7 @@ jobs:
 ```
 
 **关键概念：**
+
 - `on`：触发条件（push / PR / 定时等）
 - `jobs`：并行执行的任务单元
 - `steps`：job 内的顺序步骤
@@ -159,20 +160,22 @@ jobs:
 ## 六、面试常问
 
 **Q: CI 和 CD 的区别是什么？**
-> CI 是持续集成，每次提交自动跑检查（lint/test/build），保证代码质量。
-> CD 分两种：持续交付（Delivery）最后一步手动发布；持续部署（Deployment）全程自动推到生产。
+
+> CI 是持续集成，每次提交自动跑检查（lint/test/build），保证代码质量。CD 分两种：持续交付（Delivery）最后一步手动发布；持续部署（Deployment）全程自动推到生产。
 
 **Q: 为什么要用 CI/CD？**
+
 > 1. **早发现问题**：bug 在合并前就被拦截，修复成本低
 > 2. **减少人工操作**：自动化替代手动部署，降低出错风险
 > 3. **加快发布频率**：流程标准化，一天可以发布多次
 > 4. **团队协作更安全**：PR 不通过 CI 不能合并
 
 **Q: npm install 和 npm ci 的区别？**
-> `npm ci` 严格按照 `package-lock.json` 安装，不修改 lock 文件，速度更快，适合 CI 环境。
-> `npm install` 可能更新 lock 文件，适合本地开发。
+
+> `npm ci` 严格按照 `package-lock.json` 安装，不修改 lock 文件，速度更快，适合 CI 环境。 `npm install` 可能更新 lock 文件，适合本地开发。
 
 **Q: 如何只在特定分支触发部署？**
+
 > 在 GitHub Actions 中用 `if: github.ref == 'refs/heads/main'` 控制，或在 `on.push.branches` 里指定分支。
 
 ---

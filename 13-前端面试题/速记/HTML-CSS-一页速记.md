@@ -29,13 +29,13 @@
 
 ## Flexbox
 
-| 属性 | 作用 |
-|---|---|
+| 属性              | 作用                                                     |
+| ----------------- | -------------------------------------------------------- |
 | `justify-content` | 主轴对齐（flex-start/center/space-between/space-around） |
-| `align-items` | 交叉轴对齐 |
-| `flex-direction` | 主轴方向（row/column） |
-| `flex-wrap` | 是否换行 |
-| `flex: 1` | `flex-grow: 1; flex-shrink: 1; flex-basis: 0%` |
+| `align-items`     | 交叉轴对齐                                               |
+| `flex-direction`  | 主轴方向（row/column）                                   |
+| `flex-wrap`       | 是否换行                                                 |
+| `flex: 1`         | `flex-grow: 1; flex-shrink: 1; flex-basis: 0%`           |
 
 ## Grid
 

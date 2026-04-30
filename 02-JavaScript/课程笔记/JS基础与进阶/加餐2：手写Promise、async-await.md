@@ -326,45 +326,48 @@ it.next()
 
 ### 精选评论
 
-##### *晨：
+##### \*晨：
+
 > Promise 解决过程是一个抽象的操作，即接收一个 promise 和一个值 x，目的就是对 Promise 形式的执行结果进行统一处理。需要考虑以下 3 种情况。在这里讲到的一个值 x是什么意思呀？？这块儿的看的不是很明白
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 可以简单地理解为 Promise 执行成功的返回值。
 
-##### **翔：
-> self.onFulfilledFn.forEach(function (f) {
- f(self.value)
-  ">self.onFulfilledFn.push(function () {
-">try {
+##### \*\*翔：
 
-">catch (e) {
- reject(e)
- }
- })
-老师这里的self.value参数可以不传的吧？我看后面也没用到呢
+> self.onFulfilledFn.forEach(function (f) { f(self.value) ">self.onFulfilledFn.push(function () { ">try {
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+">catch (e) { reject(e) } }) 老师这里的self.value参数可以不传的吧？我看后面也没用到呢
+
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 嗯，也可以~
 
-##### **池：
+##### \*\*池：
+
 > 虽然说 Generator 函数号称是解决异步回调问题，但却带来了一些麻烦，比如函数外部无法捕获异常，比如多个 yield 会导致调试困难。所以相较之下 Promise 是更优秀的异步解决方案。老师可以举例一下yield调试上的困难主要体现在什么地方吗？🙌
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 你可以把两个异步回调函数改成类似 Promise.all 的形式进行调用试试~
 
-##### *蕾：
+##### \*蕾：
+
 > 在决议程序中的情况判断是不是可以不写，情况3中已经包含了这种判断
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 同学，建议你试一下去掉你认为多余的判断，并执行一下测试代码~
 
 ##### 123：
+
 > 写的很清晰
 
-##### *晨：
+##### \*晨：
+
 > x 为对象或函数 为什么会有then？
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
-> &nbsp;&nbsp;&nbsp; 比如 x = {then() {...}}，这就是一个拥有 then 函数的对象
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
 
+> &nbsp;&nbsp;&nbsp; 比如 x = {then() {...}}，这就是一个拥有 then 函数的对象

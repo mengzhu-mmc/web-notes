@@ -144,19 +144,10 @@ func.bind(thisArg, param1, param2, ...)
     <span class="hljs-keyword">this</span>.play = [<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>];
   }
 
-  Parent3.prototype.getName = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
-    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.name;
-  }
-  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Child3</span>(<span class="hljs-params"></span>) </span>{
-    Parent3.call(<span class="hljs-keyword">this</span>);
-    <span class="hljs-keyword">this</span>.type = <span class="hljs-string">'child3'</span>;
-  }
+Parent3.prototype.getName = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{ <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.name; } <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Child3</span>(<span class="hljs-params"></span>) </span>{ Parent3.call(<span class="hljs-keyword">this</span>); <span class="hljs-keyword">this</span>.type = <span class="hljs-string">'child3'</span>; }
 
-  Child3.prototype = <span class="hljs-keyword">new</span> Parent3();
-  Child3.prototype.constructor = Child3;
-  <span class="hljs-keyword">var</span> s3 = <span class="hljs-keyword">new</span> Child3();
-  <span class="hljs-built_in">console</span>.log(s3.getName());  <span class="hljs-comment">// 'parent3'</span>
-</code></pre>
+Child3.prototype = <span class="hljs-keyword">new</span> Parent3(); Child3.prototype.constructor = Child3; <span class="hljs-keyword">var</span> s3 = <span class="hljs-keyword">new</span> Child3(); <span class="hljs-built_in">console</span>.log(s3.getName()); <span class="hljs-comment">// 'parent3'</span> </code></pre>
+
 <p data-nodeid="5008">关于继承的内容在这里就不过多讲解了，另外这些方法类似的应用场景还有很多，关键在于它们借用方法的理念，如果对这部分内容不理解的话，你可以再多看几遍。</p>
 <h3 data-nodeid="5009">如何自己实现这些方法</h3>
 <p data-nodeid="5010">在互联网大厂的面试中，手写实现 new、call、apply、bind 一直是比较高频的题目，结合本讲的内容，我们一起来手工实现一下这几个方法。</p>
@@ -185,8 +176,8 @@ func.bind(thisArg, param1, param2, ...)
     <span class="hljs-keyword">let</span> isObject = <span class="hljs-keyword">typeof</span> res === <span class="hljs-string">'object'</span> &amp;&amp; res !== <span class="hljs-literal">null</span>;
     <span class="hljs-keyword">let</span> isFunction = <span class="hljs-keyword">typeof</span> res === <span class="hljs-string">'function'</span>;
     <span class="hljs-keyword">return</span> isObject || isFunction ? res : obj;
-};
-</code></pre>
+
+}; </code></pre>
 
 <p data-nodeid="5022">接下来我们再看看 apply 和 call 的实现方法。</p>
 <h4 data-nodeid="5023">apply 和 call 的实现</h4>
@@ -243,253 +234,322 @@ func.bind(thisArg, param1, param2, ...)
 
 ### 精选评论
 
-##### *峰：
-> obj.__proto__ = Object.create(ctor.prototype); 老师这个obj.__proto__是不是改成obj比较合理，new操作符生成实例对象obj的__proto__（Object.getProrotypeof(obj)）应该是和ctor.prototype相等， 如果上面的赋值对象是obj.__proto__，产生的效果就是：obj.__proto__.__proto__ === ctor.prototype
+##### \*峰：
 
-##### **侯：
+> obj.**proto** = Object.create(ctor.prototype); 老师这个obj.**proto**是不是改成obj比较合理，new操作符生成实例对象obj的**proto**（Object.getProrotypeof(obj)）应该是和ctor.prototype相等， 如果上面的赋值对象是obj.**proto**，产生的效果就是：obj.**proto**.**proto** === ctor.prototype
+
+##### \*\*侯：
+
 > 研究了一天，现在 es6 里面已经可以用...来解构参数的了，不需要使用 eval 来传入多个参数了
 
-##### **超：
+##### \*\*超：
+
 > call 实现中 context.fn 可以会覆盖 context 中的fn属性，建议用Symbol 处理一下const fn = Symbol('fn');context[fn] = this;
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 这么做的好处是？
 
-##### **华：
+##### \*\*华：
+
 > 你们看不懂吃力是正常的 这是高级进阶的知识点
 
-##### **峰：
+##### \*\*峰：
+
 > 手写bind中，判断this instanceof self的目的是？
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
-> &nbsp;&nbsp;&nbsp; 分两种情况：
-当这个绑定函数被当做普通函数调用的时候，可以直接用context；
-而返回的这个之后当做构造函数使用的时候，却是指向这个实例，所以this instanceof self为true时，要用this。
-因此这里加了这个判断。
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
 
-##### **斌：
+> &nbsp;&nbsp;&nbsp; 分两种情况：当这个绑定函数被当做普通函数调用的时候，可以直接用context；而返回的这个之后当做构造函数使用的时候，却是指向这个实例，所以this instanceof self为true时，要用this。因此这里加了这个判断。
+
+##### \*\*斌：
+
 > 感觉解析的不是很清楚, 实现 call 中这里为什么要用 eval 没有解释， 看得不是很懂
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 首先，你需要先仔细学一下eval函数；其次，使用eval函数会帮我们进行了处理，隐藏执行了等效于 toString() 的操作，你要知道从上面传过来的参数是需要作为 context.fn 这个函数的参数一次性执行完成的，这里传进来如果参数是数组的话也是不能直接作为参数传递给 context.fn 的，因此通过 eval 函数把他们全部变成字符串作为要执行的函数的参数传进来进行执行的。最后要是还是不理解的话可以看下这两点：[1,2,3].toString() 在控制台输出的结果是什么？另外再理解一下 eval 这个函数的作用。
 
-##### **斌：
+##### \*\*斌：
+
 > 写的很好，要多次学习
 
-##### *曦：
+##### \*曦：
+
 > new的实现里调用了new？
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 自己手工模拟new的实现思路而已，中间是需要有一个新的object来承接
 
-##### **冰：
+##### \*\*冰：
+
 > myBind 的 fbound 是不是少了 reTurn
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 里面有return啊
 
 ##### console_man：
+
 > 这门儿课太火啦，我也留言一个
 
- ###### &nbsp;&nbsp;&nbsp; 编辑回复：
+###### &nbsp;&nbsp;&nbsp; 编辑回复：
+
 > &nbsp;&nbsp;&nbsp; 看到你啦！
 
-##### **6704：
+##### \*\*6704：
+
 > bind之后作用域还是没有改变let moudle1={x:23,getX:function(a){returnthis.x}}//undefined没有指向指定的作用域
 
-##### **雨：
-> this instanceof self 这里应该是this instanceof fBound吧，这里加入instanceof就是为了判断是否使用new操作符来调用的_new
+##### \*\*雨：
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+> this instanceof self 这里应该是this instanceof fBound吧，这里加入instanceof就是为了判断是否使用new操作符来调用的\_new
+
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 是的
 
-##### **林：
+##### \*\*林：
+
 > 在实践call的时候，有个疑问，代码如下：const pay = 'WeChatpay'；function showType () { console.log('pay type:', this.pay)}showType.call();按照以上代码执行后打印出来的是undefined将const改var就可以顺利输出，改为let也不行，不是很明白，还望老师能百忙之中能抽身解惑
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 可以看下第6讲的开头，有讲作用域的问题，let属于块级作用域，你这里的this指向的是window全局作用域，因此var的变量的话可以找到
 
-##### **曦：
+##### \*\*曦：
+
 > 实现new方法的第9行代码是不是有错误，应该是res !== null，而不是typeof res !== null
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; typeof可以去了
 
 ##### Eleven's regret：
+
 > 最后的bind有两个地方没看懂，一个是为啥要做this instanceof self判断，另一个是最后挂载原型的时候为什么要做if(this.prototype)判断？
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 在特殊情况下.prototype会缺失
 
-##### **安：
+##### \*\*安：
+
 > 老师，call方法没有改变this指向的操作呀，是为什么
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 有改变呀，不知道你说的哪里
 
-##### **2914：
+##### \*\*2914：
+
 > eval可以用new Function()代替
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 是的
 
-##### *俊：
+##### \*俊：
+
 > 学到很多
 
-##### *聪：
+##### \*聪：
+
 > call和applay的实现，如果传入的context是基础类型呢？这个没有处理
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 可以加个临界判断
 
-##### *鹏：
+##### \*鹏：
+
 > call和apply重写下面eval这里可以不用eval吗，直接用context.fn(...args) 应该也能得到想要的结果把，毕竟是context调用的fn，里面的 this 上下文指向的也就是 context，好像问题也不大eval('context.fn(...args)')
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 可以不用
 
-##### *苒：
+##### \*苒：
+
 > 老师你好，请求实现call和apply处的代码中，context.fn = this; 具体是做了什么，这行代码不能理解。
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 其实就拿context.fn 接收一下this，在下面的代码中方便拿这个context.fn函数直接进行执行
 
-##### **华：
+##### \*\*华：
+
 > let a = { name: 'jack', getName: function(msg) { } let b = { name: 'lily' }为什么用上面写的bind执行后结果是undefined啊，用原生的bind可以得到正常结果？
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 代码不全， 不太好回答哦
 
-##### **辉：
+##### \*\*辉：
+
 > if (typeof this !== "function") { }为什么call和apply的时候没有这个判断呢
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 这个不需要
 
-##### **的小叶酱：
+##### \*\*的小叶酱：
+
 > new的实现中 返回值可能是一个function类型，能举个例子吗
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 主要是看res是什么类型，它如果是函数就返回函数，它如果是对象就返回对象
 
-##### **亚：
+##### \*\*亚：
+
 > 老师，call和apply的实现，直接调用context.fn(...arg)就可以吧，不需要用eval执行吧
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 是的，可以不要
 
-##### **平：
-> 不需要eval也可以，我直接这样Function.prototype.myCall = function (context, ...args) {  context = context || window;  context.fn = this;  context.fn(...args)  delete context.fn;}
+##### \*\*平：
 
-##### **1240：
+> 不需要eval也可以，我直接这样Function.prototype.myCall = function (context, ...args) { context = context || window; context.fn = this; context.fn(...args) delete context.fn;}
+
+##### \*\*1240：
+
 > var fbound = function () { }老师这个地方是不是忘记return了呢？return
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 后面已经return了呀
 
-##### **广：
+##### \*\*广：
+
 > 讲的真好，老哥辛苦了
 
-##### **0461：
-> this instanceof self ? this
-bind的底层实现代码中这一行怎么理解？
+##### \*\*0461：
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
-> &nbsp;&nbsp;&nbsp; 分两种情况：
-当这个绑定函数被当做普通函数调用的时候，可以直接用context；
-而返回的这个之后当做构造函数使用的时候，却是指向这个实例，所以this instanceof self为true时，要用this。
-因此这里加了这个判断。
+> this instanceof self ? this bind的底层实现代码中这一行怎么理解？
 
-##### **帆：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
+> &nbsp;&nbsp;&nbsp; 分两种情况：当这个绑定函数被当做普通函数调用的时候，可以直接用context；而返回的这个之后当做构造函数使用的时候，却是指向这个实例，所以this instanceof self为true时，要用this。因此这里加了这个判断。
+
+##### \*\*帆：
+
 > call 的 eval 我也研究了好久，现在好像确实不需要了。还是对 eval 详细研究下吧。
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 可以不用了
 
-##### **雨：
-> _new方法。let isObject = typeof res === 'object' 。是不是应该为let isObject = typeof res === 'object'  res !== null 。这里typeof就是object，另外吐槽一下留言居然没法保存格式
+##### \*\*雨：
 
- ###### &nbsp;&nbsp;&nbsp; 编辑回复：
+> \_new方法。let isObject = typeof res === 'object' 。是不是应该为let isObject = typeof res === 'object' res !== null 。这里typeof就是object，另外吐槽一下留言居然没法保存格式
+
+###### &nbsp;&nbsp;&nbsp; 编辑回复：
+
 > &nbsp;&nbsp;&nbsp; 技术小哥正在全力赶工
 
-##### **0707：
+##### \*\*0707：
+
 > 老师，在实现call时，我认为如果用了...args，就没有必要用eval了
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 可以不用了
 
-##### **帆：
+##### \*\*帆：
+
 > 老师 有一个地方不明白，实现bind函数的时候 self.apply(this instanceof self ? this : context, args.concat(Array.prototype.slice.call(arguments))); apply方法的第一个参数为什么要根据this来确定，为什么不是第一个参数直接写context？
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
-> &nbsp;&nbsp;&nbsp; 分两种情况：
-当这个绑定函数被当做普通函数调用的时候，可以直接用context；
-而返回的这个之后当做构造函数使用的时候，却是指向这个实例，所以this instanceof self为true时，要用this。
-因此这里加了这个判断。
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
 
-##### **斌：
+> &nbsp;&nbsp;&nbsp; 分两种情况：当这个绑定函数被当做普通函数调用的时候，可以直接用context；而返回的这个之后当做构造函数使用的时候，却是指向这个实例，所以this instanceof self为true时，要用this。因此这里加了这个判断。
+
+##### \*\*斌：
+
 > 老哥你好，我看了你的留言，说实现 call 这里使用 eval 是为了把数组参数 ...args 转行成 1,2,3 这种字符串参数的形式，但是context.fn(...args) ，代码结果好像没有什么区别，请老哥解答下？
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 有了扩展运算符之后，eval可以去了，留着也不影响
 
-##### **曦：
-> 老师好，实现call时不通过eval，直接把函数复制一份可以么？Function.prototype._call = function (context, ...args) {    context = context || window    // 复制函数    context._call_interim_fn = new Function(`return ${this}`)()    // 执行    const result = context._call_interim_fn(...args)    // 删除临时属性    delete context._call_interim_fn    return result}
+##### \*\*曦：
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+> 老师好，实现call时不通过eval，直接把函数复制一份可以么？Function.prototype.\_call = function (context, ...args) { context = context || window // 复制函数 context.\_call_interim_fn = new Function(`return ${this}`)() // 执行 const result = context.\_call_interim_fn(...args) // 删除临时属性 delete context.\_call_interim_fn return result}
+
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 首先，你需要先仔细学一下eval函数；其次，使用eval函数会帮我们进行了处理，隐藏执行了等效于 toString() 的操作，你要知道从上面传过来的参数是需要作为 context.fn 这个函数的参数一次性执行完成的，这里传进来如果参数是数组的话也是不能直接作为参数传递给 context.fn 的，因此通过 eval 函数把他们全部变成字符串作为要执行的函数的参数传进来进行执行的。最后要是还是不理解的话可以看下这两点：[1,2,3].toString() 在控制台输出的结果是什么？另外再理解一下 eval 这个函数的作用。
 
-##### **智：
+##### \*\*智：
+
 > bind的源码中，fbound函数内要return出来
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 已经return了呀
 
-##### **智：
+##### \*\*智：
+
 > call,apply的源码中，为啥不直接执行context.fn(..args), 而是要用eval呢
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 首先，你需要先仔细学一下eval函数；其次，使用eval函数会帮我们进行了处理，隐藏执行了等效于 toString() 的操作，你要知道从上面传过来的参数是需要作为 context.fn 这个函数的参数一次性执行完成的，这里传进来如果参数是数组的话也是不能直接作为参数传递给 context.fn 的，因此通过 eval 函数把他们全部变成字符串作为要执行的函数的参数传进来进行执行的。最后要是还是不理解的话可以看下这两点：[1,2,3].toString() 在控制台输出的结果是什么？另外再理解一下 eval 这个函数的作用。
 
-##### *前：
+##### \*前：
+
 > 666
 
-##### **婷：
+##### \*\*婷：
+
 > 有个bug，在new实现的时候，this指向并赋值时，let res = ctor.apply(obj,args)应该写成这样
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 效果是一样的
 
-##### *涛：
+##### \*涛：
+
 > call 和 apply 的实现为什么要用eval 呢？直接执行里面的代码是不是也可以
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 首先，你需要先仔细学一下eval函数；其次，使用eval函数会帮我们进行了处理，隐藏执行了等效于 toString() 的操作，你要知道从上面传过来的参数是需要作为 context.fn 这个函数的参数一次性执行完成的，这里传进来如果参数是数组的话也是不能直接作为参数传递给 context.fn 的，因此通过 eval 函数把他们全部变成字符串作为要执行的函数的参数传进来进行执行的。最后要是还是不理解的话可以看下这两点：[1,2,3].toString() 在控制台输出的结果是什么？另外再理解一下 eval 这个函数的作用。
 
-##### **峰：
+##### \*\*峰：
+
 > call apply的时候为什么要使用eval来执行，可以解释一下吗！ 应该可以直接执行吧
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 首先，你需要先仔细学一下eval函数；其次，使用eval函数会帮我们进行了处理，隐藏执行了等效于 toString() 的操作，你要知道从上面传过来的参数是需要作为 context.fn 这个函数的参数一次性执行完成的，这里传进来如果参数是数组的话也是不能直接作为参数传递给 context.fn 的，因此通过 eval 函数把他们全部变成字符串作为要执行的函数的参数传进来进行执行的。最后要是还是不理解的话可以看下这两点：[1,2,3].toString() 在控制台输出的结果是什么？另外再理解一下 eval 这个函数的作用。
 
-##### *洪：
+##### \*洪：
+
 > 有一点没有懂，为啥要使用eval函数来执行，和直接执行context.fn(...args)有什么区别？
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 首先，你需要先仔细学一下eval函数；其次，使用eval函数会帮我们进行了处理，隐藏执行了等效于 toString() 的操作，你要知道从上面传过来的参数是需要作为 context.fn 这个函数的参数一次性执行完成的，这里传进来如果参数是数组的话也是不能直接作为参数传递给 context.fn 的，因此通过 eval 函数把他们全部变成字符串作为要执行的函数的参数传进来进行执行的。最后要是还是不理解的话可以看下这两点：[1,2,3].toString() 在控制台输出的结果是什么？另外再理解一下 eval 这个函数的作用。
 
-##### *佳：
+##### \*佳：
+
 > Child3.prototype.constructor = Child3;这句话什么意思？原型的构造函数为他本身？怎么理解？继承把我搞得懵了。怎么看不懂这些代码？应该补基础知识了，是吗？还是对js原型根本没有理解？
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 推荐再去自学一下constructor
 
-##### *佳：
+##### \*佳：
+
 > Parent3.call(this);的作用是什么？
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 推荐再去自学一下call
 
-##### **伟：
-> 系统查漏补缺
+##### \*\*伟：
 
+> 系统查漏补缺

@@ -146,8 +146,6 @@ updateStyle(<span class="hljs-string">"\"...\""</span>, css) <span class="hljs-c
 </ul>
 <h4 data-nodeid="51745">Vite 的使用限制</h4>
 
-
-
 <p data-nodeid="47096">Vite 的使用限制如下：</p>
 <ul data-nodeid="53977">
 <li data-nodeid="53978">
@@ -157,7 +155,6 @@ updateStyle(<span class="hljs-string">"\"...\""</span>, css) <span class="hljs-c
 <p data-nodeid="53981">对 Vue 框架的支持目前仅限于最新的 Vue 3 版本，不兼容更低版本。</p>
 </li>
 </ul>
-
 
 <h3 data-nodeid="47102">Snowpack</h3>
 <p data-nodeid="55078" class="">Snowpack 是另一个比较知名的无包构建工具，从整体功能来说和上述 Vite工具提供的功能大致相同，主要差异点在 Snowpack 在生产环境下默认使用无包构建而非打包模式（可以通过引入打包插件例如 @snowpack/plugin-webpack 来实现打包模式），而 Vite 仅在开发模式下使用。示例代码参见 <a href="https://github.com/fe-efficiency/lessons_fe_efficiency/tree/master/16_nobundle/example-vite" data-nodeid="55082">example-snow</a>。下面我们简单整理下两者的异同。</p>
@@ -217,6 +214,6 @@ updateStyle(<span class="hljs-string">"\"...\""</span>, css) <span class="hljs-c
 
 ### 精选评论
 
-##### *程：
-> 个人觉得是，类似webpack这种工具，是把所有代码打包成几个文件，换言之，你项目编写的代码都需要经过处理，这个很耗时间。而是像Vite/Snowpack 这种，则由浏览器进行模快处理并且按需加载
+##### \*程：
 
+> 个人觉得是，类似webpack这种工具，是把所有代码打包成几个文件，换言之，你项目编写的代码都需要经过处理，这个很耗时间。而是像Vite/Snowpack 这种，则由浏览器进行模快处理并且按需加载

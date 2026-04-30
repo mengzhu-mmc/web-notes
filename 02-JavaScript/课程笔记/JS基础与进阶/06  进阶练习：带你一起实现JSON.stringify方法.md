@@ -69,53 +69,8 @@
 <pre class="lang-javascript" data-nodeid="5525"><code data-language="javascript"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">jsonStringify</span>(<span class="hljs-params">data</span>) </span>{
   <span class="hljs-keyword">let</span> type = <span class="hljs-keyword">typeof</span> data;
 
-  <span class="hljs-keyword">if</span>(type !== <span class="hljs-string">'object'</span>) {
-    <span class="hljs-keyword">let</span> result = data;
-    <span class="hljs-comment">//data 可能是基础数据类型的情况在这里处理</span>
-    <span class="hljs-keyword">if</span> (<span class="hljs-built_in">Number</span>.isNaN(data) || data === <span class="hljs-literal">Infinity</span>) {
-       <span class="hljs-comment">//NaN 和 Infinity 序列化返回 "null"</span>
-       result = <span class="hljs-string">"null"</span>;
-    } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (type === <span class="hljs-string">'function'</span> || type === <span class="hljs-string">'undefined'</span> || type === <span class="hljs-string">'symbol'</span>) {
-      <span class="hljs-comment">// 由于 function 序列化返回 undefined，因此和 undefined、symbol 一起处理</span>
-       <span class="hljs-keyword">return</span> <span class="hljs-literal">undefined</span>;
-    } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (type === <span class="hljs-string">'string'</span>) {
-       result = <span class="hljs-string">'"'</span> + data + <span class="hljs-string">'"'</span>;
-    }
-    <span class="hljs-keyword">return</span> <span class="hljs-built_in">String</span>(result);
-  } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (type === <span class="hljs-string">'object'</span>) {
-     <span class="hljs-keyword">if</span> (data === <span class="hljs-literal">null</span>) {
-        <span class="hljs-keyword">return</span> <span class="hljs-string">"null"</span>  <span class="hljs-comment">// 第01讲有讲过 typeof null 为'object'的特殊情况</span>
-     } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (data.toJSON &amp;&amp; <span class="hljs-keyword">typeof</span> data.toJSON === <span class="hljs-string">'function'</span>) {
-        <span class="hljs-keyword">return</span> jsonStringify(data.toJSON());
-     } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (data <span class="hljs-keyword">instanceof</span> <span class="hljs-built_in">Array</span>) {
-        <span class="hljs-keyword">let</span> result = [];
-        <span class="hljs-comment">//如果是数组，那么数组里面的每一项类型又有可能是多样的</span>
-        data.forEach(<span class="hljs-function">(<span class="hljs-params">item, index</span>) =&gt;</span> {
-        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> item === <span class="hljs-string">'undefined'</span> || <span class="hljs-keyword">typeof</span> item === <span class="hljs-string">'function'</span> || <span class="hljs-keyword">typeof</span> item === <span class="hljs-string">'symbol'</span>) {
-               result[index] = <span class="hljs-string">"null"</span>;
-           } <span class="hljs-keyword">else</span> {
-               result[index] = jsonStringify(item);
-           }
-         });
-         result = <span class="hljs-string">"["</span> + result + <span class="hljs-string">"]"</span>;
-         <span class="hljs-keyword">return</span> result.replace(<span class="hljs-regexp">/'/g</span>, <span class="hljs-string">'"'</span>);
-      } <span class="hljs-keyword">else</span> {
-         <span class="hljs-comment">// 处理普通对象</span>
-         <span class="hljs-keyword">let</span> result = [];
-         <span class="hljs-built_in">Object</span>.keys(data).forEach(<span class="hljs-function">(<span class="hljs-params">item, index</span>) =&gt;</span> {
-            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> item !== <span class="hljs-string">'symbol'</span>) {
-              <span class="hljs-comment">//key 如果是 symbol 对象，忽略</span>
-              <span class="hljs-keyword">if</span> (data[item] !== <span class="hljs-literal">undefined</span> &amp;&amp; <span class="hljs-keyword">typeof</span> data[item] !== <span class="hljs-string">'function'</span> &amp;&amp; <span class="hljs-keyword">typeof</span> data[item] !== <span class="hljs-string">'symbol'</span>) {
-                <span class="hljs-comment">//键值如果是 undefined、function、symbol 为属性值，忽略</span>
-                result.push(<span class="hljs-string">'"'</span> + item + <span class="hljs-string">'"'</span> + <span class="hljs-string">":"</span> + jsonStringify(data[item]));
-              }
-            }
-         });
-         <span class="hljs-keyword">return</span> (<span class="hljs-string">"{"</span> + result + <span class="hljs-string">"}"</span>).replace(<span class="hljs-regexp">/'/g</span>, <span class="hljs-string">'"'</span>);
-        }
-    }
-}
-</code></pre>
+<span class="hljs-keyword">if</span>(type !== <span class="hljs-string">'object'</span>) { <span class="hljs-keyword">let</span> result = data; <span class="hljs-comment">//data 可能是基础数据类型的情况在这里处理</span> <span class="hljs-keyword">if</span> (<span class="hljs-built_in">Number</span>.isNaN(data) || data === <span class="hljs-literal">Infinity</span>) { <span class="hljs-comment">//NaN 和 Infinity 序列化返回 "null"</span> result = <span class="hljs-string">"null"</span>; } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (type === <span class="hljs-string">'function'</span> || type === <span class="hljs-string">'undefined'</span> || type === <span class="hljs-string">'symbol'</span>) { <span class="hljs-comment">// 由于 function 序列化返回 undefined，因此和 undefined、symbol 一起处理</span> <span class="hljs-keyword">return</span> <span class="hljs-literal">undefined</span>; } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (type === <span class="hljs-string">'string'</span>) { result = <span class="hljs-string">'"'</span> + data + <span class="hljs-string">'"'</span>; } <span class="hljs-keyword">return</span> <span class="hljs-built_in">String</span>(result); } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (type === <span class="hljs-string">'object'</span>) { <span class="hljs-keyword">if</span> (data === <span class="hljs-literal">null</span>) { <span class="hljs-keyword">return</span> <span class="hljs-string">"null"</span> <span class="hljs-comment">// 第01讲有讲过 typeof null 为'object'的特殊情况</span> } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (data.toJSON &amp;&amp; <span class="hljs-keyword">typeof</span> data.toJSON === <span class="hljs-string">'function'</span>) { <span class="hljs-keyword">return</span> jsonStringify(data.toJSON()); } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (data <span class="hljs-keyword">instanceof</span> <span class="hljs-built_in">Array</span>) { <span class="hljs-keyword">let</span> result = []; <span class="hljs-comment">//如果是数组，那么数组里面的每一项类型又有可能是多样的</span> data.forEach(<span class="hljs-function">(<span class="hljs-params">item, index</span>) =&gt;</span> { <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> item === <span class="hljs-string">'undefined'</span> || <span class="hljs-keyword">typeof</span> item === <span class="hljs-string">'function'</span> || <span class="hljs-keyword">typeof</span> item === <span class="hljs-string">'symbol'</span>) { result[index] = <span class="hljs-string">"null"</span>; } <span class="hljs-keyword">else</span> { result[index] = jsonStringify(item); } }); result = <span class="hljs-string">"["</span> + result + <span class="hljs-string">"]"</span>; <span class="hljs-keyword">return</span> result.replace(<span class="hljs-regexp">/'/g</span>, <span class="hljs-string">'"'</span>); } <span class="hljs-keyword">else</span> { <span class="hljs-comment">// 处理普通对象</span> <span class="hljs-keyword">let</span> result = []; <span class="hljs-built_in">Object</span>.keys(data).forEach(<span class="hljs-function">(<span class="hljs-params">item, index</span>) =&gt;</span> { <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> item !== <span class="hljs-string">'symbol'</span>) { <span class="hljs-comment">//key 如果是 symbol 对象，忽略</span> <span class="hljs-keyword">if</span> (data[item] !== <span class="hljs-literal">undefined</span> &amp;&amp; <span class="hljs-keyword">typeof</span> data[item] !== <span class="hljs-string">'function'</span> &amp;&amp; <span class="hljs-keyword">typeof</span> data[item] !== <span class="hljs-string">'symbol'</span>) { <span class="hljs-comment">//键值如果是 undefined、function、symbol 为属性值，忽略</span> result.push(<span class="hljs-string">'"'</span> + item + <span class="hljs-string">'"'</span> + <span class="hljs-string">":"</span> + jsonStringify(data[item])); } } }); <span class="hljs-keyword">return</span> (<span class="hljs-string">"{"</span> + result + <span class="hljs-string">"}"</span>).replace(<span class="hljs-regexp">/'/g</span>, <span class="hljs-string">'"'</span>); } } } </code></pre>
+
 <p data-nodeid="5526">手工实现一个 JSON.stringify 方法的基本代码如上面所示，有几个问题你还是需要注意一下：</p>
 <ol data-nodeid="5527">
 <li data-nodeid="5528">
@@ -204,45 +159,58 @@
 
 ### 精选评论
 
-##### **帆：
+##### \*\*帆：
+
 > 还有第33行 return result.replace(/'/g, '"') 的目的是什么呢？
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 把里面的单引号全局处理成双引号，统一一下返回的字符串result结果而已
 
-##### **0406：
+##### \*\*0406：
+
 > 请问正则是在哪处理的呢？
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 没处理这种情况，你可以自己加上
 
-##### **5476：
+##### \*\*5476：
+
 > 正则走的是普通object那一层逻辑，result 为 [] 结果与预期一致
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 是的
 
-##### **帆：
+##### \*\*帆：
+
 > 代码逻辑实现第14行：else if (type === 'string') {}这一步是什么意思呢？这时data已经是个字符串了，为何前后还要再加一层双引号呢
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 当一个对象进行stringfy过程中，其中某个属性是字符串的时候，你可以看下面29行，它整体是个递归调用，当我说的这种情况出现的时候，这个属性的值虽然也是字符串，但是也需要拼接到result中去
 
-##### **平：
+##### \*\*平：
+
 > toJSON这个我在本地测试都直接报错呢
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; toJSON() 这个是可以在标准文档里查到的
 
-##### **峰：
+##### \*\*峰：
+
 > 老师在第七行判断data === Infinity的时候缺了data === -Infinity的情况
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 这个可以加上
 
-##### *强：
+##### \*强：
+
 > 代码逻辑实现那部分，20和21行那里的toJSON有问题吧，只查到了是Date对象的一个方法。
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
-> &nbsp;&nbsp;&nbsp; 对啊，上面Date的情况有在表格里写，你说的20和21行就是专门处理Date这种类型的
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
 
+> &nbsp;&nbsp;&nbsp; 对啊，上面Date的情况有在表格里写，你说的20和21行就是专门处理Date这种类型的

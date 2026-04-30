@@ -12,14 +12,15 @@ Node.js 22 正式支持在 **CommonJS 模块中直接 `require()` ES Module**，
 
 ```js
 // Before Node 22：必须用动态 import
-const { foo } = await import('./esm-module.mjs');
+const { foo } = await import("./esm-module.mjs");
 
 // Node 22+：可以直接 require（同步）
 // 前提：目标 ESM 不含顶层 await
-const { foo } = require('./esm-module.mjs');
+const { foo } = require("./esm-module.mjs");
 ```
 
 **注意事项：**
+
 - 目标 ESM 文件不能有顶层 `await`，否则报错
 - 需要 `--experimental-require-module` flag（22.x），或在更高版本默认开启
 - 解决了大量生态包迁移到纯 ESM 后 CJS 项目的兼容问题
@@ -32,16 +33,17 @@ const { foo } = require('./esm-module.mjs');
 
 ```js
 // fetch —— 无需 node-fetch，直接用
-const res = await fetch('https://api.example.com/data');
+const res = await fetch("https://api.example.com/data");
 const json = await res.json();
 
 // WebSocket —— 无需 ws 包，直接用
-const ws = new WebSocket('wss://echo.websocket.org');
-ws.onopen = () => ws.send('hello');
+const ws = new WebSocket("wss://echo.websocket.org");
+ws.onopen = () => ws.send("hello");
 ws.onmessage = (e) => console.log(e.data);
 ```
 
 **面试考点：**
+
 - 内置 `fetch` 基于 `undici`，性能优于社区 `node-fetch`
 - `WebSocket` 是 WHATWG 标准实现，与浏览器 API 保持一致
 
@@ -59,10 +61,10 @@ node --watch-path=./src server.js
 
 **对比 nodemon：**
 
-| 特性 | `--watch` | nodemon |
-|------|-----------|---------|
-| 安装 | 内置，零依赖 | 需 `npm i -D nodemon` |
-| 配置 | 有限 | 功能丰富（nodemon.json）|
+| 特性 | `--watch`    | nodemon                   |
+| ---- | ------------ | ------------------------- |
+| 安装 | 内置，零依赖 | 需 `npm i -D nodemon`     |
+| 配置 | 有限         | 功能丰富（nodemon.json）  |
 | 适用 | 简单开发场景 | 复杂项目/生产级开发服务器 |
 
 ---
@@ -75,16 +77,16 @@ Node 18 引入、Node 22 稳定的内置测试框架，无需安装 Jest/Mocha�
 
 ```js
 // test/sum.test.js
-import { test, describe, it, before, after } from 'node:test';
-import assert from 'node:assert/strict';
-import { sum } from '../src/sum.js';
+import { test, describe, it, before, after } from "node:test";
+import assert from "node:assert/strict";
+import { sum } from "../src/sum.js";
 
-describe('sum()', () => {
-  it('adds two numbers', () => {
+describe("sum()", () => {
+  it("adds two numbers", () => {
     assert.equal(sum(1, 2), 3);
   });
 
-  it('handles negatives', () => {
+  it("handles negatives", () => {
     assert.equal(sum(-1, -2), -3);
   });
 });
@@ -97,13 +99,13 @@ describe('sum()', () => {
 ### 2.2 异步测试 & Mock
 
 ```js
-import { test, mock } from 'node:test';
-import assert from 'node:assert/strict';
+import { test, mock } from "node:test";
+import assert from "node:assert/strict";
 
-test('async test', async (t) => {
-  const fn = mock.fn(async () => 'mocked');
+test("async test", async (t) => {
+  const fn = mock.fn(async () => "mocked");
   const result = await fn();
-  assert.equal(result, 'mocked');
+  assert.equal(result, "mocked");
   assert.equal(fn.mock.calls.length, 1);
 });
 ```
@@ -111,9 +113,9 @@ test('async test', async (t) => {
 ### 2.3 对比 Jest / Vitest
 
 | 特性 | `node:test` | Jest | Vitest |
-|------|-------------|------|--------|
+| --- | --- | --- | --- |
 | 安装 | 内置，零依赖 | `npm i -D jest` | `npm i -D vitest` |
-| 速度 | 快（无 transform）| 中等 | 极快（Vite）|
+| 速度 | 快（无 transform） | 中等 | 极快（Vite） |
 | TypeScript | 需 `--require ts-node` | 需 babel/ts-jest | 原生支持 |
 | Snapshot | ❌ 暂不支持 | ✅ | ✅ |
 | Coverage | `--experimental-test-coverage` | 内置 | 内置 |
@@ -179,22 +181,22 @@ corepack --version
 
 ```js
 // context.js —— 创建全局 AsyncLocalStorage 实例
-import { AsyncLocalStorage } from 'node:async_hooks';
+import { AsyncLocalStorage } from "node:async_hooks";
 
 export const requestContext = new AsyncLocalStorage();
 ```
 
 ```js
 // middleware.js —— 在请求入口注入 requestId
-import { randomUUID } from 'node:crypto';
-import { requestContext } from './context.js';
+import { randomUUID } from "node:crypto";
+import { requestContext } from "./context.js";
 
 export function requestIdMiddleware(req, res, next) {
-  const requestId = req.headers['x-request-id'] || randomUUID();
-  
+  const requestId = req.headers["x-request-id"] || randomUUID();
+
   // 将 requestId 注入异步上下文，后续所有调用都能获取
   requestContext.run({ requestId, startTime: Date.now() }, () => {
-    res.setHeader('x-request-id', requestId);
+    res.setHeader("x-request-id", requestId);
     next();
   });
 }
@@ -202,50 +204,52 @@ export function requestIdMiddleware(req, res, next) {
 
 ```js
 // logger.js —— 任意位置自动获取 requestId，无需传参
-import { requestContext } from './context.js';
+import { requestContext } from "./context.js";
 
 export function log(message, data = {}) {
   const store = requestContext.getStore();
-  const requestId = store?.requestId ?? 'no-context';
-  
-  console.log(JSON.stringify({
-    timestamp: new Date().toISOString(),
-    requestId,
-    message,
-    ...data,
-  }));
+  const requestId = store?.requestId ?? "no-context";
+
+  console.log(
+    JSON.stringify({
+      timestamp: new Date().toISOString(),
+      requestId,
+      message,
+      ...data,
+    }),
+  );
 }
 ```
 
 ```js
 // userService.js —— 业务层直接用 log，无需关心 requestId
-import { log } from './logger.js';
+import { log } from "./logger.js";
 
 export async function getUserById(id) {
-  log('查询用户', { userId: id });          // 自动带上 requestId
-  
+  log("查询用户", { userId: id }); // 自动带上 requestId
+
   // 模拟数据库查询
-  await new Promise(r => setTimeout(r, 50));
-  
-  log('查询完成', { userId: id });
-  return { id, name: 'maomengchao' };
+  await new Promise((r) => setTimeout(r, 50));
+
+  log("查询完成", { userId: id });
+  return { id, name: "maomengchao" };
 }
 ```
 
 ```js
 // server.js —— 组合起来
-import express from 'express';
-import { requestIdMiddleware } from './middleware.js';
-import { getUserById } from './userService.js';
-import { log } from './logger.js';
+import express from "express";
+import { requestIdMiddleware } from "./middleware.js";
+import { getUserById } from "./userService.js";
+import { log } from "./logger.js";
 
 const app = express();
 app.use(requestIdMiddleware);
 
-app.get('/user/:id', async (req, res) => {
-  log('收到请求');
+app.get("/user/:id", async (req, res) => {
+  log("收到请求");
   const user = await getUserById(req.params.id);
-  log('请求完成');
+  log("请求完成");
   res.json(user);
 });
 
@@ -262,13 +266,13 @@ app.listen(3000);
 ### 4.3 进阶用法：嵌套上下文
 
 ```js
-requestContext.run({ requestId: 'outer' }, () => {
+requestContext.run({ requestId: "outer" }, () => {
   console.log(requestContext.getStore()); // { requestId: 'outer' }
-  
-  requestContext.run({ requestId: 'inner' }, () => {
+
+  requestContext.run({ requestId: "inner" }, () => {
     console.log(requestContext.getStore()); // { requestId: 'inner' }
   });
-  
+
   console.log(requestContext.getStore()); // { requestId: 'outer' }（不受影响）
 });
 ```
@@ -279,13 +283,13 @@ requestContext.run({ requestId: 'outer' }, () => {
 
 ### 5.1 宏观差异
 
-| 维度 | Node.js | 浏览器 |
-|------|---------|--------|
-| 实现 | libuv（C 库）| 浏览器引擎（各异）|
-| 阶段 | 6 个明确阶段 | 宏任务 + 微任务队列 |
-| `setImmediate` | ✅ 有（check 阶段）| ❌ 无 |
-| `process.nextTick` | ✅ 有（优先级最高）| ❌ 无 |
-| I/O 类型 | 文件、网络、子进程 | 网络（XHR/fetch）|
+| 维度               | Node.js             | 浏览器              |
+| ------------------ | ------------------- | ------------------- |
+| 实现               | libuv（C 库）       | 浏览器引擎（各异）  |
+| 阶段               | 6 个明确阶段        | 宏任务 + 微任务队列 |
+| `setImmediate`     | ✅ 有（check 阶段） | ❌ 无               |
+| `process.nextTick` | ✅ 有（优先级最高） | ❌ 无               |
+| I/O 类型           | 文件、网络、子进程  | 网络（XHR/fetch）   |
 
 ### 5.2 Node.js 事件循环 6 个阶段（精简版）
 
@@ -310,13 +314,13 @@ timers ──> pending callbacks ──> idle/prepare ──> poll ──> check
 ```js
 // 验证代码（Node 11+，行为与浏览器一致）
 setTimeout(() => {
-  console.log('timer 1');
-  Promise.resolve().then(() => console.log('promise 1'));
+  console.log("timer 1");
+  Promise.resolve().then(() => console.log("promise 1"));
 }, 0);
 
 setTimeout(() => {
-  console.log('timer 2');
-  Promise.resolve().then(() => console.log('promise 2'));
+  console.log("timer 2");
+  Promise.resolve().then(() => console.log("promise 2"));
 }, 0);
 
 // 输出：timer 1 → promise 1 → timer 2 → promise 2
@@ -325,8 +329,8 @@ setTimeout(() => {
 ### 5.4 `process.nextTick` vs `Promise` 优先级
 
 ```js
-Promise.resolve().then(() => console.log('Promise'));
-process.nextTick(() => console.log('nextTick'));
+Promise.resolve().then(() => console.log("Promise"));
+process.nextTick(() => console.log("nextTick"));
 
 // 输出：nextTick → Promise
 // 原因：nextTick 队列优先级高于 Promise 微任务队列

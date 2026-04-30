@@ -16,7 +16,9 @@ IE 盒模型（`box-sizing: border-box`）：`width`/`height` 包含 content + p
 **现代开发推荐**：全局使用 `border-box`，更符合直觉，百分比宽度 + padding 不会导致溢出：
 
 ```css
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 ```
@@ -32,6 +34,7 @@ IE 盒模型（`box-sizing: border-box`）：`width`/`height` 包含 content + p
 浏览器去下载 `src` 属性给到的图片，用图片资源替换掉 `img` 标签，浏览器在下载前并不知道图片的宽高。
 
 **MDN 定义**：
+
 > 可替换元素（replaced element）的展现效果不是由 CSS 来控制的。这些元素是一种外部对象，它们外观的渲染，是独立于 CSS 的。CSS 可以影响可替换元素的位置，但不会影响到可替换元素自身的内容。
 
 典型替换元素：`<iframe>`、`<video>`、`<img>`、`<embed>`
@@ -43,7 +46,7 @@ IE 盒模型（`box-sizing: border-box`）：`width`/`height` 包含 content + p
 ## link 与 @import 的区别
 
 ```html
-<link rel="stylesheet" href="myCss.css" type="text/css">
+<link rel="stylesheet" href="myCss.css" type="text/css" />
 
 <style>
   @import url("./myCss.css");
@@ -67,16 +70,24 @@ IE 盒模型（`box-sizing: border-box`）：`width`/`height` 包含 content + p
 
 ```css
 /* 基础样式（移动端） */
-.container { width: 100%; padding: 15px; }
+.container {
+  width: 100%;
+  padding: 15px;
+}
 
 /* 平板 */
 @media (min-width: 768px) {
-  .container { max-width: 750px; margin: 0 auto; }
+  .container {
+    max-width: 750px;
+    margin: 0 auto;
+  }
 }
 
 /* 桌面端 */
 @media (min-width: 1024px) {
-  .container { max-width: 1200px; }
+  .container {
+    max-width: 1200px;
+  }
 }
 ```
 
@@ -90,7 +101,7 @@ IE 盒模型（`box-sizing: border-box`）：`width`/`height` 包含 content + p
 // 设计稿 750px，基准 100px
 function recalc() {
   const clientWidth = document.documentElement.clientWidth;
-  document.documentElement.style.fontSize = 100 * (clientWidth / 750) + 'px';
+  document.documentElement.style.fontSize = 100 * (clientWidth / 750) + "px";
 }
 // 设计稿上 200px 的元素 → CSS 写 width: 2rem
 ```
@@ -101,11 +112,11 @@ function recalc() {
 
 ### 方案对比
 
-| 方案 | 适用场景 | 特点 |
-|------|---------|------|
-| 媒体查询 | PC 端响应式 | 断点式适配 |
-| rem | 移动端 H5 | 等比缩放，需 JS |
-| vw/vh | 移动端 H5 | 纯 CSS，无需 JS，兼容性略差 |
+| 方案     | 适用场景    | 特点                        |
+| -------- | ----------- | --------------------------- |
+| 媒体查询 | PC 端响应式 | 断点式适配                  |
+| rem      | 移动端 H5   | 等比缩放，需 JS             |
+| vw/vh    | 移动端 H5   | 纯 CSS，无需 JS，兼容性略差 |
 
 ---
 
@@ -120,32 +131,43 @@ function recalc() {
 @layer base, components, utilities;
 
 @layer base {
-  a { color: blue; }
+  a {
+    color: blue;
+  }
 }
 
 @layer components {
-  .btn { color: green; } /* 优先级高于 base 层 */
+  .btn {
+    color: green;
+  } /* 优先级高于 base 层 */
 }
 
 @layer utilities {
-  .text-red { color: red !important; } /* 最高层 */
+  .text-red {
+    color: red !important;
+  } /* 最高层 */
 }
 
 /* 未放入任何层的样式，优先级高于所有 @layer 内的样式 */
-a { color: purple; } /* 这会覆盖 @layer base 中的规则 */
+a {
+  color: purple;
+} /* 这会覆盖 @layer base 中的规则 */
 ```
 
 **核心用途**：
+
 - 管理第三方 CSS 库与业务样式的优先级（把第三方库丢进低优先级层）
 - 替代 `!important` 的滥用，让优先级可预测
 
 ```css
 /* 将第三方库降到最低层 */
 @layer vendor {
-  @import url('bootstrap.css');
+  @import url("bootstrap.css");
 }
 /* 业务样式可以轻松覆盖，无需提高选择器权重 */
-.btn { background: red; } /* 直接覆盖 bootstrap 的 .btn */
+.btn {
+  background: red;
+} /* 直接覆盖 bootstrap 的 .btn */
 ```
 
 ---
@@ -158,7 +180,7 @@ a { color: purple; } /* 这会覆盖 @layer base 中的规则 */
 /* 1. 将父容器设为查询容器 */
 .card-wrapper {
   container-type: inline-size; /* 监听行内尺寸（宽度） */
-  container-name: card;        /* 可选：命名容器 */
+  container-name: card; /* 可选：命名容器 */
 }
 
 /* 2. 在子元素中基于容器宽度响应 */
@@ -179,12 +201,7 @@ a { color: purple; } /* 这会覆盖 @layer base 中的规则 */
 }
 ```
 
-**与媒体查询对比**：
-| | 媒体查询 | 容器查询 |
-|---|---|---|
-| 基准 | 视口宽度 | 父容器宽度 |
-| 适用 | 页面级布局 | 组件级布局 |
-| 复用性 | 同一组件在不同容器位置表现不同需重写 | 组件自适应容器，完美复用 |
+**与媒体查询对比**：| | 媒体查询 | 容器查询 | |---|---|---| | 基准 | 视口宽度 | 父容器宽度 | | 适用 | 页面级布局 | 组件级布局 | | 复用性 | 同一组件在不同容器位置表现不同需重写 | 组件自适应容器，完美复用 |
 
 ---
 
@@ -240,10 +257,18 @@ p:has(+ p:hover) {
   --brand: #3b82f6;
 }
 
-.tint-10  { background: color-mix(in srgb, var(--brand) 10%, white); }
-.tint-20  { background: color-mix(in srgb, var(--brand) 20%, white); }
-.tint-50  { background: color-mix(in srgb, var(--brand) 50%, white); }
-.shade-20 { background: color-mix(in srgb, var(--brand) 80%, black); }
+.tint-10 {
+  background: color-mix(in srgb, var(--brand) 10%, white);
+}
+.tint-20 {
+  background: color-mix(in srgb, var(--brand) 20%, white);
+}
+.tint-50 {
+  background: color-mix(in srgb, var(--brand) 50%, white);
+}
+.shade-20 {
+  background: color-mix(in srgb, var(--brand) 80%, black);
+}
 
 /* transparent 混合实现带透明度效果 */
 .overlay {
@@ -269,7 +294,7 @@ p:has(+ p:hover) {
 
   /* & 代表父选择器 .card */
   &:hover {
-    box-shadow: 0 4px 16px rgba(0,0,0,.1);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
   }
 
   /* 后代选择器（可省略 &）*/
@@ -291,7 +316,9 @@ p:has(+ p:hover) {
   /* 媒体查询也可以嵌套 */
   @media (max-width: 768px) {
     padding: 8px;
-    & .title { font-size: 1em; }
+    & .title {
+      font-size: 1em;
+    }
   }
 }
 ```

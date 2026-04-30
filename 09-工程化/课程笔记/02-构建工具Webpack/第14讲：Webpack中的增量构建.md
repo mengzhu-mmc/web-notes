@@ -1,6 +1,5 @@
 <p data-nodeid="30091">开始课程前，我先来解答上一节课的思考题：课程中介绍的几种支持缓存的插件（TerserWebpackPlugin，CSSMinimizerWebpackPlugin）和 Loader（babel-loader，cache-loader）在缓存方面有哪些相同的配置项呢？</p>
 
-
 <p data-nodeid="29271">通过对比不难发现，这些工具通常至少包含两个配置项：第一项用于指定是否开启缓存，以及指定缓存目录（值为 true 时使用默认目录，指定目录时也表示开启），配置名称通常是 cache 或 cacheDirectory；第二项用于指定缓存标识符的计算参数，通常默认值是一个包含多维度参数的对象，例如这个工具模块的版本号、配置项对象、文件路径和内容等。这个配置项是为了确保缓存使用的安全性，防止当源代码不变但相关构建参数发生变化时对旧缓存的误用。</p>
 <p data-nodeid="29272">下面开始本节课的学习。曾经有同事问我一个问题：为什么我只改了一行代码，却需要花 5 分钟才能构建完成？</p>
 <p data-nodeid="29273">你可能也有同样的疑问，但经过前面几节关于 Webpack 构建原理和优化的课程后，相信已经可以解答。尽管只改动了一行代码，但是在执行构建时，要完整执行所有模块的编译、优化和生成产物的处理过程，而不是只需要处理所改动的文件。大多数情况下，我们能做的是像前面几节课中讨论的那样，通过各种优化方案提升整体构建的效率。</p>
@@ -11,10 +10,6 @@
 <p data-nodeid="32548" class=""><img src="https://s0.lgstatic.com/i/image/M00/57/0E/CgqCHl9sTsWAbetxAAGoldlDrIw704.png" alt="Drawing 0.png" data-nodeid="32551"><br>
 <img src="https://s0.lgstatic.com/i/image/M00/57/03/Ciqc1F9sTsmAJc8YAADz9x_Zsvo780.png" alt="Drawing 1.png" data-nodeid="32555"></p>
 
-
-
-
-
 <p data-nodeid="29279">可以看到，在开发服务模式下，初次构建编译了 47 个模块，完整的构建时间为 3306ms。当我们改动其中一个源码文件后，日志显示 Webpack 只再次构建了这一个模块，因此再次构建的时间非常短（24ms）。那么为什么在开发服务模式下可以实现增量构建的效果，而在生产环境下不行呢？下面我们来分析影响结果的因素。</p>
 <h3 data-nodeid="29280">增量构建的影响因素</h3>
 <h4 data-nodeid="29281">watch 配置</h4>
@@ -22,23 +17,13 @@
 <p data-nodeid="34462" class=""><img src="https://s0.lgstatic.com/i/image/M00/57/0E/CgqCHl9sTtOAPzPRAAHMQJnGHlo474.png" alt="Drawing 2.png" data-nodeid="34465"><br>
 <img src="https://s0.lgstatic.com/i/image/M00/57/0E/CgqCHl9sTtiAB2seAAG0v0B0ORQ594.png" alt="Drawing 3.png" data-nodeid="34469"></p>
 
-
-
-
-
 <p data-nodeid="29285">从结果中可以发现，在生产模式下开启 watch 配置后，相比初次构建，再次构建所编译的模块数量并未减少，即使只改动了一个文件，也仍然会对所有模块进行编译。因此可以得出结论，在生产环境下只开启 watch 配置后的再次构建<strong data-nodeid="29400">并不能</strong>实现增量构建。</p>
 <h4 data-nodeid="29286">cache 配置</h4>
 <p data-nodeid="36144" class="">仔细查阅 Webpack 的配置项文档，会在菜单最下方的“其他选项”一栏中找到 <a href="https://v4.webpack.js.org/configuration/other-options/#cache" data-nodeid="36148">cache</a> 选项（需要注意的是我们查阅的是 <strong data-nodeid="36162">Webpack 4 版本的文档</strong>，Webpack 5 中这一选项会有大的改变，会在下一节课中展开讨论）。这一选项的值有两种类型：布尔值和对象类型。一般情况下默认为<strong data-nodeid="36163">false</strong>，即不使用缓存，但在开发模式开启 watch 配置的情况下，cache 的默认值变更为<strong data-nodeid="36164">true</strong>。此外，如果 cache 传值为对象类型，则表示使用该对象来作为缓存对象，这往往用于多个编译器 compiler 的调用情况。</p>
 
-
-
 <p data-nodeid="37237">下面我们就来看一下，在生产模式下，如果watch 和 cache 都为 true，结果会如何（npm run build:watch-cache）？如下面的图片所示：</p>
 <p data-nodeid="38051" class=""><img src="https://s0.lgstatic.com/i/image/M00/57/0F/CgqCHl9sTuuAc0_4AAHBe2Lt3do732.png" alt="Drawing 4.png" data-nodeid="38054"><br>
 <img src="https://s0.lgstatic.com/i/image/M00/57/03/Ciqc1F9sTvCAY2NvAAEtJYxCA_8121.png" alt="Drawing 5.png" data-nodeid="38058"></p>
-
-
-
-
 
 <p data-nodeid="29291">正如我们所期望的，再次构建时，在编译模块阶段只对有变化的文件进行了重新编译，实现了<strong data-nodeid="29434">增量编译</strong>的效果。</p>
 <p data-nodeid="29292">但是美中不足的是，在优化阶段压缩代码时仍然耗费了较多的时间。这一点很容易理解：</p>
@@ -46,16 +31,11 @@
 <p data-nodeid="39945" class=""><img src="https://s0.lgstatic.com/i/image/M00/57/0F/CgqCHl9sTvqAP1oIAAG2kbb-DGY688.png" alt="Drawing 6.png" data-nodeid="39948"><br>
 <img src="https://s0.lgstatic.com/i/image/M00/57/0F/CgqCHl9sTv6AYxTKAAFAsmUEZMg953.png" alt="Drawing 7.png" data-nodeid="39952"></p>
 
-
-
-
-
 <p data-nodeid="29296">可以看到，通过上面这一系列的配置后（<strong data-nodeid="29452">watch + cache</strong>），在生产模式下，最终呈现出了我们期望的<strong data-nodeid="29453">增量构建</strong>效果：有文件发生变化时会自动编译变更的模块，并只对该模块影响到的少量 Chunk 进行优化并更新产物文件版本，而其他产物文件则保持之前的版本。如此，整个构建过程的速度大大提升。</p>
 <h3 data-nodeid="29297">增量构建的实现原理</h3>
 <p data-nodeid="29298">为什么在配置项中需要同时启用 watch 和 cache 配置才能获得增量构建的效果呢？接下来我们从源码层面分析。</p>
 <h4 data-nodeid="29299">watch 配置的作用</h4>
 <p data-nodeid="41049" class="">watch 配置的具体逻辑在 Webpack 的 <a href="https://github.com/webpack/webpack/blob/webpack-4/lib/Watching.js" data-nodeid="41053">Watching.js</a> 中。查看源码可以看到，在它构建相关的 _go 方法中，执行的依然是 compiler实例的 compile 方法，这一点与普通构建流程并无区别。真正的区别在于，在 watch 模式下，构建完成后并不自动退出，因此构建上下文的对象（包括前一次构建后的缓存数据对象）都可以保留在内存中，并在 rebuild 时重复使用，如下面的代码所示：</p>
-
 
 <pre class="lang-javascript" data-nodeid="29301"><code data-language="javascript">lib/Watching.js
 ...
@@ -71,9 +51,7 @@ _go() {
 </code></pre>
 <h4 data-nodeid="41601">cache 配置的作用</h4>
 
-
 <p data-nodeid="42697" class="">cache 配置的源码逻辑主要涉及两个文件：<a href="https://github.com/webpack/webpack/blob/webpack-4/lib/CachePlugin.js" data-nodeid="42701">CachePlugin.js</a> 和 <a href="https://github.com/webpack/webpack/blob/webpack-4/lib/Compilation.js" data-nodeid="42705">Compilation.js</a>。其中 CachePlugin.js 的核心作用是将该插件实例的 cache 属性传入 compilation 实例中，如下面的代码所示：</p>
-
 
 <pre class="lang-javascript" data-nodeid="29305"><code data-language="javascript">lib/CachePlugin.js
 ...
@@ -152,5 +130,3 @@ createChunkAssets() {
 ---
 
 ### 精选评论
-
-

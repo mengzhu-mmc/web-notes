@@ -41,7 +41,6 @@ process.nextTick, Promises, Object.observe, MutationObserver
 <p data-nodeid="2151" class="te-preview-highlight">总结起来就是：<strong data-nodeid="2161">一次 Eventloop 循环会处理一个宏任务和所有这次循环中产生的微任务</strong>。<br>
 <img src="https://s0.lgstatic.com/i/image6/M00/17/45/CioPOWBHbTWAFHeGAAU2r3znzGU909.png" alt="刘烨的js.png" data-nodeid="2160"></p>
 
-
 <p data-nodeid="1728">关于宏任务和微任务暂时先说到这里，更详细的内容我会在“21 | 引擎进阶（上）：探究宏任务&amp;微任务的运行机制”中详细讲解。</p>
 <p data-nodeid="1729">那么初步看完了浏览器中 Eventloop 的情况，我们再来看下在 Node.js 服务端的 Eventloop 是怎么运作的。</p>
 <h3 data-nodeid="1730">Node.js 的 Eventloop</h3>
@@ -108,42 +107,54 @@ process.nextTick, Promises, Object.observe, MutationObserver
 
 ### 精选评论
 
-##### **发：
+##### \*\*发：
+
 > 可以请问前三个图用的什么工具画的吗
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 画脑图的工具太多了，你可以网上搜一下，用什么都可以
 
-##### **峰：
+##### \*\*峰：
+
 > 这里得好好学习，学了很快忘记(ps:我模模糊糊的 没有认识到核心)
 
- ###### &nbsp;&nbsp;&nbsp; 编辑回复：
+###### &nbsp;&nbsp;&nbsp; 编辑回复：
+
 > &nbsp;&nbsp;&nbsp; 建议反复学习
 
-##### *锐：
+##### \*锐：
+
 > Node.js里面微任务Promise，是在每个阶段的宏任务执行完后执行，我记得Node11之后的版本，将setTimeout 和 setInterval和Promise微任务的执行和浏览器环境的统一了，是吗
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; Node.js 11Version 版本之后宏任务与微任务执行的顺序做出了改变
 
-##### **的小叶酱：
+##### \*\*的小叶酱：
+
 > 每一帧和每一次loop之间是对应关系吗，最后有点懵了
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 不一样，帧指的是浏览器渲染
 
-##### **生：
+##### \*\*生：
+
 > “Node.js 端只要轮到执行某个宏任务队列，则会执行完队列中所有的当前任务，但是当前轮次新添加到队尾的任务则会等到下一轮次才会执行”这一段中，“Node.js 端只要轮到执行某个宏任务队列”，“某个”是不是指每个事件循环阶段都会有一个宏任务队列，还是说是所有阶段都在一个宏任务队列中；而微任务又会在什么时机执行呢？
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 你理解的前者
 
-##### **用户4967：
+##### \*\*用户4967：
+
 > “我们知道浏览器作为一个复杂的应用是多线程工作的，除了运行 JS 的线程外，还有渲染线程、定时器触发线程、HTTP 请求线程，等等。JS 线程可以读取并且修改 DOM，而渲染线程也需要读取 DOM，这是一个典型的多线程竞争临界资源的问题。所以浏览器就把这两个线程设计成互斥的，即同时只能有一个线程在执行。”指正：JS是在JS引擎上执行，渲染是在渲染引擎上执行，定时器是由延迟队列维护，它们并不是单独的线程。
 
-##### **华：
+##### \*\*华：
+
 > Node.js 和浏览器端宏任务队列的另一个很重要的不同点是，浏览器端任务队列每轮事件循环仅出队一个回调函数接着去执行微任务队列；而 Node.js 端只要轮到执行某个宏任务队列，则会执行完队列中所有的当前任务，但是当前轮次新添加到队尾的任务则会等到下一轮次才会执行。这里的不是很能理解，什么是执行完队列中所有的当前任务?
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
-> &nbsp;&nbsp;&nbsp; Nodejs 每一次Eventloop会将当前loop中的微任务全部执行完，哪怕是半路加入的也算
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
 
+> &nbsp;&nbsp;&nbsp; Nodejs 每一次Eventloop会将当前loop中的微任务全部执行完，哪怕是半路加入的也算

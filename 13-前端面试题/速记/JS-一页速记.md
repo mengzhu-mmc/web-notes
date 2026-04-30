@@ -61,10 +61,10 @@
 
 ## 手写题骨架
 
-| 题 | 核心思路 |
-|---|---|
-| 防抖 | `setTimeout` + `clearTimeout`，最后一次触发后执行 |
-| 节流 | 时间戳或定时器，间隔内只执行一次 |
-| 深拷贝 | 递归 + Map 处理循环引用 + 特殊类型（Date/RegExp/Map/Set） |
-| Promise.all | 计数器，全部 resolve 才 resolve，任一 reject 就 reject |
-| instanceof | 沿 `__proto__` 链查找 `prototype` |
+| 题          | 核心思路                                                  |
+| ----------- | --------------------------------------------------------- |
+| 防抖        | `setTimeout` + `clearTimeout`，最后一次触发后执行         |
+| 节流        | 时间戳或定时器，间隔内只执行一次                          |
+| 深拷贝      | 递归 + Map 处理循环引用 + 特殊类型（Date/RegExp/Map/Set） |
+| Promise.all | 计数器，全部 resolve 才 resolve，任一 reject 就 reject    |
+| instanceof  | 沿 `__proto__` 链查找 `prototype`                         |

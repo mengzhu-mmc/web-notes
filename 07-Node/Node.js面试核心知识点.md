@@ -42,10 +42,10 @@ Node.js 事件循环的 6 个阶段（每个阶段都有一个 FIFO 队列）：
 // Node.js 中微任务在每个阶段切换时执行（Node 11+ 与浏览器行为一致）
 // 微任务优先级：process.nextTick > Promise.then > queueMicrotask
 
-setTimeout(() => console.log('timeout'), 0);
-setImmediate(() => console.log('immediate'));
-process.nextTick(() => console.log('nextTick'));
-Promise.resolve().then(() => console.log('promise'));
+setTimeout(() => console.log("timeout"), 0);
+setImmediate(() => console.log("immediate"));
+process.nextTick(() => console.log("nextTick"));
+Promise.resolve().then(() => console.log("promise"));
 
 // 输出顺序：nextTick → promise → timeout → immediate
 // （timeout 和 immediate 的顺序在主模块中不确定，但在 I/O 回调中 immediate 一定先于 timeout）
@@ -54,20 +54,19 @@ Promise.resolve().then(() => console.log('promise'));
 ### 1.3 经典面试题
 
 ```javascript
-const fs = require('fs');
+const fs = require("fs");
 
 // 在 I/O 回调中，setImmediate 一定先于 setTimeout
 fs.readFile(__filename, () => {
-  setTimeout(() => console.log('timeout'), 0);
-  setImmediate(() => console.log('immediate'));
+  setTimeout(() => console.log("timeout"), 0);
+  setImmediate(() => console.log("immediate"));
 });
 // 输出：immediate → timeout
 // 原因：I/O 回调在 poll 阶段执行，执行完后进入 check 阶段（setImmediate），
 //       然后才是下一轮的 timers 阶段（setTimeout）
 ```
 
-> [!tip] 面试回答要点
-> 浏览器的事件循环是"一个宏任务 → 清空所有微任务 → 渲染 → 下一个宏任务"。Node.js（11+）也是每执行一个宏任务就清空微任务，但它有 6 个阶段，且有 `process.nextTick`（优先级高于 Promise）和 `setImmediate`（check 阶段）这两个浏览器没有的 API。
+> [!tip] 面试回答要点浏览器的事件循环是"一个宏任务 → 清空所有微任务 → 渲染 → 下一个宏任务"。Node.js（11+）也是每执行一个宏任务就清空微任务，但它有 6 个阶段，且有 `process.nextTick`（优先级高于 Promise）和 `setImmediate`（check 阶段）这两个浏览器没有的 API。
 
 ---
 
@@ -75,14 +74,14 @@ fs.readFile(__filename, () => {
 
 ### 2.1 CommonJS 与 ES Module 的区别
 
-| 维度 | CommonJS (require) | ES Module (import) |
-|------|-------------------|-------------------|
-| 加载时机 | 运行时加载 | 编译时静态分析 |
-| 输出 | 值的拷贝（修改不影响原模块） | 值的引用（实时绑定） |
-| 循环依赖 | 返回已执行部分的导出 | 通过引用可以获取最终值 |
-| this 指向 | 指向当前模块的 exports | undefined |
-| 顶层 await | 不支持 | 支持（Node 14.8+） |
-| Tree Shaking | 不支持（动态结构） | 支持（静态结构） |
+| 维度         | CommonJS (require)           | ES Module (import)     |
+| ------------ | ---------------------------- | ---------------------- |
+| 加载时机     | 运行时加载                   | 编译时静态分析         |
+| 输出         | 值的拷贝（修改不影响原模块） | 值的引用（实时绑定）   |
+| 循环依赖     | 返回已执行部分的导出         | 通过引用可以获取最终值 |
+| this 指向    | 指向当前模块的 exports       | undefined              |
+| 顶层 await   | 不支持                       | 支持（Node 14.8+）     |
+| Tree Shaking | 不支持（动态结构）           | 支持（静态结构）       |
 
 ### 2.2 require 的加载机制
 
@@ -104,7 +103,7 @@ fs.readFile(__filename, () => {
 // 4. 返回 module.exports
 
 // 模块包裹函数（这就是为什么模块中能用 __dirname 等变量）
-(function(exports, require, module, __filename, __dirname) {
+(function (exports, require, module, __filename, __dirname) {
   // 你的模块代码
 });
 ```
@@ -113,20 +112,20 @@ fs.readFile(__filename, () => {
 
 ```javascript
 // a.js
-console.log('a 开始');
+console.log("a 开始");
 exports.done = false;
-const b = require('./b.js'); // 此时去加载 b
-console.log('在 a 中，b.done =', b.done);
+const b = require("./b.js"); // 此时去加载 b
+console.log("在 a 中，b.done =", b.done);
 exports.done = true;
-console.log('a 结束');
+console.log("a 结束");
 
 // b.js
-console.log('b 开始');
+console.log("b 开始");
 exports.done = false;
-const a = require('./a.js'); // a 还没执行完，返回已执行部分的 exports
-console.log('在 b 中，a.done =', a.done); // false（a 只执行了一半）
+const a = require("./a.js"); // a 还没执行完，返回已执行部分的 exports
+console.log("在 b 中，a.done =", a.done); // false（a 只执行了一半）
 exports.done = true;
-console.log('b 结束');
+console.log("b 结束");
 
 // 执行 node a.js 输出：
 // a 开始 → b 开始 → 在 b 中，a.done = false → b 结束 → 在 a 中，b.done = true → a 结束
@@ -139,7 +138,7 @@ console.log('b 结束');
 ### 3.1 四种基本流类型
 
 ```javascript
-const { Readable, Writable, Transform, Duplex } = require('stream');
+const { Readable, Writable, Transform, Duplex } = require("stream");
 
 // Readable  - 可读流（数据源）：fs.createReadStream、http.IncomingMessage
 // Writable  - 可写流（数据目标）：fs.createWriteStream、http.ServerResponse
@@ -151,13 +150,13 @@ const { Readable, Writable, Transform, Duplex } = require('stream');
 
 ```javascript
 // ❌ 不用 Stream：一次性读入内存，大文件会导致内存溢出
-const fs = require('fs');
-const data = fs.readFileSync('huge-file.csv'); // 假设 2GB，直接 OOM
+const fs = require("fs");
+const data = fs.readFileSync("huge-file.csv"); // 假设 2GB，直接 OOM
 processData(data);
 
 // ✅ 用 Stream：分块处理，内存占用恒定
-const readStream = fs.createReadStream('huge-file.csv');
-const writeStream = fs.createWriteStream('output.csv');
+const readStream = fs.createReadStream("huge-file.csv");
+const writeStream = fs.createWriteStream("output.csv");
 
 readStream
   .pipe(transformStream) // 管道：可读流 → 转换流 → 可写流
@@ -170,7 +169,7 @@ readStream
 ### 3.3 手写一个 Transform 流
 
 ```javascript
-const { Transform } = require('stream');
+const { Transform } = require("stream");
 
 // 将输入的文本转为大写
 class UpperCaseTransform extends Transform {
@@ -183,15 +182,13 @@ class UpperCaseTransform extends Transform {
 
   _flush(callback) {
     // 流结束前的最后处理（可选）
-    this.push('\n--- END ---\n');
+    this.push("\n--- END ---\n");
     callback();
   }
 }
 
 // 使用
-process.stdin
-  .pipe(new UpperCaseTransform())
-  .pipe(process.stdout);
+process.stdin.pipe(new UpperCaseTransform()).pipe(process.stdout);
 ```
 
 ---
@@ -202,24 +199,24 @@ process.stdin
 
 ```javascript
 // Express 中间件是线性执行的，通过 next() 传递控制权
-const express = require('express');
+const express = require("express");
 const app = express();
 
 // 中间件本质：(req, res, next) => void
 app.use((req, res, next) => {
-  console.log('中间件1 - 开始');
+  console.log("中间件1 - 开始");
   next(); // 调用下一个中间件
-  console.log('中间件1 - 结束'); // next() 后的代码在后续中间件执行完后才执行
+  console.log("中间件1 - 结束"); // next() 后的代码在后续中间件执行完后才执行
 });
 
 app.use((req, res, next) => {
-  console.log('中间件2 - 开始');
+  console.log("中间件2 - 开始");
   next();
-  console.log('中间件2 - 结束');
+  console.log("中间件2 - 结束");
 });
 
-app.get('/', (req, res) => {
-  res.send('Hello');
+app.get("/", (req, res) => {
+  res.send("Hello");
 });
 
 // 请求 / 时输出：
@@ -230,24 +227,24 @@ app.get('/', (req, res) => {
 
 ```javascript
 // Koa 的中间件基于 async/await，形成"洋葱模型"
-const Koa = require('koa');
+const Koa = require("koa");
 const app = new Koa();
 
 app.use(async (ctx, next) => {
-  console.log('1 - 进入');
+  console.log("1 - 进入");
   await next();
-  console.log('1 - 离开');
+  console.log("1 - 离开");
 });
 
 app.use(async (ctx, next) => {
-  console.log('2 - 进入');
+  console.log("2 - 进入");
   await next();
-  console.log('2 - 离开');
+  console.log("2 - 离开");
 });
 
 app.use(async (ctx) => {
-  console.log('3 - 核心处理');
-  ctx.body = 'Hello';
+  console.log("3 - 核心处理");
+  ctx.body = "Hello";
 });
 
 // 输出：1-进入 → 2-进入 → 3-核心处理 → 2-离开 → 1-离开
@@ -262,7 +259,7 @@ function compose(middlewares) {
     let index = -1;
 
     function dispatch(i) {
-      if (i <= index) return Promise.reject(new Error('next() 被多次调用'));
+      if (i <= index) return Promise.reject(new Error("next() 被多次调用"));
       index = i;
 
       const fn = middlewares[i];
@@ -281,8 +278,7 @@ function compose(middlewares) {
 }
 ```
 
-> [!important] 面试高频
-> Express 和 Koa 中间件的区别：Express 基于回调，Koa 基于 async/await。Koa 的洋葱模型让每个中间件都能在 next() 前后执行逻辑（比如计算请求耗时），Express 虽然 next() 后也能写代码，但不如 Koa 直观。
+> [!important] 面试高频 Express 和 Koa 中间件的区别：Express 基于回调，Koa 基于 async/await。Koa 的洋葱模型让每个中间件都能在 next() 前后执行逻辑（比如计算请求耗时），Express 虽然 next() 后也能写代码，但不如 Koa 直观。
 
 ---
 
@@ -291,37 +287,37 @@ function compose(middlewares) {
 ### 5.1 child_process（子进程）
 
 ```javascript
-const { exec, spawn, fork } = require('child_process');
+const { exec, spawn, fork } = require("child_process");
 
 // exec：执行 shell 命令，缓冲输出（适合短命令）
-exec('ls -la', (err, stdout, stderr) => {
+exec("ls -la", (err, stdout, stderr) => {
   console.log(stdout);
 });
 
 // spawn：流式处理，适合长时间运行的进程
-const child = spawn('node', ['heavy-task.js']);
-child.stdout.on('data', (data) => console.log(`输出: ${data}`));
-child.on('close', (code) => console.log(`退出码: ${code}`));
+const child = spawn("node", ["heavy-task.js"]);
+child.stdout.on("data", (data) => console.log(`输出: ${data}`));
+child.on("close", (code) => console.log(`退出码: ${code}`));
 
 // fork：专门用于创建 Node.js 子进程，内置 IPC 通信
 // parent.js
-const child = fork('./worker.js');
-child.send({ type: 'start', data: [1, 2, 3] }); // 发送消息
-child.on('message', (msg) => console.log('收到:', msg)); // 接收消息
+const child = fork("./worker.js");
+child.send({ type: "start", data: [1, 2, 3] }); // 发送消息
+child.on("message", (msg) => console.log("收到:", msg)); // 接收消息
 
 // worker.js
-process.on('message', (msg) => {
+process.on("message", (msg) => {
   const result = msg.data.reduce((a, b) => a + b, 0);
-  process.send({ type: 'result', data: result }); // 回传结果
+  process.send({ type: "result", data: result }); // 回传结果
 });
 ```
 
 ### 5.2 Cluster 模块（多进程集群）
 
 ```javascript
-const cluster = require('cluster');
-const http = require('http');
-const numCPUs = require('os').cpus().length;
+const cluster = require("cluster");
+const http = require("http");
+const numCPUs = require("os").cpus().length;
 
 if (cluster.isMaster) {
   console.log(`主进程 ${process.pid} 启动`);
@@ -332,16 +328,18 @@ if (cluster.isMaster) {
   }
 
   // 工作进程退出后自动重启
-  cluster.on('exit', (worker, code, signal) => {
+  cluster.on("exit", (worker, code, signal) => {
     console.log(`工作进程 ${worker.process.pid} 退出，重新启动...`);
     cluster.fork();
   });
 } else {
   // 工作进程共享同一个 TCP 端口
-  http.createServer((req, res) => {
-    res.writeHead(200);
-    res.end(`由进程 ${process.pid} 处理\n`);
-  }).listen(8000);
+  http
+    .createServer((req, res) => {
+      res.writeHead(200);
+      res.end(`由进程 ${process.pid} 处理\n`);
+    })
+    .listen(8000);
 
   console.log(`工作进程 ${process.pid} 启动`);
 }
@@ -360,14 +358,14 @@ if (cluster.isMaster) {
 // Buffer 是 Node.js 中处理二进制数据的类，类似于整数数组但大小固定
 
 // 创建
-const buf1 = Buffer.alloc(10);           // 10 字节，初始化为 0
-const buf2 = Buffer.from('hello');       // 从字符串创建
+const buf1 = Buffer.alloc(10); // 10 字节，初始化为 0
+const buf2 = Buffer.from("hello"); // 从字符串创建
 const buf3 = Buffer.from([0x68, 0x65]); // 从数组创建
 
 // 编码转换
-const buf = Buffer.from('你好', 'utf-8');
-console.log(buf.toString('base64'));  // '5L2g5aW9'
-console.log(buf.toString('hex'));     // 'e4bda0e5a5bd'
+const buf = Buffer.from("你好", "utf-8");
+console.log(buf.toString("base64")); // '5L2g5aW9'
+console.log(buf.toString("hex")); // 'e4bda0e5a5bd'
 
 // Buffer 与 Stream 的关系：
 // Stream 中传输的 chunk 默认就是 Buffer
@@ -380,32 +378,32 @@ console.log(buf.toString('hex'));     // 'e4bda0e5a5bd'
 
 ```javascript
 // path - 路径处理（跨平台安全）
-const path = require('path');
-path.join('/foo', 'bar', 'baz');     // '/foo/bar/baz'
-path.resolve('foo', 'bar');          // '/当前工作目录/foo/bar'（返回绝对路径）
-path.basename('/foo/bar/baz.js');    // 'baz.js'
-path.extname('index.html');          // '.html'
-path.dirname('/foo/bar/baz');        // '/foo/bar'
+const path = require("path");
+path.join("/foo", "bar", "baz"); // '/foo/bar/baz'
+path.resolve("foo", "bar"); // '/当前工作目录/foo/bar'（返回绝对路径）
+path.basename("/foo/bar/baz.js"); // 'baz.js'
+path.extname("index.html"); // '.html'
+path.dirname("/foo/bar/baz"); // '/foo/bar'
 
 // fs - 文件系统（推荐用 promises API）
-const fs = require('fs/promises');
-await fs.readFile('file.txt', 'utf-8');
-await fs.writeFile('file.txt', 'content');
-await fs.mkdir('dir', { recursive: true });
-await fs.readdir('dir');
+const fs = require("fs/promises");
+await fs.readFile("file.txt", "utf-8");
+await fs.writeFile("file.txt", "content");
+await fs.mkdir("dir", { recursive: true });
+await fs.readdir("dir");
 
 // events - 事件发射器
-const EventEmitter = require('events');
+const EventEmitter = require("events");
 class MyEmitter extends EventEmitter {}
 const emitter = new MyEmitter();
-emitter.on('data', (payload) => console.log(payload));
-emitter.emit('data', { msg: 'hello' });
+emitter.on("data", (payload) => console.log(payload));
+emitter.emit("data", { msg: "hello" });
 
 // http - HTTP 服务
-const http = require('http');
+const http = require("http");
 const server = http.createServer((req, res) => {
-  res.writeHead(200, { 'Content-Type': 'application/json' });
-  res.end(JSON.stringify({ status: 'ok' }));
+  res.writeHead(200, { "Content-Type": "application/json" });
+  res.end(JSON.stringify({ status: "ok" }));
 });
 server.listen(3000);
 ```

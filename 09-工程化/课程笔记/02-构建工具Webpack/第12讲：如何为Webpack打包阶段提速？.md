@@ -1,9 +1,6 @@
 <p data-nodeid="1529">上节课我们聊了 Webpack 构建流程中第一阶段，也就是编译模块阶段的提效方案，这些方案可以归为三个不同的优化方向。不知道大家课后有没有对照分析自己在项目里用到了其中的哪些方案呢？</p>
 <p data-nodeid="4263">今天我们就来继续聊聊 Webpack 构建流程中的第二个阶段，也就是从代码优化到生成产物阶段的效率提升问题（这节课的示例代码参照 <a href="https://github.com/fe-efficiency/lessons_fe_efficiency/tree/master/12_optimize_efficiency" data-nodeid="4273">[12_optimize_efficiency]</a>）。</p>
 
-
-
-
 <h3 data-nodeid="1531">准备分析工具</h3>
 <p data-nodeid="1532">同上节课一样，在分析优化阶段的提效方案之前，我们还是需要先来准备一个分析统计时间的工具。但不同的是，在优化阶段对应的生命周期 Hooks 有很多（参照第 10 讲中的内容）。因此在编写统计插件时，我们要将需要统计的 Hooks 划分为不同区间，如下面的代码所示：</p>
 <pre class="lang-javascript" data-nodeid="1533"><code data-language="javascript">WebpackTimingPlugin.js:
@@ -154,9 +151,10 @@ optimization: {
 
 ### 精选评论
 
-##### **旭：
+##### \*\*旭：
+
 > 楼上的你这。。。dll和externals本质上就是拿空间换时间来提升编译效率，如果你在Vue中用了全家桶，那就提前把Vue、Vue-router、Vuex这些第三方库全部提前打包成所谓的dll，通过mainfest.json映射关系来告知webpack引用缓存，不存在使打包页面体积变小的概念，这是另外一个概念吧
 
-##### *聪：
-> 使用上节课中dll和externals的方式优化项目中最大的打包页面，从7.55M降低到了4.31M，下降了42.9%，效果还是立竿见影的😀
+##### \*聪：
 
+> 使用上节课中dll和externals的方式优化项目中最大的打包页面，从7.55M降低到了4.31M，下降了42.9%，效果还是立竿见影的😀

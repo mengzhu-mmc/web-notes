@@ -270,18 +270,22 @@ util.inherits(MyEmitter, EventEmitter);
 
 ### 精选评论
 
-##### **阳：
+##### \*\*阳：
+
 > 本文讲得有的迷糊，没有抓住核心要点：1.process. nexttick()的回调函数会在执行完本调用栈的方法后，执行微服务前，执行。2.vue nexttick会在dom更新后，执行。
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 你这么表述也是可以的
 
-##### **楷：
+##### \*\*楷：
+
 > "因为它允许用户递归调用 Process.nextick 来挂起 I/O 进程的进行" 这句话不太理解意思..
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 描述很清晰呀
 
-##### **山：
-> vue.nextTick 简单的理解就是同步代码执行 -就把它推入执行栈，然后执行 ， 就这样周而复始。
+##### \*\*山：
 
+> vue.nextTick 简单的理解就是同步代码执行 -就把它推入执行栈，然后执行 ， 就这样周而复始。

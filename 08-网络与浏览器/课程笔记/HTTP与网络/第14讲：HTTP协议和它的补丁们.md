@@ -17,12 +17,6 @@ HTTP/1.0 通信示意图</p>
 <p data-nodeid="6729" class="te-preview-highlight"><img src="https://s0.lgstatic.com/i/image6/M00/25/12/CioPOWBZVcaAHzMkAAGcRfuscWM964.png" alt="2.png" data-nodeid="6732"><br>
 HTTP/1.1 通信示意图</p>
 
-
-
-
-
-
-
 <h3 data-nodeid="4352">延伸 1：TCP 是怎样建立/断开连接的？</h3>
 <p data-nodeid="4353">因为 HTTP 是基于 TCP 实现的，所以这里扩展一下 TCP 建立连接以及断开连接的过程，也就是常常被提的“三次握手”和“四次挥手”。</p>
 <h4 data-nodeid="4354">三次握手</h4>
@@ -141,22 +135,26 @@ HTTP/2 通信示意图</p>
 
 ### 精选评论
 
-##### *道：
+##### \*道：
+
 > 思考题：可以使用 SSE Server-Sent Events，还有 web socket 之类方案。
 
-##### *聪：
+##### \*聪：
+
 > HTTP2有主动将数据推送给客户端的功能吧？还有websocket
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
-> &nbsp;&nbsp;&nbsp; HTTP/2 支持服务端推送。
-websocket 作为一种全双工协议，具有推送功能，它依赖HTTP但不同于HTTP，所以本讲没有介绍。
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
 
-##### **辉：
+> &nbsp;&nbsp;&nbsp; HTTP/2 支持服务端推送。websocket 作为一种全双工协议，具有推送功能，它依赖HTTP但不同于HTTP，所以本讲没有介绍。
+
+##### \*\*辉：
+
 > HTTP/3 会丢包么？怎么解呢？
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 客户端通过发送ACK报文确认收到，服务端超过时间未收到ACK视为丢包。有兴趣可以查看这篇文章：https://quic-lr-draft-zh.readthedocs.io/zh_CN/latest/An%20Overview%20of%20QUIC%20Loss%20Recovery.html
 
-##### *杰：
-> http3涨姿势了
+##### \*杰：
 
+> http3涨姿势了

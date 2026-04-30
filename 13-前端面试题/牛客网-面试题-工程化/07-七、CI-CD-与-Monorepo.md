@@ -26,41 +26,41 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - uses: pnpm/action-setup@v2
         with: { version: 8 }
-      
+
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'pnpm'  # 缓存 pnpm store，加速安装
-      
+          node-version: "20"
+          cache: "pnpm" # 缓存 pnpm store，加速安装
+
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile  # CI 用 frozen，防止意外升级
-      
+        run: pnpm install --frozen-lockfile # CI 用 frozen，防止意外升级
+
       - name: Lint
-        run: pnpm lint  # ESLint + StyleLint
-      
+        run: pnpm lint # ESLint + StyleLint
+
       - name: Type check
-        run: pnpm tsc --noEmit  # TypeScript 类型检查
-  
+        run: pnpm tsc --noEmit # TypeScript 类型检查
+
   # ② 测试（单元测试 + 集成测试）
   test:
     runs-on: ubuntu-latest
-    needs: lint-and-typecheck  # 依赖上一个 job 成功
+    needs: lint-and-typecheck # 依赖上一个 job 成功
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v2
       - run: pnpm install --frozen-lockfile
-      
+
       - name: Unit tests
-        run: pnpm test --coverage  # Vitest / Jest
-      
+        run: pnpm test --coverage # Vitest / Jest
+
       - name: Upload coverage
         uses: codecov/codecov-action@v3
         with:
           files: ./coverage/lcov.info
-  
+
   # ③ 构建（生产 build，验证构建无误）
   build:
     runs-on: ubuntu-latest
@@ -69,27 +69,27 @@ jobs:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v2
       - run: pnpm install --frozen-lockfile
-      
+
       - name: Build
         run: pnpm build
         env:
-          VITE_API_URL: ${{ secrets.PROD_API_URL }}  # 注入环境变量
-      
+          VITE_API_URL: ${{ secrets.PROD_API_URL }} # 注入环境变量
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: dist
           path: dist/
-  
+
   # ④ 部署（只在 main 分支触发）
   deploy:
     runs-on: ubuntu-latest
     needs: build
-    if: github.ref == 'refs/heads/main'  # 只在 main 分支部署
+    if: github.ref == 'refs/heads/main' # 只在 main 分支部署
     steps:
       - uses: actions/download-artifact@v4
         with: { name: dist }
-      
+
       - name: Deploy to CDN
         run: |
           aws s3 sync ./dist s3://my-bucket --delete
@@ -141,6 +141,7 @@ E2E 测试（端到端测试）：模拟真实用户操作
 **为什么 CI/CD 对前端至关重要：**
 
 前端代码直接面向用户，错误代码立即影响用户体验。CI/CD 构建的"保护网"可以在代码合并前发现：
+
 - 类型错误（TypeScript）
 - 代码规范问题（ESLint）
 - 逻辑错误（单元测试）
@@ -215,9 +216,9 @@ Monorepo（单仓库多包）：
 ```yaml
 # pnpm-workspace.yaml（仓库根目录）
 packages:
-  - 'packages/*'    # packages/ 下所有目录
-  - 'apps/*'        # apps/ 下所有目录
-  - '!**/__tests__' # 排除测试目录
+  - "packages/*" # packages/ 下所有目录
+  - "apps/*" # apps/ 下所有目录
+  - "!**/__tests__" # 排除测试目录
 ```
 
 ```json
@@ -254,8 +255,8 @@ pnpm -r run build                     # 递归运行所有包的 build 命令
   "$schema": "https://turbo.build/schema.json",
   "pipeline": {
     "build": {
-      "dependsOn": ["^build"],  // ^表示先等依赖包的 build 完成
-      "outputs": ["dist/**"],   // 缓存的产物（构建结果）
+      "dependsOn": ["^build"], // ^表示先等依赖包的 build 完成
+      "outputs": ["dist/**"], // 缓存的产物（构建结果）
       "cache": true
     },
     "test": {
@@ -264,11 +265,11 @@ pnpm -r run build                     # 递归运行所有包的 build 命令
       "cache": true
     },
     "lint": {
-      "outputs": [],  // lint 无产物，但结果可缓存
+      "outputs": [], // lint 无产物，但结果可缓存
       "cache": true
     },
     "dev": {
-      "cache": false,    // dev 命令不缓存
+      "cache": false, // dev 命令不缓存
       "persistent": true // 持久运行（watch 模式）
     }
   }
@@ -346,7 +347,7 @@ packages:
   utils    → (无依赖)
   web      → 依赖 ui, utils
   mobile   → 依赖 ui, utils
-  
+
 "build": { "dependsOn": ["^build"] }
 → 构建 web 前，必须先完成 ui.build 和 utils.build
 

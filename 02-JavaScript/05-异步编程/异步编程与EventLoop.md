@@ -49,19 +49,19 @@ JS 引擎维护一个调用栈（Call Stack）和多个任务队列。执行流�
 ### 经典面试题
 
 ```js
-console.log('1')
+console.log("1");
 
 setTimeout(() => {
-  console.log('2')
-  Promise.resolve().then(() => console.log('3'))
-}, 0)
+  console.log("2");
+  Promise.resolve().then(() => console.log("3"));
+}, 0);
 
 Promise.resolve().then(() => {
-  console.log('4')
-  setTimeout(() => console.log('5'), 0)
-})
+  console.log("4");
+  setTimeout(() => console.log("5"), 0);
+});
 
-console.log('6')
+console.log("6");
 
 // 输出：1 → 6 → 4 → 2 → 3 → 5
 ```
@@ -74,17 +74,17 @@ console.log('6')
 
 ```js
 async function foo() {
-  console.log('a')
-  await bar()
-  console.log('b')  // 相当于 bar().then(() => console.log('b'))
+  console.log("a");
+  await bar();
+  console.log("b"); // 相当于 bar().then(() => console.log('b'))
 }
 
 async function bar() {
-  console.log('c')
+  console.log("c");
 }
 
-foo()
-console.log('d')
+foo();
+console.log("d");
 
 // 输出：a → c → d → b
 ```
@@ -102,13 +102,13 @@ console.log('d')
 ```js
 const p = new Promise((resolve, reject) => {
   // resolve 和 reject 只有第一次调用有效
-  resolve('成功')
-  reject('失败')  // 无效，状态已经变为 fulfilled
-})
+  resolve("成功");
+  reject("失败"); // 无效，状态已经变为 fulfilled
+});
 
-p.then(value => console.log(value))   // '成功'
- .catch(err => console.log(err))      // 不会执行
- .finally(() => console.log('完成'))   // 总会执行
+p.then((value) => console.log(value)) // '成功'
+  .catch((err) => console.log(err)) // 不会执行
+  .finally(() => console.log("完成")); // 总会执行
 ```
 
 关键点：Promise 构造函数中的代码是同步执行的，`.then` 中的回调才是微任务。
@@ -118,12 +118,12 @@ p.then(value => console.log(value))   // '成功'
 `.then()` 返回一个新的 Promise，因此可以链式调用。回调中 return 的值会作为下一个 `.then` 的参数；如果 return 一个 Promise，则等待该 Promise 决议后再继续：
 
 ```js
-fetch('/api/user')
-  .then(res => res.json())           // return Promise
-  .then(data => data.id)             // return 普通值
-  .then(id => fetch(`/api/posts/${id}`))
-  .then(res => res.json())
-  .catch(err => console.error(err))  // 捕获链中任意位置的错误
+fetch("/api/user")
+  .then((res) => res.json()) // return Promise
+  .then((data) => data.id) // return 普通值
+  .then((id) => fetch(`/api/posts/${id}`))
+  .then((res) => res.json())
+  .catch((err) => console.error(err)); // 捕获链中任意位置的错误
 ```
 
 最佳实践：始终使用 `.catch()` 而不是 `.then(null, onRejected)`，因为 `.catch` 能捕获前面所有 `.then` 中的错误。
@@ -132,22 +132,22 @@ fetch('/api/user')
 
 ```js
 // 全部成功才成功，一个失败就失败
-Promise.all([p1, p2, p3]).then(([r1, r2, r3]) => {})
+Promise.all([p1, p2, p3]).then(([r1, r2, r3]) => {});
 
 // 全部决议（无论成功失败），返回每个结果的状态和值
-Promise.allSettled([p1, p2]).then(results => {
+Promise.allSettled([p1, p2]).then((results) => {
   // [{status: 'fulfilled', value: ...}, {status: 'rejected', reason: ...}]
-})
+});
 
 // 谁先决议用谁的结果
-Promise.race([p1, p2]).then(fastest => {})
+Promise.race([p1, p2]).then((fastest) => {});
 
 // 谁先成功用谁，全部失败才失败（ES2021）
-Promise.any([p1, p2]).then(firstSuccess => {})
+Promise.any([p1, p2]).then((firstSuccess) => {});
 
 // 快捷创建
-Promise.resolve(value)  // 创建一个 fulfilled 的 Promise
-Promise.reject(reason)  // 创建一个 rejected 的 Promise
+Promise.resolve(value); // 创建一个 fulfilled 的 Promise
+Promise.reject(reason); // 创建一个 rejected 的 Promise
 ```
 
 ### Promise.all vs Promise.allSettled 的选择
@@ -166,20 +166,20 @@ Promise.reject(reason)  // 创建一个 rejected 的 Promise
 // 旧写法：手动 Promise.race
 function withTimeout(promise, ms) {
   const timeout = new Promise((_, reject) =>
-    setTimeout(() => reject(new Error('Timeout')), ms)
-  )
-  return Promise.race([promise, timeout])
+    setTimeout(() => reject(new Error("Timeout")), ms),
+  );
+  return Promise.race([promise, timeout]);
 }
 
 // ✅ 新写法：AbortSignal.timeout
 try {
-  const res = await fetch('/api/data', {
-    signal: AbortSignal.timeout(5000) // 5 秒超时
-  })
-  const data = await res.json()
+  const res = await fetch("/api/data", {
+    signal: AbortSignal.timeout(5000), // 5 秒超时
+  });
+  const data = await res.json();
 } catch (err) {
-  if (err.name === 'TimeoutError') {
-    console.log('请求超时')
+  if (err.name === "TimeoutError") {
+    console.log("请求超时");
   }
 }
 ```
@@ -190,20 +190,20 @@ try {
 
 ```js
 // JSON 方案的缺陷
-const obj = { date: new Date(), map: new Map([['key', 1]]), fn: () => {} }
-const bad = JSON.parse(JSON.stringify(obj))
+const obj = { date: new Date(), map: new Map([["key", 1]]), fn: () => {} };
+const bad = JSON.parse(JSON.stringify(obj));
 // bad.date → 字符串（不是 Date 对象）
 // bad.map  → {} （Map 丢失）
 // bad.fn   → undefined（函数丢失）
 
 // ✅ structuredClone：支持 Date/Map/Set/RegExp/ArrayBuffer/Blob，支持循环引用
-const good = structuredClone(obj) // 注意：函数仍然会抛出错误
-good.date instanceof Date   // true ✅
-good.map instanceof Map     // true ✅
+const good = structuredClone(obj); // 注意：函数仍然会抛出错误
+good.date instanceof Date; // true ✅
+good.map instanceof Map; // true ✅
 
 // 不支持的类型（会抛出 DataCloneError）
-structuredClone({ fn: () => {} }) // ❌ 函数不支持
-structuredClone(document.body)    // ❌ DOM 节点不支持
+structuredClone({ fn: () => {} }); // ❌ 函数不支持
+structuredClone(document.body); // ❌ DOM 节点不支持
 ```
 
 详见：[深拷贝方案对比.md](../深拷贝方案对比.md)
@@ -218,27 +218,27 @@ structuredClone(document.body)    // ❌ DOM 节点不支持
 
 ```js
 async function asyncPool(limit, items, fn) {
-  const results = []
-  const executing = new Set()
-  
+  const results = [];
+  const executing = new Set();
+
   for (const item of items) {
-    const p = Promise.resolve().then(() => fn(item))
-    results.push(p)
-    executing.add(p)
-    
-    const clean = () => executing.delete(p)
-    p.then(clean, clean)
-    
+    const p = Promise.resolve().then(() => fn(item));
+    results.push(p);
+    executing.add(p);
+
+    const clean = () => executing.delete(p);
+    p.then(clean, clean);
+
     if (executing.size >= limit) {
-      await Promise.race(executing)
+      await Promise.race(executing);
     }
   }
-  
-  return Promise.all(results)
+
+  return Promise.all(results);
 }
 
 // 使用：最多同时 3 个请求
-await asyncPool(3, urls, url => fetch(url))
+await asyncPool(3, urls, (url) => fetch(url));
 ```
 
 接收任务函数数组（而非数据 + 转换函数）的写法：
@@ -264,7 +264,7 @@ async function concurrentControl(tasks, limit) {
 }
 
 // 使用示例
-const tasks = urls.map(url => () => fetch(url).then(r => r.json()));
+const tasks = urls.map((url) => () => fetch(url).then((r) => r.json()));
 const results = await concurrentControl(tasks, 3); // 最多同时 3 个
 ```
 
@@ -273,13 +273,13 @@ const results = await concurrentControl(tasks, 3); // 最多同时 3 个
 ```js
 function withTimeout(promise, ms) {
   const timeout = new Promise((_, reject) =>
-    setTimeout(() => reject(new Error('Timeout')), ms)
-  )
-  return Promise.race([promise, timeout])
+    setTimeout(() => reject(new Error("Timeout")), ms),
+  );
+  return Promise.race([promise, timeout]);
 }
 
 // 使用：5 秒超时
-const data = await withTimeout(fetch('/api/data'), 5000)
+const data = await withTimeout(fetch("/api/data"), 5000);
 ```
 
 ### 错误重试
@@ -288,14 +288,14 @@ const data = await withTimeout(fetch('/api/data'), 5000)
 async function retry(fn, retries = 3, delay = 1000) {
   for (let i = 0; i < retries; i++) {
     try {
-      return await fn()
+      return await fn();
     } catch (err) {
-      if (i === retries - 1) throw err
-      await new Promise(r => setTimeout(r, delay * (i + 1)))
+      if (i === retries - 1) throw err;
+      await new Promise((r) => setTimeout(r, delay * (i + 1)));
     }
   }
 }
 
 // 使用：最多重试 3 次，间隔递增
-const data = await retry(() => fetch('/api/data').then(r => r.json()))
+const data = await retry(() => fetch("/api/data").then((r) => r.json()));
 ```

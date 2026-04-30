@@ -5,21 +5,10 @@
 <pre class="lang-java" data-nodeid="1281"><code data-language="java">import React from "react";
 import ReactDOM from "react-dom";
 
-function App() {
-    return (
-      &lt;div className="App"&gt;
-        &lt;div className="container"&gt;
-          &lt;h1&gt;我是标题&lt;/h1&gt;
-          &lt;p&gt;我是第一段话&lt;/p&gt;
-          &lt;p&gt;我是第二段话&lt;/p&gt;
-        &lt;/div&gt;
-      &lt;/div&gt;
-    );
-}
+function App() { return ( &lt;div className="App"&gt; &lt;div className="container"&gt; &lt;h1&gt;我是标题&lt;/h1&gt; &lt;p&gt;我是第一段话&lt;/p&gt; &lt;p&gt;我是第二段话&lt;/p&gt; &lt;/div&gt; &lt;/div&gt; ); }
 
-const rootElement = document.getElementById("root");
-ReactDOM.render(&lt;App /&gt;, rootElement);
-</code></pre>
+const rootElement = document.getElementById("root"); ReactDOM.render(&lt;App /&gt;, rootElement); </code></pre>
+
 <p data-nodeid="1282">Demo 启动后，渲染出的界面如下图所示：</p>
 <p data-nodeid="1283"><img src="https://s0.lgstatic.com/i/image/M00/6E/D9/CgqCHl-zmEOAGbJ5AAAxGM0SPWA261.png" alt="Drawing 0.png" data-nodeid="1379"></p>
 <p data-nodeid="1284">现在请你打开 Chrome 的 Performance 面板，点击下图红色圈圈所圈住的这个“记录”按钮：</p>
@@ -78,22 +67,13 @@ ReactDOM.render(&lt;App /&gt;, rootElement);
     unbatchedUpdates(function () {
       updateContainer(children, fiberRoot, parentComponent, callback);
     });
-  } <span class="hljs-keyword">else</span> {
-    <span class="hljs-comment">// else 逻辑处理的是非首次渲染的情况（即更新），其逻辑除了跳过了初始化工作，与楼上基本一致</span>
-    fiberRoot = root._internalRoot;
-    <span class="hljs-keyword">if</span> (typeof callback === <span class="hljs-string">'function'</span>) {
-      <span class="hljs-keyword">var</span> _originalCallback = callback;
-      callback = function () {
-        <span class="hljs-keyword">var</span> instance = getPublicRootInstance(fiberRoot);
-        _originalCallback.call(instance);
-      };
-    } <span class="hljs-comment">// Update</span>
+
+} <span class="hljs-keyword">else</span> { <span class="hljs-comment">// else 逻辑处理的是非首次渲染的情况（即更新），其逻辑除了跳过了初始化工作，与楼上基本一致</span> fiberRoot = root.\_internalRoot; <span class="hljs-keyword">if</span> (typeof callback === <span class="hljs-string">'function'</span>) { <span class="hljs-keyword">var</span> \_originalCallback = callback; callback = function () { <span class="hljs-keyword">var</span> instance = getPublicRootInstance(fiberRoot); \_originalCallback.call(instance); }; } <span class="hljs-comment">// Update</span>
 
     updateContainer(children, fiberRoot, parentComponent, callback);
-  }
-  <span class="hljs-keyword">return</span> getPublicRootInstance(fiberRoot);
-}
-</code></pre>
+
+} <span class="hljs-keyword">return</span> getPublicRootInstance(fiberRoot); } </code></pre>
+
 <p data-nodeid="1311">这里我为你总结一下首次渲染过程中 legacyRenderSubtreeIntoContainer 方法的主要逻辑链路：</p>
 <p data-nodeid="1312"><img src="https://s0.lgstatic.com/i/image/M00/70/03/CgqCHl-3mfWABLi5AADUzMV7iHA320.png" alt="Lark20201120-182606.png" data-nodeid="1428"></p>
 <p data-nodeid="1313">在这个流程中，你需要关注到 fiberRoot 这个对象。fiberRoot 到底是什么呢？这里我将运行时的 root 和 fiberRoot 为你截取出来，其中 root 对象的结构如下图所示：</p>
@@ -134,40 +114,20 @@ ReactDOM.render(&lt;App /&gt;, rootElement);
 <pre class="lang-java" data-nodeid="1327"><code data-language="java"><span class="hljs-function">function <span class="hljs-title">updateContainer</span><span class="hljs-params">(element, container, parentComponent, callback)</span> </span>{
   ......
 
-  <span class="hljs-comment">// 这是一个 event 相关的入参，此处不必关注</span>
-  <span class="hljs-keyword">var</span> eventTime = requestEventTime();
+<span class="hljs-comment">// 这是一个 event 相关的入参，此处不必关注</span> <span class="hljs-keyword">var</span> eventTime = requestEventTime();
 
-  ......
+......
 
-  <span class="hljs-comment">// 这是一个比较关键的入参，lane 表示优先级</span>
-  <span class="hljs-keyword">var</span> lane = requestUpdateLane(current$<span class="hljs-number">1</span>);
-  <span class="hljs-comment">// 结合 lane（优先级）信息，创建 update 对象，一个 update 对象意味着一个更新</span>
-  <span class="hljs-keyword">var</span> update = createUpdate(eventTime, lane); 
+<span class="hljs-comment">// 这是一个比较关键的入参，lane 表示优先级</span> <span class="hljs-keyword">var</span> lane = requestUpdateLane(current$<span class="hljs-number">1</span>); <span class="hljs-comment">// 结合 lane（优先级）信息，创建 update 对象，一个 update 对象意味着一个更新</span> <span class="hljs-keyword">var</span> update = createUpdate(eventTime, lane);
 
-  <span class="hljs-comment">// update 的 payload 对应的是一个 React 元素</span>
-  update.payload = {
-    element: element
-  };
+<span class="hljs-comment">// update 的 payload 对应的是一个 React 元素</span> update.payload = { element: element };
 
-  <span class="hljs-comment">// 处理 callback，这个 callback 其实就是我们调用 ReactDOM.render 时传入的 callback</span>
-  callback = callback === undefined ? <span class="hljs-keyword">null</span> : callback;
-  <span class="hljs-keyword">if</span> (callback !== <span class="hljs-keyword">null</span>) {
-    {
-      <span class="hljs-keyword">if</span> (typeof callback !== <span class="hljs-string">'function'</span>) {
-        error(<span class="hljs-string">'render(...): Expected the last optional `callback` argument to be a '</span> + <span class="hljs-string">'function. Instead received: %s.'</span>, callback);
-      }
-    }
-    update.callback = callback;
-  }
+<span class="hljs-comment">// 处理 callback，这个 callback 其实就是我们调用 ReactDOM.render 时传入的 callback</span> callback = callback === undefined ? <span class="hljs-keyword">null</span> : callback; <span class="hljs-keyword">if</span> (callback !== <span class="hljs-keyword">null</span>) { { <span class="hljs-keyword">if</span> (typeof callback !== <span class="hljs-string">'function'</span>) { error(<span class="hljs-string">'render(...): Expected the last optional `callback` argument to be a '</span> + <span class="hljs-string">'function. Instead received: %s.'</span>, callback); } } update.callback = callback; }
 
-  <span class="hljs-comment">// 将 update 入队</span>
-  enqueueUpdate(current$<span class="hljs-number">1</span>, update);
+<span class="hljs-comment">// 将 update 入队</span> enqueueUpdate(current$<span class="hljs-number">1</span>, update);
   <span class="hljs-comment">// 调度 fiberRoot </span>
-  scheduleUpdateOnFiber(current$<span class="hljs-number">1</span>, lane, eventTime);
-  <span class="hljs-comment">// 返回当前节点（fiberRoot）的优先级</span>
-  <span class="hljs-keyword">return</span> lane;
-}
-</code></pre>
+  scheduleUpdateOnFiber(current$<span class="hljs-number">1</span>, lane, eventTime); <span class="hljs-comment">// 返回当前节点（fiberRoot）的优先级</span> <span class="hljs-keyword">return</span> lane; } </code></pre>
+
 <p data-nodeid="1328">updateContainer 的逻辑相对来说丰富了点，但大部分逻辑也是在干杂活，它做的最关键的事情可以总结为三件：</p>
 <ol data-nodeid="1329">
 <li data-nodeid="1330">
@@ -239,51 +199,66 @@ ReactDOM.render(&lt;App /&gt;, rootElement);
 
 ### 精选评论
 
-##### **琼：
+##### \*\*琼：
+
 > 感觉这里之前老师讲的都挺好的，但是从将Fiber架构开始，跨度有点大，感觉有点难以理解（还是我太菜了）
 
 ##### console_man：
+
 > 太赞了!讲得很透彻!
 
 ##### Sola：
+
 > 条理清晰，娓娓道来，赞
 
-##### **蓉：
+##### \*\*蓉：
+
 > 看第一遍时脑子嗡嗡的，现在看完了上中下再来看第二遍好多了，没有嗡嗡的了
 
- ###### &nbsp;&nbsp;&nbsp; 编辑回复：
+###### &nbsp;&nbsp;&nbsp; 编辑回复：
+
 > &nbsp;&nbsp;&nbsp; 温故知新，小伙伴加油哦
 
-##### **森：
+##### \*\*森：
+
 > 续上打卡
 
-##### **用户9471：
+##### \*\*用户9471：
+
 > 看了几遍 讲得很棒 谢谢大佬
 
-##### **你辣条就跑：
+##### \*\*你辣条就跑：
+
 > 太香了！！！给老师疯狂打call！！！！！
 
-##### **豪：
+##### \*\*豪：
+
 > 看了多少教程视频都是开着倍速看的，这是为数不多的不想开着倍速，一步一步琢磨着看的教程了
 
-##### **8542：
+##### \*\*8542：
+
 > react根据fibe节点的mode属性判断渲染模式，如果是reactdom.render他的首次渲染是同步的。如改用reactdom.creatroot他的首次渲染就是异步的。虽说fiber代表纤程或者协程，意味着他就是异步。但即使render初次渲染是同步的，但是他是包裹在fiber架构里面一种特殊处理形式。本课主要讲解了渲染的初始化阶段，真实dom和App组件进入reactdom. render以后会被处理成一个新的update对象。这个对象面fiberroot对象(真dom处成的fiber对象)的current属性里面装的是rootfiber对象(app组件生成的fiber对象)此时他会将原来的reactelement处理成fiber对象，也就是在原来的基础上，再添加许多后续fiber架构需要的属性，比如mode等。
 
-##### **8542：
+##### \*\*8542：
+
 > 当前整个调和过程都用fiber重构了一遍，为了做到渐进式的迁移项目，他包含了三中模式，根据不同的模式进入不同的代码，导致当前react.dom.render的首次渲染依旧是同步的，而reactdom.createroot才是真正的最终的异步的过程。不管同步还是异步，他们都是fiber重构后的结果。
 
-##### *琴：
+##### \*琴：
+
 > 老师讲得太棒了
 
-##### **伟：
+##### \*\*伟：
+
 > ReactDOM.unstable_createRoot(rootElement).render(好像无法生效
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 检查一下版本看看？实测17.0.1是ok的。关于这个API的更多信息可以看看https://zh-hans.reactjs.org/docs/concurrent-mode-adoption.html
 
-##### *诺：
+##### \*诺：
+
 > 老师，我装了 17.0.1，没找到 createRoot 这个方法哎
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
-> &nbsp;&nbsp;&nbsp; 仔细读一下原文，有提到目前实际调用的api应该是unstable_createRoot
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
 
+> &nbsp;&nbsp;&nbsp; 仔细读一下原文，有提到目前实际调用的api应该是unstable_createRoot

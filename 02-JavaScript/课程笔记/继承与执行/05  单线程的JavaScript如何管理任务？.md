@@ -142,12 +142,6 @@
 <p data-nodeid="3412"><img src="https://s0.lgstatic.com/i/image6/M01/38/42/CioPOWB5CK-Ae-ZRAAG6BriFZRI860.png" alt="图片1.png" data-nodeid="3415"><br>
 由于事件循环阶段划分不一致，Node.js 和浏览器在对宏任务和微任务的处理上也不一样。</p>
 
-
-
-
-
-
-
 <h3 data-nodeid="1321" class="">宏任务和微任务</h3>
 <p data-nodeid="1322" class="te-preview-highlight">事件循环中的异步回调队列有两种：宏任务（MacroTask）和微任务（MicroTask）队列。</p>
 <p data-nodeid="1323" class="">什么是宏任务和微任务呢？</p>
@@ -177,31 +171,14 @@
 <p data-nodeid="1340">宏任务和微任务的执行顺序，常常会被用作面试题，比如下面这道考察<code data-backticks="1" data-nodeid="1483">Promise</code>、<code data-backticks="1" data-nodeid="1485">setTimeout</code>、<code data-backticks="1" data-nodeid="1487">async/await</code>等 API 执行顺序的题目：</p>
 <pre class="lang-java" data-nodeid="1341"><code data-language="java">console.log(<span class="hljs-string">"script start"</span>);
 
-setTimeout(() =&gt; {
- &nbsp;console.log(<span class="hljs-string">"setTimeout"</span>);
-}, <span class="hljs-number">1000</span>);
+setTimeout(() =&gt; { &nbsp;console.log(<span class="hljs-string">"setTimeout"</span>); }, <span class="hljs-number">1000</span>);
 
-Promise.resolve()
-  .then(function () {
- &nbsp; &nbsp;console.log(<span class="hljs-string">"promise1"</span>);
-  })
-  .then(function () {
- &nbsp; &nbsp;console.log(<span class="hljs-string">"promise2"</span>);
-  });
+Promise.resolve() .then(function () { &nbsp; &nbsp;console.log(<span class="hljs-string">"promise1"</span>); }) .then(function () { &nbsp; &nbsp;console.log(<span class="hljs-string">"promise2"</span>); });
 
-<span class="hljs-function">async function <span class="hljs-title">errorFunc</span><span class="hljs-params">()</span> </span>{
- &nbsp;<span class="hljs-keyword">try</span> {
- &nbsp; &nbsp;await Promise.reject(<span class="hljs-string">"error!!!"</span>);
-  } <span class="hljs-keyword">catch</span> (e) {
- &nbsp; &nbsp;console.log(<span class="hljs-string">"error caught"</span>); <span class="hljs-comment">// 微1-3</span>
-  }
- &nbsp;console.log(<span class="hljs-string">"errorFunc"</span>);
- &nbsp;<span class="hljs-keyword">return</span> Promise.resolve(<span class="hljs-string">"errorFunc success"</span>);
-}
-errorFunc().then((res) =&gt; console.log(<span class="hljs-string">"errorFunc then res"</span>));
+<span class="hljs-function">async function <span class="hljs-title">errorFunc</span><span class="hljs-params">()</span> </span>{ &nbsp;<span class="hljs-keyword">try</span> { &nbsp; &nbsp;await Promise.reject(<span class="hljs-string">"error!!!"</span>); } <span class="hljs-keyword">catch</span> (e) { &nbsp; &nbsp;console.log(<span class="hljs-string">"error caught"</span>); <span class="hljs-comment">// 微1-3</span> } &nbsp;console.log(<span class="hljs-string">"errorFunc"</span>); &nbsp;<span class="hljs-keyword">return</span> Promise.resolve(<span class="hljs-string">"errorFunc success"</span>); } errorFunc().then((res) =&gt; console.log(<span class="hljs-string">"errorFunc then res"</span>));
 
-console.log(<span class="hljs-string">"script end"</span>);
-</code></pre>
+console.log(<span class="hljs-string">"script end"</span>); </code></pre>
+
 <p data-nodeid="1342">你知道这道题的答案是什么吗？欢迎在留言区写下你的解题过程。</p>
 <h3 data-nodeid="1343">小结</h3>
 <p data-nodeid="1344">今天我介绍了 JavaScript 的单线程设计，它的设计初衷是为了让用户获得更好的交互体验。同时，为了避免单线程的任务执行过程中发生阻塞，事件循环（Event Loop）机制便出现了。</p>
@@ -214,56 +191,70 @@ console.log(<span class="hljs-string">"script end"</span>);
 
 ### 精选评论
 
-##### **洲：
+##### \*\*洲：
+
 > 1. 脚本先执行同步代码, 宏任务, 顺序是 "script start", setTimeout, "script end", 由于 setTimeout 是异步任务, 所以程序不会等待它完成, 所以 setTimeout 的回调函数会被挂起, 在将来等待时间完成之后就会把它重新调入回调队列, 第一轮执行完成之后, 此时微任务有 Promise.resolve(), errorFunc(), 它们会被加入回调队列, 顺序是 Promise.resolve() = errorFunc()2. 此时主线程处于空闲状态, 需要从回调队列中提取任务, 队列是先进先出, 所以取出来的是 Promise.resolve(), 此时它就会进入调用栈, 接着主线程就从调用栈中取出它运行, 所以现在就会输出 promise, 与此同时, 产生了下一个微任务, 这个微任务接着也会被加入回调队列, 此时回调队列的顺序是 errorFunc() = Promise.resolve() 产生的微任务(PR)3. 接下来同理, errorFunc() 会被处理, 因为 await 会阻塞异步操作, 所以这个 await 后面的 Promise 不会去回调队列排队, 而是等待完成, 所以 "error caught" 就会被输出, 接着是一段同步代码, 所以就会输出 "errorFunc", 同理, 异步函数返回的 Promise 会被加入回调队列中排队, 此时回调队列是 PR = errorFunc 返回的回调4. 同理, 此时会执行 "promise 2", 接着就会执行 "errorFunc then res"5. 接着就是 setTimeout 的等待时间到了, 其回调函数加入回调队列, 执行 "setTimeout", 因为宏任务一次只执行一次, 然后是执行所有的微任务, 所有微任务执行完之后, 再执行下一次宏任务, 所以就算 setTimeout 计时时间为 0, 也是最后执行6. 最后的运行结果为 "script start", "script end", "promise 1", "error caught", "errorFunc", "promise 2", "errorFunc then res", "setTimeout"
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 分析得很好，还可以考虑下在 Node.js 环境下，是否会是同样的结果呢~~
 
-##### *振：
+##### \*振：
+
 > node11以后的事件循环，执行结果与浏览器是一样的吧
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
-> &nbsp;&nbsp;&nbsp; 没错~在 node 11 之后的版本，的确是浏览器保持一致了~
-以 timers 阶段为例，在 node 11 版本之前，只有全部执行了 timers 阶段队列的全部任务才执行微任务队列；在 node 11 版本开始，timer 阶段的 setTimeout、setInterval 被修改为，执行一个任务就立刻执行微任务队列，与浏览器趋同了~
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
 
-##### *伟：
+> &nbsp;&nbsp;&nbsp; 没错~在 node 11 之后的版本，的确是浏览器保持一致了~ 以 timers 阶段为例，在 node 11 版本之前，只有全部执行了 timers 阶段队列的全部任务才执行微任务队列；在 node 11 版本开始，timer 阶段的 setTimeout、setInterval 被修改为，执行一个任务就立刻执行微任务队列，与浏览器趋同了~
+
+##### \*伟：
+
 > 感觉node那块的event loop 没有讲明白啊？有点懵
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
-> &nbsp;&nbsp;&nbsp; 在 Node.js 中，事件循环分为 6 个阶段，微任务会在事件循环的各个阶段之间执行。也就是说，每当一个阶段执行完毕，就会去执行微任务队列的任务。
-可以以文中的例子来试试看，在浏览器和 Node.js 环境中的执行结果有什么不一样（当然，Node.js 11 版本之后，两个结果已经一致了，可以参考下其他评论）
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
 
-##### **新：
+> &nbsp;&nbsp;&nbsp; 在 Node.js 中，事件循环分为 6 个阶段，微任务会在事件循环的各个阶段之间执行。也就是说，每当一个阶段执行完毕，就会去执行微任务队列的任务。可以以文中的例子来试试看，在浏览器和 Node.js 环境中的执行结果有什么不一样（当然，Node.js 11 版本之后，两个结果已经一致了，可以参考下其他评论）
+
+##### \*\*新：
+
 > 宏观任务和微观任务的案例还是不太懂
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 具体哪里不懂呢？能详细描述下吗？
 
-##### **哈：
+##### \*\*哈：
+
 > 系统时钟指的是屏幕的刷新频率吧
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 指的是 Date.prototype.getTime()，可以手动计算每次定时器中回调执行的时间差，然后调整下一次定时器的时间，从而缓解多个定时器累加后导致的时间差距越来越大的问题
 
 ##### 856：
+
 > 老是 能解释下I/O 操作吗？
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; I/O，即 input/output 输入输出操作。对网页来说，有用户的交互（点击、拖动等）、存储和 DB 的读取等等。这些操作都需要进行等待，比如等待用户的操作才会触发对应的事件，等待存储读写完成等。
 
-##### *龙：
+##### \*龙：
+
 > 有个问题，既然主线程执行完之后，先去宏任务取一个，执行之后，再清空微任务队列，那不是定时器先执行吗
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 定时器有延时噢，会在延时完成后才将回调任务添加到队列
 
-##### **东：
+##### \*\*东：
+
 > script全部代码是异步任务下的宏任务，那同步任务指javacript代码片段，script不就包括javascript片段了，这不懂
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 这个问题有点没看明白。同步任务可任务是执行 JavaScript 代码片段这个没错，但是 JavaScript 代码在执行过程中会产生异步任务噢，比如 setTimeout，异步任务的回调可以理解为另外的 JavaScript 代码片段，会在异步任务队列等待主线程获取并执行，只不过异步任务队列也分为宏任务和微任务两种而已
 
-##### *浩：
-> 注意了：浏览器环境下的EventLoop与Node.js环境下的EventLoop模型还是有不同的。
+##### \*浩：
 
+> 注意了：浏览器环境下的EventLoop与Node.js环境下的EventLoop模型还是有不同的。

@@ -36,13 +36,13 @@ refresh token 用来获取 access token，有效期可以长一些，通过独�
 ### Axios 拦截器实现 Token 无感刷新
 
 ```javascript
-import axios from 'axios';
+import axios from "axios";
 
-const request = axios.create({ baseURL: '/api' });
+const request = axios.create({ baseURL: "/api" });
 
 // 请求拦截：自动携带 access token
-request.interceptors.request.use(config => {
-  const token = localStorage.getItem('accessToken');
+request.interceptors.request.use((config) => {
+  const token = localStorage.getItem("accessToken");
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
@@ -52,8 +52,8 @@ let pendingQueue = []; // 等待 token 刷新的请求队列
 
 // 响应拦截：401 时自动刷新 token，失败则跳转登录
 request.interceptors.response.use(
-  res => res,
-  async err => {
+  (res) => res,
+  async (err) => {
     const { config, response } = err;
     if (response?.status !== 401 || config._retry) {
       return Promise.reject(err);
@@ -70,9 +70,9 @@ request.interceptors.response.use(
     isRefreshing = true;
 
     try {
-      const refreshToken = localStorage.getItem('refreshToken');
-      const { data } = await axios.post('/api/auth/refresh', { refreshToken });
-      localStorage.setItem('accessToken', data.accessToken);
+      const refreshToken = localStorage.getItem("refreshToken");
+      const { data } = await axios.post("/api/auth/refresh", { refreshToken });
+      localStorage.setItem("accessToken", data.accessToken);
 
       // 重放队列中的请求
       pendingQueue.forEach(({ resolve, config }) => {
@@ -84,15 +84,15 @@ request.interceptors.response.use(
       config.headers.Authorization = `Bearer ${data.accessToken}`;
       return request(config); // 重放当前请求
     } catch {
-      pendingQueue.forEach(({ reject }) => reject(new Error('登录已过期')));
+      pendingQueue.forEach(({ reject }) => reject(new Error("登录已过期")));
       pendingQueue = [];
       localStorage.clear();
-      window.location.href = '/login';
+      window.location.href = "/login";
       return Promise.reject(err);
     } finally {
       isRefreshing = false;
     }
-  }
+  },
 );
 ```
 
@@ -101,7 +101,7 @@ request.interceptors.response.use(
 ## 对比总结：Cookie vs Session vs Token vs JWT
 
 | 维度 | Cookie | Session | Token（非JWT） | JWT |
-|------|--------|---------|--------------|-----|
+| --- | --- | --- | --- | --- |
 | **存储位置** | 客户端浏览器 | 服务端（Redis/内存） | 客户端 | 客户端 |
 | **状态** | 有状态 | 有状态（服务端存储） | 可有状态/无状态 | 无状态 |
 | **安全性** | 一般（可设 HttpOnly/Secure） | 较高（数据在服务端） | 较高 | 中（payload 可解码，勿存敏感信息） |
@@ -112,6 +112,7 @@ request.interceptors.response.use(
 | **大小限制** | 4KB | 无限制（服务端） | 无限制 | 较大（包含 payload） |
 
 > **选型建议：**
+>
 > - 传统 Web + 单体服务 → Session + Cookie
 > - 前后端分离 / 移动端 → JWT（access token + refresh token 双 token 方案）
 > - 微服务 / 分布式 → JWT（无状态，无需共享存储）

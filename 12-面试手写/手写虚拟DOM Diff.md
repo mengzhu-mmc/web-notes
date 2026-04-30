@@ -11,27 +11,27 @@
 ```typescript
 // 虚拟 DOM 节点定义
 interface VNode {
-  type: string;           // 标签名，如 'div'、'span'
+  type: string; // 标签名，如 'div'、'span'
   props: Record<string, any>; // 属性，包含 key
   children: (VNode | string)[];
 }
 
 // 期望效果
 const oldTree: VNode = {
-  type: 'div',
+  type: "div",
   props: {},
   children: [
-    { type: 'p', props: { key: 'a' }, children: ['Hello'] },
-    { type: 'span', props: { key: 'b' }, children: ['World'] },
+    { type: "p", props: { key: "a" }, children: ["Hello"] },
+    { type: "span", props: { key: "b" }, children: ["World"] },
   ],
 };
 
 const newTree: VNode = {
-  type: 'div',
+  type: "div",
   props: {},
   children: [
-    { type: 'span', props: { key: 'b' }, children: ['World!'] }, // 移动 + 更新
-    { type: 'p', props: { key: 'a' }, children: ['Hello'] },    // 移动
+    { type: "span", props: { key: "b" }, children: ["World!"] }, // 移动 + 更新
+    { type: "p", props: { key: "a" }, children: ["Hello"] }, // 移动
   ],
 };
 
@@ -88,7 +88,7 @@ interface VNode {
 
 function h(
   type: string,
-  props: VNode['props'] = {},
+  props: VNode["props"] = {},
   ...children: (VNode | string)[]
 ): VNode {
   return { type, props, children };
@@ -99,11 +99,11 @@ function h(
 
 ```typescript
 type PatchType =
-  | { type: 'REPLACE'; node: VNode | string }   // 整节点替换
-  | { type: 'PATCH_PROPS'; props: Record<string, any> } // 属性更新
-  | { type: 'PATCH_CHILDREN'; patches: ChildPatch[] }   // 子节点更新
-  | { type: 'REMOVE' }                           // 删除节点
-  | { type: 'TEXT'; content: string }            // 文本内容更新
+  | { type: "REPLACE"; node: VNode | string } // 整节点替换
+  | { type: "PATCH_PROPS"; props: Record<string, any> } // 属性更新
+  | { type: "PATCH_CHILDREN"; patches: ChildPatch[] } // 子节点更新
+  | { type: "REMOVE" } // 删除节点
+  | { type: "TEXT"; content: string }; // 文本内容更新
 
 interface ChildPatch {
   index: number;
@@ -114,18 +114,21 @@ interface ChildPatch {
 ### 核心 diff 函数
 
 ```typescript
-function diff(oldNode: VNode | string, newNode: VNode | string): PatchType | null {
+function diff(
+  oldNode: VNode | string,
+  newNode: VNode | string,
+): PatchType | null {
   // 文本节点
-  if (typeof oldNode === 'string' || typeof newNode === 'string') {
+  if (typeof oldNode === "string" || typeof newNode === "string") {
     if (oldNode !== newNode) {
-      return { type: 'REPLACE', node: newNode };
+      return { type: "REPLACE", node: newNode };
     }
     return null;
   }
 
   // 类型不同，直接替换（不复用）
   if (oldNode.type !== newNode.type) {
-    return { type: 'REPLACE', node: newNode };
+    return { type: "REPLACE", node: newNode };
   }
 
   // 类型相同：对比属性
@@ -137,7 +140,7 @@ function diff(oldNode: VNode | string, newNode: VNode | string): PatchType | nul
   if (!propsPatches && childrenPatches.length === 0) return null;
 
   return {
-    type: 'PATCH_PROPS',
+    type: "PATCH_PROPS",
     props: propsPatches || {},
     // 实际项目中会合并 PATCH_PROPS 和 PATCH_CHILDREN
   } as any;
@@ -146,14 +149,14 @@ function diff(oldNode: VNode | string, newNode: VNode | string): PatchType | nul
 // 对比属性，返回需要更新的属性 diff
 function diffProps(
   oldProps: Record<string, any>,
-  newProps: Record<string, any>
+  newProps: Record<string, any>,
 ): Record<string, any> | null {
   const patches: Record<string, any> = {};
   let hasDiff = false;
 
   // 新属性（新增或更新）
   for (const key in newProps) {
-    if (key === 'key') continue;
+    if (key === "key") continue;
     if (oldProps[key] !== newProps[key]) {
       patches[key] = newProps[key];
       hasDiff = true;
@@ -162,7 +165,7 @@ function diffProps(
 
   // 已删除的属性
   for (const key in oldProps) {
-    if (key === 'key') continue;
+    if (key === "key") continue;
     if (!(key in newProps)) {
       patches[key] = undefined; // undefined 表示删除
       hasDiff = true;
@@ -175,7 +178,7 @@ function diffProps(
 // 子节点 diff（按 key / 按索引）
 function diffChildren(
   oldChildren: (VNode | string)[],
-  newChildren: (VNode | string)[]
+  newChildren: (VNode | string)[],
 ): ChildPatch[] {
   const patches: ChildPatch[] = [];
 
@@ -183,7 +186,7 @@ function diffChildren(
   const oldKeyMap = new Map<string | number, { node: VNode; index: number }>();
   for (let i = 0; i < oldChildren.length; i++) {
     const child = oldChildren[i];
-    if (typeof child !== 'string' && child.props.key != null) {
+    if (typeof child !== "string" && child.props.key != null) {
       oldKeyMap.set(child.props.key, { node: child, index: i });
     }
   }
@@ -196,7 +199,7 @@ function diffChildren(
 
     for (let i = 0; i < newChildren.length; i++) {
       const newChild = newChildren[i];
-      if (typeof newChild !== 'string' && newChild.props.key != null) {
+      if (typeof newChild !== "string" && newChild.props.key != null) {
         const oldEntry = oldKeyMap.get(newChild.props.key);
         if (oldEntry) {
           usedOldIndices.add(oldEntry.index);
@@ -204,7 +207,10 @@ function diffChildren(
           if (childPatch) patches.push({ index: i, patch: childPatch });
         } else {
           // 新增节点
-          patches.push({ index: i, patch: { type: 'REPLACE', node: newChild } });
+          patches.push({
+            index: i,
+            patch: { type: "REPLACE", node: newChild },
+          });
         }
       }
     }
@@ -212,7 +218,7 @@ function diffChildren(
     // 未被复用的旧节点 → 删除
     for (let i = 0; i < oldChildren.length; i++) {
       if (!usedOldIndices.has(i)) {
-        patches.push({ index: i, patch: { type: 'REMOVE' } });
+        patches.push({ index: i, patch: { type: "REMOVE" } });
       }
     }
   } else {
@@ -220,9 +226,12 @@ function diffChildren(
     const maxLen = Math.max(oldChildren.length, newChildren.length);
     for (let i = 0; i < maxLen; i++) {
       if (i >= newChildren.length) {
-        patches.push({ index: i, patch: { type: 'REMOVE' } });
+        patches.push({ index: i, patch: { type: "REMOVE" } });
       } else if (i >= oldChildren.length) {
-        patches.push({ index: i, patch: { type: 'REPLACE', node: newChildren[i] } });
+        patches.push({
+          index: i,
+          patch: { type: "REPLACE", node: newChildren[i] },
+        });
       } else {
         const childPatch = diff(oldChildren[i], newChildren[i]);
         if (childPatch) patches.push({ index: i, patch: childPatch });
@@ -240,23 +249,23 @@ function diffChildren(
 function patch(el: Node, vnode: VNode | string, patches: PatchType | null) {
   if (!patches) return;
 
-  if (patches.type === 'REPLACE') {
+  if (patches.type === "REPLACE") {
     const newEl = createEl(patches.node);
     el.parentNode?.replaceChild(newEl, el);
     return;
   }
 
-  if (patches.type === 'REMOVE') {
+  if (patches.type === "REMOVE") {
     el.parentNode?.removeChild(el);
     return;
   }
 
-  if (patches.type === 'TEXT') {
+  if (patches.type === "TEXT") {
     el.textContent = patches.content;
     return;
   }
 
-  if (patches.type === 'PATCH_PROPS' && el instanceof Element) {
+  if (patches.type === "PATCH_PROPS" && el instanceof Element) {
     for (const [key, value] of Object.entries(patches.props)) {
       if (value === undefined) {
         el.removeAttribute(key);
@@ -268,12 +277,12 @@ function patch(el: Node, vnode: VNode | string, patches: PatchType | null) {
 }
 
 function createEl(vnode: VNode | string): Node {
-  if (typeof vnode === 'string') return document.createTextNode(vnode);
+  if (typeof vnode === "string") return document.createTextNode(vnode);
   const el = document.createElement(vnode.type);
   for (const [key, value] of Object.entries(vnode.props)) {
-    if (key !== 'key') el.setAttribute(key, value);
+    if (key !== "key") el.setAttribute(key, value);
   }
-  vnode.children.forEach(child => el.appendChild(createEl(child)));
+  vnode.children.forEach((child) => el.appendChild(createEl(child)));
   return el;
 }
 ```
@@ -284,32 +293,32 @@ function createEl(vnode: VNode | string): Node {
 
 ```typescript
 // 测试 1：文本节点更新
-const old1 = h('p', {}, 'Hello');
-const new1 = h('p', {}, 'World');
+const old1 = h("p", {}, "Hello");
+const new1 = h("p", {}, "World");
 const p1 = diffProps(old1.props, new1.props);
-console.log('props diff:', p1); // null（无 props 变化）
+console.log("props diff:", p1); // null（无 props 变化）
 
 // 测试 2：属性更新
-const old2 = h('div', { class: 'a', id: 'x' });
-const new2 = h('div', { class: 'b' });
+const old2 = h("div", { class: "a", id: "x" });
+const new2 = h("div", { class: "b" });
 const p2 = diffProps(old2.props, new2.props);
-console.log('props diff:', p2);
+console.log("props diff:", p2);
 // { class: 'b', id: undefined }（id 被删除）
 
 // 测试 3：子节点列表（带 key）
 const oldList = [
-  h('li', { key: 'a' }, 'A'),
-  h('li', { key: 'b' }, 'B'),
-  h('li', { key: 'c' }, 'C'),
+  h("li", { key: "a" }, "A"),
+  h("li", { key: "b" }, "B"),
+  h("li", { key: "c" }, "C"),
 ];
 const newList = [
-  h('li', { key: 'b' }, 'B'),
-  h('li', { key: 'a' }, 'A'),  // 顺序互换
-  h('li', { key: 'd' }, 'D'),  // 新增
+  h("li", { key: "b" }, "B"),
+  h("li", { key: "a" }, "A"), // 顺序互换
+  h("li", { key: "d" }, "D"), // 新增
   // c 被删除
 ];
 const childPatches = diffChildren(oldList, newList);
-console.log('child patches:', JSON.stringify(childPatches, null, 2));
+console.log("child patches:", JSON.stringify(childPatches, null, 2));
 ```
 
 ---

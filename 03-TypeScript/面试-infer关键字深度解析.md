@@ -1,7 +1,6 @@
 # TypeScript infer 关键字深度解析
 
-> 来源：前端面试每日推送 2026-04-25（周六·TypeScript + 进阶）
-> 难度：⭐⭐
+> 来源：前端面试每日推送 2026-04-25（周六·TypeScript + 进阶）难度：⭐⭐
 
 ## 关联笔记
 
@@ -31,7 +30,7 @@ TypeScript 的 `infer` 关键字只能在条件类型 `extends` 的分支中使�
 type MyReturnType<T> = T extends (...args: any[]) => infer R ? R : never;
 
 function getUser(id: string): { name: string; age: number } {
-  return { name: 'Alice', age: 30 };
+  return { name: "Alice", age: 30 };
 }
 
 type User = MyReturnType<typeof getUser>;
@@ -46,7 +45,9 @@ type Awaited<T> = T extends Promise<infer U> ? Awaited<U> : T;
 type Result = Awaited<Promise<Promise<string>>>; // string
 
 // 4. 面试题：实现一个提取函数第一个参数类型的工具类型
-type FirstParam<T> = T extends (first: infer F, ...args: any[]) => any ? F : never;
+type FirstParam<T> = T extends (first: infer F, ...args: any[]) => any
+  ? F
+  : never;
 type P = FirstParam<(a: string, b: number, c: boolean) => void>; // string
 ```
 
@@ -60,12 +61,20 @@ type ElementsOf<T> = T extends Array<infer E> ? E : never;
 type R = ElementsOf<string[] | number[]>; // string | number
 
 // 逆变位置（函数参数位置）：多个候选 → 交叉类型
-type UnionToIntersection<U> =
-  (U extends any ? (k: U) => void : never) extends (k: infer I) => void ? I : never;
+type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (
+  k: infer I,
+) => void
+  ? I
+  : never;
 type UI = UnionToIntersection<string | number>; // string & number = never
 
 // TS 4.7+ 可以用 infer U extends any 约束推断结果
-type FirstNonNullable<T> = T extends [infer F extends NonNullable<unknown>, ...any[]] ? F : never;
+type FirstNonNullable<T> = T extends [
+  infer F extends NonNullable<unknown>,
+  ...any[],
+]
+  ? F
+  : never;
 type FN = FirstNonNullable<[null, undefined, string, number]>; // string
 ```
 

@@ -1,6 +1,5 @@
 <p data-nodeid="1802">上一课时我们讲了 source map 在开发调试中的作用，以及不同的 source map 策略对于构建时间和调试效果的影响。在课后留的讨论题是观察你项目里在开发和生产环境下使用的是哪一种 source map 类型，因为很多时候当我们用了预设好的脚手架工具后，这些细节可能不太关注到，希望借着这个题目能让你对这个方面的细节有更深入的理解。</p>
 
-
 <p data-nodeid="1030">今天我们来聊一下前端开发流程中的 Mock 工具使用问题。</p>
 <h3 data-nodeid="1031">什么是 Mock？</h3>
 <p data-nodeid="1032"><a href="https://en.wikipedia.org/wiki/Mock_object" data-nodeid="1136">Mock</a> 在程序设计中是指使用模拟（Mock）的对象来替代真实对象，以测试其他对象的行为。而在前端开发流程中，我们说的 Mock 通常是指模拟数据（俗称假数据）以及生成和使用模拟数据的工具与流程。那么为什么要使用 Mock 数据呢？是因为在实际中，我们经常遇到以下令人困扰的问题。</p>
@@ -85,10 +84,6 @@ Random.image(<span class="hljs-string">'200x100'</span>, <span class="hljs-strin
 </li>
 </ol>
 
-
-
-
-
 <h4 data-nodeid="1079">Faker.js</h4>
 <p data-nodeid="1080"><a href="https://github.com/Marak/faker.js" data-nodeid="1244">Faker.js</a> 是另一个较热门的模拟数据生成工具。与 Mock.js 相比，Faker.js 主要提供的是指定类型的随机数据，对应 Mock.js 中的占位符类型数据。在 API 的使用方面较直观，使用示例如下：</p>
 <pre class="lang-javascript" data-nodeid="1081"><code data-language="javascript"><span class="hljs-comment">//单独使用api方法</span>
@@ -102,9 +97,6 @@ faker.fake(<span class="hljs-string">"{{name.lastName}}, {{name.firstName}} {{na
 <p data-nodeid="1082">除了在数据生成的规则上没有 Mock.js 的数据模板规则那样灵活以外，对于一般的数据模拟需求， Faker.js 已能很好地满足。此外，它还支持多种语言的本地化包，满足国际化站点开发的需求。</p>
 <p data-nodeid="1083">以上两种工具在实际项目使用中，都需要在项目本地编写数据生成模板或方法，而后根据一定的方式拦截 API 请求并指向本地生成的 Mock 数据。拦截的方法可以类似 Mock.js 的覆盖 API 调用对象，也可以是通过网络代理将后端域名指向本地目录。</p>
 <p data-nodeid="7062">这种本地植入模拟数据生成器的方式可以在一定程度上提升前端独立开发调试的效率，但从整体前后端工作的效率上来看，并非最佳选择：</p>
-
-
-
 
 <ol data-nodeid="1085">
 <li data-nodeid="1086">
@@ -178,11 +170,13 @@ faker.fake(<span class="hljs-string">"{{name.lastName}}, {{name.firstName}} {{na
 ### 精选评论
 
 ##### console_man：
+
 > 项目分析会后，先写技术方案，定好接口。至于联调字段不一致的问题，谁的锅谁背，自己去找技术owner
 
-##### **梁：
+##### \*\*梁：
+
 > 一开始用的阿里的rap，后来切换到了yapi，期间还用过swagger
 
-##### **龙：
-> 其实前后端分离，感觉最难的就是联调这一块。返回的数据格式和自己写的数据格式不一致，字段不一致，然后就各种修改。如果项目一个月完成，联调起码要暂10多天。
+##### \*\*龙：
 
+> 其实前后端分离，感觉最难的就是联调这一块。返回的数据格式和自己写的数据格式不一致，字段不一致，然后就各种修改。如果项目一个月完成，联调起码要暂10多天。

@@ -7,7 +7,7 @@
 ## 🚀 React 19 核心概览
 
 | 特性 | 一句话描述 | 稳定版本 |
-|------|-----------|---------|
+| --- | --- | --- |
 | `use()` Hook | 在渲染中直接 await Promise / Context | ✅ RC |
 | Server Actions | 在 Server Component 中直接调用异步函数 | ✅ RC |
 | `useOptimistic` | 乐观 UI，异步操作前先更新界面 | ✅ RC |
@@ -26,7 +26,7 @@
 ### 基本用法
 
 ```jsx
-import { use, Suspense } from 'react';
+import { use, Suspense } from "react";
 
 // 1. 读取 Promise（配合 Suspense 使用）
 function Comments({ commentsPromise }) {
@@ -34,7 +34,9 @@ function Comments({ commentsPromise }) {
   const comments = use(commentsPromise);
   return (
     <ul>
-      {comments.map(c => <li key={c.id}>{c.text}</li>)}
+      {comments.map((c) => (
+        <li key={c.id}>{c.text}</li>
+      ))}
     </ul>
   );
 }
@@ -67,9 +69,9 @@ function UserProfile({ userId, showDetails }) {
 ### 读取 Context
 
 ```jsx
-import { use, createContext } from 'react';
+import { use, createContext } from "react";
 
-const ThemeContext = createContext('light');
+const ThemeContext = createContext("light");
 
 function Button() {
   // use() 读取 Context，等价于 useContext(ThemeContext)
@@ -90,7 +92,7 @@ function OldFetch({ url }) {
 
   useEffect(() => {
     fetch(url)
-      .then(r => r.json())
+      .then((r) => r.json())
       .then(setData)
       .catch(setError)
       .finally(() => setLoading(false));
@@ -112,7 +114,7 @@ function NewFetch({ dataPromise }) {
   <Suspense fallback={<Spinner />}>
     <NewFetch dataPromise={fetchData(url)} />
   </Suspense>
-</ErrorBoundary>
+</ErrorBoundary>;
 ```
 
 ---
@@ -170,7 +172,7 @@ function EditForm({ userId }) {
     async (prevState: any, formData: FormData) => {
       const name = formData.get('name') as string;
       if (name.length < 2) return { error: '名字至少2个字符' };
-      
+
       const result = await updateName(userId, name);
       return result.success ? { success: true } : { error: '更新失败' };
     },
@@ -199,35 +201,31 @@ function EditForm({ userId }) {
 ### 经典场景：点赞按钮
 
 ```jsx
-import { useOptimistic, useState } from 'react';
+import { useOptimistic, useState } from "react";
 
 function LikeButton({ postId, initialLikes }) {
   const [likes, setLikes] = useState(initialLikes);
-  
+
   // useOptimistic(actualState, updateFn)
   // updateFn: (currentState, optimisticValue) => newState
   const [optimisticLikes, addOptimisticLike] = useOptimistic(
     likes,
-    (currentLikes, increment) => currentLikes + increment
+    (currentLikes, increment) => currentLikes + increment,
   );
 
   async function handleLike() {
     addOptimisticLike(1); // 立即 +1（乐观更新）
-    
+
     try {
       const newLikes = await likePost(postId); // 真实请求
       setLikes(newLikes); // 用服务器返回值替换
     } catch {
       // 请求失败时，optimisticLikes 自动回滚到 likes
-      alert('点赞失败，请重试');
+      alert("点赞失败，请重试");
     }
   }
 
-  return (
-    <button onClick={handleLike}>
-      ❤️ {optimisticLikes}
-    </button>
-  );
+  return <button onClick={handleLike}>❤️ {optimisticLikes}</button>;
 }
 ```
 
@@ -239,7 +237,7 @@ import { useOptimistic, useState, useTransition } from 'react';
 function TodoList() {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [isPending, startTransition] = useTransition();
-  
+
   const [optimisticTodos, addOptimisticTodo] = useOptimistic(
     todos,
     (currentTodos, newTodo: Todo) => [...currentTodos, newTodo]
@@ -248,10 +246,10 @@ function TodoList() {
   async function handleSubmit(formData: FormData) {
     const title = formData.get('title') as string;
     const tempTodo = { id: 'temp-' + Date.now(), title, done: false };
-    
+
     // 乐观更新：立即显示
     addOptimisticTodo(tempTodo);
-    
+
     // 后台异步保存
     const savedTodo = await createTodo(title);
     setTodos(prev => [...prev, savedTodo]); // 替换为真实数据
@@ -303,7 +301,7 @@ import { useFormStatus } from 'react-dom'; // 注意：从 react-dom 导入！
 // 提交按钮组件：自动感知父 form 的 pending 状态
 function SubmitButton() {
   const { pending, data, method, action } = useFormStatus();
-  
+
   return (
     <button type="submit" disabled={pending}>
       {pending ? '提交中...' : '提交'}
@@ -328,12 +326,12 @@ function ContactForm() {
 
 ### `useFormStatus` 的字段含义
 
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| `pending` | `boolean` | form 是否正在提交 |
-| `data` | `FormData \| null` | 提交的表单数据（提交中有值） |
-| `method` | `string` | 表单提交方法（get/post） |
-| `action` | `string \| function` | form 的 action 属性值 |
+| 字段      | 类型                 | 说明                         |
+| --------- | -------------------- | ---------------------------- |
+| `pending` | `boolean`            | form 是否正在提交            |
+| `data`    | `FormData \| null`   | 提交的表单数据（提交中有值） |
+| `method`  | `string`             | 表单提交方法（get/post）     |
+| `action`  | `string \| function` | form 的 action 属性值        |
 
 ### ⚠️ 常见错误
 
@@ -402,7 +400,7 @@ function BlogPost({ post }) {
       <title>{post.title} - 我的博客</title>
       <meta name="description" content={post.summary} />
       <link rel="canonical" href={`https://example.com/posts/${post.slug}`} />
-      
+
       <h1>{post.title}</h1>
       <p>{post.content}</p>
     </article>
@@ -413,18 +411,18 @@ function BlogPost({ post }) {
 ### 5.4 资源预加载 API
 
 ```jsx
-import { preload, preloadModule, prefetchDNS, preinit } from 'react-dom';
+import { preload, preloadModule, prefetchDNS, preinit } from "react-dom";
 
 function App() {
   // 预连接 DNS
-  prefetchDNS('https://api.example.com');
-  
+  prefetchDNS("https://api.example.com");
+
   // 预加载字体
-  preload('/fonts/inter.woff2', { as: 'font', type: 'font/woff2' });
-  
+  preload("/fonts/inter.woff2", { as: "font", type: "font/woff2" });
+
   // 预初始化（加载并执行）脚本
-  preinit('/analytics.js', { as: 'script' });
-  
+  preinit("/analytics.js", { as: "script" });
+
   return <div>...</div>;
 }
 ```
@@ -435,18 +433,19 @@ function App() {
 
 ### Q1：`use()` 和 `useEffect` 获取数据有什么区别？
 
-| 维度 | `useEffect` + state | `use()` + Suspense |
-|------|--------------------|--------------------|
-| loading 状态 | 手动管理 | Suspense 自动处理 |
-| error 状态 | 手动 try/catch | ErrorBoundary 处理 |
-| 代码量 | 多（需要 loading/error state） | 少（只关注数据本身） |
-| 可中断 | 不可中断 | 配合并发模式可中断 |
-| 条件使用 | ❌ 不能在条件里 | ✅ 可以在条件里 |
-| 适用场景 | 副作用（订阅、DOM 操作） | 数据获取 |
+| 维度         | `useEffect` + state            | `use()` + Suspense   |
+| ------------ | ------------------------------ | -------------------- |
+| loading 状态 | 手动管理                       | Suspense 自动处理    |
+| error 状态   | 手动 try/catch                 | ErrorBoundary 处理   |
+| 代码量       | 多（需要 loading/error state） | 少（只关注数据本身） |
+| 可中断       | 不可中断                       | 配合并发模式可中断   |
+| 条件使用     | ❌ 不能在条件里                | ✅ 可以在条件里      |
+| 适用场景     | 副作用（订阅、DOM 操作）       | 数据获取             |
 
 ### Q2：`useOptimistic` 和直接 setXxx 的区别？
 
 直接 `setState` 更新后就是真实状态。`useOptimistic` 的乐观状态是**临时的**：
+
 - action 执行期间显示乐观值
 - action 结束（无论成功还是失败）自动回到 `actualState`
 - 失败时自动回滚，无需手动处理
@@ -457,13 +456,13 @@ function App() {
 
 ### Q4：Server Components 和 Client Components 如何选择？
 
-| 用 Server Component | 用 Client Component |
-|--------------------|---------------------|
-| 直接访问数据库 | 需要 `useState` / `useEffect` |
-| 访问文件系统 | 需要事件监听 |
-| 使用敏感数据（不暴露给客户端） | 需要浏览器 API |
-| 减少客户端 JS 体积 | 需要实时交互 |
-| 异步数据获取（async/await） | 第三方需要 DOM 的库 |
+| 用 Server Component            | 用 Client Component           |
+| ------------------------------ | ----------------------------- |
+| 直接访问数据库                 | 需要 `useState` / `useEffect` |
+| 访问文件系统                   | 需要事件监听                  |
+| 使用敏感数据（不暴露给客户端） | 需要浏览器 API                |
+| 减少客户端 JS 体积             | 需要实时交互                  |
+| 异步数据获取（async/await）    | 第三方需要 DOM 的库           |
 
 ### Q5：React 19 的 Actions 和 Redux 的区别？
 
@@ -474,12 +473,12 @@ React Actions 是轻量级的**局部状态管理**，配合 `useActionState` + 
 ## 七、与 Vue 3 的对比
 
 | 功能 | React 19 | Vue 3 |
-|------|---------|-------|
+| --- | --- | --- |
 | 异步数据 | `use()` + Suspense | `<Suspense>` + async setup |
 | 表单状态 | `useFormStatus` + `useActionState` | VueUse `useForm` / 手动 |
 | 乐观 UI | `useOptimistic` | 手动 ref + 计算属性 |
 | 服务端数据 | Server Actions | Nuxt `useFetch` / `useAsyncData` |
-| 自动优化 | React Compiler（编译时 memo）| Vue 3 响应式天生追踪（无需 memo）|
+| 自动优化 | React Compiler（编译时 memo） | Vue 3 响应式天生追踪（无需 memo） |
 
 > 💡 Vue 3 的响应式系统（Proxy + 依赖追踪）让大多数场景不需要手动优化；React 需要 Compiler 来弥补这一差距。
 

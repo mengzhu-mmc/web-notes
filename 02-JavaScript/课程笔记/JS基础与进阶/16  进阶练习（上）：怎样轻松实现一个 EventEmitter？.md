@@ -26,10 +26,8 @@ eventEmitter.emit(<span class="hljs-string">'say'</span>,<span class="hljs-strin
 <p data-nodeid="2177">除了上面的那段代码中已经使用的 on 和emit 这两个 API，EventEmitter还提供了其他的 API 方法，我通过一个表格简单整理了一下对应的方法和功能总结。</p>
 <p data-nodeid="2178" class="te-preview-highlight"><img src="https://s0.lgstatic.com/i/image6/M01/0E/14/Cgp9HWA8LMiAEVlGAAJEpecSYyo071.png" alt="图片1.png" data-nodeid="2182"></p>
 
-
 <p data-nodeid="1511">除此之外，还有两个特殊的事件，不需要额外手动添加，下表所示的就是 Node.js 的 EventEmitter 模块自带的特殊事件。</p>
 <p data-nodeid="1512" class=""><img src="https://s0.lgstatic.com/i/image6/M01/0E/14/Cgp9HWA8LLaAdnhdAADOmTg9zw8428.png" alt="图片2.png" data-nodeid="1516"></p>
-
 
 <p data-nodeid="963">从上面的表格可以看出，Node.js的EventEmitter 模块看起来方法很多且复杂，但通过仔细学习，其实其使用和实现并不困难。下面我就来挑几个比较重要 API 方法为你进行讲解。</p>
 <h4 data-nodeid="964">addListener 和 removeListener、on 和 off 方法对比</h4>
@@ -164,23 +162,8 @@ EventEmitter.VERSION = <span class="hljs-string">'1.0.0'</span>;
      <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
 };
 
-EventEmitter.prototype.off = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">eventName, listener</span>) </span>{
-     <span class="hljs-keyword">var</span> listeners = <span class="hljs-keyword">this</span>.__events[eventName];
-     <span class="hljs-keyword">if</span> (!listeners) <span class="hljs-keyword">return</span>;
-     <span class="hljs-keyword">var</span> index;
-     <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>, len = listeners.length; i &lt; len; i++) {
-	    <span class="hljs-keyword">if</span> (listeners[i] &amp;&amp; listeners[i].listener === listener) {
-           index = i;
-           <span class="hljs-keyword">break</span>;
-        }
-    }
-    <span class="hljs-comment">// off 的关键</span>
-    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> index !== <span class="hljs-string">'undefined'</span>) {
-         listeners.splice(index, <span class="hljs-number">1</span>, <span class="hljs-literal">null</span>)
-    }
-    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
-};
-</code></pre>
+EventEmitter.prototype.off = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">eventName, listener</span>) </span>{ <span class="hljs-keyword">var</span> listeners = <span class="hljs-keyword">this</span>.\_\_events[eventName]; <span class="hljs-keyword">if</span> (!listeners) <span class="hljs-keyword">return</span>; <span class="hljs-keyword">var</span> index; <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>, len = listeners.length; i &lt; len; i++) { <span class="hljs-keyword">if</span> (listeners[i] &amp;&amp; listeners[i].listener === listener) { index = i; <span class="hljs-keyword">break</span>; } } <span class="hljs-comment">// off 的关键</span> <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> index !== <span class="hljs-string">'undefined'</span>) { listeners.splice(index, <span class="hljs-number">1</span>, <span class="hljs-literal">null</span>) } <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>; }; </code></pre>
+
 <p data-nodeid="991">从上面的代码中可以看出 emit 的处理方式，其实就是拿到对应自定义事件进行 apply 执行，在执行过程中对于一开始 once 方法绑定的自定义事件进行特殊的处理，当once 为 true的时候，再触发 off 方法对该自定义事件进行解绑，从而实现自定义事件一次执行的效果。</p>
 <p data-nodeid="992">最后，我们再看下 once 方法和 alloff的实现。</p>
 <pre class="lang-javascript" data-nodeid="993"><code data-language="javascript">EventEmitter.prototype.once = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">eventName, listener）{
@@ -213,48 +196,62 @@ EventEmitter.prototype.off = <span class="hljs-function"><span class="hljs-keywo
 
 ### 精选评论
 
-##### **洋：
+##### \*\*洋：
+
 > emit方法里面，apply参数应该是数组需要加上中括号 [args]
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 这也看调用的时候args传下来的是什么，严谨讲的话，可以加
 
-##### *岚：
+##### \*岚：
+
 > 就是一个发布订阅模式
 
-##### **6704：
+##### \*\*6704：
+
 > 老师，return this的作用是?
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
-> &nbsp;&nbsp;&nbsp; 因为个别方法EventEmitter内部this里面的__events发生了改变，最后需要返回一下
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
 
-##### **飞：
+> &nbsp;&nbsp;&nbsp; 因为个别方法EventEmitter内部this里面的\_\_events发生了改变，最后需要返回一下
+
+##### \*\*飞：
+
 > 老师，我发现前端很多库的实现使用发布订阅者模式非常普遍，在众多设计模式中它出现的频率最高
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 是的，你说的很对
 
-##### **宇：
+##### \*\*宇：
+
 > 老师， on实现方法里有一句看不太懂var listeners = events[eventName] = events[eventName] || [];
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 拿到对应事件名的回调
 
-##### **星：
+##### \*\*星：
+
 > 讲的很基础，很清晰，总是把两种设计模式搞混，要是把把两种代码贴出来对比下就更好了
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 嗯嗯
 
-##### **6400：
+##### \*\*6400：
+
 > 老师，1.请问为什么on，emit，off方法最后需要返回this，这是什么作用呢？2. isValidListener中做类型判断，我看到listener有两种类型，funciton和Object，这是为什么呢？
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 先回答第二个问题，listener 作为自定义事件的回调，必须是一个函数，另外判断是否是object这块递归的去找对象中是否还存在函数，如果不是函数，自定义事件没有回调肯定是不行的，因此isVaild这款必须这判断；第一个问题是你看下this指向的是什么？就知道了
 
-##### **丽：
+##### \*\*丽：
+
 > 若离老师，我理解发布-订阅模式在前端比较典型的应用场景是 事件绑定，那观察者模式的应用场景呢？老师能不能对这两种设计模式的区别讲的再详细点😊
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
-> &nbsp;&nbsp;&nbsp; 观察者模式，例如 vue的双向绑定，当数据发生变化，会更新视图变化，这种中间并没有一个dispatch center
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
 
+> &nbsp;&nbsp;&nbsp; 观察者模式，例如 vue的双向绑定，当数据发生变化，会更新视图变化，这种中间并没有一个dispatch center

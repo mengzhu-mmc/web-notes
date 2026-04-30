@@ -1,7 +1,5 @@
 <p data-nodeid="4737">这一讲我们将针对 React 中的设计模式进行探讨。</p>
 
-
-
 <p data-nodeid="3799">与性能优化的视角相似，当我们谈论 React 设计模式时，实际上是在谈论“React 组件的设计模式”。在 React 设计模式中，最重要、也是最为大家所津津乐道的几个模式分别是：</p>
 <ul data-nodeid="3800">
 <li data-nodeid="3801">
@@ -36,8 +34,6 @@
 };
 </code></pre>
 
-
-
 <p data-nodeid="3819">在这段代码中，withProps 就是一个高阶组件。</p>
 <h4 data-nodeid="3820">高阶组件是如何实现逻辑复用的？</h4>
 <p data-nodeid="3821">现在我们考虑这样一种情况：我有一个名为 checkUserAccess 的方法，这个方法专门用来校验用户的身份是否合法，若不合法，那么一部分组件就要根据这个不合法的身份调整自身的展示逻辑（比如查看个人信息界面需要提示“请校验身份”等）。</p>
@@ -58,10 +54,6 @@ const withCheckAccess = (WrappedComponent) =&gt; {
     return targetComponent;
 };
 </code></pre>
-
-
-
-
 
 <p data-nodeid="3825">这样当我们需要为某个组件复用这层请求逻辑的时候，只需要直接用 withCheckAccess 包裹这个组件就可以了。以 A 组件为例，假设 A 组件的原始版本为 AComponent，那么包裹它的形式就是下面代码这样：</p>
 <pre class="lang-java" data-nodeid="3826"><code data-language="java"><span class="hljs-keyword">const</span> EnhancedAComponent = withCheckAccess(Acomponent);
@@ -255,24 +247,30 @@ const withCheckAccess = (WrappedComponent) =&gt; {
 
 ### 精选评论
 
-##### **飞：
+##### \*\*飞：
+
 > 好！不见不散！
 
-##### **雄：
+##### \*\*雄：
+
 > 要结束了，花了13个小时，第二节还要花一倍时间感觉
 
- ###### &nbsp;&nbsp;&nbsp; 编辑回复：
+###### &nbsp;&nbsp;&nbsp; 编辑回复：
+
 > &nbsp;&nbsp;&nbsp; 小编给你打call，加油哦！
 
-##### **2689：
+##### \*\*2689：
+
 > 干货满满
 
-##### **森：
+##### \*\*森：
+
 > 赞
 
-##### **宇：
+##### \*\*宇：
+
 > 作者大大，hoc和render props比较的例子感觉不是很信服。例子中render props相比于hoc多了一个函数中间层，hoc是子组件与父组件直接“接触”，自然没有修改的空间，如果hoc传入的参数也给子组件包一层中间函数，面对变化也符合开闭原则了，只能说render props的写法多了一个这样的约束。有没有更好的例子说明hoc控制力不如render props呢？
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
-> &nbsp;&nbsp;&nbsp; 高阶组件指的就是参数为组件，返回值为新组件的函数。hoc传入的参数是组件，组件给子组件套一层，那么作为入参的这个组件自身是不是还是要和hoc亲密接触？文中的例子其实足够了。思辨是药，过度思辨是毒药，多在代码里体验一下就知道其中滋味了。
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
 
+> &nbsp;&nbsp;&nbsp; 高阶组件指的就是参数为组件，返回值为新组件的函数。hoc传入的参数是组件，组件给子组件套一层，那么作为入参的这个组件自身是不是还是要和hoc亲密接触？文中的例子其实足够了。思辨是药，过度思辨是毒药，多在代码里体验一下就知道其中滋味了。

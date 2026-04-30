@@ -12,6 +12,7 @@
 **题目描述**：给定一个整数数组 `temperatures` 表示每天的温度，返回一个数组 `answer`，其中 `answer[i]` 是指在第 `i` 天之后，才会有更高的温度。如果气温在这之后都不会升高，请在该位置用 `0` 来代替。
 
 **自测用例**：
+
 - 输入: temperatures = [73,74,75,71,69,72,76,73] → 输出: [1,1,4,2,1,1,0,0]
 - 输入: temperatures = [30,40,50,60] → 输出: [1,1,1,0]
 - 输入: temperatures = [30,60,90] → 输出: [1,1,0]
@@ -23,13 +24,16 @@
 **代码**：
 
 ```js
-var dailyTemperatures = function(temperatures) {
+var dailyTemperatures = function (temperatures) {
   const n = temperatures.length;
   const res = new Array(n).fill(0);
   const stack = []; // 存下标，单调递减栈
 
   for (let i = 0; i < n; i++) {
-    while (stack.length && temperatures[i] > temperatures[stack[stack.length - 1]]) {
+    while (
+      stack.length &&
+      temperatures[i] > temperatures[stack[stack.length - 1]]
+    ) {
       const idx = stack.pop();
       res[idx] = i - idx; // 距离差就是等待天数
     }
@@ -49,6 +53,7 @@ var dailyTemperatures = function(temperatures) {
 **题目描述**：给定两个没有重复元素的数组 `nums1` 和 `nums2`，其中 `nums1` 是 `nums2` 的子集。对于 `nums1` 中每个元素，找出在 `nums2` 中该元素右边第一个比它大的元素，不存在则返回 `-1`。
 
 **自测用例**：
+
 - 输入: nums1 = [4,1,2], nums2 = [1,3,4,2] → 输出: [-1,3,-1]
 - 输入: nums1 = [2,4], nums2 = [1,2,3,4] → 输出: [3,-1]
 - 输入: nums1 = [1], nums2 = [1,2] → 输出: [2]
@@ -60,7 +65,7 @@ var dailyTemperatures = function(temperatures) {
 **代码**：
 
 ```js
-var nextGreaterElement = function(nums1, nums2) {
+var nextGreaterElement = function (nums1, nums2) {
   const map = new Map();
   const stack = [];
 
@@ -72,7 +77,7 @@ var nextGreaterElement = function(nums1, nums2) {
     stack.push(nums2[i]);
   }
 
-  return nums1.map(n => map.get(n) ?? -1);
+  return nums1.map((n) => map.get(n) ?? -1);
 };
 ```
 
@@ -85,6 +90,7 @@ var nextGreaterElement = function(nums1, nums2) {
 **题目描述**：给定一个循环数组 `nums`，对于每个元素，找出其下一个更大的元素。由于是循环数组，最后一个元素的下一个更大元素可能是数组靠前的元素。不存在则返回 `-1`。
 
 **自测用例**：
+
 - 输入: nums = [1,2,1] → 输出: [2,-1,2]
 - 输入: nums = [1,2,3,4,3] → 输出: [2,3,4,-1,4]
 - 输入: nums = [5,4,3,2,1] → 输出: [-1,5,5,5,5]
@@ -96,7 +102,7 @@ var nextGreaterElement = function(nums1, nums2) {
 **代码**：
 
 ```js
-var nextGreaterElements = function(nums) {
+var nextGreaterElements = function (nums) {
   const n = nums.length;
   const res = new Array(n).fill(-1);
   const stack = [];
@@ -122,6 +128,7 @@ var nextGreaterElements = function(nums) {
 **题目描述**：给定 `n` 个非负整数表示每个宽度为 `1` 的柱子的高度图，计算按此排列的柱子，下雨之后能接多少雨水。
 
 **自测用例**：
+
 - 输入: height = [0,1,0,2,1,0,1,3,2,1,2,1] → 输出: 6
 - 输入: height = [4,2,0,3,2,5] → 输出: 9
 - 输入: height = [3,0,2,0,4] → 输出: 7
@@ -133,7 +140,7 @@ var nextGreaterElements = function(nums) {
 **代码**：
 
 ```js
-var trap = function(height) {
+var trap = function (height) {
   let res = 0;
   const stack = [];
 
@@ -166,7 +173,7 @@ var trap = function(height) {
  */
 function debounce(fn, delay) {
   let timer = null;
-  return function(...args) {
+  return function (...args) {
     clearTimeout(timer);
     timer = setTimeout(() => {
       fn.apply(this, args);
@@ -181,7 +188,7 @@ function debounce(fn, delay) {
  */
 function throttle(fn, interval) {
   let lastTime = 0;
-  return function(...args) {
+  return function (...args) {
     const now = Date.now();
     if (now - lastTime >= interval) {
       lastTime = now;
@@ -200,6 +207,7 @@ function throttle(fn, interval) {
 **面试标准答案**：
 
 执行顺序：
+
 1. 执行**同步代码**（执行栈清空）
 2. 清空所有**微任务**（Promise.then、queueMicrotask、MutationObserver）
 3. 取一个**宏任务**执行（setTimeout、setInterval、I/O）
@@ -217,6 +225,7 @@ Q: Node.js 与浏览器事件循环区别？
 A: Node.js 有 6 阶段（timers → poll → check 等），process.nextTick 优先级高于 Promise.then。浏览器只有宏/微任务两层。
 
 ---
+
 ## Day 2 — 二分查找
 
 ### [704] 二分查找 ⭐简单
@@ -224,6 +233,7 @@ A: Node.js 有 6 阶段（timers → poll → check 等），process.nextTick �
 **题目描述**：给定一个升序排列的整数数组 `nums` 和一个目标值 `target`，如果 `target` 存在则返回其下标，否则返回 `-1`。
 
 **自测用例**：
+
 - 输入: nums = [-1,0,3,5,9,12], target = 9 → 输出: 4
 - 输入: nums = [-1,0,3,5,9,12], target = 2 → 输出: -1
 - 输入: nums = [5], target = 5 → 输出: 0
@@ -235,8 +245,9 @@ A: Node.js 有 6 阶段（timers → poll → check 等），process.nextTick �
 **代码**：
 
 ```js
-var search = function(nums, target) {
-  let left = 0, right = nums.length - 1;
+var search = function (nums, target) {
+  let left = 0,
+    right = nums.length - 1;
 
   while (left <= right) {
     const mid = left + ((right - left) >> 1);
@@ -258,6 +269,7 @@ var search = function(nums, target) {
 **题目描述**：给定一个升序排列的不重复整数数组 `nums` 和一个目标值 `target`，在数组中找到目标值并返回其下标；如果不存在，返回它将会被按顺序插入的位置。
 
 **自测用例**：
+
 - 输入: nums = [1,3,5,6], target = 5 → 输出: 2
 - 输入: nums = [1,3,5,6], target = 2 → 输出: 1
 - 输入: nums = [1,3,5,6], target = 7 → 输出: 4
@@ -269,8 +281,9 @@ var search = function(nums, target) {
 **代码**：
 
 ```js
-var searchInsert = function(nums, target) {
-  let left = 0, right = nums.length;
+var searchInsert = function (nums, target) {
+  let left = 0,
+    right = nums.length;
 
   while (left < right) {
     const mid = left + ((right - left) >> 1);
@@ -291,6 +304,7 @@ var searchInsert = function(nums, target) {
 **题目描述**：给定一个升序排列的整数数组 `nums` 和目标值 `target`，找出 `target` 在数组中的开始位置和结束位置。如果数组中不存在目标值，返回 `[-1, -1]`。要求时间复杂度为 O(log n)。
 
 **自测用例**：
+
 - 输入: nums = [5,7,7,8,8,10], target = 8 → 输出: [3,4]
 - 输入: nums = [5,7,7,8,8,10], target = 6 → 输出: [-1,-1]
 - 输入: nums = [], target = 0 → 输出: [-1,-1]
@@ -302,9 +316,10 @@ var searchInsert = function(nums, target) {
 **代码**：
 
 ```js
-var searchRange = function(nums, target) {
+var searchRange = function (nums, target) {
   const lowerBound = (t) => {
-    let left = 0, right = nums.length;
+    let left = 0,
+      right = nums.length;
     while (left < right) {
       const mid = left + ((right - left) >> 1);
       if (nums[mid] < t) left = mid + 1;
@@ -328,6 +343,7 @@ var searchRange = function(nums, target) {
 **题目描述**：给定一个元素互不相同的整数数组 `nums`，它原本是升序排列的，但在某个下标处进行了旋转（如 `[0,1,2,4,5,6,7]` 旋转为 `[4,5,6,7,0,1,2]`）。在其中搜索目标值 `target`，存在返回下标，否则返回 `-1`。要求时间复杂度 O(log n)。
 
 **自测用例**：
+
 - 输入: nums = [4,5,6,7,0,1,2], target = 0 → 输出: 4
 - 输入: nums = [4,5,6,7,0,1,2], target = 3 → 输出: -1
 - 输入: nums = [1], target = 0 → 输出: -1
@@ -339,17 +355,20 @@ var searchRange = function(nums, target) {
 **代码**：
 
 ```js
-var search = function(nums, target) {
-  let left = 0, right = nums.length - 1;
+var search = function (nums, target) {
+  let left = 0,
+    right = nums.length - 1;
 
   while (left <= right) {
     const mid = left + ((right - left) >> 1);
     if (nums[mid] === target) return mid;
 
-    if (nums[left] <= nums[mid]) { // 左半段有序
+    if (nums[left] <= nums[mid]) {
+      // 左半段有序
       if (nums[left] <= target && target < nums[mid]) right = mid - 1;
       else left = mid + 1;
-    } else { // 右半段有序
+    } else {
+      // 右半段有序
       if (nums[mid] < target && target <= nums[right]) left = mid + 1;
       else right = mid - 1;
     }
@@ -366,9 +385,9 @@ var search = function(nums, target) {
 ### 场景题：手写 Promise（基础版：resolve/reject/then）
 
 ```js
-const PENDING = 'pending';
-const FULFILLED = 'fulfilled';
-const REJECTED = 'rejected';
+const PENDING = "pending";
+const FULFILLED = "fulfilled";
+const REJECTED = "rejected";
 
 class MyPromise {
   constructor(executor) {
@@ -382,14 +401,14 @@ class MyPromise {
       if (this.status !== PENDING) return;
       this.status = FULFILLED;
       this.value = value;
-      this.onFulfilledCallbacks.forEach(fn => fn(value));
+      this.onFulfilledCallbacks.forEach((fn) => fn(value));
     };
 
     const reject = (reason) => {
       if (this.status !== PENDING) return;
       this.status = REJECTED;
       this.reason = reason;
-      this.onRejectedCallbacks.forEach(fn => fn(reason));
+      this.onRejectedCallbacks.forEach((fn) => fn(reason));
     };
 
     try {
@@ -400,8 +419,13 @@ class MyPromise {
   }
 
   then(onFulfilled, onRejected) {
-    onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : v => v;
-    onRejected = typeof onRejected === 'function' ? onRejected : e => { throw e; };
+    onFulfilled = typeof onFulfilled === "function" ? onFulfilled : (v) => v;
+    onRejected =
+      typeof onRejected === "function"
+        ? onRejected
+        : (e) => {
+            throw e;
+          };
 
     if (this.status === FULFILLED) {
       setTimeout(() => onFulfilled(this.value));
@@ -429,18 +453,22 @@ Constructor.prototype.__proto__ === Object.prototype
 Object.prototype.__proto__ === null
 ```
 
-| 继承方式 | 优点 | 缺点 |
-|----------|------|------|
-| 原型链继承 | 简单 | 引用类型共享，无法传参 |
-| 构造函数继承 | 独立实例属性 | 方法不共享，每次重建 |
-| 组合继承 | 属性独立+方法共享 | 父构造函数调用两次 |
-| 寄生组合继承 | 最完美 ES5 方案 | 略复杂 |
-| ES6 class extends | 语法最简洁 | 本质同寄生组合 |
+| 继承方式          | 优点              | 缺点                   |
+| ----------------- | ----------------- | ---------------------- |
+| 原型链继承        | 简单              | 引用类型共享，无法传参 |
+| 构造函数继承      | 独立实例属性      | 方法不共享，每次重建   |
+| 组合继承          | 属性独立+方法共享 | 父构造函数调用两次     |
+| 寄生组合继承      | 最完美 ES5 方案   | 略复杂                 |
+| ES6 class extends | 语法最简洁        | 本质同寄生组合         |
 
 ```js
 // 寄生组合继承
-function Parent(name) { this.name = name; }
-Parent.prototype.sayHi = function() { console.log(this.name); };
+function Parent(name) {
+  this.name = name;
+}
+Parent.prototype.sayHi = function () {
+  console.log(this.name);
+};
 
 function Child(name, age) {
   Parent.call(this, name);
@@ -467,6 +495,7 @@ A: 创建无原型链的纯净对象，适合做字典，避免原型方法污�
 **题目描述**：给定一个元素互不相同的升序数组在某个下标处旋转后的结果，找出其中的最小元素。要求时间复杂度为 O(log n)。
 
 **自测用例**：
+
 - 输入: nums = [3,4,5,1,2] → 输出: 1
 - 输入: nums = [4,5,6,7,0,1,2] → 输出: 0
 - 输入: nums = [11,13,15,17] → 输出: 11
@@ -478,8 +507,9 @@ A: 创建无原型链的纯净对象，适合做字典，避免原型方法污�
 **代码**：
 
 ```js
-var findMin = function(nums) {
-  let left = 0, right = nums.length - 1;
+var findMin = function (nums) {
+  let left = 0,
+    right = nums.length - 1;
 
   while (left < right) {
     const mid = left + ((right - left) >> 1);
@@ -500,6 +530,7 @@ var findMin = function(nums) {
 **题目描述**：峰值元素是指其值严格大于左右相邻值的元素。给你一个整数数组 `nums`，找到峰值元素并返回其索引。数组可能包含多个峰值，返回任何一个峰值所在位置即可。要求时间复杂度 O(log n)。
 
 **自测用例**：
+
 - 输入: nums = [1,2,3,1] → 输出: 2
 - 输入: nums = [1,2,1,3,5,6,4] → 输出: 5（或 1）
 - 输入: nums = [1,2] → 输出: 1
@@ -511,8 +542,9 @@ var findMin = function(nums) {
 **代码**：
 
 ```js
-var findPeakElement = function(nums) {
-  let left = 0, right = nums.length - 1;
+var findPeakElement = function (nums) {
+  let left = 0,
+    right = nums.length - 1;
 
   while (left < right) {
     const mid = left + ((right - left) >> 1);
@@ -533,6 +565,7 @@ var findPeakElement = function(nums) {
 **题目描述**：给定两个正序（从小到大排列）数组 `nums1` 和 `nums2`，找出并返回这两个正序数组的中位数。要求时间复杂度为 O(log(m+n))。
 
 **自测用例**：
+
 - 输入: nums1 = [1,3], nums2 = [2] → 输出: 2.00000
 - 输入: nums1 = [1,2], nums2 = [3,4] → 输出: 2.50000
 - 输入: nums1 = [0,0], nums2 = [0,0] → 输出: 0.00000
@@ -544,21 +577,23 @@ var findPeakElement = function(nums) {
 **代码**：
 
 ```js
-var findMedianSortedArrays = function(nums1, nums2) {
+var findMedianSortedArrays = function (nums1, nums2) {
   if (nums1.length > nums2.length) return findMedianSortedArrays(nums2, nums1);
 
-  const m = nums1.length, n = nums2.length;
+  const m = nums1.length,
+    n = nums2.length;
   const half = Math.floor((m + n + 1) / 2);
-  let left = 0, right = m;
+  let left = 0,
+    right = m;
 
   while (left <= right) {
     const i = left + ((right - left) >> 1);
     const j = half - i;
 
     const n1L = i === 0 ? -Infinity : nums1[i - 1];
-    const n1R = i === m ? Infinity  : nums1[i];
+    const n1R = i === m ? Infinity : nums1[i];
     const n2L = j === 0 ? -Infinity : nums2[j - 1];
-    const n2R = j === n ? Infinity  : nums2[j];
+    const n2R = j === n ? Infinity : nums2[j];
 
     if (n1L <= n2R && n2L <= n1R) {
       const maxLeft = Math.max(n1L, n2L);
@@ -582,6 +617,7 @@ var findMedianSortedArrays = function(nums1, nums2) {
 **题目描述**：给你一个整数数组 `nums` 和一个整数 `k`，统计并返回该数组中和为 `k` 的连续子数组的个数。
 
 **自测用例**：
+
 - 输入: nums = [1,1,1], k = 2 → 输出: 2
 - 输入: nums = [1,2,3], k = 3 → 输出: 2
 - 输入: nums = [1,-1,1], k = 1 → 输出: 3
@@ -593,13 +629,14 @@ var findMedianSortedArrays = function(nums1, nums2) {
 **代码**：
 
 ```js
-var subarraySum = function(nums, k) {
-  let count = 0, preSum = 0;
+var subarraySum = function (nums, k) {
+  let count = 0,
+    preSum = 0;
   const map = new Map([[0, 1]]); // 空前缀和为 0，出现 1 次
 
   for (const num of nums) {
     preSum += num;
-    count += (map.get(preSum - k) || 0);
+    count += map.get(preSum - k) || 0;
     map.set(preSum, (map.get(preSum) || 0) + 1);
   }
 
@@ -616,6 +653,7 @@ var subarraySum = function(nums, k) {
 **题目描述**：给你一个整数数组 `nums`，返回数组 `answer`，其中 `answer[i]` 等于 `nums` 中除 `nums[i]` 之外其余各元素的乘积。要求不使用除法，且时间复杂度为 O(n)。
 
 **自测用例**：
+
 - 输入: nums = [1,2,3,4] → 输出: [24,12,8,6]
 - 输入: nums = [-1,1,0,-3,3] → 输出: [0,0,9,0,0]
 - 输入: nums = [2,3,4,5] → 输出: [60,40,30,24]
@@ -627,7 +665,7 @@ var subarraySum = function(nums, k) {
 **代码**：
 
 ```js
-var productExceptSelf = function(nums) {
+var productExceptSelf = function (nums) {
   const n = nums.length;
   const res = new Array(n).fill(1);
 
@@ -659,7 +697,7 @@ var productExceptSelf = function(nums) {
  * 支持：基本类型、对象、数组、Date、RegExp、Map、Set、循环引用
  */
 function deepClone(value, seen = new WeakMap()) {
-  if (value === null || typeof value !== 'object') return value;
+  if (value === null || typeof value !== "object") return value;
   if (seen.has(value)) return seen.get(value); // 处理循环引用
 
   if (value instanceof Date) return new Date(value);
@@ -675,11 +713,13 @@ function deepClone(value, seen = new WeakMap()) {
   if (value instanceof Set) {
     const clone = new Set();
     seen.set(value, clone);
-    value.forEach(v => clone.add(deepClone(v, seen)));
+    value.forEach((v) => clone.add(deepClone(v, seen)));
     return clone;
   }
 
-  const clone = Array.isArray(value) ? [] : Object.create(Object.getPrototypeOf(value));
+  const clone = Array.isArray(value)
+    ? []
+    : Object.create(Object.getPrototypeOf(value));
   seen.set(value, clone); // 先注册再递归，避免循环引用
 
   for (const key of Reflect.ownKeys(value)) {
@@ -705,7 +745,7 @@ class EventEmitter {
 
   off(event, listener) {
     if (this._events[event]) {
-      this._events[event] = this._events[event].filter(fn => fn !== listener);
+      this._events[event] = this._events[event].filter((fn) => fn !== listener);
     }
     return this;
   }
@@ -721,7 +761,7 @@ class EventEmitter {
 
   emit(event, ...args) {
     if (!this._events[event]) return false;
-    [...this._events[event]].forEach(fn => fn.apply(this, args));
+    [...this._events[event]].forEach((fn) => fn.apply(this, args));
     return true;
   }
 }
@@ -735,19 +775,23 @@ class EventEmitter {
 
 **面试标准答案**：
 
-| 继承方式 | 优点 | 缺点 |
-|----------|------|------|
-| 原型链继承 | 简单 | 引用类型共享，无法传参 |
-| 构造函数继承 | 独立实例属性 | 方法每次重建，不共享 |
-| 组合继承 | 属性独立+方法共享 | 父构造函数调用两次 |
-| 寄生组合继承 | 最完美 ES5 方案 | 略复杂 |
-| ES6 class extends | 语法最简洁 | 本质同寄生组合 |
+| 继承方式          | 优点              | 缺点                   |
+| ----------------- | ----------------- | ---------------------- |
+| 原型链继承        | 简单              | 引用类型共享，无法传参 |
+| 构造函数继承      | 独立实例属性      | 方法每次重建，不共享   |
+| 组合继承          | 属性独立+方法共享 | 父构造函数调用两次     |
+| 寄生组合继承      | 最完美 ES5 方案   | 略复杂                 |
+| ES6 class extends | 语法最简洁        | 本质同寄生组合         |
 
 ```js
 // ES6 class（推荐）
 class Animal {
-  constructor(name) { this.name = name; }
-  speak() { return `${this.name} makes a sound`; }
+  constructor(name) {
+    this.name = name;
+  }
+  speak() {
+    return `${this.name} makes a sound`;
+  }
 }
 
 class Dog extends Animal {
@@ -775,6 +819,7 @@ A: `new` 调用构造函数并创建实例；`Object.create(proto)` 直接以 pr
 **题目描述**：给你一个由 `'1'`（陆地）和 `'0'`（水）组成的二维网格，计算网格中岛屿的数量。岛屿由相邻的陆地连接而成，四个方向（上下左右）相邻。
 
 **自测用例**：
+
 - 输入: grid = [["1","1","1","1","0"],["1","1","0","1","0"],["1","1","0","0","0"],["0","0","0","0","0"]] → 输出: 1
 - 输入: grid = [["1","1","0","0","0"],["1","1","0","0","0"],["0","0","1","0","0"],["0","0","0","1","1"]] → 输出: 3
 - 输入: grid = [["1","0","1"],["0","1","0"],["1","0","1"]] → 输出: 5
@@ -786,19 +831,26 @@ A: `new` 调用构造函数并创建实例；`Object.create(proto)` 直接以 pr
 **代码**：
 
 ```js
-var numIslands = function(grid) {
-  const rows = grid.length, cols = grid[0].length;
+var numIslands = function (grid) {
+  const rows = grid.length,
+    cols = grid[0].length;
   let count = 0;
 
   const dfs = (r, c) => {
-    if (r < 0 || r >= rows || c < 0 || c >= cols || grid[r][c] !== '1') return;
-    grid[r][c] = '0';
-    dfs(r+1,c); dfs(r-1,c); dfs(r,c+1); dfs(r,c-1);
+    if (r < 0 || r >= rows || c < 0 || c >= cols || grid[r][c] !== "1") return;
+    grid[r][c] = "0";
+    dfs(r + 1, c);
+    dfs(r - 1, c);
+    dfs(r, c + 1);
+    dfs(r, c - 1);
   };
 
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
-      if (grid[r][c] === '1') { count++; dfs(r, c); }
+      if (grid[r][c] === "1") {
+        count++;
+        dfs(r, c);
+      }
     }
   }
 
@@ -815,6 +867,7 @@ var numIslands = function(grid) {
 **题目描述**：给定一个由 `0`（水）和 `1`（陆地）组成的二维网格，找到面积最大的岛屿并返回其面积。岛屿面积是指连通的陆地格子总数，连通方向为上下左右四个方向。
 
 **自测用例**：
+
 - 输入: grid = [[0,0,1,0,0,0,0,1,0,0,0,0,0],[0,0,0,0,0,0,0,1,1,1,0,0,0],[0,1,1,0,1,0,0,0,0,0,0,0,0],[0,1,0,0,1,1,0,0,1,0,1,0,0],[0,1,0,0,1,1,0,0,1,1,1,0,0],[0,0,0,0,0,0,0,0,0,0,1,0,0],[0,0,0,0,0,0,0,1,1,1,0,0,0],[0,0,0,0,0,0,0,1,1,0,0,0,0]] → 输出: 6
 - 输入: grid = [[0,0,0,0,0,0,0,0]] → 输出: 0
 - 输入: grid = [[1,1,0,0],[1,1,0,0],[0,0,1,1]] → 输出: 4
@@ -826,13 +879,14 @@ var numIslands = function(grid) {
 **代码**：
 
 ```js
-var maxAreaOfIsland = function(grid) {
-  const rows = grid.length, cols = grid[0].length;
+var maxAreaOfIsland = function (grid) {
+  const rows = grid.length,
+    cols = grid[0].length;
 
   const dfs = (r, c) => {
     if (r < 0 || r >= rows || c < 0 || c >= cols || grid[r][c] !== 1) return 0;
     grid[r][c] = 0;
-    return 1 + dfs(r+1,c) + dfs(r-1,c) + dfs(r,c+1) + dfs(r,c-1);
+    return 1 + dfs(r + 1, c) + dfs(r - 1, c) + dfs(r, c + 1) + dfs(r, c - 1);
   };
 
   let max = 0;
@@ -855,6 +909,7 @@ var maxAreaOfIsland = function(grid) {
 **题目描述**：给你一个 `m × n` 的矩阵 `board`，由 `'X'` 和 `'O'` 组成。找到所有被 `'X'` 围绕的区域，并将这些区域里所有的 `'O'` 用 `'X'` 填充（与边界相连的 `'O'` 不算被围绕）。
 
 **自测用例**：
+
 - 输入: board = [["X","X","X","X"],["X","O","O","X"],["X","X","O","X"],["X","O","X","X"]] → 输出: [["X","X","X","X"],["X","X","X","X"],["X","X","X","X"],["X","O","X","X"]]
 - 输入: board = [["X"]] → 输出: [["X"]]
 - 输入: board = [["O","O"],["O","O"]] → 输出: [["O","O"],["O","O"]]（边界相连，不变）
@@ -866,23 +921,33 @@ var maxAreaOfIsland = function(grid) {
 **代码**：
 
 ```js
-var solve = function(board) {
-  const rows = board.length, cols = board[0].length;
+var solve = function (board) {
+  const rows = board.length,
+    cols = board[0].length;
 
   const dfs = (r, c) => {
-    if (r < 0 || r >= rows || c < 0 || c >= cols || board[r][c] !== 'O') return;
-    board[r][c] = '#';
-    dfs(r+1,c); dfs(r-1,c); dfs(r,c+1); dfs(r,c-1);
+    if (r < 0 || r >= rows || c < 0 || c >= cols || board[r][c] !== "O") return;
+    board[r][c] = "#";
+    dfs(r + 1, c);
+    dfs(r - 1, c);
+    dfs(r, c + 1);
+    dfs(r, c - 1);
   };
 
   // 从四条边出发标记"安全"的 O
-  for (let r = 0; r < rows; r++) { dfs(r, 0); dfs(r, cols-1); }
-  for (let c = 0; c < cols; c++) { dfs(0, c); dfs(rows-1, c); }
+  for (let r = 0; r < rows; r++) {
+    dfs(r, 0);
+    dfs(r, cols - 1);
+  }
+  for (let c = 0; c < cols; c++) {
+    dfs(0, c);
+    dfs(rows - 1, c);
+  }
 
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
-      if (board[r][c] === 'O') board[r][c] = 'X';
-      else if (board[r][c] === '#') board[r][c] = 'O';
+      if (board[r][c] === "O") board[r][c] = "X";
+      else if (board[r][c] === "#") board[r][c] = "O";
     }
   }
 };
@@ -897,6 +962,7 @@ var solve = function(board) {
 **题目描述**：你这个学期必须选修 `numCourses` 门课程，课程编号从 `0` 到 `numCourses-1`。给定先决条件数组 `prerequisites`，其中 `[a, b]` 表示选修 `a` 之前必须先完成 `b`。判断是否可能完成所有课程（即判断有向图中是否存在环）。
 
 **自测用例**：
+
 - 输入: numCourses = 2, prerequisites = [[1,0]] → 输出: true
 - 输入: numCourses = 2, prerequisites = [[1,0],[0,1]] → 输出: false
 - 输入: numCourses = 4, prerequisites = [[1,0],[2,0],[3,1],[3,2]] → 输出: true
@@ -908,7 +974,7 @@ var solve = function(board) {
 **代码**：
 
 ```js
-var canFinish = function(numCourses, prerequisites) {
+var canFinish = function (numCourses, prerequisites) {
   const inDegree = new Array(numCourses).fill(0);
   const graph = Array.from({ length: numCourses }, () => []);
 
@@ -947,7 +1013,7 @@ var canFinish = function(numCourses, prerequisites) {
  * 原理：沿左值的原型链查找，是否存在右值的 prototype
  */
 function myInstanceof(left, right) {
-  if (typeof left !== 'object' || left === null) return false;
+  if (typeof left !== "object" || left === null) return false;
 
   let proto = Object.getPrototypeOf(left); // 等价于 left.__proto__
 
@@ -982,9 +1048,11 @@ function Person(name, age) {
   this.name = name;
   this.age = age;
 }
-Person.prototype.greet = function() { return `Hi, I'm ${this.name}`; };
+Person.prototype.greet = function () {
+  return `Hi, I'm ${this.name}`;
+};
 
-const p = myNew(Person, 'Alice', 25);
+const p = myNew(Person, "Alice", 25);
 console.log(p.greet()); // Hi, I'm Alice
 console.log(myInstanceof(p, Person)); // true
 ```
@@ -1007,13 +1075,17 @@ this 的 5 种绑定规则（优先级从高到低）：
 
 ```js
 const obj = {
-  name: 'obj',
-  regular: function() { console.log(this.name); }, // 'obj'
-  arrow: () => { console.log(this.name); }         // undefined（词法 this）
+  name: "obj",
+  regular: function () {
+    console.log(this.name);
+  }, // 'obj'
+  arrow: () => {
+    console.log(this.name);
+  }, // undefined（词法 this）
 };
 
 obj.regular(); // 'obj'
-obj.arrow();   // undefined
+obj.arrow(); // undefined
 ```
 
 **常见追问**：
@@ -1033,6 +1105,7 @@ A: 非严格模式下是 window（浏览器），严格模式下是 undefined。
 **题目描述**：同课程表 I，但需返回完成所有课程的学习顺序。若存在循环依赖导致无法完成所有课程，则返回空数组。答案可能不唯一，返回任意一种合法顺序即可。
 
 **自测用例**：
+
 - 输入: numCourses = 2, prerequisites = [[1,0]] → 输出: [0,1]
 - 输入: numCourses = 4, prerequisites = [[1,0],[2,0],[3,1],[3,2]] → 输出: [0,1,2,3]（或[0,2,1,3]）
 - 输入: numCourses = 2, prerequisites = [[1,0],[0,1]] → 输出: []
@@ -1044,7 +1117,7 @@ A: 非严格模式下是 window（浏览器），严格模式下是 undefined。
 **代码**：
 
 ```js
-var findOrder = function(numCourses, prerequisites) {
+var findOrder = function (numCourses, prerequisites) {
   const inDegree = new Array(numCourses).fill(0);
   const graph = Array.from({ length: numCourses }, () => []);
 
@@ -1080,6 +1153,7 @@ var findOrder = function(numCourses, prerequisites) {
 **题目描述**：给你一个有 `n` 个节点的有向无环图（DAG），节点编号为 `0` 到 `n-1`，以邻接表形式给出。找出所有从节点 `0` 到节点 `n-1` 的路径，结果无顺序要求。
 
 **自测用例**：
+
 - 输入: graph = [[1,2],[3],[3],[]] → 输出: [[0,1,3],[0,2,3]]
 - 输入: graph = [[4,3,1],[3,2,4],[3],[4],[]] → 输出: [[0,4],[0,3,4],[0,1,3,4],[0,1,2,3,4],[0,1,4]]
 - 输入: graph = [[1],[]] → 输出: [[0,1]]
@@ -1091,7 +1165,7 @@ var findOrder = function(numCourses, prerequisites) {
 **代码**：
 
 ```js
-var allPathsSourceTarget = function(graph) {
+var allPathsSourceTarget = function (graph) {
   const res = [];
   const n = graph.length;
 
@@ -1121,6 +1195,7 @@ var allPathsSourceTarget = function(graph) {
 **题目描述**：给你无向连通图中一个节点的引用，请返回该图的深拷贝（克隆）。图中每个节点包含一个 `val` 和邻居列表 `neighbors`。节点数量在 `[0, 100]` 之间，节点值唯一。
 
 **自测用例**：
+
 - 输入: adjList = [[2,4],[1,3],[2,4],[1,3]] → 输出: [[2,4],[1,3],[2,4],[1,3]]（克隆后结构相同）
 - 输入: adjList = [[]] → 输出: [[]]（单节点无边）
 - 输入: adjList = [] → 输出: []（空图）
@@ -1132,7 +1207,7 @@ var allPathsSourceTarget = function(graph) {
 **代码**：
 
 ```js
-var cloneGraph = function(node) {
+var cloneGraph = function (node) {
   if (!node) return null;
   const visited = new Map(); // 原节点 -> 克隆节点
 
@@ -1162,6 +1237,7 @@ var cloneGraph = function(node) {
 **题目描述**：给定开始单词 `beginWord`、结束单词 `endWord` 和单词列表 `wordList`。每次转换只能改变一个字母，且转换后的单词必须在 `wordList` 中。找出从 `beginWord` 到 `endWord` 的最短转换序列的长度，不存在则返回 `0`。
 
 **自测用例**：
+
 - 输入: beginWord = "hit", endWord = "cog", wordList = ["hot","dot","dog","lot","log","cog"] → 输出: 5
 - 输入: beginWord = "hit", endWord = "cog", wordList = ["hot","dot","dog","lot","log"] → 输出: 0
 - 输入: beginWord = "a", endWord = "c", wordList = ["a","b","c"] → 输出: 2
@@ -1173,7 +1249,7 @@ var cloneGraph = function(node) {
 **代码**：
 
 ```js
-var ladderLength = function(beginWord, endWord, wordList) {
+var ladderLength = function (beginWord, endWord, wordList) {
   const wordSet = new Set(wordList);
   if (!wordSet.has(endWord)) return 0;
 
@@ -1184,8 +1260,10 @@ var ladderLength = function(beginWord, endWord, wordList) {
     const [word, steps] = queue.shift();
 
     for (let i = 0; i < word.length; i++) {
-      for (let c = 97; c <= 122; c++) { // a-z
-        const newWord = word.slice(0, i) + String.fromCharCode(c) + word.slice(i + 1);
+      for (let c = 97; c <= 122; c++) {
+        // a-z
+        const newWord =
+          word.slice(0, i) + String.fromCharCode(c) + word.slice(i + 1);
         if (newWord === endWord) return steps + 1;
         if (wordSet.has(newWord) && !visited.has(newWord)) {
           visited.add(newWord);
@@ -1210,10 +1288,10 @@ var ladderLength = function(beginWord, endWord, wordList) {
  * 手写 call
  * 核心：将函数挂到 context 对象上执行，借助隐式绑定让 this 指向 context
  */
-Function.prototype.myCall = function(context, ...args) {
+Function.prototype.myCall = function (context, ...args) {
   context = context == null ? globalThis : Object(context);
-  const key = Symbol('fn'); // 用 Symbol 避免属性污染
-  context[key] = this;      // this 就是被调用的函数
+  const key = Symbol("fn"); // 用 Symbol 避免属性污染
+  context[key] = this; // this 就是被调用的函数
   const result = context[key](...args);
   delete context[key];
   return result;
@@ -1223,9 +1301,9 @@ Function.prototype.myCall = function(context, ...args) {
  * 手写 apply
  * 与 call 相同，参数以数组传入
  */
-Function.prototype.myApply = function(context, args = []) {
+Function.prototype.myApply = function (context, args = []) {
   context = context == null ? globalThis : Object(context);
-  const key = Symbol('fn');
+  const key = Symbol("fn");
   context[key] = this;
   const result = context[key](...args);
   delete context[key];
@@ -1236,12 +1314,15 @@ Function.prototype.myApply = function(context, args = []) {
  * 手写 bind
  * 返回新函数，支持预置参数（偏函数），还需处理 new 调用
  */
-Function.prototype.myBind = function(context, ...bindArgs) {
+Function.prototype.myBind = function (context, ...bindArgs) {
   const fn = this;
 
   function BoundFn(...callArgs) {
     // 如果被 new 调用，this 是新对象，不应被 context 替换
-    return fn.apply(this instanceof BoundFn ? this : context, [...bindArgs, ...callArgs]);
+    return fn.apply(this instanceof BoundFn ? this : context, [
+      ...bindArgs,
+      ...callArgs,
+    ]);
   }
 
   // 维护原型链，保证 new BoundFn() 能访问原函数原型上的方法
@@ -1254,11 +1335,11 @@ function greet(greeting, punctuation) {
   return `${greeting}, ${this.name}${punctuation}`;
 }
 
-const user = { name: 'Alice' };
-console.log(greet.myCall(user, 'Hello', '!'));    // Hello, Alice!
-console.log(greet.myApply(user, ['Hi', '~']));   // Hi, Alice~
-const boundGreet = greet.myBind(user, 'Hey');
-console.log(boundGreet('?'));                      // Hey, Alice?
+const user = { name: "Alice" };
+console.log(greet.myCall(user, "Hello", "!")); // Hello, Alice!
+console.log(greet.myApply(user, ["Hi", "~"])); // Hi, Alice~
+const boundGreet = greet.myBind(user, "Hey");
+console.log(boundGreet("?")); // Hey, Alice?
 ```
 
 ---
@@ -1270,6 +1351,7 @@ console.log(boundGreet('?'));                      // Hey, Alice?
 **面试标准答案**：
 
 **变量提升（Hoisting）**：
+
 - `var` 声明提升，初始化为 `undefined`，赋值不提升
 - `function` 声明整体提升（声明+定义）
 - `let/const` 声明提升但不初始化，访问报 ReferenceError（TDZ）
@@ -1281,10 +1363,14 @@ var a = 1;
 let b = 2;
 
 foo(); // 'foo'（函数声明整体提升）
-function foo() { console.log('foo'); }
+function foo() {
+  console.log("foo");
+}
 
 bar(); // TypeError: bar is not a function（函数表达式只提升 var bar）
-var bar = function() { console.log('bar'); };
+var bar = function () {
+  console.log("bar");
+};
 ```
 
 **作用域链**：函数执行时查找变量，先查自身作用域，再向外层作用域查找，直到全局。作用域链在**定义**时确定，与调用位置无关（词法作用域）。
@@ -1306,6 +1392,7 @@ A: `var` 只有函数作用域，所有循环共享同一个变量；`let` 每�
 **题目描述**：给定一个二叉树的根节点 `root`，返回其最大路径和。路径是指从树中任意节点出发、到任意节点的序列（不一定经过根节点），路径中每个节点只能出现一次，节点值可以为负数。
 
 **自测用例**：
+
 - 输入: root = [1,2,3] → 输出: 6（路径：2→1→3）
 - 输入: root = [-10,9,20,null,null,15,7] → 输出: 42（路径：15→20→7）
 - 输入: root = [-3] → 输出: -3
@@ -1317,7 +1404,7 @@ A: `var` 只有函数作用域，所有循环共享同一个变量；`let` 每�
 **代码**：
 
 ```js
-var maxPathSum = function(root) {
+var maxPathSum = function (root) {
   let maxSum = -Infinity;
 
   const dfs = (node) => {
@@ -1348,6 +1435,7 @@ var maxPathSum = function(root) {
 **题目描述**：设计一个算法，实现二叉树的序列化（树 → 字符串）与反序列化（字符串 → 树）。序列化格式不限，但需保证序列化后能还原出原始树结构。
 
 **自测用例**：
+
 - 输入: root = [1,2,3,null,null,4,5] → serialize → deserialize → 输出: [1,2,3,null,null,4,5]
 - 输入: root = [] → serialize → deserialize → 输出: []
 - 输入: root = [1] → serialize → deserialize → 输出: [1]
@@ -1359,26 +1447,32 @@ var maxPathSum = function(root) {
 **代码**：
 
 ```js
-var serialize = function(root) {
+var serialize = function (root) {
   const parts = [];
 
   const dfs = (node) => {
-    if (!node) { parts.push('#'); return; }
+    if (!node) {
+      parts.push("#");
+      return;
+    }
     parts.push(String(node.val));
     dfs(node.left);
     dfs(node.right);
   };
 
   dfs(root);
-  return parts.join(',');
+  return parts.join(",");
 };
 
-var deserialize = function(data) {
-  const nodes = data.split(',');
+var deserialize = function (data) {
+  const nodes = data.split(",");
   let idx = 0;
 
   const dfs = () => {
-    if (nodes[idx] === '#') { idx++; return null; }
+    if (nodes[idx] === "#") {
+      idx++;
+      return null;
+    }
     const node = new TreeNode(parseInt(nodes[idx++]));
     node.left = dfs();
     node.right = dfs();
@@ -1398,6 +1492,7 @@ var deserialize = function(data) {
 **题目描述**：给定一个二叉树的根节点 `root` 以及树中两个节点 `p` 和 `q`，找到它们的最近公共祖先（LCA）。最近公共祖先是指：在树中同时拥有 `p` 和 `q` 为后代的最深节点（一个节点也可以是它自己的后代）。
 
 **自测用例**：
+
 - 输入: root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 1 → 输出: 3
 - 输入: root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 4 → 输出: 5
 - 输入: root = [1,2], p = 1, q = 2 → 输出: 1
@@ -1409,7 +1504,7 @@ var deserialize = function(data) {
 **代码**：
 
 ```js
-var lowestCommonAncestor = function(root, p, q) {
+var lowestCommonAncestor = function (root, p, q) {
   if (!root || root === p || root === q) return root;
 
   const left = lowestCommonAncestor(root.left, p, q);
@@ -1432,6 +1527,7 @@ var lowestCommonAncestor = function(root, p, q) {
 **题目描述**：给定两个整数数组 `preorder`（前序遍历）和 `inorder`（中序遍历），构造并返回对应的二叉树。数组中的值互不相同。
 
 **自测用例**：
+
 - 输入: preorder = [3,9,20,15,7], inorder = [9,3,15,20,7] → 输出: [3,9,20,null,null,15,7]
 - 输入: preorder = [-1], inorder = [-1] → 输出: [-1]
 - 输入: preorder = [1,2,3], inorder = [2,1,3] → 输出: [1,2,3]
@@ -1443,7 +1539,7 @@ var lowestCommonAncestor = function(root, p, q) {
 **代码**：
 
 ```js
-var buildTree = function(preorder, inorder) {
+var buildTree = function (preorder, inorder) {
   const map = new Map();
   inorder.forEach((val, idx) => map.set(val, idx));
 
@@ -1472,9 +1568,9 @@ var buildTree = function(preorder, inorder) {
 ### 场景题：手写 Promise（进阶版，支持链式调用）
 
 ```js
-const PENDING = 'pending';
-const FULFILLED = 'fulfilled';
-const REJECTED = 'rejected';
+const PENDING = "pending";
+const FULFILLED = "fulfilled";
+const REJECTED = "rejected";
 
 /**
  * resolvePromise：处理 then 回调返回值与新 Promise 的关系
@@ -1482,7 +1578,7 @@ const REJECTED = 'rejected';
  */
 function resolvePromise(promise2, x, resolve, reject) {
   if (promise2 === x) {
-    return reject(new TypeError('Chaining cycle detected'));
+    return reject(new TypeError("Chaining cycle detected"));
   }
 
   if (x instanceof MyPromise) {
@@ -1490,21 +1586,34 @@ function resolvePromise(promise2, x, resolve, reject) {
     return;
   }
 
-  if (x !== null && (typeof x === 'object' || typeof x === 'function')) {
+  if (x !== null && (typeof x === "object" || typeof x === "function")) {
     let called = false;
     try {
       const then = x.then;
-      if (typeof then === 'function') {
+      if (typeof then === "function") {
         then.call(
           x,
-          (y) => { if (!called) { called = true; resolvePromise(promise2, y, resolve, reject); } },
-          (r) => { if (!called) { called = true; reject(r); } }
+          (y) => {
+            if (!called) {
+              called = true;
+              resolvePromise(promise2, y, resolve, reject);
+            }
+          },
+          (r) => {
+            if (!called) {
+              called = true;
+              reject(r);
+            }
+          },
         );
       } else {
         resolve(x);
       }
     } catch (e) {
-      if (!called) { called = true; reject(e); }
+      if (!called) {
+        called = true;
+        reject(e);
+      }
     }
   } else {
     resolve(x);
@@ -1523,23 +1632,31 @@ class MyPromise {
       if (this.status !== PENDING) return;
       this.status = FULFILLED;
       this.value = value;
-      this.onFulfilledCallbacks.forEach(fn => fn());
+      this.onFulfilledCallbacks.forEach((fn) => fn());
     };
 
     const reject = (reason) => {
       if (this.status !== PENDING) return;
       this.status = REJECTED;
       this.reason = reason;
-      this.onRejectedCallbacks.forEach(fn => fn());
+      this.onRejectedCallbacks.forEach((fn) => fn());
     };
 
-    try { executor(resolve, reject); }
-    catch (e) { reject(e); }
+    try {
+      executor(resolve, reject);
+    } catch (e) {
+      reject(e);
+    }
   }
 
   then(onFulfilled, onRejected) {
-    onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : v => v;
-    onRejected = typeof onRejected === 'function' ? onRejected : e => { throw e; };
+    onFulfilled = typeof onFulfilled === "function" ? onFulfilled : (v) => v;
+    onRejected =
+      typeof onRejected === "function"
+        ? onRejected
+        : (e) => {
+            throw e;
+          };
 
     // then 返回一个新的 Promise（这是链式调用的关键）
     const promise2 = new MyPromise((resolve, reject) => {
@@ -1548,7 +1665,9 @@ class MyPromise {
           try {
             const x = onFulfilled(this.value);
             resolvePromise(promise2, x, resolve, reject);
-          } catch (e) { reject(e); }
+          } catch (e) {
+            reject(e);
+          }
         });
       };
 
@@ -1557,7 +1676,9 @@ class MyPromise {
           try {
             const x = onRejected(this.reason);
             resolvePromise(promise2, x, resolve, reject);
-          } catch (e) { reject(e); }
+          } catch (e) {
+            reject(e);
+          }
         });
       };
 
@@ -1577,7 +1698,7 @@ class MyPromise {
   }
 
   static resolve(value) {
-    return new MyPromise(resolve => resolve(value));
+    return new MyPromise((resolve) => resolve(value));
   }
 
   static reject(reason) {
@@ -1587,9 +1708,9 @@ class MyPromise {
 
 // --- 测试链式调用 ---
 MyPromise.resolve(1)
-  .then(v => v + 1)
-  .then(v => v * 2)
-  .then(v => console.log(v)); // 4
+  .then((v) => v + 1)
+  .then((v) => v * 2)
+  .then((v) => console.log(v)); // 4
 ```
 
 ---
@@ -1611,13 +1732,14 @@ MyPromise.resolve(1)
 
 **回流 vs 重绘**：
 
-| 操作 | 触发 | 代价 |
-|------|------|------|
-| 修改几何属性（width/height/margin/top...） | 回流 + 重绘 | 最高 |
-| 修改颜色/背景等非几何样式 | 重绘 | 中 |
-| transform/opacity | 仅合成层 | 最低（GPU 加速） |
+| 操作                                       | 触发        | 代价             |
+| ------------------------------------------ | ----------- | ---------------- |
+| 修改几何属性（width/height/margin/top...） | 回流 + 重绘 | 最高             |
+| 修改颜色/背景等非几何样式                  | 重绘        | 中               |
+| transform/opacity                          | 仅合成层    | 最低（GPU 加速） |
 
 **性能优化**：
+
 - 用 `transform` 代替 `top/left` 做动画
 - 批量修改 DOM（使用 DocumentFragment 或一次性修改 className）
 - 避免频繁读取会触发回流的属性（offsetWidth、scrollTop 等），可缓存到变量
@@ -1639,6 +1761,7 @@ A: DOMContentLoaded 在 HTML 解析完成、DOM 构建好时触发（不等图�
 **题目描述**：给定整数数组 `nums` 和整数 `k`，返回数组中第 `k` 个最大的元素。注意是排序后的第 `k` 大，而非第 `k` 个不同的元素。
 
 **自测用例**：
+
 - 输入: nums = [3,2,1,5,6,4], k = 2 → 输出: 5
 - 输入: nums = [3,2,3,1,2,4,5,5,6], k = 4 → 输出: 4
 - 输入: nums = [1], k = 1 → 输出: 1
@@ -1650,7 +1773,7 @@ A: DOMContentLoaded 在 HTML 解析完成、DOM 构建好时触发（不等图�
 **思路**：类似快排的 partition，每次把 pivot 放到最终位置。若 pivot 的位置正好是第 k 大的下标，直接返回；否则只递归 pivot 所在的半边。
 
 ```js
-var findKthLargest = function(nums, k) {
+var findKthLargest = function (nums, k) {
   const target = nums.length - k; // 第 k 大 = 从小到大第 (n-k) 个
 
   const partition = (left, right) => {
@@ -1666,7 +1789,8 @@ var findKthLargest = function(nums, k) {
     return i;
   };
 
-  let left = 0, right = nums.length - 1;
+  let left = 0,
+    right = nums.length - 1;
   while (left <= right) {
     const pos = partition(left, right);
     if (pos === target) return nums[pos];
@@ -1681,14 +1805,15 @@ var findKthLargest = function(nums, k) {
 **思路**：维护大小为 k 的小顶堆，遍历数组，若当前元素大于堆顶则替换并重新堆化。最终堆顶就是第 k 大。
 
 ```js
-var findKthLargest = function(nums, k) {
+var findKthLargest = function (nums, k) {
   // 用数组模拟小顶堆
   const heap = nums.slice(0, k);
 
   // 建堆
   const heapify = (arr, i, size) => {
     let smallest = i;
-    const l = 2*i+1, r = 2*i+2;
+    const l = 2 * i + 1,
+      r = 2 * i + 2;
     if (l < size && arr[l] < arr[smallest]) smallest = l;
     if (r < size && arr[r] < arr[smallest]) smallest = r;
     if (smallest !== i) {
@@ -1698,7 +1823,7 @@ var findKthLargest = function(nums, k) {
   };
 
   // 建初始小顶堆
-  for (let i = Math.floor(k/2)-1; i >= 0; i--) heapify(heap, i, k);
+  for (let i = Math.floor(k / 2) - 1; i >= 0; i--) heapify(heap, i, k);
 
   // 遍历剩余元素
   for (let i = k; i < nums.length; i++) {
@@ -1721,6 +1846,7 @@ var findKthLargest = function(nums, k) {
 **题目描述**：给你一个整数数组 `nums` 和一个整数 `k`，返回其中出现频率前 `k` 高的元素。答案的顺序无要求，但要保证时间复杂度优于 O(n log n)。
 
 **自测用例**：
+
 - 输入: nums = [1,1,1,2,2,3], k = 2 → 输出: [1,2]
 - 输入: nums = [1], k = 1 → 输出: [1]
 - 输入: nums = [4,1,-1,2,-1,2,3], k = 2 → 输出: [-1,2]
@@ -1732,7 +1858,7 @@ var findKthLargest = function(nums, k) {
 **代码**：
 
 ```js
-var topKFrequent = function(nums, k) {
+var topKFrequent = function (nums, k) {
   // 1. 统计频率
   const freqMap = new Map();
   for (const n of nums) freqMap.set(n, (freqMap.get(n) || 0) + 1);
@@ -1745,7 +1871,7 @@ var topKFrequent = function(nums, k) {
 };
 
 // 进阶：桶排序 O(n)
-var topKFrequentBucket = function(nums, k) {
+var topKFrequentBucket = function (nums, k) {
   const freqMap = new Map();
   for (const n of nums) freqMap.set(n, (freqMap.get(n) || 0) + 1);
 
@@ -1771,6 +1897,7 @@ var topKFrequentBucket = function(nums, k) {
 **题目描述**：设计一个数据结构 `MedianFinder`，支持两个操作：`addNum(num)` 向数据结构中添加一个整数，`findMedian()` 返回目前所有元素的中位数（若元素个数为偶数，返回两个中间值的平均数）。
 
 **自测用例**：
+
 - 操作: addNum(1) → addNum(2) → findMedian() → 输出: 1.5
 - 操作: addNum(1) → addNum(2) → addNum(3) → findMedian() → 输出: 2.0
 - 操作: addNum(6) → findMedian() → addNum(10) → findMedian() → addNum(2) → findMedian() → 输出: 6.0, 8.0, 6.0
@@ -1790,7 +1917,8 @@ class MedianFinder {
 
   addNum(num) {
     // 二分插入，保持有序
-    let left = 0, right = this.data.length;
+    let left = 0,
+      right = this.data.length;
     while (left < right) {
       const mid = left + ((right - left) >> 1);
       if (this.data[mid] < num) left = mid + 1;
@@ -1802,7 +1930,7 @@ class MedianFinder {
   findMedian() {
     const n = this.data.length;
     if (n % 2 === 1) return this.data[Math.floor(n / 2)];
-    return (this.data[n/2 - 1] + this.data[n/2]) / 2;
+    return (this.data[n / 2 - 1] + this.data[n / 2]) / 2;
   }
 }
 
@@ -1864,7 +1992,7 @@ function curry(fn) {
       return fn.apply(this, args);
     }
     // 参数不足，返回新函数继续收集
-    return function(...moreArgs) {
+    return function (...moreArgs) {
       return curried.apply(this, args.concat(moreArgs));
     };
   };
@@ -1874,15 +2002,15 @@ function curry(fn) {
 const add = (a, b, c) => a + b + c;
 const curriedAdd = curry(add);
 
-console.log(curriedAdd(1)(2)(3));    // 6
-console.log(curriedAdd(1, 2)(3));    // 6
-console.log(curriedAdd(1)(2, 3));    // 6
-console.log(curriedAdd(1, 2, 3));    // 6
+console.log(curriedAdd(1)(2)(3)); // 6
+console.log(curriedAdd(1, 2)(3)); // 6
+console.log(curriedAdd(1)(2, 3)); // 6
+console.log(curriedAdd(1, 2, 3)); // 6
 
 // 实际应用：偏函数
 const addTen = curriedAdd(10);
 const addTwenty = curriedAdd(20);
-console.log(addTen(5)(3));   // 18
+console.log(addTen(5)(3)); // 18
 console.log(addTwenty(5)(3)); // 28
 ```
 
@@ -1896,9 +2024,9 @@ console.log(addTwenty(5)(3)); // 28
 
 **强缓存**（不请求服务器，直接用本地缓存）：
 
-| 响应头 | 说明 |
-|--------|------|
-| `Cache-Control: max-age=3600` | 缓存 3600 秒，优先级高于 Expires |
+| 响应头                          | 说明                                     |
+| ------------------------------- | ---------------------------------------- |
+| `Cache-Control: max-age=3600`   | 缓存 3600 秒，优先级高于 Expires         |
 | `Expires: Thu, 01 Jan 2026 ...` | 绝对过期时间（HTTP/1.0，受本地时间影响） |
 
 强缓存命中时，状态码为 **200（from disk/memory cache）**。
@@ -1906,7 +2034,7 @@ console.log(addTwenty(5)(3)); // 28
 **协商缓存**（请求服务器验证，命中则返回 304）：
 
 | 请求头 | 响应头 | 说明 |
-|--------|--------|------|
+| --- | --- | --- |
 | `If-None-Match: "abc123"` | `ETag: "abc123"` | 资源内容哈希，精确但有性能开销 |
 | `If-Modified-Since: ...` | `Last-Modified: ...` | 最后修改时间，精度为秒 |
 
@@ -1925,6 +2053,7 @@ console.log(addTwenty(5)(3)); // 28
 ```
 
 **最佳实践**：
+
 - HTML：`Cache-Control: no-cache`（每次验证，保证用最新 HTML）
 - JS/CSS/图片（有 hash）：`Cache-Control: max-age=31536000, immutable`（强缓存1年，内容变化时 URL 变化）
 
@@ -1941,7 +2070,7 @@ A: Last-Modified 精度只到秒，1秒内多次修改无法识别；ETag 基于
 ## 📊 Week 1 完成情况总结
 
 | Day | 主题 | 算法题 | 场景题 | 知识点 |
-|-----|------|--------|--------|--------|
+| --- | --- | --- | --- | --- |
 | Day 1 | 单调栈 | 739、496、503、42 | debounce + throttle | Event Loop |
 | Day 2 | 二分查找 | 704、35、34、33 | Promise 基础版 | 原型链 & 继承 |
 | Day 3 | 二分进阶+前缀和 | 153、162、4、560、238 | 深拷贝 + EventEmitter | Prototype 继承方式 |
@@ -1951,4 +2080,3 @@ A: Last-Modified 精度只到秒，1秒内多次修改无法识别；ETag 基于
 | Day 7 | 堆+复习 | 215、347、295 | curry 柯里化 | HTTP 缓存策略 |
 
 **总计：算法题 26 道，场景题 9 个，知识点 7 个**
-

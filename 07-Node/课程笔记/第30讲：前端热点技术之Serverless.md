@@ -18,10 +18,6 @@
 <p data-nodeid="226013">流量费用则稍贵，达到 0.8 元/GB，而且没有免费额度，所以对于通信数据量比较大的场景还是要慎重使用。</p>
 <p data-nodeid="226287"><img src="https://s0.lgstatic.com/i/image/M00/4D/DA/Ciqc1F9bVNSABY8aAADMDBAJigk871.png" alt="Lark20200911-184216.png" data-nodeid="226290"></p>
 
-
-
-
-
 <h4 data-nodeid="224840">深度绑定</h4>
 <p data-nodeid="224841">通常使用某个云厂商的 Serverless 产品时，可能会包括多种产品，如函数计算、对象存储、数据库等，而这些产品和云厂商又深度绑定，所以如果要进行迁移，成本相对于部署在服务器而言会增加很多。</p>
 <h4 data-nodeid="224842">运行时长限制</h4>
@@ -42,13 +38,6 @@
 <p data-nodeid="225211">下面来分析讲解一个使用阿里云函数计算来实现代码自动部署的例子。函数要实现的功能就是，当 GitHub 仓库中的某个分支有新的提交时，拉取最新代码并编译，然后将编译生成的代码部署到 OSS 存储的静态服务器上。</p>
 <p data-nodeid="225746" class=""><img src="https://s0.lgstatic.com/i/image/M00/4D/E5/CgqCHl9bVLaATst6AADK7ETww2g973.png" alt="Lark20200911-184226.png" data-nodeid="225750"></p>
 <div data-nodeid="225747"><p style="text-align:center">自动部署流程图</p></div>
-
-
-
-
-
-
-
 
 <p data-nodeid="224857">在这个例子中，两种函数都会用到。</p>
 <p data-nodeid="224858">首先是 HTTP 函数负责接收 GitHub 发出的 webhook 请求，当收到请求后使用内部模块调用一个事件函数，在这个事件函数中执行具体的操作。虽然理论上一个 HTTP 函数可以实现，但拆解成两个函数可以有效避免函数执行时间过长导致的 webhook 请求超时报错。</p>
@@ -91,42 +80,8 @@
 &nbsp; }
 }
 
-<span class="hljs-built_in">exports</span>.handler = <span class="hljs-function">(<span class="hljs-params">req, resp</span>) =&gt;</span> {
-&nbsp; getRawBody(req, <span class="hljs-keyword">async</span> (e, payload) =&gt; {
-&nbsp; &nbsp; <span class="hljs-keyword">const</span> body = <span class="hljs-built_in">JSON</span>.parse(payload)
-&nbsp; &nbsp; <span class="hljs-keyword">if</span> (e) {
-&nbsp; &nbsp; &nbsp; <span class="hljs-built_in">console</span>.error(e)
-&nbsp; &nbsp; &nbsp; resp.setStatusCode(<span class="hljs-number">400</span>)
-&nbsp; &nbsp; &nbsp; resp.send(<span class="hljs-string">'请求体解析失败'</span>)
-&nbsp; &nbsp; &nbsp; <span class="hljs-keyword">return</span>
-&nbsp; &nbsp; }
-&nbsp; &nbsp; <span class="hljs-keyword">let</span> cfg
-&nbsp; &nbsp; <span class="hljs-keyword">try</span> {
-&nbsp; &nbsp; &nbsp; <span class="hljs-keyword">let</span> config
-&nbsp; &nbsp; &nbsp; config = <span class="hljs-keyword">await</span> getOSSConfigFile(<span class="hljs-string">`/config/<span class="hljs-subst">${body.repository.name}</span>.json`</span>) || {}
-&nbsp; &nbsp; &nbsp; cfg = config.action[body.action]
-&nbsp; &nbsp; &nbsp; <span class="hljs-keyword">if</span> (!cfg) {
-&nbsp; &nbsp; &nbsp; &nbsp; <span class="hljs-built_in">console</span>.error(config.action, body.action)
-&nbsp; &nbsp; &nbsp; &nbsp; <span class="hljs-keyword">throw</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'未找到对应仓库的配置信息.'</span>)
-&nbsp; &nbsp; &nbsp; }
-&nbsp; &nbsp; } <span class="hljs-keyword">catch</span> (e) {
-&nbsp; &nbsp; &nbsp; <span class="hljs-built_in">console</span>.error(e)
-&nbsp; &nbsp; &nbsp; resp.setStatusCode(<span class="hljs-number">500</span>)
-&nbsp; &nbsp; &nbsp; resp.send(e.message)
-&nbsp; &nbsp; &nbsp; <span class="hljs-keyword">return</span>
-&nbsp; &nbsp; }
-&nbsp; &nbsp; <span class="hljs-keyword">if</span> (cfg) {
-&nbsp; &nbsp; &nbsp; <span class="hljs-keyword">const</span> client = <span class="hljs-keyword">new</span> FCClient(ACCOUNT_ID, {
-&nbsp; &nbsp; &nbsp; &nbsp; <span class="hljs-attr">accessKeyID</span>: ACCESS_KEY_ID,
-&nbsp; &nbsp; &nbsp; &nbsp; <span class="hljs-attr">accessKeySecret</span>: ACCESS_KEY_SECRET,
-&nbsp; &nbsp; &nbsp; &nbsp; <span class="hljs-attr">region</span>: cfg.region
-&nbsp; &nbsp; &nbsp; });
-&nbsp; &nbsp; &nbsp; client.invokeFunction(cfg.service, cfg.name, <span class="hljs-built_in">JSON</span>.stringify(cfg)).catch(<span class="hljs-built_in">console</span>.error)
-&nbsp; &nbsp; &nbsp; resp.send(<span class="hljs-string">`client.invokeFunction(<span class="hljs-subst">${cfg.service}</span>, <span class="hljs-subst">${cfg.name}</span>, <span class="hljs-subst">${<span class="hljs-built_in">JSON</span>.stringify(cfg)}</span>)`</span>)
-&nbsp; &nbsp; }
-&nbsp; })
-}
-</code></pre>
+<span class="hljs-built_in">exports</span>.handler = <span class="hljs-function">(<span class="hljs-params">req, resp</span>) =&gt;</span> { &nbsp; getRawBody(req, <span class="hljs-keyword">async</span> (e, payload) =&gt; { &nbsp; &nbsp; <span class="hljs-keyword">const</span> body = <span class="hljs-built_in">JSON</span>.parse(payload) &nbsp; &nbsp; <span class="hljs-keyword">if</span> (e) { &nbsp; &nbsp; &nbsp; <span class="hljs-built_in">console</span>.error(e) &nbsp; &nbsp; &nbsp; resp.setStatusCode(<span class="hljs-number">400</span>) &nbsp; &nbsp; &nbsp; resp.send(<span class="hljs-string">'请求体解析失败'</span>) &nbsp; &nbsp; &nbsp; <span class="hljs-keyword">return</span> &nbsp; &nbsp; } &nbsp; &nbsp; <span class="hljs-keyword">let</span> cfg &nbsp; &nbsp; <span class="hljs-keyword">try</span> { &nbsp; &nbsp; &nbsp; <span class="hljs-keyword">let</span> config &nbsp; &nbsp; &nbsp; config = <span class="hljs-keyword">await</span> getOSSConfigFile(<span class="hljs-string">`/config/<span class="hljs-subst">${body.repository.name}</span>.json`</span>) || {} &nbsp; &nbsp; &nbsp; cfg = config.action[body.action] &nbsp; &nbsp; &nbsp; <span class="hljs-keyword">if</span> (!cfg) { &nbsp; &nbsp; &nbsp; &nbsp; <span class="hljs-built_in">console</span>.error(config.action, body.action) &nbsp; &nbsp; &nbsp; &nbsp; <span class="hljs-keyword">throw</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'未找到对应仓库的配置信息.'</span>) &nbsp; &nbsp; &nbsp; } &nbsp; &nbsp; } <span class="hljs-keyword">catch</span> (e) { &nbsp; &nbsp; &nbsp; <span class="hljs-built_in">console</span>.error(e) &nbsp; &nbsp; &nbsp; resp.setStatusCode(<span class="hljs-number">500</span>) &nbsp; &nbsp; &nbsp; resp.send(e.message) &nbsp; &nbsp; &nbsp; <span class="hljs-keyword">return</span> &nbsp; &nbsp; } &nbsp; &nbsp; <span class="hljs-keyword">if</span> (cfg) { &nbsp; &nbsp; &nbsp; <span class="hljs-keyword">const</span> client = <span class="hljs-keyword">new</span> FCClient(ACCOUNT_ID, { &nbsp; &nbsp; &nbsp; &nbsp; <span class="hljs-attr">accessKeyID</span>: ACCESS_KEY_ID, &nbsp; &nbsp; &nbsp; &nbsp; <span class="hljs-attr">accessKeySecret</span>: ACCESS_KEY_SECRET, &nbsp; &nbsp; &nbsp; &nbsp; <span class="hljs-attr">region</span>: cfg.region &nbsp; &nbsp; &nbsp; }); &nbsp; &nbsp; &nbsp; client.invokeFunction(cfg.service, cfg.name, <span class="hljs-built_in">JSON</span>.stringify(cfg)).catch(<span class="hljs-built_in">console</span>.error) &nbsp; &nbsp; &nbsp; resp.send(<span class="hljs-string">`client.invokeFunction(<span class="hljs-subst">${cfg.service}</span>, <span class="hljs-subst">${cfg.name}</span>, <span class="hljs-subst">${<span class="hljs-built_in">JSON</span>.stringify(cfg)}</span>)`</span>) &nbsp; &nbsp; } &nbsp; }) } </code></pre>
+
 <p data-nodeid="224861">简单的实现方式就是解析 webhook 请求体内部的参数，获取仓库名和分支名传递给事件函数，但考虑可扩展性，对每个项目仓库使用了单独的配置文件。具体到代码中就是调用 getOSSConfigFile() 函数来从 OSS 存储上读取仓库相关的配置文件信息，然后通过 invokeFunction() 函数调用事件函数并将配置信息传递给事件函数。</p>
 <p data-nodeid="224862">这样的好处在于，之后要新增其他仓库或其他分支的时候，只需要新增一个配置文件就可以了。</p>
 <p data-nodeid="224863">再来看看事件函数的入口函数实现。</p>
@@ -220,50 +175,10 @@ exec /usr/bin/ssh -o StrictHostKeyChecking=no -o GSSAPIAuthentication=no -i $ID_
 <p data-nodeid="224875">安装依赖并构建这个步骤没有太多复杂的地方，通过子进程调用 yarn install --check-files 命令，然后执行 package.json 文件中配置的脚本任务即可。具体代码如下：</p>
 <pre class="lang-javascript" data-nodeid="224876"><code data-language="javascript"><span class="hljs-keyword">const</span> cp = <span class="hljs-built_in">require</span>(<span class="hljs-string">'child_process'</span>)
 
-<span class="hljs-keyword">const</span> install = <span class="hljs-function">(<span class="hljs-params">repoName, retryTimes = <span class="hljs-number">0</span></span>) =&gt;</span> {
-&nbsp; <span class="hljs-keyword">try</span> {
-&nbsp; &nbsp; <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Install dependencies.'</span>);
-&nbsp; &nbsp; cp.execSync(<span class="hljs-string">`yarn install --check-files`</span>);
-&nbsp; &nbsp; <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Installed.'</span>);
-&nbsp; &nbsp; retryTimes = <span class="hljs-number">0</span>
-&nbsp; } <span class="hljs-keyword">catch</span> (e) {
-&nbsp; &nbsp; <span class="hljs-built_in">console</span>.error(e.message);
-&nbsp; &nbsp; <span class="hljs-keyword">if</span> (retryTimes &lt; <span class="hljs-number">2</span>) {
-&nbsp; &nbsp; &nbsp; <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Retry install...'</span>);
-&nbsp; &nbsp; &nbsp; install(repoName, ++retryTimes);
-&nbsp; &nbsp; } <span class="hljs-keyword">else</span> {
-&nbsp; &nbsp; &nbsp; <span class="hljs-keyword">throw</span> e
-&nbsp; &nbsp; }
-&nbsp; }
-}
-<span class="hljs-keyword">const</span> build = <span class="hljs-function">(<span class="hljs-params">command, retryTimes = <span class="hljs-number">0</span></span>) =&gt;</span> {
-&nbsp; <span class="hljs-keyword">try</span> {
-&nbsp; &nbsp; <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Build code.'</span>)
-&nbsp; &nbsp; cp.execSync(<span class="hljs-string">`<span class="hljs-subst">${command}</span>`</span>);
-&nbsp; &nbsp; <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Built.'</span>);
-&nbsp; } <span class="hljs-keyword">catch</span> (e) {
-&nbsp; &nbsp; <span class="hljs-built_in">console</span>.error(e.message);
-&nbsp; &nbsp; <span class="hljs-keyword">if</span> (retryTimes &lt; <span class="hljs-number">2</span>) {
-&nbsp; &nbsp; &nbsp; <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Retry build...'</span>);
-&nbsp; &nbsp; &nbsp; build(command, ++retryTimes);
-&nbsp; &nbsp; } <span class="hljs-keyword">else</span> {
-&nbsp; &nbsp; &nbsp; <span class="hljs-keyword">throw</span> e
-&nbsp; &nbsp; }
-&nbsp; }
-};
+<span class="hljs-keyword">const</span> install = <span class="hljs-function">(<span class="hljs-params">repoName, retryTimes = <span class="hljs-number">0</span></span>) =&gt;</span> { &nbsp; <span class="hljs-keyword">try</span> { &nbsp; &nbsp; <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Install dependencies.'</span>); &nbsp; &nbsp; cp.execSync(<span class="hljs-string">`yarn install --check-files`</span>); &nbsp; &nbsp; <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Installed.'</span>); &nbsp; &nbsp; retryTimes = <span class="hljs-number">0</span> &nbsp; } <span class="hljs-keyword">catch</span> (e) { &nbsp; &nbsp; <span class="hljs-built_in">console</span>.error(e.message); &nbsp; &nbsp; <span class="hljs-keyword">if</span> (retryTimes &lt; <span class="hljs-number">2</span>) { &nbsp; &nbsp; &nbsp; <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Retry install...'</span>); &nbsp; &nbsp; &nbsp; install(repoName, ++retryTimes); &nbsp; &nbsp; } <span class="hljs-keyword">else</span> { &nbsp; &nbsp; &nbsp; <span class="hljs-keyword">throw</span> e &nbsp; &nbsp; } &nbsp; } } <span class="hljs-keyword">const</span> build = <span class="hljs-function">(<span class="hljs-params">command, retryTimes = <span class="hljs-number">0</span></span>) =&gt;</span> { &nbsp; <span class="hljs-keyword">try</span> { &nbsp; &nbsp; <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Build code.'</span>) &nbsp; &nbsp; cp.execSync(<span class="hljs-string">`<span class="hljs-subst">${command}</span>`</span>); &nbsp; &nbsp; <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Built.'</span>); &nbsp; } <span class="hljs-keyword">catch</span> (e) { &nbsp; &nbsp; <span class="hljs-built_in">console</span>.error(e.message); &nbsp; &nbsp; <span class="hljs-keyword">if</span> (retryTimes &lt; <span class="hljs-number">2</span>) { &nbsp; &nbsp; &nbsp; <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Retry build...'</span>); &nbsp; &nbsp; &nbsp; build(command, ++retryTimes); &nbsp; &nbsp; } <span class="hljs-keyword">else</span> { &nbsp; &nbsp; &nbsp; <span class="hljs-keyword">throw</span> e &nbsp; &nbsp; } &nbsp; } };
 
-<span class="hljs-built_in">module</span>.exports = <span class="hljs-function">(<span class="hljs-params">{
-&nbsp; repoName,
-&nbsp; command
-}</span>) =&gt;</span> {
-&nbsp; <span class="hljs-keyword">const</span> {
-&nbsp; &nbsp; workDir
-&nbsp; } = <span class="hljs-built_in">global</span>
-&nbsp; process.chdir(<span class="hljs-string">`<span class="hljs-subst">${workDir}</span>/<span class="hljs-subst">${repoName}</span>`</span>)
-&nbsp; install(repoName)
-&nbsp; build(command)
-}
-</code></pre>
+<span class="hljs-built_in">module</span>.exports = <span class="hljs-function">(<span class="hljs-params">{ &nbsp; repoName, &nbsp; command }</span>) =&gt;</span> { &nbsp; <span class="hljs-keyword">const</span> { &nbsp; &nbsp; workDir &nbsp; } = <span class="hljs-built_in">global</span> &nbsp; process.chdir(<span class="hljs-string">`<span class="hljs-subst">${workDir}</span>/<span class="hljs-subst">${repoName}</span>`</span>) &nbsp; install(repoName) &nbsp; build(command) } </code></pre>
+
 <p data-nodeid="224877">最后上传部署可以根据不同的场景编写不同的模块，比如有的可能部署在 OSS 存储上，会需要调用 OSS 对应的 SDK 进行上传，有的可能部署在某台服务器上，需要通过 scp 命令来传输。</p>
 <p data-nodeid="224878">下面是一个部署到 OSS 存储的例子。</p>
 <pre class="lang-javascript" data-nodeid="224879"><code data-language="javascript"><span class="hljs-keyword">const</span> path = <span class="hljs-built_in">require</span>(<span class="hljs-string">'path'</span>);
@@ -330,5 +245,3 @@ exec /usr/bin/ssh -o StrictHostKeyChecking=no -o GSSAPIAuthentication=no -i $ID_
 ---
 
 ### 精选评论
-
-

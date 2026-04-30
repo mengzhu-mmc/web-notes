@@ -7,9 +7,9 @@
 ## 零、Promise 核心实现（then / catch / finally）
 
 ```javascript
-const PENDING = 'pending';
-const FULFILLED = 'fulfilled';
-const REJECTED = 'rejected';
+const PENDING = "pending";
+const FULFILLED = "fulfilled";
+const REJECTED = "rejected";
 
 class MyPromise {
   constructor(executor) {
@@ -23,7 +23,7 @@ class MyPromise {
       if (this.state === PENDING) {
         this.state = FULFILLED;
         this.value = value;
-        this.onFulfilledCallbacks.forEach(fn => fn());
+        this.onFulfilledCallbacks.forEach((fn) => fn());
       }
     };
 
@@ -31,7 +31,7 @@ class MyPromise {
       if (this.state === PENDING) {
         this.state = REJECTED;
         this.reason = reason;
-        this.onRejectedCallbacks.forEach(fn => fn());
+        this.onRejectedCallbacks.forEach((fn) => fn());
       }
     };
 
@@ -44,8 +44,14 @@ class MyPromise {
 
   then(onFulfilled, onRejected) {
     // 值穿透处理
-    onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : value => value;
-    onRejected = typeof onRejected === 'function' ? onRejected : reason => { throw reason; };
+    onFulfilled =
+      typeof onFulfilled === "function" ? onFulfilled : (value) => value;
+    onRejected =
+      typeof onRejected === "function"
+        ? onRejected
+        : (reason) => {
+            throw reason;
+          };
 
     const promise2 = new MyPromise((resolve, reject) => {
       const handleFulfilled = () => {
@@ -87,14 +93,17 @@ class MyPromise {
 
   finally(onFinally) {
     return this.then(
-      value => MyPromise.resolve(onFinally()).then(() => value),
-      reason => MyPromise.resolve(onFinally()).then(() => { throw reason; })
+      (value) => MyPromise.resolve(onFinally()).then(() => value),
+      (reason) =>
+        MyPromise.resolve(onFinally()).then(() => {
+          throw reason;
+        }),
     );
   }
 
   static resolve(value) {
     if (value instanceof MyPromise) return value;
-    return new MyPromise(resolve => resolve(value));
+    return new MyPromise((resolve) => resolve(value));
   }
 
   static reject(reason) {
@@ -104,22 +113,36 @@ class MyPromise {
 
 // 处理 then 返回值（支持链式调用）
 function resolvePromise(promise2, x, resolve, reject) {
-  if (promise2 === x) return reject(new TypeError('Chaining cycle detected'));
+  if (promise2 === x) return reject(new TypeError("Chaining cycle detected"));
 
-  if (x !== null && (typeof x === 'object' || typeof x === 'function')) {
+  if (x !== null && (typeof x === "object" || typeof x === "function")) {
     let called = false;
     try {
       const then = x.then;
-      if (typeof then === 'function') {
-        then.call(x,
-          y => { if (!called) { called = true; resolvePromise(promise2, y, resolve, reject); } },
-          r => { if (!called) { called = true; reject(r); } }
+      if (typeof then === "function") {
+        then.call(
+          x,
+          (y) => {
+            if (!called) {
+              called = true;
+              resolvePromise(promise2, y, resolve, reject);
+            }
+          },
+          (r) => {
+            if (!called) {
+              called = true;
+              reject(r);
+            }
+          },
         );
       } else {
         resolve(x);
       }
     } catch (error) {
-      if (!called) { called = true; reject(error); }
+      if (!called) {
+        called = true;
+        reject(error);
+      }
     }
   } else {
     resolve(x);
@@ -139,9 +162,9 @@ function resolvePromise(promise2, x, resolve, reject) {
 ## 一、Promise.all — 全部成功才成功
 
 ```javascript
-Promise.myAll = function(promises) {
+Promise.myAll = function (promises) {
   if (!Array.isArray(promises)) {
-    return Promise.reject(new TypeError('参数必须是数组'));
+    return Promise.reject(new TypeError("参数必须是数组"));
   }
 
   return new Promise((resolve, reject) => {
@@ -149,16 +172,19 @@ Promise.myAll = function(promises) {
     let count = 0;
     const len = promises.length;
 
-    if (len === 0) { resolve(results); return; }
+    if (len === 0) {
+      resolve(results);
+      return;
+    }
 
     promises.forEach((promise, index) => {
       Promise.resolve(promise).then(
-        value => {
-          results[index] = value;  // 保持顺序
+        (value) => {
+          results[index] = value; // 保持顺序
           count++;
           if (count === len) resolve(results);
         },
-        reason => reject(reason)   // 任意一个失败立即 reject
+        (reason) => reject(reason), // 任意一个失败立即 reject
       );
     });
   });
@@ -168,13 +194,10 @@ Promise.myAll = function(promises) {
 Promise.myAll([
   Promise.resolve(1),
   Promise.resolve(2),
-  3  // 普通值也支持
+  3, // 普通值也支持
 ]).then(console.log); // [1, 2, 3]
 
-Promise.myAll([
-  Promise.resolve(1),
-  Promise.reject('error')
-]).catch(console.log); // 'error'
+Promise.myAll([Promise.resolve(1), Promise.reject("error")]).catch(console.log); // 'error'
 ```
 
 ### 关键细节
@@ -192,13 +215,13 @@ Promise.myAll([
 ## 二、Promise.race — 谁先决议用谁
 
 ```javascript
-Promise.myRace = function(promises) {
+Promise.myRace = function (promises) {
   if (!Array.isArray(promises)) {
-    return Promise.reject(new TypeError('参数必须是数组'));
+    return Promise.reject(new TypeError("参数必须是数组"));
   }
 
   return new Promise((resolve, reject) => {
-    promises.forEach(promise => {
+    promises.forEach((promise) => {
       // 第一个决议（成功或失败）就决定结果，后续的 resolve/reject 无效
       Promise.resolve(promise).then(resolve, reject);
     });
@@ -208,7 +231,7 @@ Promise.myRace = function(promises) {
 // 应用场景：超时控制
 function withTimeout(promise, ms) {
   const timeout = new Promise((_, reject) =>
-    setTimeout(() => reject(new Error(`超时 ${ms}ms`)), ms)
+    setTimeout(() => reject(new Error(`超时 ${ms}ms`)), ms),
   );
   return Promise.race([promise, timeout]);
 }
@@ -219,28 +242,31 @@ function withTimeout(promise, ms) {
 ## 三、Promise.allSettled — 全部决议（ES2020）
 
 ```javascript
-Promise.myAllSettled = function(promises) {
+Promise.myAllSettled = function (promises) {
   if (!Array.isArray(promises)) {
-    return Promise.reject(new TypeError('参数必须是数组'));
+    return Promise.reject(new TypeError("参数必须是数组"));
   }
 
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     const results = [];
     let count = 0;
     const len = promises.length;
 
-    if (len === 0) { resolve(results); return; }
+    if (len === 0) {
+      resolve(results);
+      return;
+    }
 
     promises.forEach((promise, index) => {
       Promise.resolve(promise).then(
-        value => {
-          results[index] = { status: 'fulfilled', value };
+        (value) => {
+          results[index] = { status: "fulfilled", value };
           if (++count === len) resolve(results);
         },
-        reason => {
-          results[index] = { status: 'rejected', reason };
-          if (++count === len) resolve(results);  // 注意：永远 resolve，不 reject
-        }
+        (reason) => {
+          results[index] = { status: "rejected", reason };
+          if (++count === len) resolve(results); // 注意：永远 resolve，不 reject
+        },
       );
     });
   });
@@ -249,8 +275,8 @@ Promise.myAllSettled = function(promises) {
 // 测试
 Promise.myAllSettled([
   Promise.resolve(1),
-  Promise.reject('err'),
-  Promise.resolve(3)
+  Promise.reject("err"),
+  Promise.resolve(3),
 ]).then(console.log);
 // [
 //   { status: 'fulfilled', value: 1 },
@@ -266,9 +292,9 @@ Promise.myAllSettled([
 ## 四、Promise.any — 谁先成功用谁（ES2021）
 
 ```javascript
-Promise.myAny = function(promises) {
+Promise.myAny = function (promises) {
   if (!Array.isArray(promises)) {
-    return Promise.reject(new TypeError('参数必须是数组'));
+    return Promise.reject(new TypeError("参数必须是数组"));
   }
 
   return new Promise((resolve, reject) => {
@@ -277,20 +303,20 @@ Promise.myAny = function(promises) {
     const len = promises.length;
 
     if (len === 0) {
-      reject(new AggregateError([], 'All promises were rejected'));
+      reject(new AggregateError([], "All promises were rejected"));
       return;
     }
 
     promises.forEach((promise, index) => {
       Promise.resolve(promise).then(
-        value => resolve(value),  // 任意成功就 resolve
-        reason => {
+        (value) => resolve(value), // 任意成功就 resolve
+        (reason) => {
           errors[index] = reason;
           if (++count === len) {
             // 全部失败才 reject，抛出 AggregateError
-            reject(new AggregateError(errors, 'All promises were rejected'));
+            reject(new AggregateError(errors, "All promises were rejected"));
           }
-        }
+        },
       );
     });
   });
@@ -302,7 +328,7 @@ Promise.myAny = function(promises) {
 ## 五、四种方法对比
 
 | 方法 | 成功条件 | 失败条件 | 结果 |
-|------|---------|---------|------|
+| --- | --- | --- | --- |
 | `Promise.all` | 全部成功 | 任意失败 | 成功值数组 / 第一个失败原因 |
 | `Promise.race` | 最快决议（成功或失败） | 同左 | 最快的那个结果 |
 | `Promise.allSettled` | 全部决议（永不失败） | — | 每个结果的 `{status, value/reason}` |

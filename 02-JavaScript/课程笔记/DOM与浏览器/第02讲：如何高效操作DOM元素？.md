@@ -53,9 +53,6 @@
 <p data-nodeid="2730">浏览器为了避免两个引擎同时修改页面而造成渲染结果不一致的情况，增加了另外一个机制，这两个引擎具有互斥性，也就是说在某个时刻只有一个引擎在运行，另一个引擎会被阻塞。操作系统在进行线程切换的时候需要保存上一个线程执行时的状态信息并读取下一个线程的状态信息，俗称<strong data-nodeid="2854">上下文切换</strong>。而这个操作相对而言是比较耗时的。</p>
 <p data-nodeid="4421" class="">每次 DOM 操作就会引发线程的上下文切换——从 JavaScript 引擎切换到渲染引擎执行对应操作，然后再切换回 JavaScript 引擎继续执行，这就带来了<strong data-nodeid="4427">性能损耗</strong>。单次切换消耗的时间是非常少的，但是如果频繁地大量切换，那么就会产生性能问题。</p>
 
-
-
-
 <p data-nodeid="2732">比如下面的测试代码，循环读取一百万次 DOM 中的 body 元素的耗时是读取 JSON 对象耗时的 10 倍。</p>
 <pre class="lang-js" data-nodeid="2733"><code data-language="js"><span class="hljs-comment">// 测试次数：一百万次</span>
 <span class="hljs-keyword">const</span> times = <span class="hljs-number">1000000</span>
@@ -133,17 +130,6 @@
 <p data-nodeid="2761"><img src="https://s0.lgstatic.com/i/image/M00/09/04/Ciqc1F67pdqAS3FFAAAmGZWHWDs688.png" alt="image (1).png" data-nodeid="2897"></p>
 <p data-nodeid="10342" class="">从两段测试代码中可以看出，重排渲染耗时明显高于重绘，同时两者的 Painting 事件耗时接近，也印证了重排会导致重绘。</p>
 
-
-
-
-
-
-
-
-
-
-
-
 <h3 data-nodeid="2763">如何高效操作 DOM</h3>
 <p data-nodeid="2764">明白了 DOM 操作耗时之处后，要提升性能就变得很简单了，反其道而行之，减少这些操作即可。</p>
 <h4 data-nodeid="2765">在循环外操作元素</h4>
@@ -162,12 +148,6 @@
 <span class="hljs-built_in">console</span>.timeEnd(<span class="hljs-string">'batch'</span>) <span class="hljs-comment">// 0.846923828125ms</span>
 </code></pre>
 <p data-nodeid="13784" class="te-preview-highlight">当然即使在循环外也要尽量减少操作元素，因为不知道他人调用你的代码时是否处于循环中。</p>
-
-
-
-
-
-
 
 <h4 data-nodeid="2769">批量操作元素</h4>
 <p data-nodeid="2770">比如说要创建 1 万个 div 元素，在循环中直接创建再添加到父元素上耗时会非常多。如果采用字符串拼接的形式，先将 1 万个 div 元素的 html 字符串拼接成一个完整字符串，然后赋值给 body 元素的 innerHTML 属性就可以明显减少耗时。</p>
@@ -210,32 +190,8 @@
 }
 <span class="hljs-built_in">document</span>.body.innerHTML += html
 
-<span class="hljs-keyword">let</span> queue = [] <span class="hljs-comment">//  创建缓存样式的数组</span>
-<span class="hljs-keyword">let</span> microTask <span class="hljs-comment">// 执行修改样式的微任务</span>
-<span class="hljs-keyword">const</span> st = <span class="hljs-function">() =&gt;</span> {
-  <span class="hljs-keyword">const</span> div = <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">'div'</span>)
-  <span class="hljs-comment">// 合并样式</span>
-  <span class="hljs-keyword">const</span> style = queue.reduce(<span class="hljs-function">(<span class="hljs-params">acc, cur</span>) =&gt;</span> ({...acc, ...cur}), {})
-  <span class="hljs-keyword">for</span>(<span class="hljs-keyword">let</span> prop <span class="hljs-keyword">in</span> style) {
-    div.style[prop] = style[prop]
-  }
-  queue = []
-  microTask = <span class="hljs-literal">null</span>
-}
-<span class="hljs-keyword">const</span> setStyle = <span class="hljs-function">(<span class="hljs-params">style</span>) =&gt;</span> {
-  queue.push(style)
-  <span class="hljs-comment">// 创建微任务</span>
-  <span class="hljs-keyword">if</span>(!microTask) microTask = <span class="hljs-built_in">Promise</span>.resolve().then(st)
-}
-<span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> i = <span class="hljs-number">0</span>; i &lt; times; i++) {
-  <span class="hljs-keyword">const</span> style = {
-    <span class="hljs-attr">fontSize</span>: (i % <span class="hljs-number">12</span>) + <span class="hljs-number">12</span> + <span class="hljs-string">'px'</span>,
-    <span class="hljs-attr">color</span>: i % <span class="hljs-number">2</span> ? <span class="hljs-string">'red'</span> : <span class="hljs-string">'green'</span>,
-    <span class="hljs-attr">margin</span>:  (i % <span class="hljs-number">12</span>) + <span class="hljs-number">12</span> + <span class="hljs-string">'px'</span>
-  }
-  setStyle(style)
-}
-</code></pre>
+<span class="hljs-keyword">let</span> queue = [] <span class="hljs-comment">// 创建缓存样式的数组</span> <span class="hljs-keyword">let</span> microTask <span class="hljs-comment">// 执行修改样式的微任务</span> <span class="hljs-keyword">const</span> st = <span class="hljs-function">() =&gt;</span> { <span class="hljs-keyword">const</span> div = <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">'div'</span>) <span class="hljs-comment">// 合并样式</span> <span class="hljs-keyword">const</span> style = queue.reduce(<span class="hljs-function">(<span class="hljs-params">acc, cur</span>) =&gt;</span> ({...acc, ...cur}), {}) <span class="hljs-keyword">for</span>(<span class="hljs-keyword">let</span> prop <span class="hljs-keyword">in</span> style) { div.style[prop] = style[prop] } queue = [] microTask = <span class="hljs-literal">null</span> } <span class="hljs-keyword">const</span> setStyle = <span class="hljs-function">(<span class="hljs-params">style</span>) =&gt;</span> { queue.push(style) <span class="hljs-comment">// 创建微任务</span> <span class="hljs-keyword">if</span>(!microTask) microTask = <span class="hljs-built_in">Promise</span>.resolve().then(st) } <span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> i = <span class="hljs-number">0</span>; i &lt; times; i++) { <span class="hljs-keyword">const</span> style = { <span class="hljs-attr">fontSize</span>: (i % <span class="hljs-number">12</span>) + <span class="hljs-number">12</span> + <span class="hljs-string">'px'</span>, <span class="hljs-attr">color</span>: i % <span class="hljs-number">2</span> ? <span class="hljs-string">'red'</span> : <span class="hljs-string">'green'</span>, <span class="hljs-attr">margin</span>: (i % <span class="hljs-number">12</span>) + <span class="hljs-number">12</span> + <span class="hljs-string">'px'</span> } setStyle(style) } </code></pre>
+
 <p data-nodeid="2778">从下面的耗时占比图可以看到，紫色 Rendering 事件耗时有所减少。</p>
 <p data-nodeid="2779"><img src="https://s0.lgstatic.com/i/image/M00/09/04/Ciqc1F67piqAR40eAAAkNcoz7jY032.png" alt="image (3).png" data-nodeid="2915"></p>
 <p data-nodeid="2780">virtualDOM 之所以号称高性能，其实现原理就与此类似。</p>
@@ -276,51 +232,66 @@
 
 ### 精选评论
 
-##### **7761：
+##### \*\*7761：
+
 > 利用绝对定位 脱离文档流，这样操作定位里面的内容不会引起外部的重排
 
-##### **3336：
+##### \*\*3336：
+
 > 有动画的话，也可以考虑分层渲染的机制。加上will-change
 
-##### **云：
+##### \*\*云：
+
 > dom的操作进行json数据化，只操作一个根节点即可
 
-##### **4550：
+##### \*\*4550：
+
 > rendering的俩个图对比：3000ms-2300ms，相差700ms，怎么就看出了重排“明显”耗性能？有个idle耗了2000ms
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 通过查看 rendering 事件比较，idle不属于渲染过程~
 
-##### *明：
+##### \*明：
+
 > 现在我才知道性能优化怎么重要，好好跟着老师学习，然后练习，应用，实践。
 
-##### **6943：
+##### \*\*6943：
+
 > 牛逼，以实践的方式带我体会了一下影响性能的地方及解决方案，感谢老师
 
-##### **龙：
+##### \*\*龙：
+
 > 学习到了，赞👍
 
-##### *琴：
+##### \*琴：
+
 > 牛啤！还得深入理解下重排和重绘
 
-##### **用户1028：
+##### \*\*用户1028：
+
 > 最后一个缓存元素集合的例子 const divsLen = divs.length; for(let i = 0; i &lt; divsLen; i++) { ... }
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 你好，不知写的代码是什么意思呢？想验证另外一种思路？还是？
 
-##### **源：
+##### \*\*源：
+
 > 可以开启子线程处理复杂计算，计算结束通知主线程操作dom
 
 ##### Jiaxin：
+
 > 知识点很有用，这些平时不会细想，想要提升自己的能力还是很有必要了解的，赞👍
 
-##### **煌：
+##### \*\*煌：
+
 > 不错，打卡！
 
-##### **阳：
+##### \*\*阳：
+
 > 很多知识点是平时开发没注意到的，很有用！
 
-##### **辉：
-> 楼顶😄
+##### \*\*辉：
 
+> 楼顶😄

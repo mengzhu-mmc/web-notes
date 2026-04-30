@@ -31,68 +31,10 @@
 <h4 data-nodeid="4716">什么是“双缓冲”模式</h4>
 <p data-nodeid="77176" class="">“双缓冲”模式其实是一种在游戏领域由来已久的经典设计模式。为了帮助你快速理解它，这里我先举一个生活中的例子：假如你去看一场总时长只有 1 个小时的话剧，这场话剧中场不休息，需要不间断地演出。</p>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 <p data-nodeid="81094" class="">按照剧情的需求，半个小时处需要一次转场。所谓转场，就是说话剧舞台的灯光、布景、氛围等全部要切换到另一种风格里去。在不中断演出的情况下，想要实现转场，怎么办呢？场务工作做得再快，也要十几二十分钟，这对一场时长 1 小时的话剧来说，实在太漫长了。观众也无法接受这样的剧情“卡顿”体验。</p>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 <p data-nodeid="4719">有一种解法，那就是<strong data-nodeid="4891">准备两个舞台</strong>来做这场戏，当第一个舞台处于使用中时，第二个舞台的布局已经完成。这样当第一个舞台的表演结束时，只需要把第一个舞台的灯光灭掉，第二个舞台的灯光亮起，就可以做到剧情的无缝衔接了。</p>
 <p data-nodeid="83706" class="te-preview-highlight">事实上，在真实的话剧中，我们也确实常常看到这样的画面——演员从舞台的左侧走到了右侧，灯光一切换，就从卧室（左侧舞台）走到了公园（右侧舞台）；又从公园（右侧舞台）走到了办公室（左侧舞台）。左侧舞台的布景从卧室变成了办公室，这个过程正是在演员利用右侧舞台表演时完成的。</p>
-
 
 <p data-nodeid="4721">在这个过程中，我们可以认为，<strong data-nodeid="4898">左侧舞台和右侧舞台分别是两套缓冲数据，而呈现在观众眼前的连贯画面，就是不同的缓冲数据交替被读取后的结果</strong>。</p>
 <p data-nodeid="4722">在计算机图形领域，通过让图形硬件交替读取两套缓冲数据，可以实现画面的无缝切换，减少视觉效果上的抖动甚至卡顿。而在 React 中，双缓冲模式的主要利好，则是<strong data-nodeid="4904">能够帮我们较大限度地实现 Fiber 节点的复用</strong>，从而减少性能方面的开销。</p>
@@ -113,8 +55,8 @@
   );
 }
 
-<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> App;
-</code></pre>
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> App; </code></pre>
+
 <p data-nodeid="4727">这个组件挂载后呈现出的界面很简单，就是一个数字 0，如下图所示：</p>
 <p data-nodeid="4728"><img src="https://s0.lgstatic.com/i/image/M00/73/AB/CgqCHl_GIlaAHn_FAAAchawzt4s009.png" alt="Drawing 1.png" data-nodeid="4911"></p>
 <p data-nodeid="4729">每点击数字 0 一下，它的值就会 +1，这就是我们的更新动作。</p>
@@ -262,51 +204,12 @@
     } <span class="hljs-keyword">else</span> {
       startTime = currentTime;
     }
-  } <span class="hljs-keyword">else</span> {
-    startTime = currentTime;
-  }
-  <span class="hljs-comment">// timeout 是 expirationTime 的计算依据</span>
-  <span class="hljs-keyword">var</span> timeout;
-  <span class="hljs-comment">// 根据 priorityLevel，确定 timeout 的值</span>
-  <span class="hljs-keyword">switch</span> (priorityLevel) {
-    <span class="hljs-keyword">case</span> ImmediatePriority:
-      timeout = IMMEDIATE_PRIORITY_TIMEOUT;
-      <span class="hljs-keyword">break</span>;
-    <span class="hljs-keyword">case</span> UserBlockingPriority:
-      timeout = USER_BLOCKING_PRIORITY_TIMEOUT;
-      <span class="hljs-keyword">break</span>;
-    <span class="hljs-keyword">case</span> IdlePriority:
-      timeout = IDLE_PRIORITY_TIMEOUT;
-      <span class="hljs-keyword">break</span>;
-    <span class="hljs-keyword">case</span> LowPriority:
-      timeout = LOW_PRIORITY_TIMEOUT;
-      <span class="hljs-keyword">break</span>;
-    <span class="hljs-keyword">case</span> NormalPriority:
-    <span class="hljs-keyword">default</span>:
-      timeout = NORMAL_PRIORITY_TIMEOUT;
-      <span class="hljs-keyword">break</span>;
-  }
-  <span class="hljs-comment">// 优先级越高，timout 越小，expirationTime 越小</span>
-  <span class="hljs-keyword">var</span> expirationTime = startTime + timeout;
 
-  <span class="hljs-comment">// 创建 task 对象</span>
-  <span class="hljs-keyword">var</span> newTask = {
-    id: taskIdCounter++,
-    callback: callback,
-    priorityLevel: priorityLevel,
-    startTime: startTime,
-    expirationTime: expirationTime,
-    sortIndex: -<span class="hljs-number">1</span>
-  };
+} <span class="hljs-keyword">else</span> { startTime = currentTime; } <span class="hljs-comment">// timeout 是 expirationTime 的计算依据</span> <span class="hljs-keyword">var</span> timeout; <span class="hljs-comment">// 根据 priorityLevel，确定 timeout 的值</span> <span class="hljs-keyword">switch</span> (priorityLevel) { <span class="hljs-keyword">case</span> ImmediatePriority: timeout = IMMEDIATE_PRIORITY_TIMEOUT; <span class="hljs-keyword">break</span>; <span class="hljs-keyword">case</span> UserBlockingPriority: timeout = USER_BLOCKING_PRIORITY_TIMEOUT; <span class="hljs-keyword">break</span>; <span class="hljs-keyword">case</span> IdlePriority: timeout = IDLE_PRIORITY_TIMEOUT; <span class="hljs-keyword">break</span>; <span class="hljs-keyword">case</span> LowPriority: timeout = LOW_PRIORITY_TIMEOUT; <span class="hljs-keyword">break</span>; <span class="hljs-keyword">case</span> NormalPriority: <span class="hljs-keyword">default</span>: timeout = NORMAL_PRIORITY_TIMEOUT; <span class="hljs-keyword">break</span>; } <span class="hljs-comment">// 优先级越高，timout 越小，expirationTime 越小</span> <span class="hljs-keyword">var</span> expirationTime = startTime + timeout;
 
-  {
-    newTask.isQueued = <span class="hljs-keyword">false</span>;
-  }
-  <span class="hljs-comment">// 若当前时间小于开始时间，说明该任务可延时执行(未过期）</span>
-  <span class="hljs-keyword">if</span> (startTime &gt; currentTime) {
-    <span class="hljs-comment">// 将未过期任务推入 "timerQueue"</span>
-    newTask.sortIndex = startTime;
-    push(timerQueue, newTask);
+<span class="hljs-comment">// 创建 task 对象</span> <span class="hljs-keyword">var</span> newTask = { id: taskIdCounter++, callback: callback, priorityLevel: priorityLevel, startTime: startTime, expirationTime: expirationTime, sortIndex: -<span class="hljs-number">1</span> };
+
+{ newTask.isQueued = <span class="hljs-keyword">false</span>; } <span class="hljs-comment">// 若当前时间小于开始时间，说明该任务可延时执行(未过期）</span> <span class="hljs-keyword">if</span> (startTime &gt; currentTime) { <span class="hljs-comment">// 将未过期任务推入 "timerQueue"</span> newTask.sortIndex = startTime; push(timerQueue, newTask);
 
     <span class="hljs-comment">// 若 taskQueue 中没有可执行的任务，而当前任务又是 timerQueue 中的第一个任务</span>
     <span class="hljs-keyword">if</span> (peek(taskQueue) === <span class="hljs-keyword">null</span> &amp;&amp; newTask === peek(timerQueue)) {
@@ -314,19 +217,14 @@
           <span class="hljs-comment">// 那么就派发一个延时任务，这个延时任务用于检查当前任务是否过期</span>
       requestHostTimeout(handleTimeout, startTime - currentTime);
     }
-  } <span class="hljs-keyword">else</span> {
-    <span class="hljs-comment">// else 里处理的是当前时间大于 startTime 的情况，说明这个任务已过期</span>
-    newTask.sortIndex = expirationTime;
-    <span class="hljs-comment">// 过期的任务会被推入 taskQueue</span>
-    push(taskQueue, newTask);
-    ......
+
+} <span class="hljs-keyword">else</span> { <span class="hljs-comment">// else 里处理的是当前时间大于 startTime 的情况，说明这个任务已过期</span> newTask.sortIndex = expirationTime; <span class="hljs-comment">// 过期的任务会被推入 taskQueue</span> push(taskQueue, newTask); ......
 
     <span class="hljs-comment">// 执行 taskQueue 中的任务</span>
     requestHostCallback(flushWork);
-  }
-  <span class="hljs-keyword">return</span> newTask;
-}
-</code></pre>
+
+} <span class="hljs-keyword">return</span> newTask; } </code></pre>
+
 <p data-nodeid="4827">从源码中我们可以看出，unstable_scheduleCallback 的主要工作是针对当前任务创建一个 task，然后结合 startTime 信息将这个 task 推入 <strong data-nodeid="5215">timerQueue</strong> 或 <strong data-nodeid="5216">taskQueue</strong>，最后根据 timerQueue 和 taskQueue 的情况，执行延时任务或即时任务。</p>
 <p data-nodeid="4828">要想理解这个过程，首先要搞清楚以下几个概念。</p>
 <ul data-nodeid="4829">
@@ -357,17 +255,14 @@
           <span class="hljs-comment">// 那么就派发一个延时任务，这个延时任务用于将过期的 task 加入 taskQueue 队列</span>
       requestHostTimeout(handleTimeout, startTime - currentTime);
     }
-  } <span class="hljs-keyword">else</span> {
-    <span class="hljs-comment">// else 里处理的是当前时间大于 startTime 的情况，说明这个任务已过期</span>
-    newTask.sortIndex = expirationTime;
-    <span class="hljs-comment">// 过期的任务会被推入 taskQueue</span>
-    push(taskQueue, newTask);
-    ......
+
+} <span class="hljs-keyword">else</span> { <span class="hljs-comment">// else 里处理的是当前时间大于 startTime 的情况，说明这个任务已过期</span> newTask.sortIndex = expirationTime; <span class="hljs-comment">// 过期的任务会被推入 taskQueue</span> push(taskQueue, newTask); ......
 
     <span class="hljs-comment">// 执行 taskQueue 中的任务</span>
     requestHostCallback(flushWork);
-  }
-</code></pre>
+
+} </code></pre>
+
 <p data-nodeid="4841">若判断当前任务是待执行任务，那么该任务会在 sortIndex 属性被赋值为 startTime 后，被<strong data-nodeid="5274">推入 timerQueue</strong>。随后，会进入这样的一段判断逻辑：</p>
 <pre class="lang-java" data-nodeid="4842"><code data-language="java"><span class="hljs-comment">// 若 taskQueue 中没有可执行的任务，而当前任务又是 timerQueue 中的第一个任务</span>
 <span class="hljs-keyword">if</span> (peek(taskQueue) === <span class="hljs-keyword">null</span> &amp;&amp; newTask === peek(timerQueue)) {
@@ -407,44 +302,57 @@
 ### 精选评论
 
 ##### 淦：
+
 > 老师，真大道若简，话剧例子举的太形象，大赞
 
 ##### console_man：
+
 > 秀妍老师，你好。请问下对于这个公式：【startTime = currentTime + delay】，delay 是怎么来的呢。有什么依据吗？
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 这不是公式，这是源码里的表达式，这样设计是为了使任务的排列更加灵活。delay是unstable_scheduleCallback这个函数中options入参的一个属性，是一个可以被指定的值。
 
-##### **9918：
+##### \*\*9918：
+
 > 老师，请问一下，什么情况的时候newTask不是timerQueue的堆顶任务？
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 如果 timerQueue 中有开始时间比 newTask 更早的未过期任务，则newTask不会成为timerQueue的堆顶；若 newTask 为已过期任务，则它不会被推入 timerQueue，而是会被推入 taskQueue。
 
-##### **卜：
+##### \*\*卜：
+
 > 所以setState是和之前的区别不大吗
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 最明显的区别是setState严格异步了，所有的更新都会走调度这条路。
 
-##### **玲：
+##### \*\*玲：
+
 > 这里收获了新知识，谢谢老师
 
-##### **用户3046：
+##### \*\*用户3046：
+
 > 还是满多疑惑的：1. update的lane是优先级2. task的priorityLevel也是优先级3. update是每个fiberNode的更新4. task是什么？一个task代表一个render阶段阶段吗
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; update是一个静态的对象，它是对更新的描述。更新需要能够转换成具体的任务被执行，task就是在调度更新后用于描述任务的。
 
 ##### 淦：
+
 > 修言老师，有个疑问望解答。您之前说异步渲染渲染可中断，且一旦中断则完全重新渲染。完全指的不包括已经完成的task吧，只是最近的未完成的那个task吧?
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 这里的完全指的是生命周期会从头开始执行，而不是整个渲染任务重头开始执行哈。
 
 ##### console_man：
+
 > 老师，你好，请问react-dom的哪个版本可以使用ReactDOM.createRoot方法呢
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
-> &nbsp;&nbsp;&nbsp; 印象中不久前试用了一下 React17.0.0，也是只能够加前缀才能调用的哈。直接 createRoot 可能在不远的未来~~
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
 
+> &nbsp;&nbsp;&nbsp; 印象中不久前试用了一下 React17.0.0，也是只能够加前缀才能调用的哈。直接 createRoot 可能在不远的未来~~

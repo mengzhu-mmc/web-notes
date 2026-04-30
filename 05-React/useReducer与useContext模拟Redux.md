@@ -13,10 +13,10 @@
 export const initialState = { user: null, count: 0, todos: [] };
 
 export const actionTypes = {
-  SET_USER: 'SET_USER',
-  INCREMENT: 'INCREMENT',
-  ADD_TODO: 'ADD_TODO',
-  REMOVE_TODO: 'REMOVE_TODO'
+  SET_USER: "SET_USER",
+  INCREMENT: "INCREMENT",
+  ADD_TODO: "ADD_TODO",
+  REMOVE_TODO: "REMOVE_TODO",
 };
 
 export const reducer = (state, action) => {
@@ -26,7 +26,10 @@ export const reducer = (state, action) => {
     case actionTypes.ADD_TODO:
       return { ...state, todos: [...state.todos, action.payload] };
     case actionTypes.REMOVE_TODO:
-      return { ...state, todos: state.todos.filter(t => t.id !== action.payload) };
+      return {
+        ...state,
+        todos: state.todos.filter((t) => t.id !== action.payload),
+      };
     default:
       return state;
   }
@@ -67,7 +70,7 @@ function Counter() {
   return (
     <div>
       <h2>Count: {count}</h2>
-      <button onClick={() => dispatch({ type: 'INCREMENT' })}>+</button>
+      <button onClick={() => dispatch({ type: "INCREMENT" })}>+</button>
     </div>
   );
 }
@@ -87,12 +90,16 @@ Redux Toolkit 和 React Redux 是不同层面的东西：React Redux 是 React �
 
 ```javascript
 const counterSlice = createSlice({
-  name: 'counter',
+  name: "counter",
   initialState: { count: 0 },
   reducers: {
-    increment: (state) => { state.count += 1; }, // Immer 处理
-    incrementByAmount: (state, action) => { state.count += action.payload; }
-  }
+    increment: (state) => {
+      state.count += 1;
+    }, // Immer 处理
+    incrementByAmount: (state, action) => {
+      state.count += action.payload;
+    },
+  },
 });
 
 export const { increment, incrementByAmount } = counterSlice.actions;
@@ -108,14 +115,17 @@ export function StoreProvider({ children }) {
   const [state, dispatch] = useReducer(rootReducer, initialState);
 
   // 增强版 dispatch，支持函数类型 action（类似 thunk）
-  const enhancedDispatch = useCallback((action) => {
-    if (typeof action === 'function') {
-      // 异步 action：调用时传入 dispatch 和 getState
-      action(enhancedDispatch, () => state);
-    } else {
-      dispatch(action);
-    }
-  }, [state]);
+  const enhancedDispatch = useCallback(
+    (action) => {
+      if (typeof action === "function") {
+        // 异步 action：调用时传入 dispatch 和 getState
+        action(enhancedDispatch, () => state);
+      } else {
+        dispatch(action);
+      }
+    },
+    [state],
+  );
 
   return (
     <StoreContext.Provider value={{ state, dispatch: enhancedDispatch }}>
@@ -127,8 +137,8 @@ export function StoreProvider({ children }) {
 // 使用异步 action
 function fetchTodos() {
   return async (dispatch) => {
-    const data = await fetch('/api/todos').then(r => r.json());
-    dispatch({ type: 'SET_TODOS', payload: data });
+    const data = await fetch("/api/todos").then((r) => r.json());
+    dispatch({ type: "SET_TODOS", payload: data });
   };
 }
 
@@ -140,7 +150,7 @@ dispatch(fetchTodos()); // 传入函数，enhancedDispatch 会执行它
 
 ```jsx
 // 初始化时从 localStorage 读取
-const savedState = localStorage.getItem('appState');
+const savedState = localStorage.getItem("appState");
 const initialStateWithPersist = savedState
   ? JSON.parse(savedState)
   : initialState;
@@ -150,7 +160,7 @@ export function StoreProvider({ children }) {
 
   // 每次 state 更新时同步到 localStorage
   useEffect(() => {
-    localStorage.setItem('appState', JSON.stringify(state));
+    localStorage.setItem("appState", JSON.stringify(state));
   }, [state]);
 
   return (
@@ -169,21 +179,25 @@ export function StoreProvider({ children }) {
 // 各模块 reducer
 function todosReducer(state = [], action) {
   switch (action.type) {
-    case 'ADD_TODO': return [...state, action.payload];
-    default: return state;
+    case "ADD_TODO":
+      return [...state, action.payload];
+    default:
+      return state;
   }
 }
 
-function filterReducer(state = 'all', action) {
+function filterReducer(state = "all", action) {
   switch (action.type) {
-    case 'SET_FILTER': return action.payload;
-    default: return state;
+    case "SET_FILTER":
+      return action.payload;
+    default:
+      return state;
   }
 }
 
 // 手写 combineReducers
 function combineReducers(reducers) {
-  return function(state = {}, action) {
+  return function (state = {}, action) {
     return Object.keys(reducers).reduce((nextState, key) => {
       nextState[key] = reducers[key](state[key], action);
       return nextState;
@@ -204,6 +218,7 @@ const rootReducer = combineReducers({
 `useReducer` + `useContext` 适合中小型应用，无需额外依赖。Redux Toolkit 适合大型应用，提供更完善的生态（中间件、DevTools、异步处理）。
 
 > ⚠️ **劣势提醒**：Context 更新会触发所有消费组件重渲染。优化方案：
+>
 > 1. 拆分 StateContext 和 DispatchContext（dispatch 不变时只使用 dispatch 的组件不重渲染）
 > 2. 用 `React.memo` 包裹消费组件
 > 3. 状态量大时考虑 zustand（内置精确订阅）

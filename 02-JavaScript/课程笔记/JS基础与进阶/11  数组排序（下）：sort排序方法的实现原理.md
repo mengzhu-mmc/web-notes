@@ -215,7 +215,6 @@ array1.sort(<span class="hljs-function">(<span class="hljs-params">a,b</span>) =
 <p data-nodeid="793">那么讲到这里，我们再来整理一下快速排序和插入排序的最好以及最快情况下的时间复杂度的对比，请看下面的表格。</p>
 <p data-nodeid="1195" class="te-preview-highlight">|<img src="https://s0.lgstatic.com/i/image6/M00/04/2B/Cgp9HWAib-6AdHI6AADCTvUUDdI454.png" alt="图片2.png" data-nodeid="1199"></p>
 
-
 <p data-nodeid="826">将这两个排序的时间复杂度对比来看，如果当 n 足够小的时候，最好的情况下，插入排序的时间复杂度为 O(n) 要优于快速排序的 O(nlogn)，因此就解释了这里当 V8 实现 JS 数组排序算法时，数据量较小的时候会采用插入排序的原因了。</p>
 <p data-nodeid="827">在日常的前端开发工作中，对此的应用会比较多，研究源码的机会也是相对较少的。通过本讲的学习，我还是希望你能够多想想日常工作中经常用到的 JS 方法，及其底层源代码的实现逻辑，从而整体提升 JS 的编程能力和理解能力。</p>
 <p data-nodeid="828">这一讲我只是带你剖析了 sort 的源码实现，下一讲我会带你手写 JS 数组多个方法的底层实现。</p>
@@ -225,15 +224,18 @@ array1.sort(<span class="hljs-function">(<span class="hljs-params">a,b</span>) =
 
 ### 精选评论
 
-##### *健：
+##### \*健：
+
 > 老师讲的很好
 
-##### **南：
-> InnerArraySort   函数里的%是什么意思啊？
+##### \*\*南：
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
-> &nbsp;&nbsp;&nbsp; V8 源码里面有个方法就是%_IsSmi 这个命名的
+> InnerArraySort 函数里的%是什么意思啊？
 
-##### **龙：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
+> &nbsp;&nbsp;&nbsp; V8 源码里面有个方法就是%\_IsSmi 这个命名的
+
+##### \*\*龙：
+
 > 讲的很好
-

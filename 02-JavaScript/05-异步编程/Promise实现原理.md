@@ -23,23 +23,23 @@ Promise 有三种状态：`pending`（等待）、`fulfilled`（成功）、`rej
 ```js
 class SimplePromise {
   constructor(executor) {
-    this.status = 'pending';
+    this.status = "pending";
     this.value = undefined;
     this.reason = undefined;
     this.fulfilledCallbacks = [];
     this.rejectedCallbacks = [];
 
     const resolve = (value) => {
-      if (this.status === 'pending') {
-        this.status = 'fulfilled';
+      if (this.status === "pending") {
+        this.status = "fulfilled";
         this.value = value;
         this.fulfilledCallbacks.forEach((fn) => fn());
       }
     };
 
     const reject = (reason) => {
-      if (this.status === 'pending') {
-        this.status = 'rejected';
+      if (this.status === "pending") {
+        this.status = "rejected";
         this.reason = reason;
         this.rejectedCallbacks.forEach((fn) => fn());
       }
@@ -55,9 +55,9 @@ class SimplePromise {
   then(onFulfilled, onRejected) {
     // 值穿透处理
     onFulfilled =
-      typeof onFulfilled === 'function' ? onFulfilled : (value) => value;
+      typeof onFulfilled === "function" ? onFulfilled : (value) => value;
     onRejected =
-      typeof onRejected === 'function'
+      typeof onRejected === "function"
         ? onRejected
         : (reason) => {
             throw reason;
@@ -82,9 +82,9 @@ class SimplePromise {
         }
       };
 
-      if (this.status === 'fulfilled') {
+      if (this.status === "fulfilled") {
         setTimeout(handleFulfilled, 0);
-      } else if (this.status === 'rejected') {
+      } else if (this.status === "rejected") {
         setTimeout(handleRejected, 0);
       } else {
         this.fulfilledCallbacks.push(() => setTimeout(handleFulfilled, 0));
@@ -105,13 +105,13 @@ class SimplePromise {
 
 ```js
 // 错误被处理后恢复正常
-Promise.reject('出错了')
+Promise.reject("出错了")
   .catch((err) => {
-    console.log('处理错误:', err);
-    return '已恢复'; // 返回正常值
+    console.log("处理错误:", err);
+    return "已恢复"; // 返回正常值
   })
   .then((value) => {
-    console.log('继续执行:', value); // ✅ 会执行："已恢复"
+    console.log("继续执行:", value); // ✅ 会执行："已恢复"
   });
 ```
 
@@ -138,8 +138,7 @@ reject   正常返回值
 
 ## 四、Promise/A+ 规范核心
 
-> 2.2.7.1 无论是 onFulfilled 还是 onRejected，只要**返回值**，新 Promise 就 resolve。
-> 2.2.7.2 只有**抛出异常**，新 Promise 才 reject。
+> 2.2.7.1 无论是 onFulfilled 还是 onRejected，只要**返回值**，新 Promise 就 resolve。2.2.7.2 只有**抛出异常**，新 Promise 才 reject。
 
 ## 五、实际应用场景
 
@@ -148,15 +147,15 @@ reject   正常返回值
 function fetchData(url) {
   return fetch(url)
     .catch((err) => {
-      console.log('第一次失败，重试...');
+      console.log("第一次失败，重试...");
       return fetch(url);
     })
     .catch((err) => {
-      console.log('第二次也失败，使用默认数据');
+      console.log("第二次也失败，使用默认数据");
       return { default: true }; // 恢复正常
     })
     .then((data) => {
-      console.log('最终数据:', data); // ✅ 会执行
+      console.log("最终数据:", data); // ✅ 会执行
     });
 }
 ```

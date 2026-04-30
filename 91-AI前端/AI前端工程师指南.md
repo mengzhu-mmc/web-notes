@@ -1,7 +1,6 @@
 # AI 前端工程师知识地图
 
-> 目标读者：有 2-3 年经验的前端工程师，想转型/升级为 AI 前端工程师
-> 更新时间：2026-03-31
+> 目标读者：有 2-3 年经验的前端工程师，想转型/升级为 AI 前端工程师更新时间：2026-03-31
 
 ---
 
@@ -16,7 +15,7 @@
 理解几个核心参数，够用了：
 
 | 参数 | 通俗解释 | 建议值 |
-|------|---------|--------|
+| --- | --- | --- |
 | **Token** | 模型处理文本的基本单位，约 1 token ≈ 0.75 个英文单词 ≈ 1.5 个中文字 | - |
 | **上下文窗口** | 模型一次能"看到"的最大 token 数，超出就会忘掉开头的内容 | 尽量控制在窗口的 70% 以内 |
 | **Temperature** | 输出的随机程度。0 = 严肃确定，1 = 天马行空 | 代码用 0~0.3，创作用 0.7~1 |
@@ -26,7 +25,7 @@
 #### 主流模型怎么选（前端视角）
 
 | 模型 | 优势 | 缺点 | 前端场景推荐 |
-|------|------|------|------------|
+| --- | --- | --- | --- |
 | GPT-4o | 综合能力强，支持视觉 | 贵，访问需要翻墙 | 通用、视觉理解 |
 | Claude 3.5 Sonnet | 代码能力强，长文档处理好 | 同上 | 代码生成、长文本处理 |
 | Gemini 1.5 Pro | 超长上下文（100万 token） | 偶尔不稳定 | 超长文档、多模态 |
@@ -39,24 +38,23 @@
 
 不需要深研，掌握三个核心概念够用 80% 的场景：
 
-**① System Prompt（系统提示）**
-给模型设定身份和规则，相当于"上岗培训"。
+**① System Prompt（系统提示）** 给模型设定身份和规则，相当于"上岗培训"。
 
 ```js
 const messages = [
   {
-    role: 'system',
-    content: '你是一个专业的代码审查助手，只用中文回复，每次指出 3 个最重要的问题。'
+    role: "system",
+    content:
+      "你是一个专业的代码审查助手，只用中文回复，每次指出 3 个最重要的问题。",
   },
   {
-    role: 'user',
-    content: '帮我审查这段代码：...'
-  }
-]
+    role: "user",
+    content: "帮我审查这段代码：...",
+  },
+];
 ```
 
-**② Few-shot（举例示范）**
-给模型几个输入→输出的例子，它就能模仿格式。适合要求固定输出结构的场景。
+**② Few-shot（举例示范）** 给模型几个输入→输出的例子，它就能模仿格式。适合要求固定输出结构的场景。
 
 ```js
 // 示例：让模型按固定格式输出
@@ -66,14 +64,13 @@ content: `
 示例输出：{"food": "苹果", "amount": 100, "unit": "g"}
 
 现在处理：香蕉 200g
-`
+`;
 ```
 
-**③ Chain of Thought（思维链）**
-加上"一步步思考"或"请先分析，再给出答案"，让模型在回答前推理，大幅提升复杂问题的准确率。
+**③ Chain of Thought（思维链）** 加上"一步步思考"或"请先分析，再给出答案"，让模型在回答前推理，大幅提升复杂问题的准确率。
 
 ```js
-content: '请一步步分析这个 bug 的原因，然后给出修复方案。'
+content: "请一步步分析这个 bug 的原因，然后给出修复方案。";
 ```
 
 #### 模型能力边界（要知道的坑）
@@ -93,27 +90,28 @@ content: '请一步步分析这个 bug 的原因，然后给出修复方案。'
 
 ```ts
 // 安装：npm i openai
-import OpenAI from 'openai'
+import OpenAI from "openai";
 
 const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
-  baseURL: 'https://api.deepseek.com', // 换成任意兼容接口
-})
+  baseURL: "https://api.deepseek.com", // 换成任意兼容接口
+});
 
 const response = await client.chat.completions.create({
-  model: 'deepseek-chat',
+  model: "deepseek-chat",
   messages: [
-    { role: 'system', content: '你是一个前端助手' },
-    { role: 'user', content: '解释一下 useEffect 的依赖数组' }
+    { role: "system", content: "你是一个前端助手" },
+    { role: "user", content: "解释一下 useEffect 的依赖数组" },
   ],
   temperature: 0.7,
   max_tokens: 1000,
-})
+});
 
-console.log(response.choices[0].message.content)
+console.log(response.choices[0].message.content);
 ```
 
 **前端直接调 vs 经过后端转发**：
+
 - 前端直接调：快速原型可以，但 API Key 会暴露，**生产环境绝对不要这么做**
 - 经过后端：标准做法，后端转发请求、控制权限、做限流
 
@@ -146,26 +144,26 @@ res.end()
 **前端接收**：
 
 ```ts
-const response = await fetch('/api/chat', {
-  method: 'POST',
+const response = await fetch("/api/chat", {
+  method: "POST",
   body: JSON.stringify({ message: userInput }),
-})
+});
 
-const reader = response.body!.getReader()
-const decoder = new TextDecoder()
+const reader = response.body!.getReader();
+const decoder = new TextDecoder();
 
 while (true) {
-  const { done, value } = await reader.read()
-  if (done) break
-  
-  const text = decoder.decode(value)
+  const { done, value } = await reader.read();
+  if (done) break;
+
+  const text = decoder.decode(value);
   // 解析 SSE 格式，更新 UI
-  text.split('\n').forEach(line => {
-    if (line.startsWith('data: ') && line !== 'data: [DONE]') {
-      const { content } = JSON.parse(line.slice(6))
-      setOutput(prev => prev + content) // React state 累加
+  text.split("\n").forEach((line) => {
+    if (line.startsWith("data: ") && line !== "data: [DONE]") {
+      const { content } = JSON.parse(line.slice(6));
+      setOutput((prev) => prev + content); // React state 累加
     }
-  })
+  });
 }
 ```
 
@@ -174,6 +172,7 @@ while (true) {
 **计算规则**：输入 token + 输出 token 分别计费，输出通常更贵。
 
 **控制成本的实用技巧**：
+
 1. **压缩 System Prompt**：每次请求都会计入 token，写短点
 2. **控制对话历史长度**：保留最近 N 轮，不要把所有历史都塞进去
 3. **设置 max_tokens**：防止模型生成超长回复
@@ -185,26 +184,30 @@ while (true) {
 async function callLLM(messages: Message[], retries = 3): Promise<string> {
   for (let i = 0; i < retries; i++) {
     try {
-      const response = await client.chat.completions.create({ model, messages })
-      return response.choices[0].message.content!
+      const response = await client.chat.completions.create({
+        model,
+        messages,
+      });
+      return response.choices[0].message.content!;
     } catch (error: any) {
       if (error.status === 429) {
         // 限流，指数退避
-        await sleep(Math.pow(2, i) * 1000)
-        continue
+        await sleep(Math.pow(2, i) * 1000);
+        continue;
       }
       if (error.status === 500 && i < retries - 1) {
         // 服务端错误，重试
-        continue
+        continue;
       }
-      throw error // 其他错误直接抛出
+      throw error; // 其他错误直接抛出
     }
   }
-  throw new Error('LLM 调用失败，已重试多次')
+  throw new Error("LLM 调用失败，已重试多次");
 }
 ```
 
 常见错误码：
+
 - `429`：限流，慢下来或者升级套餐
 - `401`：API Key 不对
 - `400`：请求格式错误（通常是 messages 格式问题）
@@ -219,6 +222,7 @@ async function callLLM(messages: Message[], retries = 3): Promise<string> {
 #### 为什么需要 RAG
 
 模型有两大先天限制：
+
 1. **知识截止**：不知道最新信息
 2. **不知道你的私有数据**：公司内部文档、产品手册它没见过
 
@@ -233,6 +237,7 @@ RAG（Retrieval-Augmented Generation）= 先从你的知识库里搜索相关内
 **通俗类比**：把每篇文章变成一个坐标，"苹果电脑"和"MacBook"的坐标很近，"苹果电脑"和"香蕉"的坐标很远。
 
 **RAG 工作流程**：
+
 1. 把知识库所有文档切片 → 生成 Embedding → 存入向量数据库
 2. 用户提问 → 问题也生成 Embedding → 在向量数据库里找最相似的文档片段
 3. 把找到的片段 + 原始问题一起发给模型 → 模型基于这些内容回答
@@ -243,20 +248,21 @@ RAG（Retrieval-Augmented Generation）= 先从你的知识库里搜索相关内
 
 ```ts
 // 典型的 RAG 服务接口调用
-const response = await fetch('/api/rag/query', {
-  method: 'POST',
+const response = await fetch("/api/rag/query", {
+  method: "POST",
   body: JSON.stringify({
-    question: '我们的退款政策是什么？',
-    knowledge_base_id: 'kb_001', // 指定知识库
+    question: "我们的退款政策是什么？",
+    knowledge_base_id: "kb_001", // 指定知识库
     top_k: 3, // 返回最相关的 3 条
-  })
-})
+  }),
+});
 
-const { answer, sources } = await response.json()
+const { answer, sources } = await response.json();
 // sources 是检索到的原文片段，可以展示给用户作为来源引用
 ```
 
 **你需要关心的前端侧**：
+
 - 展示检索到的来源引用（提升可信度）
 - 处理"未找到相关内容"的边界情况
 - 知识库选择 UI（多知识库场景）
@@ -281,6 +287,7 @@ Message[] = [
 ```
 
 设计要点：
+
 - **消息列表**：自动滚动到底部（新消息来了），但用户上滑查看历史时不要强制回跳
 - **输入区**：支持 Shift+Enter 换行，Enter 发送
 - **消息气泡**：user 靠右，assistant 靠左，视觉区分清晰
@@ -288,13 +295,13 @@ Message[] = [
 
 ```tsx
 // 自动滚动到底部
-const scrollRef = useRef<HTMLDivElement>(null)
+const scrollRef = useRef<HTMLDivElement>(null);
 
 useEffect(() => {
   if (scrollRef.current && !userScrolledUp) {
-    scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+    scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }
-}, [messages])
+}, [messages]);
 ```
 
 #### 流式文本渲染（打字机效果原理）
@@ -302,15 +309,16 @@ useEffect(() => {
 **原理**：不是真的在模拟打字，而是把流式接收到的内容**增量追加**到 state 里，React re-render 自然呈现出"打字"效果。
 
 ```tsx
-const [streamContent, setStreamContent] = useState('')
+const [streamContent, setStreamContent] = useState("");
 
 // 接收流式数据时
 onChunkReceived((chunk) => {
-  setStreamContent(prev => prev + chunk)
-})
+  setStreamContent((prev) => prev + chunk);
+});
 ```
 
 **注意点**：
+
 - 流式渲染时光标闪烁效果（CSS `::after` 伪元素 + 动画）
 - 流式结束后再渲染 Markdown（避免 Markdown 语法被截断导致闪烁）
 
@@ -319,25 +327,25 @@ onChunkReceived((chunk) => {
 推荐方案：`react-markdown` + `react-syntax-highlighter`
 
 ```tsx
-import ReactMarkdown from 'react-markdown'
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import ReactMarkdown from "react-markdown";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 
 <ReactMarkdown
   components={{
     code({ node, inline, className, children }) {
-      const match = /language-(\w+)/.exec(className || '')
+      const match = /language-(\w+)/.exec(className || "");
       return !inline && match ? (
         <SyntaxHighlighter language={match[1]}>
-          {String(children).replace(/\n$/, '')}
+          {String(children).replace(/\n$/, "")}
         </SyntaxHighlighter>
       ) : (
         <code className={className}>{children}</code>
-      )
-    }
+      );
+    },
   }}
 >
   {content}
-</ReactMarkdown>
+</ReactMarkdown>;
 ```
 
 **XSS 注意**：`react-markdown` 默认不渲染 HTML 标签，是安全的。如果用 `dangerouslySetInnerHTML` 渲染 Markdown HTML，必须用 DOMPurify 净化。
@@ -347,25 +355,25 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 ```tsx
 // 图片上传 + 发送给视觉模型
 const handleImageUpload = async (file: File) => {
-  const base64 = await fileToBase64(file)
-  
+  const base64 = await fileToBase64(file);
+
   const messages = [
     {
-      role: 'user',
+      role: "user",
       content: [
-        { type: 'text', text: '描述这张图片' },
-        { type: 'image_url', image_url: { url: base64 } }
-      ]
-    }
-  ]
+        { type: "text", text: "描述这张图片" },
+        { type: "image_url", image_url: { url: base64 } },
+      ],
+    },
+  ];
   // 发送给支持视觉的模型（GPT-4o、Claude 3 等）
-}
+};
 ```
 
 #### 加载/错误/停止生成 UX 设计
 
 | 状态 | UI 处理 |
-|------|---------|
+| --- | --- |
 | **加载中（等待首个 token）** | 显示三点动画或骨架屏，用户知道在处理 |
 | **流式生成中** | 显示光标，右下角显示"停止生成"按钮 |
 | **错误** | 明确提示错误原因 + 重试按钮，不要让用户重新输入 |
@@ -397,46 +405,49 @@ abortController.abort()
 // 1. 定义工具
 const tools = [
   {
-    type: 'function',
+    type: "function",
     function: {
-      name: 'get_weather',
-      description: '获取某个城市的天气',
+      name: "get_weather",
+      description: "获取某个城市的天气",
       parameters: {
-        type: 'object',
+        type: "object",
         properties: {
-          city: { type: 'string', description: '城市名' }
+          city: { type: "string", description: "城市名" },
         },
-        required: ['city']
-      }
-    }
-  }
-]
+        required: ["city"],
+      },
+    },
+  },
+];
 
 // 2. 发送请求
 const response = await client.chat.completions.create({
-  model: 'gpt-4o',
+  model: "gpt-4o",
   messages,
   tools,
-})
+});
 
 // 3. 判断模型是否要调用工具
-if (response.choices[0].finish_reason === 'tool_calls') {
-  const toolCall = response.choices[0].message.tool_calls[0]
-  const args = JSON.parse(toolCall.function.arguments)
-  
+if (response.choices[0].finish_reason === "tool_calls") {
+  const toolCall = response.choices[0].message.tool_calls[0];
+  const args = JSON.parse(toolCall.function.arguments);
+
   // 4. 执行实际工具
-  const result = await getWeather(args.city)
-  
+  const result = await getWeather(args.city);
+
   // 5. 把结果还给模型
-  messages.push(response.choices[0].message)
+  messages.push(response.choices[0].message);
   messages.push({
-    role: 'tool',
+    role: "tool",
     tool_call_id: toolCall.id,
-    content: JSON.stringify(result)
-  })
-  
+    content: JSON.stringify(result),
+  });
+
   // 6. 继续请求，让模型基于工具结果生成最终回复
-  const finalResponse = await client.chat.completions.create({ model, messages })
+  const finalResponse = await client.chat.completions.create({
+    model,
+    messages,
+  });
 }
 ```
 
@@ -466,7 +477,7 @@ Agent 执行多个步骤时，UI 要让用户知道进展：
 #### 工具对比
 
 | 工具 | 特点 | 推荐场景 |
-|------|------|---------|
+| --- | --- | --- |
 | **Cursor** | 深度集成 AI，可以理解整个代码库上下文 | 日常开发首选，功能最强 |
 | **GitHub Copilot** | VS Code 插件，代码补全稳定 | 用 VS Code 的同学 |
 | **通义灵码** | 国内，对中文注释理解好，阿里云生态 | 国内项目，不想翻墙 |
@@ -474,6 +485,7 @@ Agent 执行多个步骤时，UI 要让用户知道进展：
 #### 如何写好 Prompt 让 AI 帮你写代码
 
 **好的代码 Prompt 模板**：
+
 ```
 上下文：[项目技术栈、相关代码片段]
 任务：[明确要做什么]
@@ -482,6 +494,7 @@ Agent 执行多个步骤时，UI 要让用户知道进展：
 ```
 
 **实际例子**：
+
 ```
 // 差：写一个搜索组件
 // 好：
@@ -502,6 +515,7 @@ Agent 执行多个步骤时，UI 要让用户知道进展：
 #### AI 的局限性：不要让 AI 做架构决策
 
 AI 写具体函数很厉害，但以下场景要自己主导：
+
 - **系统架构**（前后端分层、数据流设计）
 - **技术选型**（它会给你一堆选项但不知道你的具体约束）
 - **安全相关代码**（鉴权、加密，AI 生成的代码要仔细检查）
@@ -552,15 +566,16 @@ AI 写具体函数很厉害，但以下场景要自己主导：
 **Hugging Face 出品**，把 Python 的 transformers 库搬到了浏览器。
 
 ```ts
-import { pipeline } from '@xenova/transformers'
+import { pipeline } from "@xenova/transformers";
 
 // 浏览器端情感分析（模型自动下载并缓存）
-const classifier = await pipeline('sentiment-analysis')
-const result = await classifier('I love this product!')
+const classifier = await pipeline("sentiment-analysis");
+const result = await classifier("I love this product!");
 // [{ label: 'POSITIVE', score: 0.998 }]
 ```
 
 **典型场景**：
+
 - **OCR**：识别图片中的文字，完全本地
 - **语音识别**：Whisper 小模型，离线转文字
 - **图片分类**：本地判断图片内容（不上传服务器）
@@ -575,7 +590,7 @@ const result = await classifier('I love this product!')
 #### 主流平台对比
 
 | 平台 | 特点 | 适合场景 |
-|------|------|---------|
+| --- | --- | --- |
 | **Dify** | 开源，可私有化部署，功能全 | 企业内部，数据安全要求高 |
 | **Coze/扣子** | 字节出品，海外/国内双版本，生态丰富 | 快速搭建 Agent |
 | **n8n** | 开源，更偏通用工作流自动化 | 多系统集成 |
@@ -587,29 +602,29 @@ const result = await classifier('I love this product!')
 
 ```ts
 // Dify API 示例
-const response = await fetch('https://api.dify.ai/v1/chat-messages', {
-  method: 'POST',
+const response = await fetch("https://api.dify.ai/v1/chat-messages", {
+  method: "POST",
   headers: {
-    'Authorization': `Bearer ${DIFY_API_KEY}`,
-    'Content-Type': 'application/json',
+    Authorization: `Bearer ${DIFY_API_KEY}`,
+    "Content-Type": "application/json",
   },
   body: JSON.stringify({
     inputs: {},
     query: userMessage,
-    response_mode: 'streaming', // 支持流式
+    response_mode: "streaming", // 支持流式
     conversation_id: conversationId,
-  })
-})
+  }),
+});
 ```
 
 #### 什么时候用工作流，什么时候自己写
 
-| 用工作流 | 自己写 |
-|---------|--------|
-| 快速验证 AI 产品 idea | 需要深度定制 UI 交互 |
+| 用工作流               | 自己写                     |
+| ---------------------- | -------------------------- |
+| 快速验证 AI 产品 idea  | 需要深度定制 UI 交互       |
 | 非技术成员需要调整流程 | 性能要求高，不能多一层转发 |
-| 多个 AI 节点编排 | 数据安全要求不允许走第三方 |
-| 团队没有 AI 后端能力 | 已有稳定后端，只需接入 LLM |
+| 多个 AI 节点编排       | 数据安全要求不允许走第三方 |
+| 团队没有 AI 后端能力   | 已有稳定后端，只需接入 LLM |
 
 ---
 
@@ -672,12 +687,12 @@ const response = await fetch('https://api.dify.ai/v1/chat-messages', {
 
 #### 选修方向（根据岗位，深入某一方向）
 
-| 方向 | 学什么 |
-|------|--------|
-| **AI 产品前端** | AI UX 设计、多模态交互、复杂 Agent UI |
-| **Web AI / 端侧 AI** | WebGPU、Transformers.js、ONNX Runtime Web |
-| **AI 工具开发** | VS Code 插件、桌面 Electron 应用、MCP Server 开发 |
-| **全栈 AI** | LangChain.js、向量数据库、RAG 系统搭建 |
+| 方向                 | 学什么                                            |
+| -------------------- | ------------------------------------------------- |
+| **AI 产品前端**      | AI UX 设计、多模态交互、复杂 Agent UI             |
+| **Web AI / 端侧 AI** | WebGPU、Transformers.js、ONNX Runtime Web         |
+| **AI 工具开发**      | VS Code 插件、桌面 Electron 应用、MCP Server 开发 |
+| **全栈 AI**          | LangChain.js、向量数据库、RAG 系统搭建            |
 
 ---
 
@@ -686,7 +701,7 @@ const response = await fetch('https://api.dify.ai/v1/chat-messages', {
 #### 官方文档（最靠谱）
 
 | 资源 | 链接 | 用途 |
-|------|------|------|
+| --- | --- | --- |
 | OpenAI Docs | platform.openai.com/docs | API 参考，必读 |
 | Anthropic Docs | docs.anthropic.com | Claude API + Prompt 指南 |
 | Vercel AI SDK | sdk.vercel.ai | 前端 AI 工具库，强烈推荐 |
@@ -710,7 +725,7 @@ const response = await fetch('https://api.dify.ai/v1/chat-messages', {
 #### 值得关注的博主/Newsletter
 
 | 名称 | 平台 | 内容 |
-|------|------|------|
+| --- | --- | --- |
 | Andrej Karpathy | X/YouTube | AI 原理+工程实践，Vibe Coding 提出者 |
 | Simon Willison | simonwillison.net | LLM 实践，每周更新 |
 | The Pragmatic Engineer | newsletter | 大厂 AI 工程实践 |

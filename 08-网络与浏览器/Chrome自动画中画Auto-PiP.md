@@ -11,6 +11,7 @@ Chrome 142+ 新增浏览器发起的自动画中画（Auto PiP）功能：当用
 ## 关键知识点
 
 ### 触发条件（需全部满足）
+
 - 顶层 frame URL 通过 Safe Browsing 检查
 - 媒体在顶层 frame 中播放
 - 媒体在最近 2 秒内有音频输出
@@ -22,6 +23,7 @@ Chrome 142+ 新增浏览器发起的自动画中画（Auto PiP）功能：当用
 - 当前没有其他 PiP 窗口打开
 
 ### 开发者控制与退出
+
 ```javascript
 // 注册自己的处理器，可以覆盖默认行为
 navigator.mediaSession.setActionHandler("enterpictureinpicture", (details) => {
@@ -33,11 +35,12 @@ navigator.mediaSession.setActionHandler("enterpictureinpicture", (details) => {
 ```
 
 ### 最佳实践：保持进度条同步
+
 ```javascript
-const video = document.querySelector('video');
+const video = document.querySelector("video");
 
 function updatePositionState() {
-  if ('setPositionState' in navigator.mediaSession) {
+  if ("setPositionState" in navigator.mediaSession) {
     navigator.mediaSession.setPositionState({
       duration: video.duration,
       playbackRate: video.playbackRate,
@@ -51,6 +54,7 @@ video.addEventListener("seeked", updatePositionState);
 ```
 
 ### 完整控制支持
+
 ```javascript
 // 支持 seekto / previoustrack / nexttrack，让 PiP 窗口操控更完整
 navigator.mediaSession.setActionHandler("seekto", (details) => {
@@ -67,6 +71,7 @@ navigator.mediaSession.setActionHandler("seekto", (details) => {
 ```
 chrome://flags/#browser-initiated-automatic-picture-in-picture
 ```
+
 需要 Chrome 142+，桌面端。
 
 ## 面试相关

@@ -20,6 +20,7 @@ Module Federation：
 ```
 
 **关键术语**：
+
 - **Host（消费者）**：加载远程模块的应用
 - **Remote（提供者）**：暴露模块给其他应用的应用
 - **Shared（共享依赖）**：多个应用共享的包（如 React），避免重复加载
@@ -30,25 +31,25 @@ Module Federation：
 ```javascript
 // Remote 应用（App A —— 暴露模块）
 // webpack.config.js
-const { ModuleFederationPlugin } = require('webpack').container;
+const { ModuleFederationPlugin } = require("webpack").container;
 
 module.exports = {
   output: {
-    publicPath: 'http://localhost:3001/',
-    uniqueName: 'app_a', // 避免全局变量冲突
+    publicPath: "http://localhost:3001/",
+    uniqueName: "app_a", // 避免全局变量冲突
   },
   plugins: [
     new ModuleFederationPlugin({
-      name: 'app_a',           // 全局唯一名称
-      filename: 'remoteEntry.js', // 远程入口文件
+      name: "app_a", // 全局唯一名称
+      filename: "remoteEntry.js", // 远程入口文件
       exposes: {
         // 暴露的模块
-        './Button': './src/components/Button',
-        './utils': './src/utils/index',
+        "./Button": "./src/components/Button",
+        "./utils": "./src/utils/index",
       },
       shared: {
-        react: { singleton: true, requiredVersion: '^18.0.0' },
-        'react-dom': { singleton: true, requiredVersion: '^18.0.0' },
+        react: { singleton: true, requiredVersion: "^18.0.0" },
+        "react-dom": { singleton: true, requiredVersion: "^18.0.0" },
       },
     }),
   ],
@@ -57,19 +58,19 @@ module.exports = {
 
 ```javascript
 // Host 应用（App B —— 消费模块）
-const { ModuleFederationPlugin } = require('webpack').container;
+const { ModuleFederationPlugin } = require("webpack").container;
 
 module.exports = {
   plugins: [
     new ModuleFederationPlugin({
-      name: 'app_b',
+      name: "app_b",
       remotes: {
         // 远程应用映射
-        app_a: 'app_a@http://localhost:3001/remoteEntry.js',
+        app_a: "app_a@http://localhost:3001/remoteEntry.js",
       },
       shared: {
-        react: { singleton: true, requiredVersion: '^18.0.0' },
-        'react-dom': { singleton: true, requiredVersion: '^18.0.0' },
+        react: { singleton: true, requiredVersion: "^18.0.0" },
+        "react-dom": { singleton: true, requiredVersion: "^18.0.0" },
       },
     }),
   ],
@@ -79,7 +80,7 @@ module.exports = {
 ```tsx
 // Host 中使用远程模块
 // 方式1：动态 import（推荐）
-const RemoteButton = React.lazy(() => import('app_a/Button'));
+const RemoteButton = React.lazy(() => import("app_a/Button"));
 
 function App() {
   return (
@@ -91,7 +92,7 @@ function App() {
 
 // 方式2：静态 import（需要额外的 bootstrap 入口）
 // bootstrap.tsx
-import { Button } from 'app_a/Button';
+import { Button } from "app_a/Button";
 ```
 
 ### 1.3 Shared 共享策略
@@ -152,12 +153,16 @@ Webpack 5 新增:
 ```javascript
 // utils.js
 export const utils = {
-  foo() { console.log('foo'); },
-  bar() { console.log('bar'); },
+  foo() {
+    console.log("foo");
+  },
+  bar() {
+    console.log("bar");
+  },
 };
 
 // app.js
-import { utils } from './utils';
+import { utils } from "./utils";
 utils.foo(); // 只用了 foo
 
 // Webpack 4: utils 整个对象保留（包含 bar）
@@ -168,12 +173,12 @@ utils.foo(); // 只用了 foo
 
 ```javascript
 // Webpack 5 可以分析部分 CJS 模式
-const { pick } = require('lodash');
+const { pick } = require("lodash");
 // Webpack 5 能识别这种解构模式，只打包 pick
 
 // 但不是所有 CJS 都能 shake：
-const _ = require('lodash');
-_.pick(obj, ['a']); // 无法 shake，因为 _ 是动态对象
+const _ = require("lodash");
+_.pick(obj, ["a"]); // 无法 shake，因为 _ 是动态对象
 ```
 
 ### 2.4 确保 Tree Shaking 生效的最佳实践
@@ -190,11 +195,11 @@ _.pick(obj, ['a']); // 无法 shake，因为 _ 是动态对象
 ```javascript
 // webpack.config.js
 module.exports = {
-  mode: 'production', // production 默认开启 Tree Shaking
+  mode: "production", // production 默认开启 Tree Shaking
   optimization: {
-    usedExports: true,  // 标记未使用的 export
-    innerGraph: true,   // 嵌套分析（Webpack 5 默认开启）
-    sideEffects: true,  // 读取 package.json 的 sideEffects
+    usedExports: true, // 标记未使用的 export
+    innerGraph: true, // 嵌套分析（Webpack 5 默认开启）
+    sideEffects: true, // 读取 package.json 的 sideEffects
   },
 };
 ```
@@ -221,14 +226,14 @@ Webpack 5:
 ```javascript
 module.exports = {
   cache: {
-    type: 'filesystem',             // 'memory' | 'filesystem'
+    type: "filesystem", // 'memory' | 'filesystem'
     buildDependencies: {
-      config: [__filename],         // 当 webpack.config.js 变化时缓存失效
+      config: [__filename], // 当 webpack.config.js 变化时缓存失效
     },
-    cacheDirectory: '.webpack_cache', // 缓存目录（默认 node_modules/.cache/webpack）
+    cacheDirectory: ".webpack_cache", // 缓存目录（默认 node_modules/.cache/webpack）
     name: `${process.env.NODE_ENV}`, // 按环境分缓存
-    version: '1.0',                  // 手动使缓存失效
-    compression: 'gzip',            // 压缩缓存文件
+    version: "1.0", // 手动使缓存失效
+    compression: "gzip", // 压缩缓存文件
     maxAge: 1000 * 60 * 60 * 24 * 7, // 缓存有效期（毫秒）
   },
 };
@@ -284,36 +289,36 @@ module.exports = {
       // 图片：小于 8KB 内联，否则输出文件
       {
         test: /\.(png|jpe?g|gif|webp|avif)$/i,
-        type: 'asset',
+        type: "asset",
         parser: {
           dataUrlCondition: {
             maxSize: 8 * 1024, // 8KB
           },
         },
         generator: {
-          filename: 'images/[name]-[contenthash:8][ext]',
+          filename: "images/[name]-[contenthash:8][ext]",
         },
       },
       // SVG 始终输出文件
       {
         test: /\.svg$/i,
-        type: 'asset/resource',
+        type: "asset/resource",
         generator: {
-          filename: 'icons/[name]-[contenthash:8][ext]',
+          filename: "icons/[name]-[contenthash:8][ext]",
         },
       },
       // 字体文件
       {
         test: /\.(woff2?|eot|ttf|otf)$/i,
-        type: 'asset/resource',
+        type: "asset/resource",
         generator: {
-          filename: 'fonts/[name]-[contenthash:8][ext]',
+          filename: "fonts/[name]-[contenthash:8][ext]",
         },
       },
       // 文本文件以字符串导入
       {
         test: /\.txt$/,
-        type: 'asset/source',
+        type: "asset/source",
       },
     ],
   },
@@ -356,11 +361,11 @@ module.exports = {
 // 以前
 let data;
 (async () => {
-  data = await fetch('/api/config').then(r => r.json());
+  data = await fetch("/api/config").then((r) => r.json());
 })();
 
 // Webpack 5 + Top Level Await
-const data = await fetch('/api/config').then(r => r.json());
+const data = await fetch("/api/config").then((r) => r.json());
 export { data };
 
 // 实际应用：动态配置加载、条件导入
@@ -393,7 +398,7 @@ module.exports = {
 ### 6.1 完整对比
 
 | 特性 | Webpack 4 | Webpack 5 |
-|------|-----------|-----------|
+| --- | --- | --- |
 | Node.js polyfill | 自动注入（crypto, path 等） | **移除**，需手动配置 |
 | 持久化缓存 | 需要第三方插件 | **内置** filesystem cache |
 | Asset Modules | file/url/raw-loader | **内置**四种资源类型 |
@@ -409,16 +414,16 @@ module.exports = {
 
 ```javascript
 // Webpack 4 自动 polyfill Node.js 核心模块
-import crypto from 'crypto'; // 自动使用 crypto-browserify
+import crypto from "crypto"; // 自动使用 crypto-browserify
 
 // Webpack 5 不再自动 polyfill，需要手动配置
 module.exports = {
   resolve: {
     fallback: {
-      crypto: require.resolve('crypto-browserify'),
-      stream: require.resolve('stream-browserify'),
-      buffer: require.resolve('buffer'),
-      path: require.resolve('path-browserify'),
+      crypto: require.resolve("crypto-browserify"),
+      stream: require.resolve("stream-browserify"),
+      buffer: require.resolve("buffer"),
+      path: require.resolve("path-browserify"),
       // 或者不需要 polyfill 时设为 false
       fs: false,
       net: false,
@@ -426,8 +431,8 @@ module.exports = {
   },
   plugins: [
     new webpack.ProvidePlugin({
-      Buffer: ['buffer', 'Buffer'],
-      process: 'process/browser',
+      Buffer: ["buffer", "Buffer"],
+      process: "process/browser",
     }),
   ],
 };
@@ -442,8 +447,8 @@ module.exports = {
 // Webpack 5: 基于内容的确定性 ID
 module.exports = {
   optimization: {
-    moduleIds: 'deterministic',  // 默认
-    chunkIds: 'deterministic',   // 默认
+    moduleIds: "deterministic", // 默认
+    chunkIds: "deterministic", // 默认
     // 模块内容不变 → ID 不变 → hash 不变 → 长期缓存有效
   },
 };
@@ -464,12 +469,19 @@ module.exports = {
         test: /\.[jt]sx?$/,
         exclude: /node_modules/,
         use: {
-          loader: 'babel-loader',
+          loader: "babel-loader",
           options: {
             presets: [
-              ['@babel/preset-env', { targets: '> 0.5%, not dead', useBuiltIns: 'usage', corejs: 3 }],
-              ['@babel/preset-react', { runtime: 'automatic' }],
-              '@babel/preset-typescript',
+              [
+                "@babel/preset-env",
+                {
+                  targets: "> 0.5%, not dead",
+                  useBuiltIns: "usage",
+                  corejs: 3,
+                },
+              ],
+              ["@babel/preset-react", { runtime: "automatic" }],
+              "@babel/preset-typescript",
             ],
             cacheDirectory: true, // 开启 babel 缓存
           },
@@ -481,11 +493,11 @@ module.exports = {
         test: /\.[jt]sx?$/,
         exclude: /node_modules/,
         use: {
-          loader: 'swc-loader',
+          loader: "swc-loader",
           options: {
             jsc: {
-              parser: { syntax: 'typescript', tsx: true },
-              transform: { react: { runtime: 'automatic' } },
+              parser: { syntax: "typescript", tsx: true },
+              transform: { react: { runtime: "automatic" } },
             },
           },
         },
@@ -498,26 +510,39 @@ module.exports = {
           MiniCssExtractPlugin.loader, // 生产环境提取 CSS
           // 'style-loader',            // 开发环境注入 <style>
           {
-            loader: 'css-loader',
+            loader: "css-loader",
             options: {
-              modules: { auto: true, localIdentName: '[name]__[local]--[hash:5]' },
+              modules: {
+                auto: true,
+                localIdentName: "[name]__[local]--[hash:5]",
+              },
             },
           },
-          'postcss-loader',
+          "postcss-loader",
         ],
       },
 
       // SCSS/LESS
       {
         test: /\.scss$/,
-        use: [MiniCssExtractPlugin.loader, 'css-loader', 'postcss-loader', 'sass-loader'],
+        use: [
+          MiniCssExtractPlugin.loader,
+          "css-loader",
+          "postcss-loader",
+          "sass-loader",
+        ],
       },
       {
         test: /\.less$/,
-        use: [MiniCssExtractPlugin.loader, 'css-loader', 'postcss-loader', {
-          loader: 'less-loader',
-          options: { lessOptions: { javascriptEnabled: true } },
-        }],
+        use: [
+          MiniCssExtractPlugin.loader,
+          "css-loader",
+          "postcss-loader",
+          {
+            loader: "less-loader",
+            options: { lessOptions: { javascriptEnabled: true } },
+          },
+        ],
       },
     ],
   },
@@ -527,27 +552,27 @@ module.exports = {
 ### 7.2 核心 Plugin
 
 ```javascript
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
-const TerserPlugin = require('terser-webpack-plugin');
-const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
-const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
-const webpack = require('webpack');
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
+const TerserPlugin = require("terser-webpack-plugin");
+const { BundleAnalyzerPlugin } = require("webpack-bundle-analyzer");
+const CopyWebpackPlugin = require("copy-webpack-plugin");
+const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
+const webpack = require("webpack");
 
 module.exports = {
   plugins: [
     // HTML 模板
     new HtmlWebpackPlugin({
-      template: './public/index.html',
+      template: "./public/index.html",
       minify: { collapseWhitespace: true, removeComments: true },
     }),
 
     // CSS 提取
     new MiniCssExtractPlugin({
-      filename: 'css/[name]-[contenthash:8].css',
-      chunkFilename: 'css/[name]-[contenthash:8].css',
+      filename: "css/[name]-[contenthash:8].css",
+      chunkFilename: "css/[name]-[contenthash:8].css",
     }),
 
     // TypeScript 类型检查（独立进程）
@@ -557,13 +582,15 @@ module.exports = {
 
     // 环境变量注入
     new webpack.DefinePlugin({
-      'process.env.API_URL': JSON.stringify(process.env.API_URL),
-      __DEV__: JSON.stringify(process.env.NODE_ENV === 'development'),
+      "process.env.API_URL": JSON.stringify(process.env.API_URL),
+      __DEV__: JSON.stringify(process.env.NODE_ENV === "development"),
     }),
 
     // 静态文件复制
     new CopyWebpackPlugin({
-      patterns: [{ from: 'public', to: '', globOptions: { ignore: ['**/index.html'] } }],
+      patterns: [
+        { from: "public", to: "", globOptions: { ignore: ["**/index.html"] } },
+      ],
     }),
 
     // 打包分析（按需开启）
@@ -595,46 +622,46 @@ module.exports = {
 module.exports = {
   optimization: {
     splitChunks: {
-      chunks: 'all',          // 'initial' | 'async' | 'all'
-      minSize: 20000,         // 最小 chunk 大小（bytes）
-      minChunks: 1,           // 最少被引用次数
-      maxAsyncRequests: 30,   // 并行加载最大请求数
+      chunks: "all", // 'initial' | 'async' | 'all'
+      minSize: 20000, // 最小 chunk 大小（bytes）
+      minChunks: 1, // 最少被引用次数
+      maxAsyncRequests: 30, // 并行加载最大请求数
       maxInitialRequests: 30, // 入口并行请求数
 
       cacheGroups: {
         // React 全家桶单独打包
         react: {
           test: /[\\/]node_modules[\\/](react|react-dom|react-router|react-router-dom)[\\/]/,
-          name: 'react-vendor',
-          chunks: 'all',
+          name: "react-vendor",
+          chunks: "all",
           priority: 40,
         },
         // UI 库单独打包
         antd: {
           test: /[\\/]node_modules[\\/](antd|@ant-design)[\\/]/,
-          name: 'antd-vendor',
-          chunks: 'all',
+          name: "antd-vendor",
+          chunks: "all",
           priority: 30,
         },
         // 其他第三方库
         vendors: {
           test: /[\\/]node_modules[\\/]/,
-          name: 'vendors',
-          chunks: 'all',
+          name: "vendors",
+          chunks: "all",
           priority: 10,
         },
         // 公共模块
         common: {
           minChunks: 2,
-          name: 'common',
-          chunks: 'all',
+          name: "common",
+          chunks: "all",
           priority: 5,
           reuseExistingChunk: true,
         },
       },
     },
     // 将 webpack 运行时代码提取为单独 chunk
-    runtimeChunk: 'single',
+    runtimeChunk: "single",
   },
 };
 ```
@@ -645,23 +672,23 @@ module.exports = {
 
 ```javascript
 // webpack.dll.config.js —— 预编译不常变的库
-const webpack = require('webpack');
-const path = require('path');
+const webpack = require("webpack");
+const path = require("path");
 
 module.exports = {
-  mode: 'production',
+  mode: "production",
   entry: {
-    vendor: ['react', 'react-dom', 'lodash-es'],
+    vendor: ["react", "react-dom", "lodash-es"],
   },
   output: {
-    path: path.resolve(__dirname, 'dll'),
-    filename: '[name].dll.js',
-    library: '[name]_dll',
+    path: path.resolve(__dirname, "dll"),
+    filename: "[name].dll.js",
+    library: "[name]_dll",
   },
   plugins: [
     new webpack.DllPlugin({
-      name: '[name]_dll',
-      path: path.resolve(__dirname, 'dll/[name].manifest.json'),
+      name: "[name]_dll",
+      path: path.resolve(__dirname, "dll/[name].manifest.json"),
     }),
   ],
 };
@@ -670,7 +697,7 @@ module.exports = {
 module.exports = {
   plugins: [
     new webpack.DllReferencePlugin({
-      manifest: require('./dll/vendor.manifest.json'),
+      manifest: require("./dll/vendor.manifest.json"),
     }),
   ],
 };
@@ -693,13 +720,13 @@ module.exports = {
         test: /\.[jt]sx?$/,
         use: [
           {
-            loader: 'thread-loader',
+            loader: "thread-loader",
             options: {
-              workers: require('os').cpus().length - 1, // worker 数量
+              workers: require("os").cpus().length - 1, // worker 数量
               poolTimeout: 2000, // 空闲超时释放 worker
             },
           },
-          'babel-loader',
+          "babel-loader",
         ],
         exclude: /node_modules/,
       },
@@ -715,52 +742,56 @@ module.exports = {
 ```javascript
 // webpack.config.js —— 生产环境完整优化
 module.exports = {
-  mode: 'production',
+  mode: "production",
 
   // 1. 持久化缓存
-  cache: { type: 'filesystem' },
+  cache: { type: "filesystem" },
 
   // 2. 资源模块（内置，不需要 file/url-loader）
   module: {
     rules: [
-      { test: /\.(png|jpg|gif|webp)$/, type: 'asset', parser: { dataUrlCondition: { maxSize: 8192 } } },
+      {
+        test: /\.(png|jpg|gif|webp)$/,
+        type: "asset",
+        parser: { dataUrlCondition: { maxSize: 8192 } },
+      },
     ],
   },
 
   // 3. 代码分割
   optimization: {
-    splitChunks: { chunks: 'all' },
-    runtimeChunk: 'single',
+    splitChunks: { chunks: "all" },
+    runtimeChunk: "single",
     minimize: true,
     minimizer: [new TerserPlugin({ parallel: true }), new CssMinimizerPlugin()],
     // 确定性 ID（长期缓存）
-    moduleIds: 'deterministic',
-    chunkIds: 'deterministic',
+    moduleIds: "deterministic",
+    chunkIds: "deterministic",
   },
 
   // 4. 输出文件名含 contenthash（长期缓存）
   output: {
-    filename: '[name]-[contenthash:8].js',
-    chunkFilename: '[name]-[contenthash:8].js',
+    filename: "[name]-[contenthash:8].js",
+    chunkFilename: "[name]-[contenthash:8].js",
     clean: true, // 构建前清空 dist（替代 clean-webpack-plugin）
   },
 
   // 5. 减小 resolve 范围
   resolve: {
-    extensions: ['.tsx', '.ts', '.jsx', '.js'], // 减少尝试的后缀
-    modules: ['node_modules'],                    // 明确搜索目录
-    alias: { '@': path.resolve(__dirname, 'src') },
+    extensions: [".tsx", ".ts", ".jsx", ".js"], // 减少尝试的后缀
+    modules: ["node_modules"], // 明确搜索目录
+    alias: { "@": path.resolve(__dirname, "src") },
   },
 
   // 6. 排除不需要打包的库
   externals: {
     // CDN 引入的库
-    react: 'React',
-    'react-dom': 'ReactDOM',
+    react: "React",
+    "react-dom": "ReactDOM",
   },
 
   // 7. SourceMap 策略
-  devtool: 'source-map', // 生产环境用 source-map 或 hidden-source-map
+  devtool: "source-map", // 生产环境用 source-map 或 hidden-source-map
   // 开发环境用 eval-cheap-module-source-map（快）
 };
 ```
@@ -801,6 +832,7 @@ module.exports = {
 ### Q4：SplitChunks 怎么配？
 
 根据项目实际情况：
+
 - **框架库**（React、Vue）打成单独 chunk → 变化频率低，缓存命中率高
 - **UI 库**（antd、Element）单独 chunk → 体积大，独立缓存
 - **业务公共模块** → `minChunks: 2` 提取复用代码
@@ -810,7 +842,7 @@ module.exports = {
 ### Q5：如何优化 Webpack 构建速度？
 
 | 方案 | 原理 | 效果 |
-|------|------|------|
+| --- | --- | --- |
 | 持久化缓存 | `cache: { type: 'filesystem' }` | 二次构建提速 60-90% |
 | 多线程 | `thread-loader` / SWC | 利用多核并行编译 |
 | 缩小构建范围 | `exclude: /node_modules/`、精确 `resolve` | 减少文件搜索和转译 |

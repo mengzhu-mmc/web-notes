@@ -23,14 +23,14 @@ const TodoDispatchContext = createContext(null);
 
 function todoReducer(state, action) {
   switch (action.type) {
-    case 'ADD':
+    case "ADD":
       return [...state, { id: Date.now(), text: action.text, done: false }];
-    case 'TOGGLE':
-      return state.map(todo =>
-        todo.id === action.id ? { ...todo, done: !todo.done } : todo
+    case "TOGGLE":
+      return state.map((todo) =>
+        todo.id === action.id ? { ...todo, done: !todo.done } : todo,
       );
-    case 'DELETE':
-      return state.filter(todo => todo.id !== action.id);
+    case "DELETE":
+      return state.filter((todo) => todo.id !== action.id);
     default:
       throw new Error(`Unknown action: ${action.type}`);
   }
@@ -78,21 +78,21 @@ Redux 的设计围绕三个核心原则展开：单一数据源（整个应用�
 现代 Redux 开发推荐使用 Redux Toolkit，它大幅简化了样板代码：
 
 ```js
-import { createSlice, configureStore } from '@reduxjs/toolkit';
+import { createSlice, configureStore } from "@reduxjs/toolkit";
 
 // 创建 Slice（集成了 action + reducer）
 const counterSlice = createSlice({
-  name: 'counter',
+  name: "counter",
   initialState: { value: 0, history: [] },
   reducers: {
     increment(state) {
       // RTK 内部使用 Immer，可以直接"修改"状态
       state.value += 1;
-      state.history.push({ action: 'increment', time: Date.now() });
+      state.history.push({ action: "increment", time: Date.now() });
     },
     decrement(state) {
       state.value -= 1;
-      state.history.push({ action: 'decrement', time: Date.now() });
+      state.history.push({ action: "decrement", time: Date.now() });
     },
     incrementByAmount(state, action) {
       state.value += action.payload;
@@ -117,11 +117,11 @@ Redux 中间件是面试重点。中间件本质上是对 `dispatch` 方法的�
 
 ```js
 // 中间件签名：store => next => action => result
-const loggerMiddleware = store => next => action => {
-  console.log('dispatching:', action.type);
-  console.log('prev state:', store.getState());
+const loggerMiddleware = (store) => (next) => (action) => {
+  console.log("dispatching:", action.type);
+  console.log("prev state:", store.getState());
   const result = next(action); // 调用下一个中间件或原始 dispatch
-  console.log('next state:', store.getState());
+  console.log("next state:", store.getState());
   return result;
 };
 ```
@@ -133,24 +133,24 @@ const loggerMiddleware = store => next => action => {
 RTK Query 是 Redux Toolkit 内置的数据请求和缓存方案，类似于 React Query 但与 Redux 深度集成：
 
 ```js
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 const apiSlice = createApi({
-  reducerPath: 'api',
-  baseQuery: fetchBaseQuery({ baseUrl: '/api' }),
-  tagTypes: ['User'],
-  endpoints: builder => ({
+  reducerPath: "api",
+  baseQuery: fetchBaseQuery({ baseUrl: "/api" }),
+  tagTypes: ["User"],
+  endpoints: (builder) => ({
     getUsers: builder.query({
-      query: () => '/users',
-      providesTags: ['User'],
+      query: () => "/users",
+      providesTags: ["User"],
     }),
     addUser: builder.mutation({
-      query: newUser => ({
-        url: '/users',
-        method: 'POST',
+      query: (newUser) => ({
+        url: "/users",
+        method: "POST",
         body: newUser,
       }),
-      invalidatesTags: ['User'], // 自动重新请求 getUsers
+      invalidatesTags: ["User"], // 自动重新请求 getUsers
     }),
   }),
 });
@@ -167,23 +167,23 @@ Zustand 是近年来增长最快的 React 状态管理库，以极简的 API 和
 ### 核心用法
 
 ```js
-import { create } from 'zustand';
+import { create } from "zustand";
 
 // 创建 store，不需要 Provider
 const useStore = create((set, get) => ({
   count: 0,
   users: [],
-  
-  increment: () => set(state => ({ count: state.count + 1 })),
-  decrement: () => set(state => ({ count: state.count - 1 })),
-  
+
+  increment: () => set((state) => ({ count: state.count + 1 })),
+  decrement: () => set((state) => ({ count: state.count - 1 })),
+
   // 异步操作直接写，不需要中间件
   fetchUsers: async () => {
-    const response = await fetch('/api/users');
+    const response = await fetch("/api/users");
     const users = await response.json();
     set({ users });
   },
-  
+
   // 通过 get() 访问当前状态
   getDoubleCount: () => get().count * 2,
 }));
@@ -191,8 +191,8 @@ const useStore = create((set, get) => ({
 // 组件中使用 - 通过 selector 精确订阅
 function Counter() {
   // 只有 count 变化时才重渲染，users 变化不会触发
-  const count = useStore(state => state.count);
-  const increment = useStore(state => state.increment);
+  const count = useStore((state) => state.count);
+  const increment = useStore((state) => state.increment);
   return <button onClick={increment}>{count}</button>;
 }
 ```
@@ -206,22 +206,22 @@ Zustand 的核心实现非常精巧，大约只有 40 行代码。它基于发�
 function createStore(createState) {
   let state;
   const listeners = new Set();
-  
+
   const getState = () => state;
-  
+
   const setState = (partial) => {
-    const nextState = typeof partial === 'function' ? partial(state) : partial;
+    const nextState = typeof partial === "function" ? partial(state) : partial;
     if (!Object.is(nextState, state)) {
       state = Object.assign({}, state, nextState);
-      listeners.forEach(listener => listener(state));
+      listeners.forEach((listener) => listener(state));
     }
   };
-  
+
   const subscribe = (listener) => {
     listeners.add(listener);
     return () => listeners.delete(listener);
   };
-  
+
   state = createState(setState, getState);
   return { getState, setState, subscribe };
 }
@@ -232,9 +232,9 @@ function createStore(createState) {
 Zustand 通过函数组合的方式支持中间件，常用的有 `persist`（持久化）、`devtools`（Redux DevTools 集成）、`immer`（不可变更新）：
 
 ```js
-import { create } from 'zustand';
-import { persist, devtools } from 'zustand/middleware';
-import { immer } from 'zustand/middleware/immer';
+import { create } from "zustand";
+import { persist, devtools } from "zustand/middleware";
+import { immer } from "zustand/middleware/immer";
 
 const useStore = create(
   devtools(
@@ -246,9 +246,9 @@ const useStore = create(
             state.todos.push({ id: Date.now(), text, done: false });
           }),
       })),
-      { name: 'todo-storage' }
-    )
-  )
+      { name: "todo-storage" },
+    ),
+  ),
 );
 ```
 
@@ -267,13 +267,13 @@ MobX 有三个核心角色：
 - **Action**：修改 observable 的函数，推荐在 strict mode 下强制要求所有状态变更必须在 action 内发生
 
 ```js
-import { makeAutoObservable, runInAction } from 'mobx';
-import { observer } from 'mobx-react-lite';
+import { makeAutoObservable, runInAction } from "mobx";
+import { observer } from "mobx-react-lite";
 
 // 定义 Store 类
 class TodoStore {
   todos = [];
-  filter = 'all'; // 'all' | 'active' | 'done'
+  filter = "all"; // 'all' | 'active' | 'done'
 
   constructor() {
     // 自动将所有属性变为 observable，方法变为 action
@@ -286,7 +286,7 @@ class TodoStore {
   }
 
   toggleTodo(id) {
-    const todo = this.todos.find(t => t.id === id);
+    const todo = this.todos.find((t) => t.id === id);
     if (todo) todo.done = !todo.done;
   }
 
@@ -296,18 +296,18 @@ class TodoStore {
 
   // computed：依赖变化时自动重算，组件读取时返回缓存值
   get filteredTodos() {
-    if (this.filter === 'active') return this.todos.filter(t => !t.done);
-    if (this.filter === 'done') return this.todos.filter(t => t.done);
+    if (this.filter === "active") return this.todos.filter((t) => !t.done);
+    if (this.filter === "done") return this.todos.filter((t) => t.done);
     return this.todos;
   }
 
   get doneCount() {
-    return this.todos.filter(t => t.done).length;
+    return this.todos.filter((t) => t.done).length;
   }
 
   // 异步 action：需要用 runInAction 包裹状态变更
   async fetchTodos() {
-    const response = await fetch('/api/todos');
+    const response = await fetch("/api/todos");
     const data = await response.json();
     // 异步回调中的状态修改必须放在 runInAction 内
     runInAction(() => {
@@ -323,10 +323,10 @@ const todoStore = new TodoStore();
 const TodoList = observer(function TodoList() {
   return (
     <ul>
-      {todoStore.filteredTodos.map(todo => (
+      {todoStore.filteredTodos.map((todo) => (
         <li
           key={todo.id}
-          style={{ textDecoration: todo.done ? 'line-through' : 'none' }}
+          style={{ textDecoration: todo.done ? "line-through" : "none" }}
           onClick={() => todoStore.toggleTodo(todo.id)}
         >
           {todo.text}
@@ -349,13 +349,13 @@ MobX 通过 ES5 的 `Object.defineProperty`（或 ES6 Proxy）拦截对 observab
 
 ### 与 Redux 的对比视角
 
-| | MobX | Redux |
-|---|---|---|
-| 数据可变性 | 直接修改（Mutable） | 不可变（Immutable） |
-| 更新方式 | 自动追踪依赖，响应式触发 | 手动 dispatch action |
-| 样板代码 | 极少 | 较多（RTK 已大幅减少） |
-| 调试能力 | 较弱（状态变更分散） | 强（时间旅行、action 日志）|
-| 适合团队 | 小团队、快速迭代 | 大团队、需要严格规范 |
+|            | MobX                     | Redux                       |
+| ---------- | ------------------------ | --------------------------- |
+| 数据可变性 | 直接修改（Mutable）      | 不可变（Immutable）         |
+| 更新方式   | 自动追踪依赖，响应式触发 | 手动 dispatch action        |
+| 样板代码   | 极少                     | 较多（RTK 已大幅减少）      |
+| 调试能力   | 较弱（状态变更分散）     | 强（时间旅行、action 日志） |
+| 适合团队   | 小团队、快速迭代         | 大团队、需要严格规范        |
 
 ### 适用场景
 
@@ -372,11 +372,11 @@ Jotai 受 Recoil 启发，采用自底向上的原子化（atomic）模型，每
 ### 核心概念
 
 ```js
-import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { atom, useAtom, useAtomValue, useSetAtom } from "jotai";
 
 // 基础 atom
 const countAtom = atom(0);
-const nameAtom = atom('');
+const nameAtom = atom("");
 
 // 派生 atom（只读）- 类似 computed/selector
 const doubleCountAtom = atom((get) => get(countAtom) * 2);
@@ -386,12 +386,12 @@ const incrementAtom = atom(
   null, // 读取值为 null
   (get, set) => {
     set(countAtom, get(countAtom) + 1);
-  }
+  },
 );
 
 // 异步 atom
 const userAtom = atom(async () => {
-  const response = await fetch('/api/user');
+  const response = await fetch("/api/user");
   return response.json();
 });
 
@@ -400,10 +400,12 @@ function Counter() {
   const [count, setCount] = useAtom(countAtom);
   const doubleCount = useAtomValue(doubleCountAtom); // 只读
   const increment = useSetAtom(incrementAtom); // 只写
-  
+
   return (
     <div>
-      <p>Count: {count}, Double: {doubleCount}</p>
+      <p>
+        Count: {count}, Double: {doubleCount}
+      </p>
       <button onClick={increment}>+1</button>
     </div>
   );
@@ -421,7 +423,7 @@ function Counter() {
 ### 一张表看清所有方案
 
 | 维度 | Context + useReducer | Redux (RTK) | Zustand | MobX | Jotai |
-|------|---------------------|-------------|---------|------|-------|
+| --- | --- | --- | --- | --- | --- |
 | **设计模式** | 依赖注入 | Flux 单向数据流 | 发布订阅 | 响应式（观察者） | 原子化 |
 | **数据结构** | 树形 Context | 单一 Store 树 | 单一 Store | 可观察对象/类 | 分散原子图 |
 | **状态可变性** | 不可变 | 不可变（Immer） | 不可变（Immer 可选） | **可变**（直接修改） | 不可变 |

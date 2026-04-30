@@ -28,27 +28,12 @@ ReactDOM.render(&lt;App /&gt;, rootElement);
   <span class="hljs-comment">// 获取入参节点对应的 current 节点</span>
   <span class="hljs-keyword">var</span> current = unitOfWork.alternate;
 
-  <span class="hljs-keyword">var</span> next;
-  <span class="hljs-keyword">if</span> (xxx) {
-    ...
-    <span class="hljs-comment">// 创建当前节点的子节点</span>
-    next = beginWork$<span class="hljs-number">1</span>(current, unitOfWork, subtreeRenderLanes);
+<span class="hljs-keyword">var</span> next; <span class="hljs-keyword">if</span> (xxx) { ... <span class="hljs-comment">// 创建当前节点的子节点</span> next = beginWork$<span class="hljs-number">1</span>(current, unitOfWork, subtreeRenderLanes);
     ...
   } <span class="hljs-keyword">else</span> {
     <span class="hljs-comment">// 创建当前节点的子节点</span>
-    next = beginWork$<span class="hljs-number">1</span>(current, unitOfWork, subtreeRenderLanes);
-  }
-  ......
-  <span class="hljs-keyword">if</span> (next === <span class="hljs-keyword">null</span>) {
-    <span class="hljs-comment">// 调用 completeUnitOfWork</span>
-    completeUnitOfWork(unitOfWork);
-  } <span class="hljs-keyword">else</span> {
-    <span class="hljs-comment">// 将当前节点更新为新创建出的 Fiber 节点</span>
-    workInProgress = next;
-  }
-  ......
-}
-</code></pre>
+    next = beginWork$<span class="hljs-number">1</span>(current, unitOfWork, subtreeRenderLanes); } ...... <span class="hljs-keyword">if</span> (next === <span class="hljs-keyword">null</span>) { <span class="hljs-comment">// 调用 completeUnitOfWork</span> completeUnitOfWork(unitOfWork); } <span class="hljs-keyword">else</span> { <span class="hljs-comment">// 将当前节点更新为新创建出的 Fiber 节点</span> workInProgress = next; } ...... } </code></pre>
+
 <p data-nodeid="1664">这段源码中你需要提取出的信息是：performUnitOfWork 每次会尝试调用 beginWork 来创建当前节点的子节点，若创建出的子节点为空（也就意味着当前节点不存在子 Fiber 节点），则说明当前节点是一个叶子节点。<strong data-nodeid="1798">按照深度优先遍历的原则，当遍历到叶子节点时，“递”阶段就结束了，随之而来的是“归”的过程</strong>。因此这种情况下，就会调用 completeUnitOfWork，执行当前节点对应的 completeWork 逻辑。</p>
 <p data-nodeid="1665">接下来我们在 Demo 代码的 completeWork 处打上断点，看看第一个走到 completeWork 的节点是哪个，结果如下图所示：</p>
 <p data-nodeid="1666"><img src="https://s0.lgstatic.com/i/image/M00/72/10/Ciqc1F_AseOADKNDAALdERWik0M525.png" alt="Drawing 1.png" data-nodeid="1802"></p>
@@ -61,38 +46,9 @@ ReactDOM.render(&lt;App /&gt;, rootElement);
   <span class="hljs-comment">// 取出 Fiber 节点的属性值，存储在 newProps 里</span>
   <span class="hljs-keyword">var</span> newProps = workInProgress.pendingProps;
 
-  <span class="hljs-comment">// 根据 workInProgress 节点的 tag 属性的不同，决定要进入哪段逻辑</span>
-  <span class="hljs-keyword">switch</span> (workInProgress.tag) {
-    <span class="hljs-keyword">case</span> ......:
-      <span class="hljs-keyword">return</span> <span class="hljs-keyword">null</span>;
-    <span class="hljs-keyword">case</span> ClassComponent:
-      {
-        .....
-      }
-    <span class="hljs-keyword">case</span> HostRoot:
-      {
-        ......
-      }
-    <span class="hljs-comment">// h1 节点的类型属于 HostComponent，因此这里为你讲解的是这段逻辑</span>
-    <span class="hljs-keyword">case</span> HostComponent:
-      {
-        popHostContext(workInProgress);
-        <span class="hljs-keyword">var</span> rootContainerInstance = getRootHostContainer();
-        <span class="hljs-keyword">var</span> type = workInProgress.type;
-        <span class="hljs-comment">// 判断 current 节点是否存在，因为目前是挂载阶段，因此 current 节点是不存在的</span>
-        <span class="hljs-keyword">if</span> (current !== <span class="hljs-keyword">null</span> &amp;&amp; workInProgress.stateNode != <span class="hljs-keyword">null</span>) {
-          updateHostComponent$<span class="hljs-number">1</span>(current, workInProgress, type, newProps, rootContainerInstance);
+<span class="hljs-comment">// 根据 workInProgress 节点的 tag 属性的不同，决定要进入哪段逻辑</span> <span class="hljs-keyword">switch</span> (workInProgress.tag) { <span class="hljs-keyword">case</span> ......: <span class="hljs-keyword">return</span> <span class="hljs-keyword">null</span>; <span class="hljs-keyword">case</span> ClassComponent: { ..... } <span class="hljs-keyword">case</span> HostRoot: { ...... } <span class="hljs-comment">// h1 节点的类型属于 HostComponent，因此这里为你讲解的是这段逻辑</span> <span class="hljs-keyword">case</span> HostComponent: { popHostContext(workInProgress); <span class="hljs-keyword">var</span> rootContainerInstance = getRootHostContainer(); <span class="hljs-keyword">var</span> type = workInProgress.type; <span class="hljs-comment">// 判断 current 节点是否存在，因为目前是挂载阶段，因此 current 节点是不存在的</span> <span class="hljs-keyword">if</span> (current !== <span class="hljs-keyword">null</span> &amp;&amp; workInProgress.stateNode != <span class="hljs-keyword">null</span>) { updateHostComponent$<span class="hljs-number">1</span>(current, workInProgress, type, newProps, rootContainerInstance);
           <span class="hljs-keyword">if</span> (current.ref !== workInProgress.ref) {
-            markRef$<span class="hljs-number">1</span>(workInProgress);
-          }
-        } <span class="hljs-keyword">else</span> {
-          <span class="hljs-comment">// 这里首先是针对异常情况进行 return 处理</span>
-          <span class="hljs-keyword">if</span> (!newProps) {
-            <span class="hljs-keyword">if</span> (!(workInProgress.stateNode !== <span class="hljs-keyword">null</span>)) {
-              {
-                <span class="hljs-keyword">throw</span> Error(<span class="hljs-string">"We must have new props for new mounts. This error is likely caused by a bug in React. Please file an issue."</span>);
-              }
-            } 
+            markRef$<span class="hljs-number">1</span>(workInProgress); } } <span class="hljs-keyword">else</span> { <span class="hljs-comment">// 这里首先是针对异常情况进行 return 处理</span> <span class="hljs-keyword">if</span> (!newProps) { <span class="hljs-keyword">if</span> (!(workInProgress.stateNode !== <span class="hljs-keyword">null</span>)) { { <span class="hljs-keyword">throw</span> Error(<span class="hljs-string">"We must have new props for new mounts. This error is likely caused by a bug in React. Please file an issue."</span>); } }
 
             <span class="hljs-keyword">return</span> <span class="hljs-keyword">null</span>;
           }
@@ -114,7 +70,7 @@ ReactDOM.render(&lt;App /&gt;, rootElement);
             <span class="hljs-comment">// appendAllChildren 会尝试把上一步创建好的 DOM 节点挂载到 DOM 树上去</span>
             appendAllChildren(instance, workInProgress, <span class="hljs-keyword">false</span>, <span class="hljs-keyword">false</span>);
             <span class="hljs-comment">// stateNode 用于存储当前 Fiber 节点对应的 DOM 节点</span>
-            workInProgress.stateNode = instance; 
+            workInProgress.stateNode = instance;
 
             <span class="hljs-comment">// finalizeInitialChildren 用来为 DOM 节点设置属性</span>
             <span class="hljs-keyword">if</span> (finalizeInitialChildren(instance, type, newProps, rootContainerInstance)) {
@@ -140,14 +96,9 @@ ReactDOM.render(&lt;App /&gt;, rootElement);
       ......
       <span class="hljs-keyword">return</span> <span class="hljs-keyword">null</span>;
     ......
-  }
-  {
-    {
-      <span class="hljs-keyword">throw</span> Error(<span class="hljs-string">"Unknown unit of work tag ("</span> + workInProgress.tag + <span class="hljs-string">"). This error is likely caused by a bug in React. Please file an issue."</span>);
-    }
-  }
-}
-</code></pre>
+
+} { { <span class="hljs-keyword">throw</span> Error(<span class="hljs-string">"Unknown unit of work tag ("</span> + workInProgress.tag + <span class="hljs-string">"). This error is likely caused by a bug in React. Please file an issue."</span>); } } } </code></pre>
+
 <p data-nodeid="1673">试图捋顺这段 completeWork 逻辑，你需要掌握以下几个要点。</p>
 <ol data-nodeid="1674">
 <li data-nodeid="1675">
@@ -204,23 +155,12 @@ ReactDOM.render(&lt;App /&gt;, rootElement);
   ......
   <span class="hljs-comment">// 这里省略步骤 1 和步骤 2 的逻辑 </span>
 
-  <span class="hljs-comment">// 获取当前节点的兄弟节点</span>
-  <span class="hljs-keyword">var</span> siblingFiber = completedWork.sibling;
+<span class="hljs-comment">// 获取当前节点的兄弟节点</span> <span class="hljs-keyword">var</span> siblingFiber = completedWork.sibling;
 
-  <span class="hljs-comment">// 若兄弟节点存在</span>
-  <span class="hljs-keyword">if</span> (siblingFiber !== <span class="hljs-keyword">null</span>) {
-    <span class="hljs-comment">// 将 workInProgress 赋值为当前节点的兄弟节点</span>
-    workInProgress = siblingFiber;
-    <span class="hljs-comment">// 将正在进行的 completeUnitOfWork 逻辑 return 掉</span>
-    <span class="hljs-keyword">return</span>;
-  } 
+<span class="hljs-comment">// 若兄弟节点存在</span> <span class="hljs-keyword">if</span> (siblingFiber !== <span class="hljs-keyword">null</span>) { <span class="hljs-comment">// 将 workInProgress 赋值为当前节点的兄弟节点</span> workInProgress = siblingFiber; <span class="hljs-comment">// 将正在进行的 completeUnitOfWork 逻辑 return 掉</span> <span class="hljs-keyword">return</span>; }
 
-  <span class="hljs-comment">// 若兄弟节点不存在，completeWork 会被赋值为 returnFiber，也就是当前节点的父节点</span>
-  completedWork = returnFiber; 
-    <span class="hljs-comment">// 这一步与上一步是相辅相成的，上下文中要求 workInProgress 与 completedWork 保持一致</span>
-  workInProgress = completedWork;
-} <span class="hljs-keyword">while</span> (completedWork !== <span class="hljs-keyword">null</span>);
-</code></pre>
+<span class="hljs-comment">// 若兄弟节点不存在，completeWork 会被赋值为 returnFiber，也就是当前节点的父节点</span> completedWork = returnFiber; <span class="hljs-comment">// 这一步与上一步是相辅相成的，上下文中要求 workInProgress 与 completedWork 保持一致</span> workInProgress = completedWork; } <span class="hljs-keyword">while</span> (completedWork !== <span class="hljs-keyword">null</span>); </code></pre>
+
 <p data-nodeid="1714">步骤 3 是整个循环体的收尾工作，它会在当前节点相关的各种工作都做完之后执行。</p>
 <p data-nodeid="1715">当前节点处理完了，自然是去寻找下一个可以处理的节点。我们知道，当前的 Fiber 节点之所以会进入 completeWork，是因为“递无可递”了，才会进入“归”的逻辑，这就意味着当前 Fiber 要么没有 child 节点、要么 child 节点的 completeWork 早就执行过了。因此 child 节点不会是下次循环需要考虑的对象，下次循环只需要考虑兄弟节点（siblingFiber）和父节点（returnFiber）。</p>
 <p data-nodeid="1716">那么为什么在源码中，遇到兄弟节点会 return，遇到父节点才会进入下次循环呢？这里我以 h1 节点的节点关系为例进行说明。请看下图：</p>
@@ -239,13 +179,6 @@ ReactDOM.render(&lt;App /&gt;, rootElement);
 <p data-nodeid="1729"><img src="https://s0.lgstatic.com/i/image/M00/72/29/CgqCHl_A2VyAUxeJAAIrypFDLh4388.png" alt="图片14.png" data-nodeid="1935"></p>
 <p data-nodeid="1730">假如说我的某一次操作，仅仅对 p 节点产生了影响，那么对于渲染器来说，它理应只关注 p 节点这一处的更新。这时候问题就来了：<strong data-nodeid="1941">怎样做才能让渲染器又快又好地定位到那些真正需要更新的节点呢</strong>？</p>
 <p data-nodeid="7897" class="">在 render 阶段，我们通过艰难的递归过程来明确“p 节点这里有一处更新”这件事情。按照 React 的设计思路，render 阶段结束后，“找不同”这件事情其实也就告一段落了。<strong data-nodeid="7911">commit 只负责实现更新，而不负责寻找更新</strong>，这就意味着我们必须找到一个办法能让 commit 阶段“坐享其成”，能直接拿到 render 阶段的工作成果。而这，正是<strong data-nodeid="7912">副作用链</strong>（<strong data-nodeid="7913">effectList</strong>）的价值所在。</p>
-
-
-
-
-
-
-
 
 <p data-nodeid="1732" class="te-preview-highlight"><strong data-nodeid="1958">副作用链（effectList）</strong> 可以理解为 render 阶段“工作成果”的一个集合：每个 Fiber 节点都维护着一个属于它自己的 effectList，effectList 在数据结构上以链表的形式存在，链表内的每一个元素都是一个 Fiber 节点。这些 Fiber 节点需要满足两个共性：</p>
 <ol data-nodeid="1733">
@@ -279,10 +212,8 @@ ReactDOM.render(&lt;App /&gt;, rootElement);
     returnFiber.firstEffect = completedWork;
   }
 
-  <span class="hljs-comment">// 将 effectList 的 lastEffect 指针后移一位</span>
-  returnFiber.lastEffect = completedWork;
-}
-</code></pre>
+<span class="hljs-comment">// 将 effectList 的 lastEffect 指针后移一位</span> returnFiber.lastEffect = completedWork; } </code></pre>
+
 <p data-nodeid="1750">代码中的 flags 咱们已经反复强调过了，它旧时的名字叫“effectTag”，是用来标识副作用类型的；而“completedWork”这个变量，在当前上下文中存储的就是“正在被执行 completeWork 相关逻辑”的节点；至于“PerformedWork”，它是一个值为 1 的常量，React 规定若 flags（又名 effectTag）的值小于等于 1，则不必提交到 commit 阶段。因此 completeUnitOfWork 只会对 flags 大于 PerformedWork 的 effect fiber 进行收集。</p>
 <p data-nodeid="1751">结合这些信息，再去读一遍源码片段，相信你的理解过程就会很流畅了。这里我以 App 节点为例，带你走一遍 effectList 的创建过程：</p>
 <ol data-nodeid="1752">
@@ -326,24 +257,30 @@ ReactDOM.render(&lt;App /&gt;, rootElement);
 
 ### 精选评论
 
-##### **宇：
+##### \*\*宇：
+
 > 看了两三遍，终于有点明白了。第一次看云里雾里，迷失在漫长的调用链路里，后面几次看慢慢明白老师讲的还是很形象的，尤其是模拟递归那块。还有就是看到commit阶段后还有一点业务上的疑惑是：其实useEffect被调用时还在before mutation阶段，dom是还没被渲染的？所以意味着其实不能在里面获取元素，而要在useLayoutEffect里？
 
-##### **东：
+##### \*\*东：
+
 > APP FiberNode 的flags是3 是怎么得到的
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 调和 FiberNode 的过程中，会根据副作用操作的类型去设定 Flags 的值。这一点在14节中有介绍。
 
 ##### console_man：
+
 > 老师，你好。在关于‘completeUnitOfWork 开启下一轮循环的原则’中。既然 h1 的兄弟节点 p 还未执行 beginWork 方法，那不就表示 h1 节点对应的 Fiber 节点的 sibling 为 null 了吗？
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; h1 节点的直接兄弟节点是 p 节点，p 节点在 h1 的completeWork 结束后，其对应的 Fiber 节点还没有被创建出来。接下来会做的事情就是退回去执行 beginWork，创建出 p 节点对应的 Fiber 节点。
 
 ##### Sola：
+
 > Fiber 的 diff 阶段在哪里？ effectList 里面都是diff出来有差别的节点么？ 这个依赖收集和vue3的那种模版精确定位依赖变动是类似的东西么？ 挺多地方没太看懂，就是一个朦胧的感觉 fiber 在好像就是不想遍历树，或者是说就只遍历一次树，过程中把线索父子，兄弟用链表纪录了下来，同时在自底线上的过程中顺带聚合了一些信息给后面用？ 所以后面是分治那样的可以并行计算来节省时间么？
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
-> &nbsp;&nbsp;&nbsp; fiber 的 diff 逻辑在 reconcileChildren 里。
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
 
+> &nbsp;&nbsp;&nbsp; fiber 的 diff 逻辑在 reconcileChildren 里。

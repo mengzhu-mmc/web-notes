@@ -17,15 +17,25 @@
 // ✅ 推荐：直接用 type 定义 Props
 type ButtonProps = {
   label: string;
-  variant?: 'primary' | 'secondary' | 'danger';
-  size?: 'sm' | 'md' | 'lg';
+  variant?: "primary" | "secondary" | "danger";
+  size?: "sm" | "md" | "lg";
   disabled?: boolean;
   onClick: () => void;
 };
 
-function Button({ label, variant = 'primary', size = 'md', disabled, onClick }: ButtonProps) {
+function Button({
+  label,
+  variant = "primary",
+  size = "md",
+  disabled,
+  onClick,
+}: ButtonProps) {
   return (
-    <button className={`btn btn-${variant} btn-${size}`} disabled={disabled} onClick={onClick}>
+    <button
+      className={`btn btn-${variant} btn-${size}`}
+      disabled={disabled}
+      onClick={onClick}
+    >
       {label}
     </button>
   );
@@ -111,22 +121,24 @@ type BaseModalProps = {
 };
 
 type ConfirmModalProps = BaseModalProps & {
-  variant: 'confirm';
+  variant: "confirm";
   onConfirm: () => void;
   confirmText?: string;
 };
 
 type AlertModalProps = BaseModalProps & {
-  variant: 'alert';
-  severity: 'info' | 'warning' | 'error';
+  variant: "alert";
+  severity: "info" | "warning" | "error";
 };
 
 type ModalProps = ConfirmModalProps | AlertModalProps;
 
 function Modal(props: ModalProps) {
-  if (props.variant === 'confirm') {
+  if (props.variant === "confirm") {
     // TypeScript 知道这里有 onConfirm
-    return <button onClick={props.onConfirm}>{props.confirmText ?? '确认'}</button>;
+    return (
+      <button onClick={props.onConfirm}>{props.confirmText ?? "确认"}</button>
+    );
   }
   // 这里 TypeScript 知道是 AlertModalProps
   return <div className={props.severity}>Alert!</div>;
@@ -141,14 +153,14 @@ function Modal(props: ModalProps) {
 
 ```tsx
 // 简单类型 —— 自动推导，不需要标注
-const [count, setCount] = useState(0);           // number
-const [name, setName] = useState('');             // string
-const [isOpen, setIsOpen] = useState(false);      // boolean
+const [count, setCount] = useState(0); // number
+const [name, setName] = useState(""); // string
+const [isOpen, setIsOpen] = useState(false); // boolean
 
 // 需要显式标注的场景
 const [user, setUser] = useState<User | null>(null); // 初始值是 null
-const [items, setItems] = useState<string[]>([]);    // 空数组需要标注
-const [status, setStatus] = useState<'idle' | 'loading' | 'error'>('idle'); // 联合类型
+const [items, setItems] = useState<string[]>([]); // 空数组需要标注
+const [status, setStatus] = useState<"idle" | "loading" | "error">("idle"); // 联合类型
 
 // 惰性初始化
 const [state, setState] = useState<ComplexState>(() => computeInitialState());
@@ -187,7 +199,7 @@ useEffect(() => {
 // ✅ 正确写法
 useEffect(() => {
   async function fetchData() {
-    const data = await api.get<User[]>('/users');
+    const data = await api.get<User[]>("/users");
     setUsers(data);
   }
   fetchData();
@@ -204,10 +216,13 @@ const sortedItems = useMemo(() => {
 }, [items]);
 
 // 需要显式标注时
-const config = useMemo<AppConfig>(() => ({
-  theme: 'dark',
-  locale: 'zh-CN',
-}), []);
+const config = useMemo<AppConfig>(
+  () => ({
+    theme: "dark",
+    locale: "zh-CN",
+  }),
+  [],
+);
 ```
 
 ### 2.4 useReducer
@@ -219,20 +234,20 @@ type State = {
 };
 
 type Action =
-  | { type: 'increment' }
-  | { type: 'decrement' }
-  | { type: 'setStep'; payload: number }
-  | { type: 'reset' };
+  | { type: "increment" }
+  | { type: "decrement" }
+  | { type: "setStep"; payload: number }
+  | { type: "reset" };
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
-    case 'increment':
+    case "increment":
       return { ...state, count: state.count + state.step };
-    case 'decrement':
+    case "decrement":
       return { ...state, count: state.count - state.step };
-    case 'setStep':
+    case "setStep":
       return { ...state, step: action.payload };
-    case 'reset':
+    case "reset":
       return { count: 0, step: 1 };
     default:
       // exhaustive check
@@ -247,8 +262,10 @@ function Counter() {
   return (
     <div>
       <span>{state.count}</span>
-      <button onClick={() => dispatch({ type: 'increment' })}>+</button>
-      <button onClick={() => dispatch({ type: 'setStep', payload: 5 })}>Step=5</button>
+      <button onClick={() => dispatch({ type: "increment" })}>+</button>
+      <button onClick={() => dispatch({ type: "setStep", payload: 5 })}>
+        Step=5
+      </button>
     </div>
   );
 }
@@ -260,7 +277,7 @@ function Counter() {
 // 返回元组 —— 用 as const 保持精确类型
 function useToggle(initial = false) {
   const [value, setValue] = useState(initial);
-  const toggle = useCallback(() => setValue(v => !v), []);
+  const toggle = useCallback(() => setValue((v) => !v), []);
   return [value, toggle] as const;
   // 返回类型：readonly [boolean, () => void]
   // 不加 as const 会推导为 (boolean | (() => void))[]
@@ -277,19 +294,22 @@ function useLocalStorage<T>(key: string, initialValue: T) {
     }
   });
 
-  const setValue = useCallback((value: T | ((val: T) => T)) => {
-    setStoredValue(prev => {
-      const newValue = value instanceof Function ? value(prev) : value;
-      localStorage.setItem(key, JSON.stringify(newValue));
-      return newValue;
-    });
-  }, [key]);
+  const setValue = useCallback(
+    (value: T | ((val: T) => T)) => {
+      setStoredValue((prev) => {
+        const newValue = value instanceof Function ? value(prev) : value;
+        localStorage.setItem(key, JSON.stringify(newValue));
+        return newValue;
+      });
+    },
+    [key],
+  );
 
   return [storedValue, setValue] as const;
 }
 
 // 使用
-const [theme, setTheme] = useLocalStorage<'light' | 'dark'>('theme', 'light');
+const [theme, setTheme] = useLocalStorage<"light" | "dark">("theme", "light");
 ```
 
 ---
@@ -312,7 +332,9 @@ const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 
 // 键盘事件
 const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-  if (e.key === 'Enter') { /* ... */ }
+  if (e.key === "Enter") {
+    /* ... */
+  }
 };
 
 // 焦点事件
@@ -368,9 +390,14 @@ type ListProps<T> = {
   emptyMessage?: string;
 };
 
-function List<T>({ items, renderItem, keyExtractor, emptyMessage }: ListProps<T>) {
+function List<T>({
+  items,
+  renderItem,
+  keyExtractor,
+  emptyMessage,
+}: ListProps<T>) {
   if (items.length === 0) {
-    return <div>{emptyMessage ?? '暂无数据'}</div>;
+    return <div>{emptyMessage ?? "暂无数据"}</div>;
   }
 
   return (
@@ -387,7 +414,7 @@ function List<T>({ items, renderItem, keyExtractor, emptyMessage }: ListProps<T>
   items={users}
   renderItem={(user) => <span>{user.name}</span>} // user 自动推导为 User
   keyExtractor={(user) => user.id}
-/>
+/>;
 ```
 
 ### 4.2 表格组件
@@ -408,7 +435,10 @@ type TableProps<T extends { id: string | number }> = {
 };
 
 function Table<T extends { id: string | number }>({
-  columns, data, loading, onRowClick
+  columns,
+  data,
+  loading,
+  onRowClick,
 }: TableProps<T>) {
   if (loading) return <div>Loading...</div>;
 
@@ -416,17 +446,21 @@ function Table<T extends { id: string | number }>({
     <table>
       <thead>
         <tr>
-          {columns.map(col => (
-            <th key={col.key} style={{ width: col.width }}>{col.title}</th>
+          {columns.map((col) => (
+            <th key={col.key} style={{ width: col.width }}>
+              {col.title}
+            </th>
           ))}
         </tr>
       </thead>
       <tbody>
-        {data.map(record => (
+        {data.map((record) => (
           <tr key={record.id} onClick={() => onRowClick?.(record)}>
-            {columns.map(col => (
+            {columns.map((col) => (
               <td key={col.key}>
-                {col.render ? col.render(record[col.key], record) : String(record[col.key])}
+                {col.render
+                  ? col.render(record[col.key], record)
+                  : String(record[col.key])}
               </td>
             ))}
           </tr>
@@ -453,14 +487,16 @@ type SelectProps<V extends string | number> = {
   placeholder?: string;
 };
 
-function Select<V extends string | number>({ options, value, onChange, placeholder }: SelectProps<V>) {
+function Select<V extends string | number>({
+  options,
+  value,
+  onChange,
+  placeholder,
+}: SelectProps<V>) {
   return (
-    <select
-      value={value}
-      onChange={(e) => onChange(e.target.value as V)}
-    >
+    <select value={value} onChange={(e) => onChange(e.target.value as V)}>
       {placeholder && <option value="">{placeholder}</option>}
-      {options.map(opt => (
+      {options.map((opt) => (
         <option key={opt.value} value={opt.value} disabled={opt.disabled}>
           {opt.label}
         </option>
@@ -470,14 +506,14 @@ function Select<V extends string | number>({ options, value, onChange, placehold
 }
 
 // 使用
-type Role = 'admin' | 'editor' | 'viewer';
+type Role = "admin" | "editor" | "viewer";
 const roles: SelectOption<Role>[] = [
-  { label: '管理员', value: 'admin' },
-  { label: '编辑者', value: 'editor' },
-  { label: '查看者', value: 'viewer' },
+  { label: "管理员", value: "admin" },
+  { label: "编辑者", value: "editor" },
+  { label: "查看者", value: "viewer" },
 ];
 
-<Select options={roles} value={selectedRole} onChange={setSelectedRole} />
+<Select options={roles} value={selectedRole} onChange={setSelectedRole} />;
 // onChange 的参数类型自动推导为 Role
 ```
 
@@ -488,7 +524,7 @@ const roles: SelectOption<Role>[] = [
 ### 5.1 基础用法
 
 ```tsx
-type Theme = 'light' | 'dark';
+type Theme = "light" | "dark";
 
 type ThemeContextType = {
   theme: Theme;
@@ -498,7 +534,7 @@ type ThemeContextType = {
 
 // 方式1：带默认值（推荐，使用时不需要判空）
 const ThemeContext = createContext<ThemeContextType>({
-  theme: 'light',
+  theme: "light",
   setTheme: () => {},
   toggleTheme: () => {},
 });
@@ -509,7 +545,7 @@ const ThemeContext2 = createContext<ThemeContextType | undefined>(undefined);
 function useTheme() {
   const context = useContext(ThemeContext2);
   if (!context) {
-    throw new Error('useTheme must be used within a ThemeProvider');
+    throw new Error("useTheme must be used within a ThemeProvider");
   }
   return context; // 返回类型是 ThemeContextType，不含 undefined
 }
@@ -539,11 +575,14 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
     isLoading: true,
   });
 
-  const login = useCallback(async (credentials: { email: string; password: string }) => {
-    setState(prev => ({ ...prev, isLoading: true }));
-    const user = await api.login(credentials);
-    setState({ user, isAuthenticated: true, isLoading: false });
-  }, []);
+  const login = useCallback(
+    async (credentials: { email: string; password: string }) => {
+      setState((prev) => ({ ...prev, isLoading: true }));
+      const user = await api.login(credentials);
+      setState({ user, isAuthenticated: true, isLoading: false });
+    },
+    [],
+  );
 
   const logout = useCallback(async () => {
     await api.logout();
@@ -552,12 +591,12 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const updateProfile = useCallback(async (data: Partial<User>) => {
     const updated = await api.updateUser(data);
-    setState(prev => ({ ...prev, user: updated }));
+    setState((prev) => ({ ...prev, user: updated }));
   }, []);
 
   const value = useMemo(
     () => ({ ...state, login, logout, updateProfile }),
-    [state, login, logout, updateProfile]
+    [state, login, logout, updateProfile],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
@@ -565,7 +604,7 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
 
 function useAuth(): AuthContextType {
   const context = useContext(AuthContext);
-  if (!context) throw new Error('useAuth must be used within AuthProvider');
+  if (!context) throw new Error("useAuth must be used within AuthProvider");
   return context;
 }
 
@@ -589,7 +628,7 @@ function ProfilePage() {
 // 场景：事件处理器类型不匹配
 // ❌
 const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {};
-<select onChange={handleChange} /> // HTMLInputElement vs HTMLSelectElement
+<select onChange={handleChange} />; // HTMLInputElement vs HTMLSelectElement
 
 // ✅ 修正元素类型
 const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {};
@@ -597,10 +636,10 @@ const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {};
 // 场景：对象字面量多了属性
 type Props = { name: string };
 // ❌ 直接传对象字面量会检查多余属性
-<Component {...{ name: 'Alice', age: 25 } as Props} />
+<Component {...({ name: "Alice", age: 25 } as Props)} />;
 // ✅ 先赋值给变量（不会检查多余属性）
-const props = { name: 'Alice', age: 25 };
-<Component {...props} />
+const props = { name: "Alice", age: 25 };
+<Component {...props} />;
 ```
 
 ### 6.2 `Property 'X' does not exist on type 'Y'`
@@ -613,7 +652,7 @@ function handle(res: Response) {
   console.log(res.name);
 
   // ✅ 先缩窄类型
-  if ('name' in res) {
+  if ("name" in res) {
     console.log(res.name);
   }
 }
@@ -631,13 +670,13 @@ ref.current!.getBoundingClientRect(); // 确定不为 null 时
 
 ```tsx
 // 场景：Object.keys 返回 string[] 而非 (keyof T)[]
-const user = { name: 'Alice', age: 25 };
+const user = { name: "Alice", age: 25 };
 // ❌
-Object.keys(user).forEach(key => {
+Object.keys(user).forEach((key) => {
   console.log(user[key]); // key 是 string，不能索引 User
 });
 // ✅ 方案1：类型断言
-(Object.keys(user) as (keyof typeof user)[]).forEach(key => {
+(Object.keys(user) as (keyof typeof user)[]).forEach((key) => {
   console.log(user[key]);
 });
 // ✅ 方案2：用 for...in
@@ -689,9 +728,9 @@ type DeepPartial<T> = T extends object
   : T;
 
 // 2. 限制递归深度
-type DeepPartialN<T, Depth extends number[] = []> =
-  Depth['length'] extends 5 ? T : // 最多 5 层
-  T extends object
+type DeepPartialN<T, Depth extends number[] = []> = Depth["length"] extends 5
+  ? T // 最多 5 层
+  : T extends object
     ? { [K in keyof T]?: DeepPartialN<T[K], [...Depth, 1]> }
     : T;
 
@@ -738,10 +777,12 @@ type ListRef = { scrollToTop: () => void };
 
 const List = forwardRef(function List<T>(
   props: ListProps<T>,
-  ref: React.ForwardedRef<ListRef>
+  ref: React.ForwardedRef<ListRef>,
 ) {
   // ...
-}) as <T>(props: ListProps<T> & { ref?: React.Ref<ListRef> }) => React.ReactElement;
+}) as <T>(
+  props: ListProps<T> & { ref?: React.Ref<ListRef> },
+) => React.ReactElement;
 
 // React 19 支持 ref 作为 prop，不再需要 forwardRef
 function List<T>({ items, ref }: ListProps<T> & { ref?: React.Ref<ListRef> }) {

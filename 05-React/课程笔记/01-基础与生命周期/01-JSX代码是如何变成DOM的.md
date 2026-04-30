@@ -4,20 +4,10 @@
 <pre class="lang-js" data-nodeid="1116"><code data-language="js"><span class="hljs-keyword">import</span> React <span class="hljs-keyword">from</span> <span class="hljs-string">"react"</span>;
 <span class="hljs-keyword">import</span> ReactDOM <span class="hljs-keyword">from</span> <span class="hljs-string">"react-dom"</span>;
 
-<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">App</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">React</span>.<span class="hljs-title">Component</span> </span>{
-  render() {
-    <span class="hljs-keyword">return</span> (
-      <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"App"</span>&gt;</span>
-        <span class="hljs-tag">&lt;<span class="hljs-name">h1</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"title"</span>&gt;</span>I am the title<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
-        <span class="hljs-tag">&lt;<span class="hljs-name">p</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"content"</span>&gt;</span>I am the content<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
-      <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span>
-    );
-  }
-}
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">App</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">React</span>.<span class="hljs-title">Component</span> </span>{ render() { <span class="hljs-keyword">return</span> ( <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"App"</span>&gt;</span> <span class="hljs-tag">&lt;<span class="hljs-name">h1</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"title"</span>&gt;</span>I am the title<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span> <span class="hljs-tag">&lt;<span class="hljs-name">p</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"content"</span>&gt;</span>I am the content<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span> <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span> ); } }
 
-<span class="hljs-keyword">const</span> rootElement = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">"root"</span>);
-ReactDOM.render(<span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">App</span> /&gt;</span></span>, rootElement);
-</code></pre>
+<span class="hljs-keyword">const</span> rootElement = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">"root"</span>); ReactDOM.render(<span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">App</span> /&gt;</span></span>, rootElement); </code></pre>
+
 <p data-nodeid="1117">由于本专栏的整体目标是帮助你在 React 这个领域完成从“小工”到“行家”的进阶，此处我无意再去带你反复咀嚼 JSX 的基础语法，而是希望能够引导你去探寻 JSX 背后的故事。针对这“背后的故事”，我总结了 3 个最具代表性和区分度的问题。</p>
 <p data-nodeid="1118">在开始正式讲解之前，我希望你能在自己心中尝试回答这 3 个问题：</p>
 <ul data-nodeid="1119">
@@ -86,73 +76,13 @@ ReactDOM.render(<span class="xml"><span class="hljs-tag">&lt;<span class="hljs-n
   let key = <span class="hljs-keyword">null</span>;
   let ref = <span class="hljs-keyword">null</span>; 
   let self = <span class="hljs-keyword">null</span>; 
-  let source = <span class="hljs-keyword">null</span>; 
+  let source = <span class="hljs-keyword">null</span>;
 
-  <span class="hljs-comment">// config 对象中存储的是元素的属性</span>
-  <span class="hljs-keyword">if</span> (config != <span class="hljs-keyword">null</span>) { 
-    <span class="hljs-comment">// 进来之后做的第一件事，是依次对 ref、key、self 和 source 属性赋值</span>
-    <span class="hljs-keyword">if</span> (hasValidRef(config)) {
-      ref = config.ref;
-    }
-    <span class="hljs-comment">// 此处将 key 值字符串化</span>
-    <span class="hljs-keyword">if</span> (hasValidKey(config)) {
-      key = <span class="hljs-string">''</span> + config.key; 
-    }
-    self = config.__self === undefined ? <span class="hljs-keyword">null</span> : config.__self;
-    source = config.__source === undefined ? <span class="hljs-keyword">null</span> : config.__source;
-    <span class="hljs-comment">// 接着就是要把 config 里面的属性都一个一个挪到 props 这个之前声明好的对象里面</span>
-    <span class="hljs-keyword">for</span> (propName in config) {
-      <span class="hljs-keyword">if</span> (
-        <span class="hljs-comment">// 筛选出可以提进 props 对象里的属性</span>
-        hasOwnProperty.call(config, propName) &amp;&amp;
-        !RESERVED_PROPS.hasOwnProperty(propName) 
-      ) {
-        props[propName] = config[propName]; 
-      }
-    }
-  }
-  <span class="hljs-comment">// childrenLength 指的是当前元素的子元素的个数，减去的 2 是 type 和 config 两个参数占用的长度</span>
-  <span class="hljs-keyword">const</span> childrenLength = arguments.length - <span class="hljs-number">2</span>; 
-  <span class="hljs-comment">// 如果抛去type和config，就只剩下一个参数，一般意味着文本节点出现了</span>
-  <span class="hljs-keyword">if</span> (childrenLength === <span class="hljs-number">1</span>) { 
-    <span class="hljs-comment">// 直接把这个参数的值赋给props.children</span>
-    props.children = children; 
-    <span class="hljs-comment">// 处理嵌套多个子元素的情况</span>
-  } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (childrenLength &gt; <span class="hljs-number">1</span>) { 
-    <span class="hljs-comment">// 声明一个子元素数组</span>
-    <span class="hljs-keyword">const</span> childArray = Array(childrenLength); 
-    <span class="hljs-comment">// 把子元素推进数组里</span>
-    <span class="hljs-keyword">for</span> (let i = <span class="hljs-number">0</span>; i &lt; childrenLength; i++) { 
-      childArray[i] = arguments[i + <span class="hljs-number">2</span>];
-    }
-    <span class="hljs-comment">// 最后把这个数组赋值给props.children</span>
-    props.children = childArray; 
-  } 
+<span class="hljs-comment">// config 对象中存储的是元素的属性</span> <span class="hljs-keyword">if</span> (config != <span class="hljs-keyword">null</span>) { <span class="hljs-comment">// 进来之后做的第一件事，是依次对 ref、key、self 和 source 属性赋值</span> <span class="hljs-keyword">if</span> (hasValidRef(config)) { ref = config.ref; } <span class="hljs-comment">// 此处将 key 值字符串化</span> <span class="hljs-keyword">if</span> (hasValidKey(config)) { key = <span class="hljs-string">''</span> + config.key; } self = config.**self === undefined ? <span class="hljs-keyword">null</span> : config.**self; source = config.**source === undefined ? <span class="hljs-keyword">null</span> : config.**source; <span class="hljs-comment">// 接着就是要把 config 里面的属性都一个一个挪到 props 这个之前声明好的对象里面</span> <span class="hljs-keyword">for</span> (propName in config) { <span class="hljs-keyword">if</span> ( <span class="hljs-comment">// 筛选出可以提进 props 对象里的属性</span> hasOwnProperty.call(config, propName) &amp;&amp; !RESERVED_PROPS.hasOwnProperty(propName) ) { props[propName] = config[propName]; } } } <span class="hljs-comment">// childrenLength 指的是当前元素的子元素的个数，减去的 2 是 type 和 config 两个参数占用的长度</span> <span class="hljs-keyword">const</span> childrenLength = arguments.length - <span class="hljs-number">2</span>; <span class="hljs-comment">// 如果抛去type和config，就只剩下一个参数，一般意味着文本节点出现了</span> <span class="hljs-keyword">if</span> (childrenLength === <span class="hljs-number">1</span>) { <span class="hljs-comment">// 直接把这个参数的值赋给props.children</span> props.children = children; <span class="hljs-comment">// 处理嵌套多个子元素的情况</span> } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (childrenLength &gt; <span class="hljs-number">1</span>) { <span class="hljs-comment">// 声明一个子元素数组</span> <span class="hljs-keyword">const</span> childArray = Array(childrenLength); <span class="hljs-comment">// 把子元素推进数组里</span> <span class="hljs-keyword">for</span> (let i = <span class="hljs-number">0</span>; i &lt; childrenLength; i++) { childArray[i] = arguments[i + <span class="hljs-number">2</span>]; } <span class="hljs-comment">// 最后把这个数组赋值给props.children</span> props.children = childArray; }
 
-  <span class="hljs-comment">// 处理 defaultProps</span>
-  <span class="hljs-keyword">if</span> (type &amp;&amp; type.defaultProps) {
-    <span class="hljs-keyword">const</span> defaultProps = type.defaultProps;
-    <span class="hljs-keyword">for</span> (propName in defaultProps) { 
-      <span class="hljs-keyword">if</span> (props[propName] === undefined) {
-        props[propName] = defaultProps[propName];
-      }
-    }
-  }
+<span class="hljs-comment">// 处理 defaultProps</span> <span class="hljs-keyword">if</span> (type &amp;&amp; type.defaultProps) { <span class="hljs-keyword">const</span> defaultProps = type.defaultProps; <span class="hljs-keyword">for</span> (propName in defaultProps) { <span class="hljs-keyword">if</span> (props[propName] === undefined) { props[propName] = defaultProps[propName]; } } }
 
-  <span class="hljs-comment">// 最后返回一个调用ReactElement执行方法，并传入刚才处理过的参数</span>
-  <span class="hljs-keyword">return</span> ReactElement(
-    type,
-    key,
-    ref,
-    self,
-    source,
-    ReactCurrentOwner.current,
-    props,
-  );
-}
-</code></pre>
-
-
+<span class="hljs-comment">// 最后返回一个调用ReactElement执行方法，并传入刚才处理过的参数</span> <span class="hljs-keyword">return</span> ReactElement( type, key, ref, self, source, ReactCurrentOwner.current, props, ); } </code></pre>
 
 <p data-nodeid="1159">上面是对源码细节的初步展示，接下来我会带你逐步提取源码中的关键知识点和核心思想。</p>
 <h4 data-nodeid="1160">入参解读：创造一个元素需要知道哪些信息</h4>
@@ -211,16 +141,13 @@ ReactDOM.render(<span class="xml"><span class="hljs-tag">&lt;<span class="hljs-n
 
     <span class="hljs-comment">// 记录创造该元素的组件</span>
     _owner: owner,
-  };
 
-  <span class="hljs-comment">// </span>
-  <span class="hljs-keyword">if</span> (__DEV__) {
-    <span class="hljs-comment">// 这里是一些针对 __DEV__ 环境下的处理，对于大家理解主要逻辑意义不大，此处我直接省略掉，以免混淆视听</span>
-  }
-
-  <span class="hljs-keyword">return</span> element;
 };
-</code></pre>
+
+<span class="hljs-comment">// </span> <span class="hljs-keyword">if</span> (**DEV**) { <span class="hljs-comment">// 这里是一些针对 **DEV** 环境下的处理，对于大家理解主要逻辑意义不大，此处我直接省略掉，以免混淆视听</span> }
+
+<span class="hljs-keyword">return</span> element; }; </code></pre>
+
 <p data-nodeid="1186">ReactElement 的代码出乎意料的简短，从逻辑上我们可以看出，ReactElement 其实只做了一件事情，那就是“<strong data-nodeid="1351">创建</strong>”，说得更精确一点，是“<strong data-nodeid="1352">组装</strong>”：ReactElement 把传入的参数按照一定的规范，“组装”进了 element 对象里，并把它返回给了 React.createElement，最终 React.createElement 又把它交回到了开发者手中。整个过程如下图所示：</p>
 <p data-nodeid="1187"><img src="https://s0.lgstatic.com/i/image/M00/5C/74/CgqCHl-Bex6AM5rhAACJMrix5bk913.png" alt="Drawing 7.png" data-nodeid="1355"></p>
 <p data-nodeid="1188">如果你想要验证这一点，可以尝试输出我们示例中 App 组件的 JSX 部分：</p>
@@ -229,8 +156,8 @@ ReactDOM.render(<span class="xml"><span class="hljs-tag">&lt;<span class="hljs-n
   <span class="hljs-tag">&lt;<span class="hljs-name">p</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"content"</span>&gt;</span>I am the content<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span>)
 
-<span class="hljs-built_in">console</span>.log(AppJSX)
-</code></pre>
+<span class="hljs-built_in">console</span>.log(AppJSX) </code></pre>
+
 <p data-nodeid="1190">你会发现它确实是一个标准的 ReactElement 对象实例，如下图（生产环境下的输出结果）所示：</p>
 <p data-nodeid="1191"><img src="https://s0.lgstatic.com/i/image/M00/5C/69/Ciqc1F-BezKAW4rXAAIUYQW6Lk0911.png" alt="Drawing 8.png" data-nodeid="1360"></p>
 <p data-nodeid="1192">这个 ReactElement 对象实例，本质上是<strong data-nodeid="1370">以 JavaScript 对象形式存在的对 DOM 的描述</strong>，也就是老生常谈的“虚拟 DOM”（<strong data-nodeid="1371">准确地说，是虚拟 DOM 中的一个节点</strong>。关于虚拟 DOM， 我们将在专栏的“模块二：核心原理”中花大量的篇幅来研究它，此处你只需要能够结合源码，形成初步认知即可）。</p>
@@ -259,153 +186,202 @@ ReactDOM.render(&lt;App /&gt;, rootElement);
 
 ### 精选评论
 
-##### **雨：
+##### \*\*雨：
+
 > 原来自己一直没弄明白JSX ，老师讲的很透彻，期待后面的课程
 
-##### *忠：
+##### \*忠：
+
 > 有一处不太理解，希望能够指教下：React不能作为单独一个库使用吗，比如我在html里面直接引入react.min.js，然后写JSX使用，是必须要结合babel一起使用吗？
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 你可以在 html 里面直接引入 react.min.js，react 以什么样的形式引入不会对 JSX 构成什么影响；JSX 的问题在于浏览器没法直接识别它，所以我们需要一个编译器或者说具备编译能力的东东（一般是 Babel，或许有人也会用 Typescript 或者别的东西，这个选择是不定的，只能说大多数人更倾向于使用 Babel）来做这个转译的工作。
 
-##### **侯：
+##### \*\*侯：
+
 > 秀妍写得太好啦，从掘金追过来的迷弟，忍不住想要催更
 
-##### **5949：
+##### \*\*5949：
+
 > 请问构建出最终的虚拟DOM，应该需要递归的过程吧，能否麻烦补充完善一下递归的流程呢？
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 专栏会涵盖这部分内容，可以关注下大纲和整体课程设计，虚拟DOM树的构建在第二模块。本课时归属于基础篇，知识讲解的侧重点和第二模块是不同的。
 
-##### **汐文：
+##### \*\*汐文：
+
 > 1.JSX即是React.createElement()的语法糖。2.ReactElement即是虚拟DOM，是将createElement出来的数据结构化。3.render即是把所有ReactElement挂载到一个真实的DOM容器上。
 
-##### **伟：
+##### \*\*伟：
+
 > 大佬分享的太好了，深入浅出🙌
 
-##### **6400：
+##### \*\*6400：
+
 > 1.React.createElement对JSX进行数据处理、清洗2.ReactElement是符合虚拟DOM规范的JS对象3.React.render将虚拟节点变成真实节点挂载在HTML上；
 
-##### **9332：
+##### \*\*9332：
+
 > 播音主持专业的吗？太厉害了
 
-##### *平：
+##### \*平：
+
 > 所以其实不能脱离babel以及ReactDOM.render来看JSX，因为没有这两个它没法发挥作用
 
 ##### console_man：
+
 > 秀妍大佬出品，必属精品
 
-##### *攀：
+##### \*攀：
+
 > react17将createElement 改为了jsx函数，由编译器（bable）或者ts引入调用。
 
-##### *梅：
+##### \*梅：
+
 > 期待老师后面的更新
 
-##### *阳：
+##### \*阳：
+
 > 写的不错，之前阅读过源码、调试，老哥讲的算是一次深入学习了。
 
 ##### Tusi：
+
 > 文笔不错，写作思路清晰！刚看到津津有味发现还没更，哈哈！
 
-##### **楠：
+##### \*\*楠：
+
 > 自己写写，看看源码，收获会更大哦
 
-##### *浩：
+##### \*浩：
+
 > 学习了！
 
-##### **7107：
+##### \*\*7107：
+
 > 秀妍秀妍，我是德善😆😆😆
 
-##### **用户5615：
+##### \*\*用户5615：
+
 > 很清晰，比很多一来就晒很多代码的好很多.
 
-##### **东：
+##### \*\*东：
+
 > ReactDOM.render方法的第二个参数作为真实DOM的容器可以是body吗？
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 这个问题可以通过自己本地跑一个demo得到答案，也可以通过把专栏中的代码直接copy下来修改React.render方法的第二个参数得到答案。这两种途径都比口头提问对自己的帮助更大，不信你试试看。
 
-##### *松：
+##### \*松：
+
 > 老师太牛了，深入浅出，看了一遍理清了createElement的主流程，厉害厉害
 
-##### *磊：
+##### \*磊：
+
 > 条例清晰，过程平滑，语言平实，很不错！
 
-##### **清：
+##### \*\*清：
+
 > 完全没学过react的直接学习会不会难度颇高？
 
- ###### &nbsp;&nbsp;&nbsp; 编辑回复：
+###### &nbsp;&nbsp;&nbsp; 编辑回复：
+
 > &nbsp;&nbsp;&nbsp; 试着学习一下，要相信自己，有问题也可以在留言中提问哦
 
-##### **宝：
+##### \*\*宝：
+
 > 清晰明确
 
-##### **里的火：
+##### \*\*里的火：
+
 > 厉害👍👍👍👍👍👍👍👍👍👍👍
 
 ##### EagleClark：
+
 > 老师讲得很透彻啊，以前都没想过这些问题。
 
-##### **森：
+##### \*\*森：
+
 > 请问下老师， ReactDOM.render()中的第一个参数，是整个应用对应的完整的虚拟dom吧？
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 可以这样理解。
 
-##### **云：
+##### \*\*云：
+
 > React.render将虚拟节点变成真实节点挂载在HTML上，这个地方是如何实现的呢？一直有疑问
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 专栏的第13-15讲详细地结合源码分析了这个问题，可以去看看。
 
-##### **7679：
+##### \*\*7679：
+
 > 大佬讲解的非常好通俗易懂
 
-##### *巍：
+##### \*巍：
+
 > 确实讲的很清晰，循序渐进，很有收获吗
 
-##### **华：
+##### \*\*华：
+
 > 文章的思路以及讲解比较透彻且容易理解， 很赞但是这里有个疑问： 文中提到JSX映射到DOM时， 只做了父子元素之间的初始化， 那么对于多层元素嵌套是怎么处理的呢？
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; JSX映射到DOM的详细过程在13-16讲有系统深入的分析，可以去看看。
 
-##### **0064：
+##### \*\*0064：
+
 > 之前用的vue，没看过react，但是确实写的很清楚，看完这个对jsx到虚拟dom到挂在真实dom都很清晰了
 
-##### **津：
+##### \*\*津：
+
 > 讲的太好了 期待学习后面的课程
 
-##### *莉：
+##### \*莉：
+
 > 重新认识一遍，有收获
 
-##### **慧：
+##### \*\*慧：
+
 > 还得写，才能把学到的变成自己的~😋
 
-##### **华：
+##### \*\*华：
+
 > 大佬说的确实很清晰😀
 
-##### **昊：
+##### \*\*昊：
+
 > 读了第一个课时，感觉非常好，让我有一个成体系的概念，期待下一个课时！
 
-##### *飞：
+##### \*飞：
+
 > 老师讲的很好，受益匪浅
 
 ##### Loktar：
+
 > 一直很喜欢React，老师的这种源码+注释+解析的方式真的非常的用心，对理解源码很有帮助，期待老师的后续课程更新，希望所有Reacter与React一起越走越远
 
-##### *帅：
+##### \*帅：
+
 > 不错
 
-##### *一：
+##### \*一：
+
 > 就喜欢这种梳理性的文章
 
-##### **涛：
+##### \*\*涛：
+
 > 比Vue多了一层Jsx😈
 
-##### **的天空：
+##### \*\*的天空：
+
 > 能请教下，上面得画图软件，是使用得什么？
 
- ###### &nbsp;&nbsp;&nbsp; 编辑回复：
-> &nbsp;&nbsp;&nbsp; PPT哦
+###### &nbsp;&nbsp;&nbsp; 编辑回复：
 
+> &nbsp;&nbsp;&nbsp; PPT哦

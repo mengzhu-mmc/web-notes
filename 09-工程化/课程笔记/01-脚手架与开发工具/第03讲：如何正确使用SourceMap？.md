@@ -16,9 +16,7 @@
 </ul>
 <h3 data-nodeid="3643">Webpack 中的 source map 预设</h3>
 
-
 <p data-nodeid="5279">在 Webpack 中，通过设置 devtool 来选择 source map 的预设类型，文档中共有 <a href="https://webpack.js.org/configuration/devtool/#devtool" data-nodeid="5283">20 余种</a> source map 的预设（注意：其中部分预设实际效果与其他预设相同，即页面表格中空白行条目）可供选择，这些预设通常包含了 "eval" "cheap" "module" "inline" "hidden" "nosource" "source-map" 等关键字的组合，这些关键字的具体逻辑如下：</p>
-
 
 <pre class="lang-javascript" data-nodeid="2456"><code data-language="javascript">webpack/lib/WebpackOptionsApply.js:<span class="hljs-number">232</span> 
 <span class="hljs-keyword">if</span> (options.devtool.includes(<span class="hljs-string">"source-map"</span>)) { 
@@ -84,7 +82,6 @@
 <h4 data-nodeid="2477">Source Map 处理插件</h4>
 <p data-nodeid="6915">从上面的规则中我们还可以看到，根据不同规则，实际上 Webpack 是从三种插件中选择其一作为 source map 的处理插件。</p>
 
-
 <ul data-nodeid="2479">
 <li data-nodeid="2480">
 <p data-nodeid="2481"><a href="https://github.com/webpack/webpack/blob/master/lib/EvalDevToolModulePlugin.js" data-nodeid="2724">EvalDevToolModulePlugin</a>：模块代码后添加 sourceURL=webpack:///+ 模块引用路径，不生成 source map 内容，模块产物代码通过 eval() 封装。</p>
@@ -97,7 +94,6 @@
 </li>
 </ul>
 <p data-nodeid="8519">通过上面的代码分析，我们了解了不同参数在 Webpack 运行时起到的作用。那么这些不同参数组合下的各种预设对我们的 source map 生成又各自会产生什么样的效果呢？下面我们通过示例来看一下。</p>
-
 
 <h3 data-nodeid="2487">不同预设的示例结果对比</h3>
 <p data-nodeid="2488">下面，以课程示例代码 <a href="https://github.com/fe-efficiency/lessons_fe_efficiency/tree/master/03_develop_environment" data-nodeid="2743">03_develop_environment</a> 为例，我们来对比下几种常用预设的差异（为了使时间差异更明显，示例中引入了几个大的类库文件）：</p>
@@ -181,9 +177,7 @@
 </li>
 </ul>
 
-
 <p data-nodeid="11755">除了上面讨论的这些简单的预设外，Webpack 还允许开发者直接使用对应插件来进行更精细化的 source map 控制，在开发环境下我们首选的还是 EvalSourceMapDevToolPlugin。下面我们再来看看如何直接使用这个插件进行优化。</p>
-
 
 <h4 data-nodeid="2543">EvalSourceMapDevToolPlugin 的使用</h4>
 <p data-nodeid="2544">在 EvalSourceMapDevToolPlugin 的 <a href="https://webpack.js.org/plugins/eval-source-map-dev-tool-plugin/" data-nodeid="2818">传入参数</a>中，除了上面和预设相关的 filename、append、module、columns 外，还有影响注释内容的 moduleFilenameTemplate 和 protocol，以及影响处理范围的 test、include、exclude。这里重点看处理范围的参数，因为通常我们需要调试的是开发的业务代码部分，而非依赖的第三方模块部分。因此在生成 source map 的时候如果可以排除第三方模块的部分而只生成业务代码的 source map，无疑能进一步提升构建的速度，例如示例：</p>
@@ -206,7 +200,6 @@
 <h3 data-nodeid="2549">总结</h3>
 <p data-nodeid="13359">在今天这一课时中，我们主要了解了提升开发效率的另一个重要工具——source map 的用途和使用方法。我们分析了 Webpack 中 devtool 的各种参数预设的组合规则、使用效果及其背后的原理。对于开发环境，我们根据一组示例对比分析来了解通常情况下的最佳选择，也知道了如何直接使用插件来达到更细致的优化。</p>
 
-
 <p data-nodeid="2551">限于篇幅原因，关于 source map 这一课时还有两个与提效无关的小细节没有提到，一个是生成的 source map 的内容，即浏览器工具是如何将 source map 内容映射回源文件的，如果你感兴趣可以通过这个<a href="http://www.ruanyifeng.com/blog/2013/01/javascript_source_map.html" data-nodeid="2830">链接</a>进一步了解；另一个是我们在控制台的网络面板中通常看不到 source map 文件的请求，其原因是出于安全考虑 Chrome 隐藏了 source map 的请求，需要通过 <a href="chrome://net-export/" data-nodeid="2834">net-log</a> 来查询。</p>
 <p data-nodeid="2552"><strong data-nodeid="2840">最后还是留一个小作业</strong>：不知道你有没有留意过自己项目里的 source map 使用的是哪一种生成方式吗？可以根据这一课时的内容对它进行调整和观察效果，也欢迎你在课后留言区讨论项目里对 source map 的优化方案。</p>
 
@@ -214,18 +207,22 @@
 
 ### 精选评论
 
-##### **贵：
+##### \*\*贵：
+
 > sourceMap确实是个好东西😆
 
-##### **斌：
+##### \*\*斌：
+
 > 不同质量的源码示例第一个例子 源码包含列信息和不包含列信息的区别 没看懂，没看出来有啥区别？
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 是这样，包含列信息的报错代码，在控制台Console面板中可以显示出错的位置在第几行第几列，然后用户点击跳转到Sources面板中后光标也会直接停留到对应行列的位置上。而不在列信息的代码，则只显示行信息，并且点击跳转后也只能定位到行首。如果仔细看的话，示例代码的第一张图中new前面有一小竖线，就是光标：）
 
-##### **8621：
+##### \*\*8621：
+
 > 除了学习到了sourcemap的配置方式，更重要的是学习到了讲师的思考问题和学习的方式，受益匪浅。
 
-##### **宗：
-> https://github.com/webpack/webpack/tree/master/examples/source-maphttps://www.webpackjs.com/configuration/devtool/ 官网也有给比较的diff
+##### \*\*宗：
 
+> https://github.com/webpack/webpack/tree/master/examples/source-maphttps://www.webpackjs.com/configuration/devtool/ 官网也有给比较的diff

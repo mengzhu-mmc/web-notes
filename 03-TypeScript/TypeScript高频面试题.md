@@ -21,7 +21,7 @@ a.foo.bar; // 不报错，但运行时可能崩溃
 // unknown：类型安全的 any，可以接收任何类型，但使用前必须缩窄
 let b: unknown = 123;
 // b.toFixed(2); // ❌ 报错：Object is of type 'unknown'
-if (typeof b === 'number') {
+if (typeof b === "number") {
   b.toFixed(2); // ✅ 缩窄后才能使用
 }
 
@@ -31,12 +31,15 @@ function throwError(msg: string): never {
 }
 
 // never 的经典用法：穷尽性检查
-type Shape = 'circle' | 'square' | 'triangle';
+type Shape = "circle" | "square" | "triangle";
 function getArea(shape: Shape) {
   switch (shape) {
-    case 'circle': return /* ... */;
-    case 'square': return /* ... */;
-    case 'triangle': return /* ... */;
+    case "circle":
+      return /* ... */;
+    case "square":
+      return /* ... */;
+    case "triangle":
+      return /* ... */;
     default:
       const _exhaustive: never = shape; // 如果漏掉了某个 case，这里会报错
       return _exhaustive;
@@ -44,49 +47,55 @@ function getArea(shape: Shape) {
 }
 ```
 
-> [!tip] 面试回答要点
-> any 是"我不管了"，unknown 是"我先收着但用之前要检查"，never 是"这不可能发生"。实际项目中应该用 unknown 替代 any，配合类型守卫来保证安全。
+> [!tip] 面试回答要点any 是"我不管了"，unknown 是"我先收着但用之前要检查"，never 是"这不可能发生"。实际项目中应该用 unknown 替代 any，配合类型守卫来保证安全。
 
 ### 1.2 type 和 interface 的区别
 
 ```typescript
 // 1. 声明合并：interface 可以，type 不行
-interface User { name: string; }
-interface User { age: number; }  // ✅ 自动合并为 { name: string; age: number }
+interface User {
+  name: string;
+}
+interface User {
+  age: number;
+} // ✅ 自动合并为 { name: string; age: number }
 
-type Animal = { name: string; };
+type Animal = { name: string };
 // type Animal = { age: number; }; // ❌ 报错：重复标识符
 
 // 2. 继承方式不同
-interface Dog extends Animal { breed: string; }  // interface 用 extends
-type Cat = Animal & { color: string; };           // type 用交叉类型 &
+interface Dog extends Animal {
+  breed: string;
+} // interface 用 extends
+type Cat = Animal & { color: string }; // type 用交叉类型 &
 
 // 3. type 能做但 interface 不能做的事
-type StringOrNumber = string | number;       // 联合类型
-type Pair = [string, number];                // 元组
-type Callback = (data: string) => void;      // 函数类型别名
-type Keys = keyof User;                      // 提取键
-type Mapped = { [K in 'a' | 'b']: number };  // 映射类型
+type StringOrNumber = string | number; // 联合类型
+type Pair = [string, number]; // 元组
+type Callback = (data: string) => void; // 函数类型别名
+type Keys = keyof User; // 提取键
+type Mapped = { [K in "a" | "b"]: number }; // 映射类型
 ```
 
-> [!tip] 面试回答要点
-> 能用 interface 就用 interface（支持声明合并、更好的错误提示），需要联合类型、元组、映射类型等高级特性时用 type。在 React 中定义 Props 两者都可以，团队统一即可。
+> [!tip] 面试回答要点能用 interface 就用 interface（支持声明合并、更好的错误提示），需要联合类型、元组、映射类型等高级特性时用 type。在 React 中定义 Props 两者都可以，团队统一即可。
 
 ### 1.3 const 断言与 as const
 
 ```typescript
 // 没有 as const：类型被推断为宽泛类型
-const config = { url: '/api', method: 'GET' };
+const config = { url: "/api", method: "GET" };
 // 类型：{ url: string; method: string }
 
 // 使用 as const：类型被推断为字面量类型，且所有属性变为 readonly
-const config2 = { url: '/api', method: 'GET' } as const;
+const config2 = { url: "/api", method: "GET" } as const;
 // 类型：{ readonly url: "/api"; readonly method: "GET" }
 
 // 实际场景：配合函数参数的字面量类型约束
-function request(url: string, method: 'GET' | 'POST') { /* ... */ }
+function request(url: string, method: "GET" | "POST") {
+  /* ... */
+}
 // request(config.url, config.method);   // ❌ string 不能赋给 'GET' | 'POST'
-request(config2.url, config2.method);    // ✅
+request(config2.url, config2.method); // ✅
 ```
 
 ---
@@ -131,10 +140,18 @@ type MyRecord<K extends keyof any, V> = {
 };
 
 // ReturnType<T>：提取函数返回值类型
-type MyReturnType<T extends (...args: any) => any> = T extends (...args: any) => infer R ? R : any;
+type MyReturnType<T extends (...args: any) => any> = T extends (
+  ...args: any
+) => infer R
+  ? R
+  : any;
 
 // Parameters<T>：提取函数参数类型（元组）
-type MyParameters<T extends (...args: any) => any> = T extends (...args: infer P) => any ? P : never;
+type MyParameters<T extends (...args: any) => any> = T extends (
+  ...args: infer P
+) => any
+  ? P
+  : never;
 ```
 
 ### 2.2 Exclude / Extract / NonNullable
@@ -142,18 +159,17 @@ type MyParameters<T extends (...args: any) => any> = T extends (...args: infer P
 ```typescript
 // Exclude<T, U>：从 T 中排除可以赋值给 U 的类型
 type MyExclude<T, U> = T extends U ? never : T;
-type T1 = Exclude<'a' | 'b' | 'c', 'a'>; // 'b' | 'c'
+type T1 = Exclude<"a" | "b" | "c", "a">; // 'b' | 'c'
 
 // Extract<T, U>：从 T 中提取可以赋值给 U 的类型
 type MyExtract<T, U> = T extends U ? T : never;
-type T2 = Extract<'a' | 'b' | 'c', 'a' | 'f'>; // 'a'
+type T2 = Extract<"a" | "b" | "c", "a" | "f">; // 'a'
 
 // NonNullable<T>：排除 null 和 undefined
 type MyNonNullable<T> = T extends null | undefined ? never : T;
 ```
 
-> [!important] 面试高频
-> 手写 Partial、Pick、Omit、ReturnType 是 TS 面试的常客。核心是理解 `keyof`、`in`、`extends`、`infer` 这四个关键字。
+> [!important] 面试高频手写 Partial、Pick、Omit、ReturnType 是 TS 面试的常客。核心是理解 `keyof`、`in`、`extends`、`infer` 这四个关键字。
 
 ---
 
@@ -173,15 +189,19 @@ function firstItem(arr: any[]): any {
 const item = firstItem([1, 2, 3]); // item 是 any，IDE 没有任何提示
 
 // ❌ 或者为每种类型写一遍
-function firstNumber(arr: number[]): number { return arr[0]; }
-function firstString(arr: string[]): string { return arr[0]; }
+function firstNumber(arr: number[]): number {
+  return arr[0];
+}
+function firstString(arr: string[]): string {
+  return arr[0];
+}
 
 // ✅ 有泛型：一份代码，类型自动推导
 function first<T>(arr: T[]): T {
   return arr[0];
 }
-const a = first([1, 2, 3]);     // a 的类型是 number ✅
-const b = first(['x', 'y']);    // b 的类型是 string ✅
+const a = first([1, 2, 3]); // a 的类型是 number ✅
+const b = first(["x", "y"]); // b 的类型是 string ✅
 ```
 
 你可以把 `<T>` 理解为"类型的占位符"——调用时传入什么类型，T 就变成什么类型，整条链路的类型信息都不会丢失。
@@ -200,7 +220,7 @@ const b = first(['x', 'y']);    // b 的类型是 string ✅
 function getLength<T extends { length: number }>(arg: T): number {
   return arg.length;
 }
-getLength('hello');    // ✅ string 有 length
+getLength("hello"); // ✅ string 有 length
 getLength([1, 2, 3]); // ✅ 数组有 length
 // getLength(123);     // ❌ number 没有 length，编译报错
 ```
@@ -212,9 +232,9 @@ getLength([1, 2, 3]); // ✅ 数组有 length
 function getProperty<T, K extends keyof T>(obj: T, key: K): T[K] {
   return obj[key];
 }
-const user = { name: 'mmc', age: 27 };
-const name = getProperty(user, 'name');  // 返回类型是 string ✅
-const age = getProperty(user, 'age');    // 返回类型是 number ✅
+const user = { name: "mmc", age: 27 };
+const name = getProperty(user, "name"); // 返回类型是 string ✅
+const age = getProperty(user, "age"); // 返回类型是 number ✅
 // getProperty(user, 'email');           // ❌ 编译报错：'email' 不在 'name' | 'age' 中
 
 // 对比没有泛型约束的写法：
@@ -222,8 +242,7 @@ const age = getProperty(user, 'age');    // 返回类型是 number ✅
 // 返回 any，完全没有类型提示，还可能传入不存在的 key
 ```
 
-> [!tip] 一句话记忆
-> `extends` 在泛型里不是"继承"，而是"约束"——`T extends X` 意思是"T 至少得是 X 这个样子"。
+> [!tip] 一句话记忆 `extends` 在泛型里不是"继承"，而是"约束"——`T extends X` 意思是"T 至少得是 X 这个样子"。
 
 ### 3.2 条件类型与 infer
 
@@ -232,18 +251,18 @@ const age = getProperty(user, 'age');    // 返回类型是 number ✅
 ```typescript
 // 最简单的例子：判断一个类型是不是 string
 type IsString<T> = T extends string ? true : false;
-type A = IsString<'hello'>; // true
-type B = IsString<123>;     // false
+type A = IsString<"hello">; // true
+type B = IsString<123>; // false
 
 // 实际用途：根据输入类型决定输出类型
-type ApiResponse<T> = T extends 'user'
+type ApiResponse<T> = T extends "user"
   ? { name: string; age: number }
-  : T extends 'post'
-  ? { title: string; content: string }
-  : never;
+  : T extends "post"
+    ? { title: string; content: string }
+    : never;
 
-type UserResp = ApiResponse<'user'>; // { name: string; age: number }
-type PostResp = ApiResponse<'post'>; // { title: string; content: string }
+type UserResp = ApiResponse<"user">; // { name: string; age: number }
+type PostResp = ApiResponse<"post">; // { title: string; content: string }
 ```
 
 **infer 关键字**是条件类型中最强大的工具，它的作用是"在模式匹配中声明一个待推断的类型变量"。你可以把它理解为**类型层面的正则捕获组**：
@@ -256,7 +275,7 @@ type PostResp = ApiResponse<'post'>; // { title: string; content: string }
 // 提取 Promise 的内部类型
 type UnwrapPromise<T> = T extends Promise<infer U> ? U : T;
 type C = UnwrapPromise<Promise<string>>; // string（匹配成功，U = string）
-type D = UnwrapPromise<number>;          // number（匹配失败，返回 T 本身）
+type D = UnwrapPromise<number>; // number（匹配失败，返回 T 本身）
 
 // 递归解包嵌套 Promise（像剥洋葱一样一层层拆）
 type DeepUnwrap<T> = T extends Promise<infer U> ? DeepUnwrap<U> : T;
@@ -267,12 +286,13 @@ type ElementOf<T> = T extends (infer U)[] ? U : never;
 type F = ElementOf<string[]>; // string
 
 // 提取函数第一个参数类型
-type FirstArg<T> = T extends (first: infer F, ...rest: any[]) => any ? F : never;
+type FirstArg<T> = T extends (first: infer F, ...rest: any[]) => any
+  ? F
+  : never;
 type G = FirstArg<(name: string, age: number) => void>; // string
 ```
 
-> [!tip] infer 的使用口诀
-> 在 `extends` 右边的类型结构中，把你想"抠出来"的那部分用 `infer X` 替代，然后在 `?` 后面的 true 分支中使用 X。就像在类型上"挖洞"，让 TS 帮你填上实际的类型。
+> [!tip] infer 的使用口诀在 `extends` 右边的类型结构中，把你想"抠出来"的那部分用 `infer X` 替代，然后在 `?` 后面的 true 分支中使用 X。就像在类型上"挖洞"，让 TS 帮你填上实际的类型。
 
 ### 3.3 模板字面量类型
 
@@ -280,14 +300,14 @@ type G = FirstArg<(name: string, age: number) => void>; // string
 
 ```typescript
 // 基本用法：自动生成事件处理器名称
-type EventName = `on${Capitalize<'click' | 'focus' | 'blur'>}`;
+type EventName = `on${Capitalize<"click" | "focus" | "blur">}`;
 // 'onClick' | 'onFocus' | 'onBlur'
 // 联合类型会自动展开做排列组合
 
 // 实际场景：约束 CSS 值的格式
-type CSSUnit = 'px' | 'em' | 'rem' | '%';
+type CSSUnit = "px" | "em" | "rem" | "%";
 type CSSValue = `${number}${CSSUnit}`;
-const width: CSSValue = '100px';  // ✅
+const width: CSSValue = "100px"; // ✅
 // const bad: CSSValue = '100vw'; // ❌ vw 不在 CSSUnit 中
 
 // 高级场景：配合 infer 从路由字符串中提取参数名
@@ -295,10 +315,10 @@ const width: CSSValue = '100px';  // ✅
 type ParseRoute<T> = T extends `${string}/:${infer Param}/${infer Rest}`
   ? Param | ParseRoute<`/${Rest}`>
   : T extends `${string}/:${infer Param}`
-  ? Param
-  : never;
+    ? Param
+    : never;
 
-type Params = ParseRoute<'/user/:id/post/:postId'>; // 'id' | 'postId'
+type Params = ParseRoute<"/user/:id/post/:postId">; // 'id' | 'postId'
 // 第一次匹配：Param = 'id', Rest = 'post/:postId'
 // 递归匹配：Param = 'postId'
 // 最终结果：'id' | 'postId'
@@ -314,9 +334,9 @@ type Params = ParseRoute<'/user/:id/post/:postId'>; // 'id' | 'postId'
 type DeepReadonly<T> = {
   readonly [K in keyof T]: T[K] extends object
     ? T[K] extends Function
-      ? T[K]                    // 函数不递归
-      : DeepReadonly<T[K]>      // 对象递归
-    : T[K];                     // 原始类型直接返回
+      ? T[K] // 函数不递归
+      : DeepReadonly<T[K]> // 对象递归
+    : T[K]; // 原始类型直接返回
 };
 
 interface Config {
@@ -379,10 +399,10 @@ function double(input: string | number) {
   // return input.toUpperCase(); // ❌ 报错：number 没有 toUpperCase
 
   // 必须先判断类型，TS 才知道你在做什么
-  if (typeof input === 'number') {
-    return input * 2;            // ✅ 这里 input 被缩窄为 number
+  if (typeof input === "number") {
+    return input * 2; // ✅ 这里 input 被缩窄为 number
   }
-  return input.toUpperCase();    // ✅ 这里 input 被缩窄为 string
+  return input.toUpperCase(); // ✅ 这里 input 被缩窄为 string
 }
 ```
 
@@ -392,8 +412,8 @@ function double(input: string | number) {
 
 ```typescript
 function padLeft(value: string, padding: string | number) {
-  if (typeof padding === 'number') {
-    return ' '.repeat(padding) + value; // padding 被缩窄为 number
+  if (typeof padding === "number") {
+    return " ".repeat(padding) + value; // padding 被缩窄为 number
   }
   return padding + value; // padding 被缩窄为 string
 }
@@ -414,7 +434,7 @@ class ApiError extends Error {
 
 function handleError(err: Error | ApiError) {
   if (err instanceof ApiError) {
-    console.log(err.code);    // ✅ 缩窄为 ApiError，可以访问 code
+    console.log(err.code); // ✅ 缩窄为 ApiError，可以访问 code
   } else {
     console.log(err.message); // ✅ 缩窄为 Error
   }
@@ -424,12 +444,18 @@ function handleError(err: Error | ApiError) {
 **3. in 守卫**——通过检查属性是否存在来区分类型，适合接口/对象的判断：
 
 ```typescript
-interface Bird { fly(): void; layEggs(): void; }
-interface Fish { swim(): void; layEggs(): void; }
+interface Bird {
+  fly(): void;
+  layEggs(): void;
+}
+interface Fish {
+  swim(): void;
+  layEggs(): void;
+}
 
 function move(animal: Bird | Fish) {
-  if ('fly' in animal) {
-    animal.fly();  // ✅ 缩窄为 Bird
+  if ("fly" in animal) {
+    animal.fly(); // ✅ 缩窄为 Bird
   } else {
     animal.swim(); // ✅ 缩窄为 Fish
   }
@@ -443,7 +469,7 @@ function move(animal: Bird | Fish) {
 ```typescript
 // 语法：返回值类型写成 "参数 is 类型"
 function isString(val: unknown): val is string {
-  return typeof val === 'string';
+  return typeof val === "string";
 }
 
 // 为什么不直接用 typeof？因为自定义守卫可以封装复杂逻辑：
@@ -456,13 +482,13 @@ interface User {
 // 判断一个 unknown 值是否是 User 类型
 function isUser(val: unknown): val is User {
   return (
-    typeof val === 'object' &&
+    typeof val === "object" &&
     val !== null &&
-    'name' in val &&
-    'age' in val &&
-    'email' in val &&
-    typeof (val as User).name === 'string' &&
-    typeof (val as User).age === 'number'
+    "name" in val &&
+    "age" in val &&
+    "email" in val &&
+    typeof (val as User).name === "string" &&
+    typeof (val as User).age === "number"
   );
 }
 
@@ -475,8 +501,7 @@ function handleApiData(data: unknown) {
 }
 ```
 
-> [!tip] 什么时候用哪种守卫？
-> 原始类型用 `typeof`，类实例用 `instanceof`，接口/对象用 `in`，复杂判断逻辑封装成 `is` 函数。实际项目中最常用的是 `typeof` 和自定义 `is` 守卫。
+> [!tip] 什么时候用哪种守卫？原始类型用 `typeof`，类实例用 `instanceof`，接口/对象用 `in`，复杂判断逻辑封装成 `is` 函数。实际项目中最常用的是 `typeof` 和自定义 `is` 守卫。
 
 #### 可辨识联合（Discriminated Unions）
 
@@ -484,20 +509,28 @@ function handleApiData(data: unknown) {
 
 ```typescript
 // 每个类型都有一个 type 字段作为"标签"
-interface LoadingState { type: 'loading'; }
-interface SuccessState { type: 'success'; data: string[]; }
-interface ErrorState   { type: 'error'; message: string; }
+interface LoadingState {
+  type: "loading";
+}
+interface SuccessState {
+  type: "success";
+  data: string[];
+}
+interface ErrorState {
+  type: "error";
+  message: string;
+}
 
 type RequestState = LoadingState | SuccessState | ErrorState;
 
 function render(state: RequestState) {
   switch (state.type) {
-    case 'loading':
-      return 'Loading...';
-    case 'success':
-      return state.data.join(', ');  // ✅ 自动缩窄，能访问 data
-    case 'error':
-      return state.message;          // ✅ 自动缩窄，能访问 message
+    case "loading":
+      return "Loading...";
+    case "success":
+      return state.data.join(", "); // ✅ 自动缩窄，能访问 data
+    case "error":
+      return state.message; // ✅ 自动缩窄，能访问 message
   }
 }
 
@@ -511,16 +544,16 @@ function render(state: RequestState) {
 
 ```typescript
 // 场景：根据参数类型返回不同类型
-function createElement(tag: 'div'): HTMLDivElement;
-function createElement(tag: 'a'): HTMLAnchorElement;
-function createElement(tag: 'input'): HTMLInputElement;
+function createElement(tag: "div"): HTMLDivElement;
+function createElement(tag: "a"): HTMLAnchorElement;
+function createElement(tag: "input"): HTMLInputElement;
 function createElement(tag: string): HTMLElement;
 function createElement(tag: string): HTMLElement {
   return document.createElement(tag);
 }
 
-const div = createElement('div');   // HTMLDivElement
-const link = createElement('a');    // HTMLAnchorElement
+const div = createElement("div"); // HTMLDivElement
+const link = createElement("a"); // HTMLAnchorElement
 ```
 
 ### 5.3 声明文件（.d.ts）
@@ -528,7 +561,7 @@ const link = createElement('a');    // HTMLAnchorElement
 ```typescript
 // 当使用没有类型定义的第三方库时，需要手写声明文件
 // types/my-lib.d.ts
-declare module 'my-lib' {
+declare module "my-lib" {
   export function doSomething(input: string): number;
   export interface Config {
     timeout: number;
@@ -541,7 +574,7 @@ declare global {
   interface Window {
     __APP_CONFIG__: {
       apiUrl: string;
-      env: 'dev' | 'prod';
+      env: "dev" | "prod";
     };
   }
 }
@@ -565,11 +598,17 @@ TS 代码经过以下步骤变成 JS：Scanner（词法分析）→ Parser（语
 
 ```typescript
 // 普通 enum：编译后会生成一个对象（双向映射）
-enum Direction { Up, Down }
+enum Direction {
+  Up,
+  Down,
+}
 // 编译为：var Direction; Direction[Direction["Up"] = 0] = "Up"; ...
 
 // const enum：编译后直接内联为常量值，不生成对象
-const enum Color { Red, Green }
+const enum Color {
+  Red,
+  Green,
+}
 const c = Color.Red;
 // 编译为：const c = 0;
 ```
@@ -580,18 +619,18 @@ const enum 性能更好（无运行时开销），但不支持反向映射，且
 
 ```typescript
 // src/types/assets.d.ts
-declare module '*.css' {
+declare module "*.css" {
   const content: { [className: string]: string };
   export default content;
 }
 
-declare module '*.png' {
+declare module "*.png" {
   const src: string;
   export default src;
 }
 
-declare module '*.svg' {
-  import React from 'react';
+declare module "*.svg" {
+  import React from "react";
   const SVGComponent: React.FC<React.SVGProps<SVGSVGElement>>;
   export default SVGComponent;
 }

@@ -62,8 +62,7 @@ git rebase -i HEAD~3
 # pick ghi9012 feat: 添加记住密码功能
 ```
 
-> [!tip] 实际场景
-> 开发过程中可能有很多零碎的 fix 提交，在合入主分支前用 `rebase -i` 把它们整理成几个有意义的提交，让 code review 更清晰。
+> [!tip] 实际场景开发过程中可能有很多零碎的 fix 提交，在合入主分支前用 `rebase -i` 把它们整理成几个有意义的提交，让 code review 更清晰。
 
 ---
 

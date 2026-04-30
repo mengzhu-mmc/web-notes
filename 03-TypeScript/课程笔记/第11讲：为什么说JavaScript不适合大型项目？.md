@@ -152,9 +152,6 @@ tmp = <span class="hljs-literal">null</span>
 <h3 data-nodeid="473240">类型引用</h3>
 <h4 data-nodeid="477306" class="">索引</h4>
 
-
-
-
 <p data-nodeid="473242">索引类型的目的是让 TypeScript 编译器检查出使用了动态属性名的类型，需要通过<strong data-nodeid="473459">索引类型查询</strong>和<strong data-nodeid="473460">索引类型访问</strong>来实现。</p>
 <p data-nodeid="473243">下面的示例代码实现了一个简单的函数 getValue ，传入对象和对象属性名获取对应的值。</p>
 <pre class="lang-typescript" data-nodeid="473244"><code data-language="typescript"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getValue</span>&lt;<span class="hljs-title">T</span>, <span class="hljs-title">K</span> <span class="hljs-title">extends</span> <span class="hljs-title">keyof</span> <span class="hljs-title">T</span>&gt;(<span class="hljs-params">o: T, name: K</span>): <span class="hljs-title">T</span>[<span class="hljs-title">K</span>] </span>{
@@ -237,32 +234,30 @@ tmp = <span class="hljs-literal">null</span>
 
 ### 精选评论
 
-##### **磊：
+##### \*\*磊：
+
 > 有些项目做着做着就变成了anyscript
 
-##### *霄：
-> 看到 never，发现看完 never 的解释仍然不清楚，于是看 TS 文档，非常清楚，never 表示用于永远不会发生的值类型，一般用作执行不到 return 的函数返回值类型。never 是任意类型的子类型，却没有任意类型是 never 的子类型。```js// Function returning never must have unreachable end point
-function error(message: string): never {
+##### \*霄：
+
+> 看到 never，发现看完 never 的解释仍然不清楚，于是看 TS 文档，非常清楚，never 表示用于永远不会发生的值类型，一般用作执行不到 return 的函数返回值类型。never 是任意类型的子类型，却没有任意类型是 never 的子类型。```js// Function returning never must have unreachable end point function error(message: string): never {
+
     throw new Error(message);
+
 }
 
-// Inferred return type is never
-function fail() {
-    return error("Something failed");
-}
+// Inferred return type is never function fail() { return error("Something failed"); }
 
-// Function returning never must have unreachable end point
-function infiniteLoop(): never {
-    while (true) {
-    }
-}```
+// Function returning never must have unreachable end point function infiniteLoop(): never { while (true) { } }```
 
-##### *道：
+##### \*道：
+
 > 思考题：可以利用泛型化请求响应类型来解决
 
-##### **飞：
+##### \*\*飞：
+
 > 命名提升，还用let可以解决这个问题吗？还是打包转换之后，都会变成var?
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
-> &nbsp;&nbsp;&nbsp; let 可以避免命名提升；如果在打包时转换成ES5语法，是会变成var的。
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
 
+> &nbsp;&nbsp;&nbsp; let 可以避免命名提升；如果在打包时转换成ES5语法，是会变成var的。

@@ -13,23 +13,23 @@ function Counter() {
   const [count, setCount] = useState(0);
 
   function handleClick() {
-    setCount(count + 1);  // 不立即更新
-    setCount(count + 1);  // count 仍是 0，实际上重复设置为 1
-    console.log(count);   // 还是 0（闭包中的旧值）
+    setCount(count + 1); // 不立即更新
+    setCount(count + 1); // count 仍是 0，实际上重复设置为 1
+    console.log(count); // 还是 0（闭包中的旧值）
   }
   // 两次 setCount(1) → 只触发一次渲染，count 变为 1
 
   // ✅ 使用函数式更新，基于最新状态
   function handleClickCorrect() {
-    setCount(c => c + 1);  // c = 0 → 1
-    setCount(c => c + 1);  // c = 1 → 2
+    setCount((c) => c + 1); // c = 0 → 1
+    setCount((c) => c + 1); // c = 1 → 2
     // 触发一次渲染，count 变为 2 ✓
   }
 }
 
 // React 18: 自动批处理（flushSync 可跳出）
-import { flushSync } from 'react-dom';
-flushSync(() => setCount(1));  // 立即同步更新
+import { flushSync } from "react-dom";
+flushSync(() => setCount(1)); // 立即同步更新
 ```
 
 **🔍 深层原理**
@@ -41,12 +41,12 @@ React 维护一个全局的"执行上下文"标志位（`executionContext`）。
 ```js
 // React 内部简化示意
 function batchedUpdates(fn) {
-  executionContext |= BatchedContext;  // 标记批处理开始
+  executionContext |= BatchedContext; // 标记批处理开始
   try {
-    fn();  // 执行用户代码，setState 只入队
+    fn(); // 执行用户代码，setState 只入队
   } finally {
-    executionContext &= ~BatchedContext;  // 清除标记
-    flushPassiveEffects();  // 统一处理，触发一次渲染
+    executionContext &= ~BatchedContext; // 清除标记
+    flushPassiveEffects(); // 统一处理，触发一次渲染
   }
 }
 ```
@@ -73,23 +73,25 @@ function BatchingDemo() {
   // 场景2：setTimeout（React 17 不批处理，React 18 批处理）
   const handleTimeout = () => {
     setTimeout(() => {
-      setA(a + 1);  // React 17: 触发渲染
-      setB(b + 1);  // React 17: 再次触发渲染
+      setA(a + 1); // React 17: 触发渲染
+      setB(b + 1); // React 17: 再次触发渲染
       // React 18: 合并为 1 次渲染
     }, 0);
   };
 
   // 场景3：需要强制同步更新（React 18）
   const handleForceSync = () => {
-    flushSync(() => setA(a + 1));  // 立即渲染（renderCount+1）
-    flushSync(() => setB(b + 1));  // 再次立即渲染（renderCount+1）
+    flushSync(() => setA(a + 1)); // 立即渲染（renderCount+1）
+    flushSync(() => setB(b + 1)); // 再次立即渲染（renderCount+1）
     // 共触发 2 次渲染
   };
 
   return (
     <div>
       <p>Renders: {renderCount.current}</p>
-      <p>a={a}, b={b}</p>
+      <p>
+        a={a}, b={b}
+      </p>
       <button onClick={handleSyntheticEvent}>Synthetic Event</button>
       <button onClick={handleTimeout}>Timeout</button>
       <button onClick={handleForceSync}>Force Sync</button>
@@ -120,9 +122,9 @@ function BuggyCounter() {
 
   // ✅ 正确：每次基于最新值
   const addThreeCorrect = () => {
-    setCount(c => c + 1); // 0 → 1
-    setCount(c => c + 1); // 1 → 2
-    setCount(c => c + 1); // 2 → 3
+    setCount((c) => c + 1); // 0 → 1
+    setCount((c) => c + 1); // 1 → 2
+    setCount((c) => c + 1); // 2 → 3
   };
 
   return <button onClick={addThreeCorrect}>{count}</button>;
@@ -153,11 +155,11 @@ A: 不能直接获取（state 是当次渲染的快照）。方案：① 用 `us
 
 `useEffect` 在**浏览器绘制完成后**异步执行（不阻塞渲染），相当于类组件的 `componentDidMount` + `componentDidUpdate`。
 
-| deps 形式 | 执行时机 |
-|---|---|
-| 无 deps（省略）| 每次渲染后都执行 |
-| `[]`（空数组）| 仅挂载后执行一次 |
-| `[a, b]`（依赖项）| 挂载后 + `a` 或 `b` 变化后执行 |
+| deps 形式          | 执行时机                       |
+| ------------------ | ------------------------------ |
+| 无 deps（省略）    | 每次渲染后都执行               |
+| `[]`（空数组）     | 仅挂载后执行一次               |
+| `[a, b]`（依赖项） | 挂载后 + `a` 或 `b` 变化后执行 |
 
 ```jsx
 useEffect(() => {
@@ -168,7 +170,7 @@ useEffect(() => {
   return () => {
     subscription.unsubscribe();
   };
-}, [props.id]);  // props.id 变化时重新执行
+}, [props.id]); // props.id 变化时重新执行
 
 // 常见陷阱：闭包旧值问题
 function Example() {
@@ -176,16 +178,16 @@ function Example() {
 
   useEffect(() => {
     const timer = setInterval(() => {
-      console.log(count);  // ❌ 永远是 0（闭包捕获初始值）
+      console.log(count); // ❌ 永远是 0（闭包捕获初始值）
     }, 1000);
     return () => clearInterval(timer);
-  }, []);  // 空 deps → 不更新
+  }, []); // 空 deps → 不更新
 
   // ✅ 方案1：加入 deps
   useEffect(() => {
     const timer = setInterval(() => console.log(count), 1000);
     return () => clearInterval(timer);
-  }, [count]);  // count 变化时重建定时器
+  }, [count]); // count 变化时重建定时器
 
   // ✅ 方案2：useRef 保存最新值
   const countRef = useRef(count);
@@ -207,12 +209,12 @@ React 使用 `Object.is` 进行**浅比较**（类似 `===`，但能正确处理
 // ❌ 对象/数组每次渲染都是新引用
 useEffect(() => {
   fetchData();
-}, [{ id: 1 }]);  // 每次渲染都触发，因为 {} !== {}
+}, [{ id: 1 }]); // 每次渲染都触发，因为 {} !== {}
 
 // ✅ 使用基本类型或稳定引用
 useEffect(() => {
   fetchData();
-}, [userId]);  // string/number 值比较，正确
+}, [userId]); // string/number 值比较，正确
 ```
 
 **执行顺序（完整版）：**
@@ -253,10 +255,12 @@ useEffect(() => {
   let cancelled = false;
   async function load() {
     const data = await fetchData();
-    if (!cancelled) setData(data);  // 防止组件卸载后还 setState
+    if (!cancelled) setData(data); // 防止组件卸载后还 setState
   }
   load();
-  return () => { cancelled = true; };  // 清理：防止竞态条件
+  return () => {
+    cancelled = true;
+  }; // 清理：防止竞态条件
 }, []);
 ```
 
@@ -276,9 +280,9 @@ A: 在 effect 中添加监听，在 cleanup 中移除监听，且 cleanup 捕获
 
 ```jsx
 useEffect(() => {
-  window.addEventListener('resize', handler);
-  return () => window.removeEventListener('resize', handler);
-}, [handler]);  // 若 handler 不稳定，配合 useCallback 使用
+  window.addEventListener("resize", handler);
+  return () => window.removeEventListener("resize", handler);
+}, [handler]); // 若 handler 不稳定，配合 useCallback 使用
 ```
 
 ---

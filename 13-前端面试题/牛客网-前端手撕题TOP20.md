@@ -1,8 +1,6 @@
 # 牛客前端面试手撕题 TOP20
 
-> 来源：[牛客网前端面试手撕题](https://www.nowcoder.com/exam/oj?tab=%E5%89%8D%E7%AB%AF%E9%9D%A2%E8%AF%95%E6%89%8B%E6%92%95%E9%A2%98&topicId=274)
-> 整理时间：2026-03-20
-> 共 20 道，全部为 Medium 难度
+> 来源：[牛客网前端面试手撕题](https://www.nowcoder.com/exam/oj?tab=%E5%89%8D%E7%AB%AF%E9%9D%A2%E8%AF%95%E6%89%8B%E6%92%95%E9%A2%98&topicId=274) 整理时间：2026-03-20 共 20 道，全部为 Medium 难度
 
 ---
 
@@ -33,12 +31,12 @@
 
 ## FED1 事件委托
 
-**难度**：中等 | **通过率**：43.14%
-**牛客链接**：https://www.nowcoder.com/practice/02866b3ce7f8420c8b5d22f483c5fcc0?tpId=274
+**难度**：中等 | **通过率**：43.14% **牛客链接**：https://www.nowcoder.com/practice/02866b3ce7f8420c8b5d22f483c5fcc0?tpId=274
 
 ### 题目描述
 
 请补全 JavaScript 代码，要求如下：
+
 1. 给 `ul` 标签添加点击事件
 2. 当点击某 `li` 标签时，该标签内容拼接 `"."` 符号。如：某 `li` 标签被点击时，该标签内容为 `".."`
 3. 必须使用 DOM0 级标准事件（`onclick`）
@@ -48,12 +46,12 @@
 ```js
 // 事件委托：将子元素事件统一代理到父元素上
 // 利用事件冒泡机制：li 的点击事件会冒泡到 ul
-document.querySelector('ul').onclick = function(event) {
+document.querySelector("ul").onclick = function (event) {
   // event.target 是实际被点击的元素
   const target = event.target;
   // 判断点击的是否是 li 元素
-  if (target.tagName === 'LI') {
-    target.textContent += '.';
+  if (target.tagName === "LI") {
+    target.textContent += ".";
   }
 };
 ```
@@ -80,8 +78,7 @@ document.querySelector('ul').onclick = function(event) {
 
 ## FED2 数组去重
 
-**难度**：中等 | **通过率**：约 60%+
-**牛客链接**：https://www.nowcoder.com/practice/7a26729a75ca4e5db49ea059b01305c9?tpId=274
+**难度**：中等 | **通过率**：约 60%+ **牛客链接**：https://www.nowcoder.com/practice/7a26729a75ca4e5db49ea059b01305c9?tpId=274
 
 ### 题目描述
 
@@ -116,7 +113,7 @@ function _deleteRepeat(array) {
 // 方法四：Map（处理 NaN 等特殊值时最准确）
 function _deleteRepeat(array) {
   const map = new Map();
-  return array.filter(item => {
+  return array.filter((item) => {
     if (!map.has(item)) {
       map.set(item, true);
       return true;
@@ -147,8 +144,7 @@ function _deleteRepeat(array) {
 
 ## FED3 合法的URL
 
-**难度**：中等
-**牛客链接**：https://www.nowcoder.com/practice/81982d7a36aa436fa9143c8b4f5ea1a3?tpId=274
+**难度**：中等 **牛客链接**：https://www.nowcoder.com/practice/81982d7a36aa436fa9143c8b4f5ea1a3?tpId=274
 
 ### 题目描述
 
@@ -168,7 +164,7 @@ function _isUrl(url) {
   try {
     const u = new URL(url);
     // 只允许 http 和 https 协议
-    return u.protocol === 'http:' || u.protocol === 'https:';
+    return u.protocol === "http:" || u.protocol === "https:";
   } catch (e) {
     return false;
   }
@@ -176,7 +172,8 @@ function _isUrl(url) {
 
 // 方法三：更完整的正则（涵盖端口、路径、查询参数、锚点）
 function _isUrl(url) {
-  const reg = /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&/=]*)$/;
+  const reg =
+    /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&/=]*)$/;
   return reg.test(url);
 }
 ```
@@ -201,8 +198,7 @@ function _isUrl(url) {
 
 ## FED4 快速排序
 
-**难度**：中等
-**牛客链接**：https://www.nowcoder.com/practice/38da660199d0400580ac3905c05f5bd6?tpId=274
+**难度**：中等 **牛客链接**：https://www.nowcoder.com/practice/38da660199d0400580ac3905c05f5bd6?tpId=274
 
 ### 题目描述
 
@@ -214,14 +210,14 @@ function _isUrl(url) {
 // 方法一：非原地版（空间 O(n log n)，易理解，适合面试手写）
 function quickSort(arr) {
   if (arr.length <= 1) return arr;
-  
+
   // 选基准（取中间值减少最坏情况）
   const pivotIndex = Math.floor(arr.length / 2);
   const pivot = arr[pivotIndex];
-  
+
   const left = [];
   const right = [];
-  
+
   for (let i = 0; i < arr.length; i++) {
     if (i === pivotIndex) continue; // 跳过基准本身
     if (arr[i] <= pivot) {
@@ -230,14 +226,14 @@ function quickSort(arr) {
       right.push(arr[i]);
     }
   }
-  
+
   return [...quickSort(left), pivot, ...quickSort(right)];
 }
 
 // 方法二：原地快排（空间 O(log n)，标准实现）
 function quickSortInPlace(arr, left = 0, right = arr.length - 1) {
   if (left >= right) return arr;
-  
+
   const pivotIndex = partition(arr, left, right);
   quickSortInPlace(arr, left, pivotIndex - 1);
   quickSortInPlace(arr, pivotIndex + 1, right);
@@ -247,14 +243,14 @@ function quickSortInPlace(arr, left = 0, right = arr.length - 1) {
 function partition(arr, left, right) {
   const pivot = arr[right]; // 以最右元素为基准
   let i = left - 1;
-  
+
   for (let j = left; j < right; j++) {
     if (arr[j] <= pivot) {
       i++;
       [arr[i], arr[j]] = [arr[j], arr[i]]; // 解构交换
     }
   }
-  
+
   [arr[i + 1], arr[right]] = [arr[right], arr[i + 1]];
   return i + 1;
 }
@@ -283,8 +279,7 @@ function partition(arr, left, right) {
 
 ## FED5 全排列
 
-**难度**：中等
-**牛客链接**：https://www.nowcoder.com/practice/b3ac35e1569e4601b6d3957dd337e70b?tpId=274
+**难度**：中等 **牛客链接**：https://www.nowcoder.com/practice/b3ac35e1569e4601b6d3957dd337e70b?tpId=274
 
 ### 题目描述
 
@@ -302,30 +297,30 @@ function partition(arr, left, right) {
 function permute(nums) {
   const result = [];
   const used = new Array(nums.length).fill(false);
-  
+
   function backtrack(path) {
     // 终止条件：路径长度等于数组长度
     if (path.length === nums.length) {
       result.push([...path]); // 注意要拷贝一份
       return;
     }
-    
+
     for (let i = 0; i < nums.length; i++) {
       if (used[i]) continue; // 跳过已使用的元素
-      
+
       // 选择
       used[i] = true;
       path.push(nums[i]);
-      
+
       // 递归
       backtrack(path);
-      
+
       // 撤销选择（回溯）
       path.pop();
       used[i] = false;
     }
   }
-  
+
   backtrack([]);
   return result;
 }
@@ -333,7 +328,7 @@ function permute(nums) {
 // 方法二：交换法（更简洁）
 function permute2(nums) {
   const result = [];
-  
+
   function backtrack(start) {
     if (start === nums.length) {
       result.push([...nums]);
@@ -345,7 +340,7 @@ function permute2(nums) {
       [nums[start], nums[i]] = [nums[i], nums[start]]; // 还原
     }
   }
-  
+
   backtrack(0);
   return result;
 }
@@ -372,8 +367,7 @@ function permute2(nums) {
 
 ## FED6 instanceof
 
-**难度**：中等
-**牛客链接**：https://www.nowcoder.com/practice/a1169935fd6145899f953ba8fbccb585?tpId=274
+**难度**：中等 **牛客链接**：https://www.nowcoder.com/practice/a1169935fd6145899f953ba8fbccb585?tpId=274
 
 ### 题目描述
 
@@ -398,30 +392,30 @@ function permute2(nums) {
  */
 function _instanceof(obj, constructor) {
   // 基本类型（非对象/函数）直接返回 false
-  if (obj === null || (typeof obj !== 'object' && typeof obj !== 'function')) {
+  if (obj === null || (typeof obj !== "object" && typeof obj !== "function")) {
     return false;
   }
-  
+
   // 获取构造函数的原型
   const prototype = constructor.prototype;
-  
+
   // 沿原型链向上查找
   let proto = Object.getPrototypeOf(obj); // 等价于 obj.__proto__
-  
+
   while (proto !== null) {
     if (proto === prototype) {
       return true;
     }
     proto = Object.getPrototypeOf(proto);
   }
-  
+
   return false;
 }
 
 // 测试
-console.log(_instanceof([], Array));    // true
-console.log(_instanceof([], Object));   // true
-console.log(_instanceof('', String));   // false（基本类型）
+console.log(_instanceof([], Array)); // true
+console.log(_instanceof([], Object)); // true
+console.log(_instanceof("", String)); // false（基本类型）
 console.log(_instanceof(null, Object)); // false
 ```
 
@@ -446,8 +440,7 @@ console.log(_instanceof(null, Object)); // false
 
 ## FED7 Array.map
 
-**难度**：中等
-**牛客链接**：https://www.nowcoder.com/practice/8300c998180c4ebbbd2a5aaeb7fbc77c?tpId=274
+**难度**：中等 **牛客链接**：https://www.nowcoder.com/practice/8300c998180c4ebbbd2a5aaeb7fbc77c?tpId=274
 
 ### 题目描述
 
@@ -462,15 +455,15 @@ console.log(_instanceof(null, Object)); // false
  * @param {*} thisArg - callback 中 this 的指向
  * @returns {Array}
  */
-Array.prototype._map = function(callback, thisArg) {
+Array.prototype._map = function (callback, thisArg) {
   // 参数校验
-  if (typeof callback !== 'function') {
-    throw new TypeError(callback + ' is not a function');
+  if (typeof callback !== "function") {
+    throw new TypeError(callback + " is not a function");
   }
-  
-  const arr = this;       // 原数组
-  const result = [];      // 结果数组
-  
+
+  const arr = this; // 原数组
+  const result = []; // 结果数组
+
   for (let i = 0; i < arr.length; i++) {
     // 跳过稀疏数组的空槽（in 操作符检测）
     if (i in arr) {
@@ -478,13 +471,13 @@ Array.prototype._map = function(callback, thisArg) {
       result[i] = callback.call(thisArg, arr[i], i, arr);
     }
   }
-  
+
   return result;
 };
 
 // 测试
-console.log([1, 2, 3]._map(x => x * 2)); // [2, 4, 6]
-console.log([1, , 3]._map(x => x * 2));  // [2, empty, 6]（保持稀疏）
+console.log([1, 2, 3]._map((x) => x * 2)); // [2, 4, 6]
+console.log([1, , 3]._map((x) => x * 2)); // [2, empty, 6]（保持稀疏）
 ```
 
 ### 核心思路
@@ -509,8 +502,7 @@ console.log([1, , 3]._map(x => x * 2));  // [2, empty, 6]（保持稀疏）
 
 ## FED8 Array.filter
 
-**难度**：中等
-**牛客链接**：https://www.nowcoder.com/practice/93b96e9694634437898353f844d877af?tpId=274
+**难度**：中等 **牛客链接**：https://www.nowcoder.com/practice/93b96e9694634437898353f844d877af?tpId=274
 
 ### 题目描述
 
@@ -525,14 +517,14 @@ console.log([1, , 3]._map(x => x * 2));  // [2, empty, 6]（保持稀疏）
  * @param {*} thisArg
  * @returns {Array}
  */
-Array.prototype._filter = function(callback, thisArg) {
-  if (typeof callback !== 'function') {
-    throw new TypeError(callback + ' is not a function');
+Array.prototype._filter = function (callback, thisArg) {
+  if (typeof callback !== "function") {
+    throw new TypeError(callback + " is not a function");
   }
-  
+
   const arr = this;
   const result = [];
-  
+
   for (let i = 0; i < arr.length; i++) {
     if (i in arr) {
       // 只有 callback 返回真值时才加入结果
@@ -541,13 +533,13 @@ Array.prototype._filter = function(callback, thisArg) {
       }
     }
   }
-  
+
   return result;
 };
 
 // 测试
-console.log([1, 2, 3, 4]._filter(x => x % 2 === 0)); // [2, 4]
-console.log([1, , 3]._filter(x => x > 0)); // [1, 3]（稀疏槽被跳过）
+console.log([1, 2, 3, 4]._filter((x) => x % 2 === 0)); // [2, 4]
+console.log([1, , 3]._filter((x) => x > 0)); // [1, 3]（稀疏槽被跳过）
 ```
 
 ### 核心思路
@@ -568,8 +560,7 @@ console.log([1, , 3]._filter(x => x > 0)); // [1, 3]（稀疏槽被跳过）
 
 ## FED9 Array.reduce
 
-**难度**：中等
-**牛客链接**：https://www.nowcoder.com/practice/213d0ef21cb841de8cf69fcc5ea60eb6?tpId=274
+**难度**：中等 **牛客链接**：https://www.nowcoder.com/practice/213d0ef21cb841de8cf69fcc5ea60eb6?tpId=274
 
 ### 题目描述
 
@@ -584,22 +575,22 @@ console.log([1, , 3]._filter(x => x > 0)); // [1, 3]（稀疏槽被跳过）
  * @param {*} initialValue - 初始值（可选）
  * @returns {*}
  */
-Array.prototype._reduce = function(callback, initialValue) {
-  if (typeof callback !== 'function') {
-    throw new TypeError(callback + ' is not a function');
+Array.prototype._reduce = function (callback, initialValue) {
+  if (typeof callback !== "function") {
+    throw new TypeError(callback + " is not a function");
   }
-  
+
   const arr = this;
   const hasInitial = arguments.length >= 2; // 是否传了初始值
-  
+
   // 空数组且无初始值：抛出错误（符合规范）
   if (arr.length === 0 && !hasInitial) {
-    throw new TypeError('Reduce of empty array with no initial value');
+    throw new TypeError("Reduce of empty array with no initial value");
   }
-  
+
   let acc;
   let startIndex;
-  
+
   if (hasInitial) {
     acc = initialValue;
     startIndex = 0;
@@ -608,19 +599,19 @@ Array.prototype._reduce = function(callback, initialValue) {
     acc = arr[0];
     startIndex = 1;
   }
-  
+
   for (let i = startIndex; i < arr.length; i++) {
     if (i in arr) {
       acc = callback(acc, arr[i], i, arr);
     }
   }
-  
+
   return acc;
 };
 
 // 测试
 console.log([1, 2, 3, 4]._reduce((sum, cur) => sum + cur, 0)); // 10
-console.log([1, 2, 3, 4]._reduce((sum, cur) => sum + cur));    // 10（无初始值）
+console.log([1, 2, 3, 4]._reduce((sum, cur) => sum + cur)); // 10（无初始值）
 ```
 
 ### 核心思路
@@ -643,8 +634,7 @@ console.log([1, 2, 3, 4]._reduce((sum, cur) => sum + cur));    // 10（无初始
 
 ## FED10 Object.create
 
-**难度**：中等
-**牛客链接**：https://www.nowcoder.com/practice/0d9a538027a844249f1957f253d4436f?tpId=274
+**难度**：中等 **牛客链接**：https://www.nowcoder.com/practice/0d9a538027a844249f1957f253d4436f?tpId=274
 
 ### 题目描述
 
@@ -662,36 +652,36 @@ console.log([1, 2, 3, 4]._reduce((sum, cur) => sum + cur));    // 10（无初始
  */
 function _create(proto, propertiesObject) {
   // 参数校验：proto 必须是对象或 null
-  if (typeof proto !== 'object' && typeof proto !== 'function') {
-    throw new TypeError('Object prototype may only be an Object or null');
+  if (typeof proto !== "object" && typeof proto !== "function") {
+    throw new TypeError("Object prototype may only be an Object or null");
   }
-  
+
   // 核心：创建一个临时构造函数，将其 prototype 设为 proto
   function F() {}
   F.prototype = proto;
   const obj = new F(); // new 出来的对象，其 __proto__ === F.prototype === proto
-  
+
   // 处理 proto 为 null 的情况
   if (proto === null) {
     obj.__proto__ = null;
   }
-  
+
   // 可选：处理 propertiesObject（属性描述符）
   if (propertiesObject !== undefined) {
     Object.defineProperties(obj, propertiesObject);
   }
-  
+
   return obj;
 }
 
 // 测试
-const animal = { type: 'Animal' };
+const animal = { type: "Animal" };
 const dog = _create(animal);
-console.log(dog.type);                        // 'Animal'（继承自原型）
+console.log(dog.type); // 'Animal'（继承自原型）
 console.log(Object.getPrototypeOf(dog) === animal); // true
 
 const obj = _create(null);
-console.log(Object.getPrototypeOf(obj));      // null（纯净对象）
+console.log(Object.getPrototypeOf(obj)); // null（纯净对象）
 ```
 
 ### 核心思路
@@ -713,8 +703,7 @@ console.log(Object.getPrototypeOf(obj));      // null（纯净对象）
 
 ## FED11 Function.call
 
-**难度**：中等
-**牛客链接**：https://www.nowcoder.com/practice/22df1ed71b204a46b00587fdb780b3ab?tpId=274
+**难度**：中等 **牛客链接**：https://www.nowcoder.com/practice/22df1ed71b204a46b00587fdb780b3ab?tpId=274
 
 ### 题目描述
 
@@ -729,24 +718,23 @@ console.log(Object.getPrototypeOf(obj));      // null（纯净对象）
  * @param {...*} args - 传入的参数
  * @returns {*}
  */
-Function.prototype._call = function(thisArg, ...args) {
+Function.prototype._call = function (thisArg, ...args) {
   // this 为基本类型时包装，null/undefined 指向全局对象
   // 非严格模式下 null/undefined 会指向 globalThis
-  thisArg = thisArg !== null && thisArg !== undefined
-    ? Object(thisArg)
-    : globalThis;
-  
+  thisArg =
+    thisArg !== null && thisArg !== undefined ? Object(thisArg) : globalThis;
+
   // 核心：将函数作为 thisArg 的一个临时方法挂载并调用
   // 用 Symbol 避免属性名冲突
-  const fn = Symbol('fn');
+  const fn = Symbol("fn");
   thisArg[fn] = this; // this 即当前被调用的函数
-  
+
   // 执行并获取结果
   const result = thisArg[fn](...args);
-  
+
   // 清除临时属性
   delete thisArg[fn];
-  
+
   return result;
 };
 
@@ -754,14 +742,13 @@ Function.prototype._call = function(thisArg, ...args) {
 function greet(greeting, punct) {
   return `${greeting}, ${this.name}${punct}`;
 }
-const user = { name: 'Alice' };
-console.log(greet._call(user, 'Hello', '!')); // 'Hello, Alice!'
+const user = { name: "Alice" };
+console.log(greet._call(user, "Hello", "!")); // 'Hello, Alice!'
 ```
 
 ### 核心思路
 
-`call` 的本质：**改变函数执行时的 `this` 指向**。
-实现技巧：把函数临时挂到目标对象上，作为对象方法调用（此时函数内 `this` 自然指向该对象），调用后删除临时属性。
+`call` 的本质：**改变函数执行时的 `this` 指向**。实现技巧：把函数临时挂到目标对象上，作为对象方法调用（此时函数内 `this` 自然指向该对象），调用后删除临时属性。
 
 ### 复杂度
 
@@ -778,8 +765,7 @@ console.log(greet._call(user, 'Hello', '!')); // 'Hello, Alice!'
 
 ## FED12 Function.bind
 
-**难度**：中等
-**牛客链接**：https://www.nowcoder.com/practice/ecad0164931847f78c55278cee56e544?tpId=274
+**难度**：中等 **牛客链接**：https://www.nowcoder.com/practice/ecad0164931847f78c55278cee56e544?tpId=274
 
 ### 题目描述
 
@@ -794,9 +780,9 @@ console.log(greet._call(user, 'Hello', '!')); // 'Hello, Alice!'
  * @param {...*} args - 预置参数（偏函数）
  * @returns {Function}
  */
-Function.prototype._bind = function(thisArg, ...args) {
+Function.prototype._bind = function (thisArg, ...args) {
   const fn = this; // 保存原函数
-  
+
   // 返回一个新函数
   return function bound(...innerArgs) {
     // 关键：如果通过 new 调用 bound，this 指向新对象，忽略绑定的 thisArg
@@ -819,14 +805,15 @@ console.log(double(8)); // 16
 function Person(name) {
   this.name = name;
 }
-const BoundPerson = Person._bind({ name: 'ignored' });
-const p = new BoundPerson('Alice'); // new 调用，绑定失效
+const BoundPerson = Person._bind({ name: "ignored" });
+const p = new BoundPerson("Alice"); // new 调用，绑定失效
 console.log(p.name); // 'Alice'
 ```
 
 ### 核心思路
 
 `bind` 返回一个**新函数**（不立即执行），特点：
+
 1. **固定 `this`**：普通调用时 `this` 为绑定值
 2. **偏函数**：可以预置部分参数
 3. **`new` 调用优先**：用 `new` 调用绑定函数时，`this` 指向新实例，忽略绑定的 `thisArg`
@@ -846,8 +833,7 @@ console.log(p.name); // 'Alice'
 
 ## FED13 new
 
-**难度**：中等
-**牛客链接**：https://www.nowcoder.com/practice/71c2aff7cb6641099aa17d56157a91b9?tpId=274
+**难度**：中等 **牛客链接**：https://www.nowcoder.com/practice/71c2aff7cb6641099aa17d56157a91b9?tpId=274
 
 ### 题目描述
 
@@ -865,12 +851,12 @@ console.log(p.name); // 'Alice'
 function _new(constructor, ...args) {
   // 1. 创建一个空对象，将其原型指向构造函数的 prototype
   const obj = Object.create(constructor.prototype);
-  
+
   // 2. 执行构造函数，将 this 绑定到新对象上
   const result = constructor.apply(obj, args);
-  
+
   // 3. 如果构造函数返回一个对象，则返回该对象；否则返回新创建的 obj
-  return (result !== null && typeof result === 'object') ? result : obj;
+  return result !== null && typeof result === "object" ? result : obj;
 }
 
 // 测试
@@ -878,12 +864,12 @@ function Person(name, age) {
   this.name = name;
   this.age = age;
 }
-Person.prototype.greet = function() {
+Person.prototype.greet = function () {
   return `Hi, I'm ${this.name}`;
 };
 
-const p = _new(Person, 'Alice', 25);
-console.log(p.name);    // 'Alice'
+const p = _new(Person, "Alice", 25);
+console.log(p.name); // 'Alice'
 console.log(p.greet()); // "Hi, I'm Alice"
 console.log(p instanceof Person); // true
 
@@ -898,6 +884,7 @@ console.log(w.x); // 1（使用构造函数返回的对象）
 ### 核心思路
 
 `new` 做了四件事：
+
 1. 创建新对象，其 `__proto__` 指向构造函数的 `prototype`
 2. 将构造函数内 `this` 绑定到新对象并执行
 3. 如果构造函数显式返回一个**对象**，则用该对象；否则返回新对象
@@ -917,8 +904,7 @@ console.log(w.x); // 1（使用构造函数返回的对象）
 
 ## FED14 Object.freeze
 
-**难度**：中等
-**牛客链接**：https://www.nowcoder.com/practice/ba17ac11584a4aaeaef639655b896d86?tpId=274
+**难度**：中等 **牛客链接**：https://www.nowcoder.com/practice/ba17ac11584a4aaeaef639655b896d86?tpId=274
 
 ### 题目描述
 
@@ -933,23 +919,23 @@ console.log(w.x); // 1（使用构造函数返回的对象）
  */
 function _freeze(obj) {
   // 不处理非对象
-  if (obj === null || typeof obj !== 'object') return obj;
-  
+  if (obj === null || typeof obj !== "object") return obj;
+
   // 1. 获取所有自有属性
-  Object.getOwnPropertyNames(obj).forEach(name => {
+  Object.getOwnPropertyNames(obj).forEach((name) => {
     const desc = Object.getOwnPropertyDescriptor(obj, name);
     // 2. 将所有属性设为不可写、不可配置
     if (desc.configurable) {
       Object.defineProperty(obj, name, {
         writable: false,
-        configurable: false
+        configurable: false,
       });
     }
   });
-  
+
   // 3. 阻止新属性的添加（preventExtensions）
   Object.preventExtensions(obj);
-  
+
   return obj;
 }
 
@@ -958,23 +944,23 @@ function _freeze(obj) {
  * 注意：原生 Object.freeze 不是深冻结
  */
 function deepFreeze(obj) {
-  if (obj === null || typeof obj !== 'object') return obj;
-  
+  if (obj === null || typeof obj !== "object") return obj;
+
   // 先冻结子属性
-  Object.keys(obj).forEach(key => {
-    if (typeof obj[key] === 'object' && obj[key] !== null) {
+  Object.keys(obj).forEach((key) => {
+    if (typeof obj[key] === "object" && obj[key] !== null) {
       deepFreeze(obj[key]);
     }
   });
-  
+
   return Object.freeze(obj);
 }
 
 // 测试
 const obj = { a: 1, b: { c: 2 } };
 deepFreeze(obj);
-obj.a = 99;       // 静默失败（严格模式报错）
-obj.b.c = 99;     // 深冻结后同样失败
+obj.a = 99; // 静默失败（严格模式报错）
+obj.b.c = 99; // 深冻结后同样失败
 console.log(obj.a); // 1
 console.log(obj.b.c); // 2
 ```
@@ -1001,8 +987,7 @@ console.log(obj.b.c); // 2
 
 ## FED15 浅拷贝
 
-**难度**：中等
-**牛客链接**：https://www.nowcoder.com/practice/434d236e52994a9791a055f1f7adf985?tpId=274
+**难度**：中等 **牛客链接**：https://www.nowcoder.com/practice/434d236e52994a9791a055f1f7adf985?tpId=274
 
 ### 题目描述
 
@@ -1027,23 +1012,23 @@ function shallowCopy2(obj) {
 
 // 方法三：手动实现（兼容 Symbol 键）
 function shallowCopy3(obj) {
-  if (obj === null || typeof obj !== 'object') return obj;
-  
+  if (obj === null || typeof obj !== "object") return obj;
+
   // 根据类型创建对应容器
   const copy = Array.isArray(obj) ? [] : {};
-  
+
   // 复制字符串键的自有可枚举属性
   for (const key in obj) {
     if (Object.prototype.hasOwnProperty.call(obj, key)) {
       copy[key] = obj[key];
     }
   }
-  
+
   // 复制 Symbol 键
-  Object.getOwnPropertySymbols(obj).forEach(sym => {
+  Object.getOwnPropertySymbols(obj).forEach((sym) => {
     copy[sym] = obj[sym];
   });
-  
+
   return copy;
 }
 
@@ -1052,7 +1037,7 @@ const obj = { a: 1, b: { c: 2 } };
 const copy = shallowCopy(obj);
 copy.a = 99;
 copy.b.c = 99; // 浅拷贝：b 仍是同一引用
-console.log(obj.a);   // 1（基本类型不受影响）
+console.log(obj.a); // 1（基本类型不受影响）
 console.log(obj.b.c); // 99（引用类型受影响）
 ```
 
@@ -1075,8 +1060,7 @@ console.log(obj.b.c); // 99（引用类型受影响）
 
 ## FED16 简易深拷贝
 
-**难度**：中等
-**牛客链接**：https://www.nowcoder.com/practice/3d436d07f5cb4b628a4dd7c12476cabe?tpId=274
+**难度**：中等 **牛客链接**：https://www.nowcoder.com/practice/3d436d07f5cb4b628a4dd7c12476cabe?tpId=274
 
 ### 题目描述
 
@@ -1091,13 +1075,13 @@ console.log(obj.b.c); // 99（引用类型受影响）
  */
 function simpleDeepClone(obj) {
   // 基本类型直接返回
-  if (obj === null || typeof obj !== 'object') return obj;
-  
+  if (obj === null || typeof obj !== "object") return obj;
+
   // 数组
   if (Array.isArray(obj)) {
-    return obj.map(item => simpleDeepClone(item));
+    return obj.map((item) => simpleDeepClone(item));
   }
-  
+
   // 普通对象
   const copy = {};
   for (const key in obj) {
@@ -1124,6 +1108,7 @@ console.log(obj.b.c); // [1, 2, 3]（未受影响）
 ### 核心思路
 
 递归思路：
+
 1. 基本类型直接返回（递归出口）
 2. 数组/对象：创建新容器，递归拷贝每个子属性
 
@@ -1141,8 +1126,7 @@ console.log(obj.b.c); // [1, 2, 3]（未受影响）
 
 ## FED17 深拷贝
 
-**难度**：中等
-**牛客链接**：https://www.nowcoder.com/practice/70ca77b52d424ced8ebb348cd77c1dc5?tpId=274
+**难度**：中等 **牛客链接**：https://www.nowcoder.com/practice/70ca77b52d424ced8ebb348cd77c1dc5?tpId=274
 
 ### 题目描述
 
@@ -1157,38 +1141,42 @@ console.log(obj.b.c); // [1, 2, 3]（未受影响）
  */
 function deepClone(obj, map = new WeakMap()) {
   // 基本类型和 null 直接返回
-  if (obj === null || typeof obj !== 'object') return obj;
-  
+  if (obj === null || typeof obj !== "object") return obj;
+
   // 处理循环引用：如果已经拷贝过，直接返回缓存
   if (map.has(obj)) return map.get(obj);
-  
+
   // 处理特殊类型
   if (obj instanceof Date) return new Date(obj.getTime());
   if (obj instanceof RegExp) return new RegExp(obj.source, obj.flags);
   if (obj instanceof Map) {
     const copy = new Map();
     map.set(obj, copy);
-    obj.forEach((val, key) => copy.set(deepClone(key, map), deepClone(val, map)));
+    obj.forEach((val, key) =>
+      copy.set(deepClone(key, map), deepClone(val, map)),
+    );
     return copy;
   }
   if (obj instanceof Set) {
     const copy = new Set();
     map.set(obj, copy);
-    obj.forEach(val => copy.add(deepClone(val, map)));
+    obj.forEach((val) => copy.add(deepClone(val, map)));
     return copy;
   }
-  
+
   // 普通对象/数组：创建同类型容器
-  const copy = Array.isArray(obj) ? [] : Object.create(Object.getPrototypeOf(obj));
-  
+  const copy = Array.isArray(obj)
+    ? []
+    : Object.create(Object.getPrototypeOf(obj));
+
   // 先缓存，防止循环引用
   map.set(obj, copy);
-  
+
   // 复制字符串键（包括不可枚举属性）
-  [...Object.keys(obj), ...Object.getOwnPropertySymbols(obj)].forEach(key => {
+  [...Object.keys(obj), ...Object.getOwnPropertySymbols(obj)].forEach((key) => {
     copy[key] = deepClone(obj[key], map);
   });
-  
+
   return copy;
 }
 
@@ -1196,19 +1184,20 @@ function deepClone(obj, map = new WeakMap()) {
 const obj = { a: 1 };
 obj.self = obj; // 循环引用
 const clone = deepClone(obj);
-console.log(clone.a);         // 1
+console.log(clone.a); // 1
 console.log(clone.self === clone); // true（保持循环结构）
 
 // 测试 Date
 const d = new Date();
 const cloneD = deepClone(d);
 console.log(cloneD instanceof Date); // true
-console.log(cloneD === d);           // false（新对象）
+console.log(cloneD === d); // false（新对象）
 ```
 
 ### 核心思路
 
 在简易深拷贝基础上增加：
+
 1. **`WeakMap` 缓存**：记录已拷贝的对象，遇到循环引用直接返回缓存
 2. **特殊类型处理**：`Date`、`RegExp`、`Map`、`Set` 各自有对应的构造方式
 3. **`Symbol` 键**：用 `getOwnPropertySymbols` 获取
@@ -1228,8 +1217,7 @@ console.log(cloneD === d);           // false（新对象）
 
 ## FED18 寄生组合式继承
 
-**难度**：中等
-**牛客链接**：https://www.nowcoder.com/practice/dd8eb918b5d343cc8be77a69630f59bf?tpId=274
+**难度**：中等 **牛客链接**：https://www.nowcoder.com/practice/dd8eb918b5d343cc8be77a69630f59bf?tpId=274
 
 ### 题目描述
 
@@ -1246,9 +1234,9 @@ console.log(cloneD === d);           // false（新对象）
 // 父类
 function Animal(name) {
   this.name = name;
-  this.colors = ['black', 'white'];
+  this.colors = ["black", "white"];
 }
-Animal.prototype.say = function() {
+Animal.prototype.say = function () {
   return `I'm ${this.name}`;
 };
 
@@ -1272,34 +1260,34 @@ function inheritPrototype(Child, Parent) {
 inheritPrototype(Dog, Animal);
 
 // 在子类原型上添加方法（必须在 inheritPrototype 之后）
-Dog.prototype.bark = function() {
-  return 'Woof!';
+Dog.prototype.bark = function () {
+  return "Woof!";
 };
 
 // 测试
-const d = new Dog('Rex', 'Labrador');
-console.log(d.name);          // 'Rex'
-console.log(d.breed);         // 'Labrador'
-console.log(d.say());         // "I'm Rex"
-console.log(d.bark());        // 'Woof!'
-console.log(d instanceof Dog);    // true
+const d = new Dog("Rex", "Labrador");
+console.log(d.name); // 'Rex'
+console.log(d.breed); // 'Labrador'
+console.log(d.say()); // "I'm Rex"
+console.log(d.bark()); // 'Woof!'
+console.log(d instanceof Dog); // true
 console.log(d instanceof Animal); // true
 console.log(d.constructor === Dog); // true（修正了 constructor）
 
 // 实例属性相互独立
-const d2 = new Dog('Buddy', 'Poodle');
-d.colors.push('brown');
-console.log(d.colors);  // ['black', 'white', 'brown']
+const d2 = new Dog("Buddy", "Poodle");
+d.colors.push("brown");
+console.log(d.colors); // ['black', 'white', 'brown']
 console.log(d2.colors); // ['black', 'white']（互不影响）
 ```
 
 ### 核心思路
 
-| 继承方案 | 缺点 |
-|---|---|
-| 原型链继承 | 引用类型属性共享；无法传参 |
-| 借用构造函数 | 无法继承原型方法 |
-| 组合继承 | 父构造函数调用了两次 |
+| 继承方案       | 缺点                          |
+| -------------- | ----------------------------- |
+| 原型链继承     | 引用类型属性共享；无法传参    |
+| 借用构造函数   | 无法继承原型方法              |
+| 组合继承       | 父构造函数调用了两次          |
 | **寄生组合式** | ✅ 最优，父构造函数只调用一次 |
 
 关键：用 `Object.create(Parent.prototype)` 创建原型副本，**不需要 `new Parent()`**，避免了第二次调用父构造函数。
@@ -1319,8 +1307,7 @@ console.log(d2.colors); // ['black', 'white']（互不影响）
 
 ## FED19 发布订阅模式
 
-**难度**：中等
-**牛客链接**：https://www.nowcoder.com/practice/569e1fd641be4fd797f12a28b763d709?tpId=274
+**难度**：中等 **牛客链接**：https://www.nowcoder.com/practice/569e1fd641be4fd797f12a28b763d709?tpId=274
 
 ### 题目描述
 
@@ -1338,7 +1325,7 @@ class EventEmitter {
     // 事件中心：{ 事件名: [回调函数...] }
     this._events = {};
   }
-  
+
   /**
    * 订阅事件
    * @param {string} event - 事件名
@@ -1351,7 +1338,7 @@ class EventEmitter {
     this._events[event].push(listener);
     return this; // 支持链式调用
   }
-  
+
   /**
    * 发布事件
    * @param {string} event - 事件名
@@ -1361,10 +1348,10 @@ class EventEmitter {
     const listeners = this._events[event];
     if (!listeners || listeners.length === 0) return false;
     // 复制一份，防止执行过程中 listeners 被修改
-    listeners.slice().forEach(listener => listener(...args));
+    listeners.slice().forEach((listener) => listener(...args));
     return true;
   }
-  
+
   /**
    * 取消订阅
    * @param {string} event
@@ -1372,10 +1359,10 @@ class EventEmitter {
    */
   off(event, listener) {
     if (!this._events[event]) return this;
-    this._events[event] = this._events[event].filter(fn => fn !== listener);
+    this._events[event] = this._events[event].filter((fn) => fn !== listener);
     return this;
   }
-  
+
   /**
    * 只订阅一次
    */
@@ -1389,7 +1376,7 @@ class EventEmitter {
     this.on(event, wrapper);
     return this;
   }
-  
+
   /**
    * 移除某事件的所有订阅
    */
@@ -1406,21 +1393,22 @@ class EventEmitter {
 // 测试
 const emitter = new EventEmitter();
 
-const handler = (data) => console.log('received:', data);
-emitter.on('message', handler);
-emitter.once('connect', () => console.log('connected once'));
+const handler = (data) => console.log("received:", data);
+emitter.on("message", handler);
+emitter.once("connect", () => console.log("connected once"));
 
-emitter.emit('message', 'hello'); // 'received: hello'
-emitter.emit('connect');          // 'connected once'
-emitter.emit('connect');          // 无输出（once 已移除）
+emitter.emit("message", "hello"); // 'received: hello'
+emitter.emit("connect"); // 'connected once'
+emitter.emit("connect"); // 无输出（once 已移除）
 
-emitter.off('message', handler);
-emitter.emit('message', 'world'); // 无输出
+emitter.off("message", handler);
+emitter.emit("message", "world"); // 无输出
 ```
 
 ### 核心思路
 
 发布订阅模式有三个核心角色：
+
 - **事件中心（EventBus）**：存储事件与订阅者的映射
 - **订阅者（Subscriber）**：通过 `on` 注册感兴趣的事件
 - **发布者（Publisher）**：通过 `emit` 触发事件，无需知道谁在订阅
@@ -1440,8 +1428,7 @@ emitter.emit('message', 'world'); // 无输出
 
 ## FED20 观察者模式
 
-**难度**：中等
-**牛客链接**：https://www.nowcoder.com/practice/557ec9ca35d542feaa06261385711323?tpId=274
+**难度**：中等 **牛客链接**：https://www.nowcoder.com/practice/557ec9ca35d542feaa06261385711323?tpId=274
 
 ### 题目描述
 
@@ -1466,7 +1453,7 @@ class Observer {
     this.name = name;
     this.callback = callback;
   }
-  
+
   /**
    * 被通知时调用（由 Subject 调用）
    * @param {*} data - 被观察者传来的数据
@@ -1486,7 +1473,7 @@ class Subject {
     this.observers = []; // 观察者列表
     this._state = null;
   }
-  
+
   /**
    * 添加观察者
    */
@@ -1496,22 +1483,22 @@ class Subject {
     }
     return this;
   }
-  
+
   /**
    * 移除观察者
    */
   removeObserver(observer) {
-    this.observers = this.observers.filter(obs => obs !== observer);
+    this.observers = this.observers.filter((obs) => obs !== observer);
     return this;
   }
-  
+
   /**
    * 通知所有观察者
    */
   notify(data) {
-    this.observers.forEach(observer => observer.update(data));
+    this.observers.forEach((observer) => observer.update(data));
   }
-  
+
   /**
    * 设置状态（自动通知所有观察者）
    */
@@ -1519,7 +1506,7 @@ class Subject {
     this._state = state;
     this.notify(state); // 状态变化时自动通知
   }
-  
+
   getState() {
     return this._state;
   }
@@ -1527,22 +1514,25 @@ class Subject {
 
 // 测试
 const subject = new Subject();
-const obs1 = new Observer('Observer1');
-const obs2 = new Observer('Observer2', data => console.log(`obs2 got: ${data}`));
+const obs1 = new Observer("Observer1");
+const obs2 = new Observer("Observer2", (data) =>
+  console.log(`obs2 got: ${data}`),
+);
 
 subject.addObserver(obs1).addObserver(obs2);
-subject.setState('loading');
+subject.setState("loading");
 // 'Observer1 received: loading'
 // 'obs2 got: loading'
 
 subject.removeObserver(obs1);
-subject.setState('done');
+subject.setState("done");
 // 只有 obs2 收到：'obs2 got: done'
 ```
 
 ### 核心思路
 
 观察者模式两个核心角色：
+
 - **Subject（被观察者）**：维护观察者列表，状态变化时调用所有观察者的 `update`
 - **Observer（观察者）**：实现 `update` 方法，等待被通知
 
@@ -1562,25 +1552,25 @@ subject.setState('done');
 
 ## 总结对比
 
-| 题号 | 题目 | 核心知识点 | 难度感知 |
-|------|------|-----------|---------|
-| FED1 | 事件委托 | 事件冒泡、event.target | ⭐⭐ |
-| FED2 | 数组去重 | Set、filter+indexOf | ⭐ |
-| FED3 | 合法URL | 正则、URL API | ⭐⭐ |
-| FED4 | 快速排序 | 分治、递归 | ⭐⭐⭐ |
-| FED5 | 全排列 | 回溯算法 | ⭐⭐⭐ |
-| FED6 | instanceof | 原型链 | ⭐⭐ |
-| FED7 | Array.map | 原型扩展、call | ⭐⭐ |
-| FED8 | Array.filter | 原型扩展 | ⭐⭐ |
-| FED9 | Array.reduce | arguments、累加器 | ⭐⭐ |
-| FED10 | Object.create | 圣杯模式、原型 | ⭐⭐ |
-| FED11 | Function.call | this 绑定、Symbol | ⭐⭐⭐ |
-| FED12 | Function.bind | 闭包、偏函数、new | ⭐⭐⭐ |
-| FED13 | new | 4 步 new 流程 | ⭐⭐⭐ |
-| FED14 | Object.freeze | 属性描述符 | ⭐⭐ |
-| FED15 | 浅拷贝 | 引用类型、assign | ⭐ |
-| FED16 | 简易深拷贝 | 递归、类型判断 | ⭐⭐ |
-| FED17 | 深拷贝 | WeakMap、循环引用 | ⭐⭐⭐⭐ |
-| FED18 | 寄生组合继承 | 5种继承方案 | ⭐⭐⭐⭐ |
-| FED19 | 发布订阅 | EventEmitter、once | ⭐⭐⭐ |
-| FED20 | 观察者模式 | Subject/Observer | ⭐⭐⭐ |
+| 题号  | 题目          | 核心知识点             | 难度感知 |
+| ----- | ------------- | ---------------------- | -------- |
+| FED1  | 事件委托      | 事件冒泡、event.target | ⭐⭐     |
+| FED2  | 数组去重      | Set、filter+indexOf    | ⭐       |
+| FED3  | 合法URL       | 正则、URL API          | ⭐⭐     |
+| FED4  | 快速排序      | 分治、递归             | ⭐⭐⭐   |
+| FED5  | 全排列        | 回溯算法               | ⭐⭐⭐   |
+| FED6  | instanceof    | 原型链                 | ⭐⭐     |
+| FED7  | Array.map     | 原型扩展、call         | ⭐⭐     |
+| FED8  | Array.filter  | 原型扩展               | ⭐⭐     |
+| FED9  | Array.reduce  | arguments、累加器      | ⭐⭐     |
+| FED10 | Object.create | 圣杯模式、原型         | ⭐⭐     |
+| FED11 | Function.call | this 绑定、Symbol      | ⭐⭐⭐   |
+| FED12 | Function.bind | 闭包、偏函数、new      | ⭐⭐⭐   |
+| FED13 | new           | 4 步 new 流程          | ⭐⭐⭐   |
+| FED14 | Object.freeze | 属性描述符             | ⭐⭐     |
+| FED15 | 浅拷贝        | 引用类型、assign       | ⭐       |
+| FED16 | 简易深拷贝    | 递归、类型判断         | ⭐⭐     |
+| FED17 | 深拷贝        | WeakMap、循环引用      | ⭐⭐⭐⭐ |
+| FED18 | 寄生组合继承  | 5种继承方案            | ⭐⭐⭐⭐ |
+| FED19 | 发布订阅      | EventEmitter、once     | ⭐⭐⭐   |
+| FED20 | 观察者模式    | Subject/Observer       | ⭐⭐⭐   |

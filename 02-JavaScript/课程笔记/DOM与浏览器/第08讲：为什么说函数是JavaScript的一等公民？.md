@@ -144,8 +144,6 @@ add(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>)(<spa
 }
 </code></pre>
 
-
-
 <h3 data-nodeid="1420">原型</h3>
 <p data-nodeid="1421">原型是 JavaScript 的重要特性之一，可以让对象从其他对象继承功能特性，所以 JavaScript 也被称为“<strong data-nodeid="1591">基于原型的语言</strong>”。</p>
 <p data-nodeid="1422">严格地说，原型应该是对象的特性，但函数其实也是一种特殊的对象。例如，我们对自定义的函数进行 instanceof Object 操作时，其结果是 true。</p>
@@ -350,56 +348,73 @@ for(var i = 0; i &lt; 5; i++ ) {
 ### 精选评论
 
 ##### Warn：
+
 > this指向、原型链这些真的是概念一看都懂，看完又啥都不懂
 
- ###### &nbsp;&nbsp;&nbsp; 编辑回复：
+###### &nbsp;&nbsp;&nbsp; 编辑回复：
+
 > &nbsp;&nbsp;&nbsp; 哈哈哈哈哈哈，加油
 
-##### *忠：
-> 不存在隐式原型，显式原型吧，__proto__ 本身就不是ECMA的标准，是浏览器自己实现的。
+##### \*忠：
 
-##### *道：
-> 根据 MDN 文档">someObject.Prototype ，property __proto__ 是非标准而被浏览器支持的属性。
+> 不存在隐式原型，显式原型吧，**proto** 本身就不是ECMA的标准，是浏览器自己实现的。
 
-##### *道：
+##### \*道：
+
+> 根据 MDN 文档">someObject.Prototype ，property **proto** 是非标准而被浏览器支持的属性。
+
+##### \*道：
+
 > 这一节看得稍辛苦，补了一下基础。
 
-##### *聪：
+##### \*聪：
+
 > 鄙人写的关于原型链相关的一篇博文：https://chen-cong.blog.csdn.net/article/details/81211729，相信你看了一定会有收获
 
-##### **飞：
+##### \*\*飞：
+
 > 不太理解，显示原型，和隐式原型这两个概念😔😇
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 可以简单地理解为显式原型是隐式原型的别名。
 
-##### *默：
+##### \*默：
+
 > 绑定this，有bind，apply，call。还有箭头函数
 
-##### **用户5887：
+##### \*\*用户5887：
+
 > 已知this指向调用它的对象，函数是特殊的对象，为什么全局函数b中调用函数a，指向的还是全局呢？函数自身为什么不能作为对象，有上下文呢
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 这个问题我想了很久，下面是个人思考，并不一定是正确答案。从js工作原理上来看，如果每次调用函数都去祖先函数去查找上下文，你想想函数调用栈的入栈出栈会有多么频繁，而这种性能损耗是完全可以避免的，因为开发者可以创建一个变量保存状态；从执行结果上来看，也会带来很大麻烦，函数的执行结果就变成不可预期，因为放到不同函数中继承的的上下文不同。
 
-##### **5741：
+##### \*\*5741：
+
 > 所以看到最后还是没看出来题目“为什么说函数是 JavaScript 的一等公民？”这个问题的官方解答
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; "一等公民"可以理解为有很多权利，对应到语言JavaScript就是说可以实现很多功能，比如课程中提到的模拟类的实现、创建作用域。
 
 ##### ty：
-> 其实我不太理解隐式原型存在的意义是什么，如果本来就可以通过prototype追溯到原型上去那多增加一个__proto__其实也用不到吧？
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
-> &nbsp;&nbsp;&nbsp; 严格意义上来说，只有一个原型，那就是隐式原型 __proto__，显示原型 prototype 你可以理解为 __proto__ 的语法糖，它的作用就是在创建实例的时候把实例的 __proto_ 指向当前的 prototype。
+> 其实我不太理解隐式原型存在的意义是什么，如果本来就可以通过prototype追溯到原型上去那多增加一个**proto**其实也用不到吧？
 
-##### *鸿：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
+> &nbsp;&nbsp;&nbsp; 严格意义上来说，只有一个原型，那就是隐式原型 **proto**，显示原型 prototype 你可以理解为 **proto** 的语法糖，它的作用就是在创建实例的时候把实例的 \_*proto* 指向当前的 prototype。
+
+##### \*鸿：
+
 > 修改this指向 bind ，call，apply&nbsp; &nbsp;bind在绑定this函数后不会立即执行，call和apply会，还有闭包不应该是外部访问内部变量吗
 
-##### **用户1028：
+##### \*\*用户1028：
+
 > var arrow = {fn: () =&gt; console.log(this)} 箭头函数改成function写法就从this指向window改成arrow对象呀, 没理解包一层函数 var arrow = {fn(){ console.log(this)}}
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
-> &nbsp;&nbsp;&nbsp; 函数 a 继承了函数 fn 的this，指向 arrow
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
 
+> &nbsp;&nbsp;&nbsp; 函数 a 继承了函数 fn 的this，指向 arrow

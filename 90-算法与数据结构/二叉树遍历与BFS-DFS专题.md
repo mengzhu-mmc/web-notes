@@ -35,7 +35,7 @@ function preorder(root) {
   const result = [];
   function dfs(node) {
     if (!node) return;
-    result.push(node.val);  // 先处理根
+    result.push(node.val); // 先处理根
     dfs(node.left);
     dfs(node.right);
   }
@@ -54,7 +54,7 @@ function preorder(root) {
     result.push(node.val);
     // 注意：先压右再压左，这样左子树先出栈
     if (node.right) stack.push(node.right);
-    if (node.left)  stack.push(node.left);
+    if (node.left) stack.push(node.left);
   }
   return result;
 }
@@ -69,7 +69,7 @@ function inorder(root) {
   function dfs(node) {
     if (!node) return;
     dfs(node.left);
-    result.push(node.val);  // 中间处理根
+    result.push(node.val); // 中间处理根
     dfs(node.right);
   }
   dfs(root);
@@ -109,7 +109,7 @@ function postorder(root) {
     if (!node) return;
     dfs(node.left);
     dfs(node.right);
-    result.push(node.val);  // 最后处理根
+    result.push(node.val); // 最后处理根
   }
   dfs(root);
   return result;
@@ -124,7 +124,7 @@ function postorder(root) {
   while (stack.length) {
     const node = stack.pop();
     result.push(node.val);
-    if (node.left)  stack.push(node.left);  // 注意顺序与前序相反
+    if (node.left) stack.push(node.left); // 注意顺序与前序相反
     if (node.right) stack.push(node.right);
   }
   return result.reverse(); // 反转得到 左→右→根
@@ -151,7 +151,7 @@ function levelOrder(root) {
     for (let i = 0; i < levelSize; i++) {
       const node = queue.shift();
       level.push(node.val);
-      if (node.left)  queue.push(node.left);
+      if (node.left) queue.push(node.left);
       if (node.right) queue.push(node.right);
     }
     result.push(level);
@@ -187,7 +187,7 @@ function zigzagLevelOrder(root) {
       if (leftToRight) level.push(node.val);
       else level.unshift(node.val);
 
-      if (node.left)  queue.push(node.left);
+      if (node.left) queue.push(node.left);
       if (node.right) queue.push(node.right);
     }
     result.push(level);
@@ -202,7 +202,7 @@ function zigzagLevelOrder(root) {
 ## 四、DFS vs BFS 选择策略
 
 | 场景 | 推荐方式 | 原因 |
-|------|---------|------|
+| --- | --- | --- |
 | 求树的深度/高度 | DFS | 天然递归，代码简洁 |
 | 求树的最小深度 | BFS | 找到第一个叶子节点即可返回，无需遍历全树 |
 | 路径问题（根到叶子） | DFS | 需要维护路径状态，递归回溯更自然 |
@@ -234,7 +234,7 @@ function maxDepth(root) {
     const size = queue.length;
     for (let i = 0; i < size; i++) {
       const node = queue.shift();
-      if (node.left)  queue.push(node.left);
+      if (node.left) queue.push(node.left);
       if (node.right) queue.push(node.right);
     }
   }
@@ -258,7 +258,7 @@ function minDepth(root) {
       const node = queue.shift();
       // 叶子节点：左右子树都为空
       if (!node.left && !node.right) return depth;
-      if (node.left)  queue.push(node.left);
+      if (node.left) queue.push(node.left);
       if (node.right) queue.push(node.right);
     }
   }
@@ -269,8 +269,8 @@ function minDepth(root) {
 function minDepth(root) {
   if (!root) return 0;
   if (!root.left && !root.right) return 1; // 叶子节点
-  if (!root.left)  return 1 + minDepth(root.right); // 只有右子树
-  if (!root.right) return 1 + minDepth(root.left);  // 只有左子树
+  if (!root.left) return 1 + minDepth(root.right); // 只有右子树
+  if (!root.right) return 1 + minDepth(root.left); // 只有左子树
   return 1 + Math.min(minDepth(root.left), minDepth(root.right));
 }
 ```
@@ -284,8 +284,10 @@ function hasPathSum(root, targetSum) {
   // 到达叶子节点，检查剩余值
   if (!root.left && !root.right) return root.val === targetSum;
   // 递归检查左右子树，剩余目标值减去当前节点值
-  return hasPathSum(root.left, targetSum - root.val) ||
-         hasPathSum(root.right, targetSum - root.val);
+  return (
+    hasPathSum(root.left, targetSum - root.val) ||
+    hasPathSum(root.right, targetSum - root.val)
+  );
 }
 
 // LeetCode 113：返回所有满足条件的路径
@@ -300,7 +302,7 @@ function pathSum(root, targetSum) {
       result.push([...path]); // 找到一条路径，拷贝后加入结果
     }
 
-    dfs(node.left,  remaining - node.val, path);
+    dfs(node.left, remaining - node.val, path);
     dfs(node.right, remaining - node.val, path);
     path.pop(); // 回溯：撤销当前节点
   }
@@ -315,11 +317,13 @@ function pathSum(root, targetSum) {
 ```javascript
 function isSymmetric(root) {
   function isMirror(left, right) {
-    if (!left && !right) return true;   // 都为空，对称
-    if (!left || !right) return false;  // 一个为空，不对称
-    return left.val === right.val &&
-           isMirror(left.left, right.right) &&  // 外侧对比
-           isMirror(left.right, right.left);    // 内侧对比
+    if (!left && !right) return true; // 都为空，对称
+    if (!left || !right) return false; // 一个为空，不对称
+    return (
+      left.val === right.val &&
+      isMirror(left.left, right.right) && // 外侧对比
+      isMirror(left.right, right.left)
+    ); // 内侧对比
   }
   return isMirror(root.left, root.right);
 }
@@ -332,7 +336,7 @@ function lowestCommonAncestor(root, p, q) {
   // 递归终止：到达空节点或找到目标节点
   if (!root || root === p || root === q) return root;
 
-  const left  = lowestCommonAncestor(root.left,  p, q);
+  const left = lowestCommonAncestor(root.left, p, q);
   const right = lowestCommonAncestor(root.right, p, q);
 
   // 左右都找到了：当前节点就是 LCA
@@ -352,7 +356,7 @@ function diameterOfBinaryTree(root) {
 
   function depth(node) {
     if (!node) return 0;
-    const leftDepth  = depth(node.left);
+    const leftDepth = depth(node.left);
     const rightDepth = depth(node.right);
     // 经过当前节点的路径长度 = 左深度 + 右深度
     maxDiameter = Math.max(maxDiameter, leftDepth + rightDepth);

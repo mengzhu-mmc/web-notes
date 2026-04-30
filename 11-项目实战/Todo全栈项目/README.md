@@ -71,6 +71,7 @@ cp .env.example .env
 ```
 
 `.env` 示例：
+
 ```
 DB_HOST=localhost
 DB_PORT=3306
@@ -91,6 +92,7 @@ npm run dev
 ```
 
 启动成功后会输出：
+
 ```
 ✅ 数据库连接成功，表结构已同步
 🚀 服务启动成功：http://localhost:3000
@@ -104,19 +106,21 @@ npm run dev
 
 ### 用户相关
 
-| 方法 | 路径 | 说明 | 是否需要 Token |
-|------|------|------|--------------|
-| POST | /api/register | 注册 | ❌ |
-| POST | /api/login | 登录 | ❌ |
-| GET  | /api/userinfo | 获取当前用户信息 | ✅ |
-| POST | /api/upload/avatar | 上传头像 | ✅ |
+| 方法 | 路径               | 说明             | 是否需要 Token |
+| ---- | ------------------ | ---------------- | -------------- |
+| POST | /api/register      | 注册             | ❌             |
+| POST | /api/login         | 登录             | ❌             |
+| GET  | /api/userinfo      | 获取当前用户信息 | ✅             |
+| POST | /api/upload/avatar | 上传头像         | ✅             |
 
 **注册/登录 body：**
+
 ```json
 { "username": "maomengchao", "password": "123456" }
 ```
 
 **登录响应：**
+
 ```json
 {
   "code": 0,
@@ -132,14 +136,15 @@ npm run dev
 
 请求头：`Authorization: Bearer <token>`
 
-| 方法 | 路径 | 说明 | Body |
-|------|------|------|------|
-| GET    | /api/todos | 获取我的 Todo 列表 | — |
-| POST   | /api/todos | 新增 Todo | `{ "title": "买牛奶" }` |
-| PUT    | /api/todos/:id | 更新（标题/完成状态）| `{ "done": true }` |
-| DELETE | /api/todos/:id | 删除 | — |
+| 方法   | 路径           | 说明                  | Body                    |
+| ------ | -------------- | --------------------- | ----------------------- |
+| GET    | /api/todos     | 获取我的 Todo 列表    | —                       |
+| POST   | /api/todos     | 新增 Todo             | `{ "title": "买牛奶" }` |
+| PUT    | /api/todos/:id | 更新（标题/完成状态） | `{ "done": true }`      |
+| DELETE | /api/todos/:id | 删除                  | —                       |
 
 **统一响应格式：**
+
 ```json
 { "code": 0, "message": "ok", "data": [...] }
 ```
@@ -168,10 +173,11 @@ npm install
 
 ```js
 // ⚠️ 手机测试时不能用 localhost
-const BASE_URL = 'http://192.168.你的IP:3000/api'
+const BASE_URL = "http://192.168.你的IP:3000/api";
 ```
 
 查看本机 IP：
+
 - Mac/Linux：`ifconfig | grep "inet " | grep -v 127.0.0.1`
 - Windows：`ipconfig`
 
@@ -228,10 +234,11 @@ Controller 直接用 ctx.user.id 查数据
 ### 数据隔离
 
 Todo 的所有增删改查都带 `userId` 过滤：
+
 ```js
 // 用户 A 永远看不到用户 B 的 Todo
-Todo.findAll({ where: { userId: ctx.user.id } })
-Todo.update(fields, { where: { id, userId: ctx.user.id } })
+Todo.findAll({ where: { userId: ctx.user.id } });
+Todo.update(fields, { where: { id, userId: ctx.user.id } });
 ```
 
 ### 前端状态管理
@@ -254,38 +261,38 @@ Navigation（根据 token 自动切换路由栈）
 
 ```js
 // 查询
-Model.findAll({ where: { userId }, order: [['createdAt', 'DESC']] })
-Model.findOne({ where: { username } })
-Model.findByPk(id)
+Model.findAll({ where: { userId }, order: [["createdAt", "DESC"]] });
+Model.findOne({ where: { username } });
+Model.findByPk(id);
 
 // 创建
-Model.create({ title, userId })
+Model.create({ title, userId });
 
 // 更新（返回 [affectedCount]）
-Model.update(fields, { where: { id, userId } })
+Model.update(fields, { where: { id, userId } });
 
 // 删除（返回 affectedCount）
-Model.destroy({ where: { id, userId } })
+Model.destroy({ where: { id, userId } });
 
 // 关联查询（include）
-Model.findAll({ include: [{ model: User, as: 'user' }] })
+Model.findAll({ include: [{ model: User, as: "user" }] });
 ```
 
 ### React Native vs React Web
 
-| | React Web | React Native |
-|---|---|---|
-| 基础容器 | `div` | `View` |
-| 文字 | `span` / `p` | `Text` |
-| 输入框 | `input` | `TextInput` |
-| 按钮 | `button` | `TouchableOpacity` / `Pressable` |
-| 列表 | `ul` + `map` | `FlatList`（虚拟化，性能好）|
-| 弹窗 | 自定义 | `Modal` |
-| 样式 | CSS / className | `StyleSheet.create`（JS 对象）|
-| 布局 | 默认块级 | 默认 Flexbox，`flexDirection: 'column'` |
-| 阴影 | `box-shadow` | iOS: `shadow*`，Android: `elevation` |
-| 导航 | React Router | React Navigation |
-| 本地存储 | localStorage | AsyncStorage（异步！）|
+|          | React Web       | React Native                            |
+| -------- | --------------- | --------------------------------------- |
+| 基础容器 | `div`           | `View`                                  |
+| 文字     | `span` / `p`    | `Text`                                  |
+| 输入框   | `input`         | `TextInput`                             |
+| 按钮     | `button`        | `TouchableOpacity` / `Pressable`        |
+| 列表     | `ul` + `map`    | `FlatList`（虚拟化，性能好）            |
+| 弹窗     | 自定义          | `Modal`                                 |
+| 样式     | CSS / className | `StyleSheet.create`（JS 对象）          |
+| 布局     | 默认块级        | 默认 Flexbox，`flexDirection: 'column'` |
+| 阴影     | `box-shadow`    | iOS: `shadow*`，Android: `elevation`    |
+| 导航     | React Router    | React Navigation                        |
+| 本地存储 | localStorage    | AsyncStorage（异步！）                  |
 
 ### RN 踩坑备忘
 

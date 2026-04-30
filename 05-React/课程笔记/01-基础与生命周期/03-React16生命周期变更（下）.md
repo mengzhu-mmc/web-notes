@@ -32,83 +32,9 @@
     <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
   }
 
-  <span class="hljs-comment">// 组件更新时调用</span>
-  getSnapshotBeforeUpdate(prevProps, prevState) {
-    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"getSnapshotBeforeUpdate方法执行"</span>);
-    <span class="hljs-keyword">return</span> <span class="hljs-string">"haha"</span>;
-  }
-  <span class="hljs-comment">// 组件更新后调用</span>
-  componentDidUpdate(preProps, preState, valueFromSnapshot) {
-    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"componentDidUpdate方法执行"</span>);
-    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"从 getSnapshotBeforeUpdate 获取到的值是"</span>, valueFromSnapshot);
-  }
-  <span class="hljs-comment">// 组件卸载时调用</span>
-  componentWillUnmount() {
-    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"子组件的componentWillUnmount方法执行"</span>);
-  }
-  <span class="hljs-comment">// 点击按钮，修改子组件文本内容的方法</span>
-  changeText = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
-    <span class="hljs-keyword">this</span>.setState({
-      <span class="hljs-attr">text</span>: <span class="hljs-string">"修改后的子组件文本"</span>
-    });
-  };
-  render() {
-    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"render方法执行"</span>);
-    <span class="hljs-keyword">return</span> (
-      <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"container"</span>&gt;</span>
-        <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">onClick</span>=<span class="hljs-string">{this.changeText}</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"changeText"</span>&gt;</span>
-          修改子组件文本内容
-        <span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>
-        <span class="hljs-tag">&lt;<span class="hljs-name">p</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"textContent"</span>&gt;</span>{this.state.text}<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
-        <span class="hljs-tag">&lt;<span class="hljs-name">p</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"fatherContent"</span>&gt;</span>{this.props.text}<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
-      <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span>
-    );
-  }
-}
-<span class="hljs-comment">// 定义 LifeCycle 组件的父组件</span>
-<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">LifeCycleContainer</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">React</span>.<span class="hljs-title">Component</span> </span>{
+<span class="hljs-comment">// 组件更新时调用</span> getSnapshotBeforeUpdate(prevProps, prevState) { <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"getSnapshotBeforeUpdate方法执行"</span>); <span class="hljs-keyword">return</span> <span class="hljs-string">"haha"</span>; } <span class="hljs-comment">// 组件更新后调用</span> componentDidUpdate(preProps, preState, valueFromSnapshot) { <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"componentDidUpdate方法执行"</span>); <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"从 getSnapshotBeforeUpdate 获取到的值是"</span>, valueFromSnapshot); } <span class="hljs-comment">// 组件卸载时调用</span> componentWillUnmount() { <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"子组件的componentWillUnmount方法执行"</span>); } <span class="hljs-comment">// 点击按钮，修改子组件文本内容的方法</span> changeText = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> { <span class="hljs-keyword">this</span>.setState({ <span class="hljs-attr">text</span>: <span class="hljs-string">"修改后的子组件文本"</span> }); }; render() { <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"render方法执行"</span>); <span class="hljs-keyword">return</span> ( <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"container"</span>&gt;</span> <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">onClick</span>=<span class="hljs-string">{this.changeText}</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"changeText"</span>&gt;</span> 修改子组件文本内容 <span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span> <span class="hljs-tag">&lt;<span class="hljs-name">p</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"textContent"</span>&gt;</span>{this.state.text}<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span> <span class="hljs-tag">&lt;<span class="hljs-name">p</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"fatherContent"</span>&gt;</span>{this.props.text}<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span> <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span> ); } } <span class="hljs-comment">// 定义 LifeCycle 组件的父组件</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">LifeCycleContainer</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">React</span>.<span class="hljs-title">Component</span> </span>{
 
-  <span class="hljs-comment">// state 也可以像这样用属性声明的形式初始化</span>
-  state = {
-    <span class="hljs-attr">text</span>: <span class="hljs-string">"父组件的文本"</span>,
-    <span class="hljs-attr">hideChild</span>: <span class="hljs-literal">false</span>
-  };
-  <span class="hljs-comment">// 点击按钮，修改父组件文本的方法</span>
-  changeText = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
-    <span class="hljs-keyword">this</span>.setState({
-      <span class="hljs-attr">text</span>: <span class="hljs-string">"修改后的父组件文本"</span>
-    });
-  };
-  <span class="hljs-comment">// 点击按钮，隐藏（卸载）LifeCycle 组件的方法</span>
-  hideChild = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
-    <span class="hljs-keyword">this</span>.setState({
-      <span class="hljs-attr">hideChild</span>: <span class="hljs-literal">true</span>
-    });
-  };
-  render() {
-    <span class="hljs-keyword">return</span> (
-      <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"fatherContainer"</span>&gt;</span>
-        <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">onClick</span>=<span class="hljs-string">{this.changeText}</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"changeText"</span>&gt;</span>
-          修改父组件文本内容
-        <span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>
-        <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">onClick</span>=<span class="hljs-string">{this.hideChild}</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"hideChild"</span>&gt;</span>
-          隐藏子组件
-        <span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>
-        {this.state.hideChild ? null : <span class="hljs-tag">&lt;<span class="hljs-name">LifeCycle</span> <span class="hljs-attr">text</span>=<span class="hljs-string">{this.state.text}</span> /&gt;</span>}
-      <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span>
-    );
-  }
-}
-ReactDOM.render(<span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">LifeCycleContainer</span> /&gt;</span></span>, <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">"root"</span>));
-</code></pre>
-
-
-
-
-
-
-
-
+<span class="hljs-comment">// state 也可以像这样用属性声明的形式初始化</span> state = { <span class="hljs-attr">text</span>: <span class="hljs-string">"父组件的文本"</span>, <span class="hljs-attr">hideChild</span>: <span class="hljs-literal">false</span> }; <span class="hljs-comment">// 点击按钮，修改父组件文本的方法</span> changeText = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> { <span class="hljs-keyword">this</span>.setState({ <span class="hljs-attr">text</span>: <span class="hljs-string">"修改后的父组件文本"</span> }); }; <span class="hljs-comment">// 点击按钮，隐藏（卸载）LifeCycle 组件的方法</span> hideChild = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> { <span class="hljs-keyword">this</span>.setState({ <span class="hljs-attr">hideChild</span>: <span class="hljs-literal">true</span> }); }; render() { <span class="hljs-keyword">return</span> ( <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"fatherContainer"</span>&gt;</span> <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">onClick</span>=<span class="hljs-string">{this.changeText}</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"changeText"</span>&gt;</span> 修改父组件文本内容 <span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span> <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">onClick</span>=<span class="hljs-string">{this.hideChild}</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"hideChild"</span>&gt;</span> 隐藏子组件 <span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span> {this.state.hideChild ? null : <span class="hljs-tag">&lt;<span class="hljs-name">LifeCycle</span> <span class="hljs-attr">text</span>=<span class="hljs-string">{this.state.text}</span> /&gt;</span>} <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span> ); } } ReactDOM.render(<span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">LifeCycleContainer</span> /&gt;</span></span>, <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">"root"</span>)); </code></pre>
 
 <p data-nodeid="13792">React 16 以来的生命周期也可以按照“挂载”“更新”和“卸载”三个阶段来看，所以接下来我们要做的事情仍然是分阶段拆解工作流程。在这个过程中，我将把 React 16 新增的生命周期方法，以及流程上相对于 React 15 产生的一些差异，作为我们学习的重点。对于和 React 15 保持一致的部分，这里不再重复讲解。</p>
 <h4 data-nodeid="13793">Mounting 阶段：组件的初始化渲染（挂载）</h4>
@@ -210,12 +136,8 @@ getSnapshotBeforeUpdate(prevProps, prevState) {
   <span class="hljs-keyword">return</span> <span class="hljs-string">"haha"</span>;
 }
 
-<span class="hljs-comment">// 组件更新后调用</span>
-componentDidUpdate(prevProps, prevState, valueFromSnapshot) {
-  console.log(<span class="hljs-string">"componentDidUpdate方法执行"</span>);
-  console.log(<span class="hljs-string">"从 getSnapshotBeforeUpdate 获取到的值是"</span>, valueFromSnapshot);
-}
-</code></pre>
+<span class="hljs-comment">// 组件更新后调用</span> componentDidUpdate(prevProps, prevState, valueFromSnapshot) { console.log(<span class="hljs-string">"componentDidUpdate方法执行"</span>); console.log(<span class="hljs-string">"从 getSnapshotBeforeUpdate 获取到的值是"</span>, valueFromSnapshot); } </code></pre>
+
 <p data-nodeid="13868">现在我们点击 Demo 界面上“修改子组件文本内容”按钮，就可以看到这两个生命周期的通信效果，如下图所示：</p>
 <p data-nodeid="13869"><img src="https://s0.lgstatic.com/i/image/M00/5D/CF/Ciqc1F-FVlOAX7VMAAE_3SdYf2M700.png" alt="Drawing 9.png" data-nodeid="14150"></p>
 <p data-nodeid="13870">值得一提的是，这个生命周期的设计初衷，是为了“与 componentDidUpdate 一起，涵盖过时的 componentWillUpdate 的所有用例”（引用自 React 官网）。<strong data-nodeid="14156">getSnapshotBeforeUpdate 要想发挥作用，离不开 componentDidUpdate 的配合</strong>。</p>
@@ -299,141 +221,186 @@ componentDidUpdate(prevProps, prevState, valueFromSnapshot) {
 
 ### 精选评论
 
-##### **用户9471：
+##### \*\*用户9471：
+
 > 打卡 老师太棒了 值得多看几遍 细细品味 老师辛苦了
 
 ##### wjk：
+
 > React 16 基于两个原因做出了生命周期的调整，其一：为同步渲染改异步渲染的 Fiber 铺路，把 有可能多次执行的 render 阶段中 componentWillMount/componentWillUpdate/componentWillRecevieProps 三个方法弃用；其二：为在一定程度上防止用户对生命周期的错用和滥用，把新增的 getDerivedStateFromProps 用 static 修饰，阻止用户在其内部使用 this 。
 
-##### *倩：
+##### \*倩：
+
 > 打卡，写的好棒
 
-##### *前：
+##### \*前：
+
 > 老师肯定看网络小说，哈哈，邪魅一笑
 
-##### **用户7412：
-> 这篇文章从WHAT到WHY解释了15到16生命周期的变化，很是精彩，尤其是对那些在16被移除的生命周期，之前不太理解，经过老师的解释终于理解了，并且知道为啥他们被重命名为“UNSAFE_”了，哈哈。
+##### \*\*用户7412：
 
-##### *洋：
+> 这篇文章从WHAT到WHY解释了15到16生命周期的变化，很是精彩，尤其是对那些在16被移除的生命周期，之前不太理解，经过老师的解释终于理解了，并且知道为啥他们被重命名为“UNSAFE\_”了，哈哈。
+
+##### \*洋：
+
 > 思路清晰，稳得一匹，来自网友的弹幕666
 
-##### **8542：
+##### \*\*8542：
+
 > 16.3的生命周期是mounting：constructer，getdecrivedstatefromprops，render,componedidmount,更新阶段:getdecriviedstatefromprops,shouldcomponentupdate,render,getshotsnapbeforeupdate，componentdidupdate卸载componentwillunmount,生命周期的大调是在16.3版本里面的，16.4又做了一点点微调。16.3和16.4之间的区别是在16.3里面更新的时候只有props修改的时候才会进getdecrivestatefromprops，静态方法。16.4里面更新props.state.forcrupdate只要他们触发更新就会进这个方法。16.4和15之间的区别:废除了componentwillmount.componentwillupdate.componentwiistatefromprops.新增了两静态方法:getdecrivedstatefromprops.getshotsnapbeforeupdate调整的原因是15底层的diff算法是同步递归的只要进入元素对比就停不下来了，直到递归结束，此时渲染线程长时间被递归占领，浏览器容易卡顿，白屏。为了优化这和过程，react引入了fiber框架。他将diff过程拆解成无数个小任务，任务运行在协程上的，他是可打断可恢复的优势，异步
 
 ##### xzx：
+
 > 16.3到16.4的生命周期getDirevedStateFromProps的改动原因是啥。既然这个生命周期是专门为了给props映射到State用的，所以16.3的设计很合理，就是在props变更的时候调用
 
-##### **用户9471：
+##### \*\*用户9471：
+
 > 异步请求再怎么快也快不过（React 15 下）同步的生命周期,这句话为啥要特地强调react15下（react菜鸡弱弱提问）
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 因为这种用法在 React15 中最为严重，React16 因为官方声明了一部分生命周期是 unsafe 的，所以大家的习惯渐渐发生了改变。
 
-##### *凯：
+##### \*凯：
+
 > 强强强
 
-##### **用户5792：
+##### \*\*用户5792：
+
 > 娓娓道来，从what到why，老师太棒了
 
-##### *浩：
+##### \*浩：
+
 > 技术与文笔都是一流 👍
 
-##### **9668：
+##### \*\*9668：
+
 > nice!
 
-##### **涛：
+##### \*\*涛：
+
 > 写的很赞，对生命周期有了不一样的认识
 
-##### **男：
+##### \*\*男：
+
 > 哇，老师真的讲得不错~
 
-##### **廷：
+##### \*\*廷：
+
 > 讲的真好
 
-##### **晓：
+##### \*\*晓：
+
 > 这个why解释的真的让人豁然开朗
 
-##### **宇：
+##### \*\*宇：
+
 > 获益匪浅，谢谢老师
 
-##### **3133：
+##### \*\*3133：
+
 > 感谢老师剖析react设计哲学 学完豁然开朗
 
-##### **虎：
+##### \*\*虎：
+
 > 既有深度，又生动浅显易懂，大师级别的老师，很幸运能买到老师的课，并跟着老师学习
 
-##### **宇：
+##### \*\*宇：
+
 > 不错很有启发，仿佛明白为什么渲染的时候内存蹭蹭上涨了
 
 ##### console_man：
+
 > 秀妍大佬，太强啦
 
-##### **霞：
+##### \*\*霞：
+
 > 好棒好棒，对生命周期又有了新的理解
 
-##### **杰：
+##### \*\*杰：
+
 > 反复读了几次 ，有所收获😉
 
-##### **克：
+##### \*\*克：
+
 > 讲的太好了，必须得细细去品老师讲的内容。
 
-##### **威：
+##### \*\*威：
+
 > 老师讲得真好，比市面上的react书籍胜10万倍
 
-##### **静：
+##### \*\*静：
+
 > 看完这两个课时，感觉从背各种生命周期的阶段到了理解阶段，再也不会傻傻分不清了
 
-##### *甲：
+##### \*甲：
+
 > 老师讲得太好了，声音也好听
 
-##### **森：
+##### \*\*森：
+
 > 讲的是真好
 
-##### **林：
+##### \*\*林：
+
 > 讲的不错😀
 
-##### **论：
+##### \*\*论：
+
 > render阶段里的生命周期这句话如何理解呢？
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 是不是跳读了？答案就在这一讲的原文中：Fiber 架构的重要特征就是可以被打断的异步渲染模式。但这个“打断”是有原则的，根据“能否被打断”这一标准，React 16 的生命周期被划分为了 render 和 commit 两个阶段。render 阶段：纯净且没有副作用，可能会被 React 暂停、终止或重新启动。render 阶段包含的生命周期在原文的图示中哈。
 
-##### **论：
+##### \*\*论：
+
 > 强
 
-##### **明：
+##### \*\*明：
+
 > 受益匪浅！
 
-##### *宾：
+##### \*宾：
+
 > 写的也太好了吧，很清晰
 
-##### **环：
+##### \*\*环：
+
 > 学的很明白，感谢老师
 
-##### **光：
+##### \*\*光：
+
 > 激动人心
 
-##### **星：
+##### \*\*星：
+
 > 真的真的写得好棒
 
-##### *言：
+##### \*言：
+
 > 打卡 写的真好！
 
-##### *梅：
+##### \*梅：
+
 > 老师写得太赞了
 
-##### *旭：
+##### \*旭：
+
 > 打卡
 
-##### *敖：
+##### \*敖：
+
 > 大师，我悟了😁
 
-##### **洋：
+##### \*\*洋：
+
 > 下个课时见
 
-##### **康：
+##### \*\*康：
+
 > 写的太好了👍
 
-##### *阳：
-> 打卡
+##### \*阳：
 
+> 打卡

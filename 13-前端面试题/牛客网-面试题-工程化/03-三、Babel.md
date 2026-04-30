@@ -21,15 +21,18 @@ Babel 是 JS 编译器，将现代 JS 代码转换为向后兼容的版本。核
 **第一步：Parse（解析）**
 
 ```js
-const { parse } = require('@babel/parser');
+const { parse } = require("@babel/parser");
 
 // 将源码字符串解析成 AST
-const ast = parse(`
+const ast = parse(
+  `
   const greet = (name) => \`Hello, \${name}!\`;
-`, {
-  sourceType: 'module',    // 'script' | 'module'
-  plugins: ['jsx', 'typescript'],  // 启用语法插件（不转换，只解析）
-});
+`,
+  {
+    sourceType: "module", // 'script' | 'module'
+    plugins: ["jsx", "typescript"], // 启用语法插件（不转换，只解析）
+  },
+);
 
 // AST 节点示例（简化）：
 // {
@@ -53,8 +56,8 @@ const ast = parse(`
 **第二步：Transform（转换）**
 
 ```js
-const { traverse } = require('@babel/traverse');
-const t = require('@babel/types');
+const { traverse } = require("@babel/traverse");
+const t = require("@babel/types");
 
 // Babel 插件本质是一个工厂函数，返回包含 visitor 的对象
 // visitor 是一个对象，key 是 AST 节点类型，value 是访问该节点时的处理函数
@@ -63,18 +66,18 @@ const arrowFunctionPlugin = () => ({
     // 访问所有 ArrowFunctionExpression 节点
     ArrowFunctionExpression(path) {
       const { node } = path;
-      
+
       // 将箭头函数转换为普通函数表达式
       // t.functionExpression(id, params, body)
       const regularFunction = t.functionExpression(
-        null,           // 函数名（匿名）
-        node.params,    // 参数列表（复用）
+        null, // 函数名（匿名）
+        node.params, // 参数列表（复用）
         // 如果箭头函数体是表达式（不是块）需要包成 return 语句
         t.isBlockStatement(node.body)
           ? node.body
-          : t.blockStatement([t.returnStatement(node.body)])
+          : t.blockStatement([t.returnStatement(node.body)]),
       );
-      
+
       // path.replaceWith 替换当前节点
       path.replaceWith(regularFunction);
     },
@@ -88,13 +91,13 @@ traverse(ast, arrowFunctionPlugin().visitor);
 **第三步：Generate（生成）**
 
 ```js
-const generate = require('@babel/generator').default;
+const generate = require("@babel/generator").default;
 
 // 从修改后的 AST 生成代码字符串
 const { code, map } = generate(ast, {
-  sourceMaps: true,       // 同时生成 source map
-  sourceFileName: 'app.js',
-  comments: true,         // 保留注释
+  sourceMaps: true, // 同时生成 source map
+  sourceFileName: "app.js",
+  comments: true, // 保留注释
 });
 
 // 输出：
@@ -107,18 +110,16 @@ const { code, map } = generate(ast, {
 
 ```js
 // @babel/core 封装了完整流程
-const babel = require('@babel/core');
+const babel = require("@babel/core");
 
 const result = babel.transformSync(sourceCode, {
-  filename: 'app.ts',
+  filename: "app.ts",
   presets: [
-    ['@babel/preset-env', { targets: '> 0.25%, not dead' }],
-    '@babel/preset-typescript',
-    '@babel/preset-react',
+    ["@babel/preset-env", { targets: "> 0.25%, not dead" }],
+    "@babel/preset-typescript",
+    "@babel/preset-react",
   ],
-  plugins: [
-    ['@babel/plugin-proposal-decorators', { legacy: true }],
-  ],
+  plugins: [["@babel/plugin-proposal-decorators", { legacy: true }]],
 });
 
 // result.code → 转换后的代码
@@ -160,27 +161,29 @@ visitor: {
 // ✅ 配置 core-js polyfill
 // babel.config.js
 module.exports = {
-  presets: [[
-    '@babel/preset-env',
-    {
-      useBuiltIns: 'usage',  // 按需注入 polyfill（只注入用到的）
-      corejs: 3,             // 指定 core-js 版本
-    }
-  ]],
+  presets: [
+    [
+      "@babel/preset-env",
+      {
+        useBuiltIns: "usage", // 按需注入 polyfill（只注入用到的）
+        corejs: 3, // 指定 core-js 版本
+      },
+    ],
+  ],
 };
 // package.json 里需要安装 core-js@3
 
 // 坑2：@babel/preset-env 的 modules 设置影响 Tree Shaking
 // modules: 'commonjs'（或 'auto'）会把 ESM 转成 CJS，破坏 webpack Tree Shaking
 {
-  presets: [['@babel/preset-env', { modules: false }]] // ✅ 保持 ESM
+  presets: [["@babel/preset-env", { modules: false }]]; // ✅ 保持 ESM
 }
 
 // 坑3：装饰器插件必须在其他插件之前执行
 plugins: [
-  ['@babel/plugin-proposal-decorators', { legacy: true }],  // ← 必须在 class-properties 前
-  ['@babel/plugin-proposal-class-properties', { loose: true }],
-]
+  ["@babel/plugin-proposal-decorators", { legacy: true }], // ← 必须在 class-properties 前
+  ["@babel/plugin-proposal-class-properties", { loose: true }],
+];
 ```
 
 **🎯 面试追问**
@@ -206,10 +209,10 @@ plugins: [
 
 **答：**
 
-| 对比 | Plugin（插件）| Preset（预设）|
-|---|---|---|
+| 对比 | Plugin（插件） | Preset（预设） |
+| --- | --- | --- |
 | 定义 | 处理单个语法特性的最小转换单元 | 一组 Plugin 的集合 + 配置 |
-| 粒度 | 细（一个功能）| 粗（一类场景）|
+| 粒度 | 细（一个功能） | 粗（一类场景） |
 | 执行顺序 | 从前到后 | 从后到前 |
 | 示例 | `@babel/plugin-transform-arrow-functions` | `@babel/preset-env` |
 
@@ -219,46 +222,58 @@ module.exports = {
   // plugins 从前到后执行
   plugins: [
     // 单个插件（字符串）
-    '@babel/plugin-transform-runtime',
-    
+    "@babel/plugin-transform-runtime",
+
     // 带配置的插件（数组：[插件名, 配置对象]）
-    ['@babel/plugin-proposal-decorators', {
-      legacy: true,   // 使用旧版装饰器语义
-    }],
-    
+    [
+      "@babel/plugin-proposal-decorators",
+      {
+        legacy: true, // 使用旧版装饰器语义
+      },
+    ],
+
     // 按需导入（比如 babel-plugin-import 用于 antd 按需加载）
-    ['babel-plugin-import', {
-      libraryName: 'antd',
-      libraryDirectory: 'es',
-      style: 'css',
-    }],
+    [
+      "babel-plugin-import",
+      {
+        libraryName: "antd",
+        libraryDirectory: "es",
+        style: "css",
+      },
+    ],
   ],
-  
+
   // presets 从后到前执行
   // 执行顺序：@babel/preset-typescript → @babel/preset-react → @babel/preset-env
   presets: [
-    ['@babel/preset-env', {
-      targets: { browsers: ['> 1%', 'last 2 versions'] },
-      useBuiltIns: 'usage',
-      corejs: 3,
-      modules: false,  // 保留 ESM，让 webpack 做 tree shaking
-    }],
-    ['@babel/preset-react', {
-      runtime: 'automatic',  // React 17+ 不需要手动 import React
-    }],
-    '@babel/preset-typescript',
+    [
+      "@babel/preset-env",
+      {
+        targets: { browsers: ["> 1%", "last 2 versions"] },
+        useBuiltIns: "usage",
+        corejs: 3,
+        modules: false, // 保留 ESM，让 webpack 做 tree shaking
+      },
+    ],
+    [
+      "@babel/preset-react",
+      {
+        runtime: "automatic", // React 17+ 不需要手动 import React
+      },
+    ],
+    "@babel/preset-typescript",
   ],
 };
 ```
 
 **常用 preset 说明：**
 
-| Preset | 作用 |
-|---|---|
-| `@babel/preset-env` | 根据目标浏览器自动确定需要的语法转换和 polyfill |
-| `@babel/preset-react` | JSX 转换 + React 相关语法 |
-| `@babel/preset-typescript` | TS 类型剥除（不做类型检查）|
-| `@babel/preset-flow` | Flow 类型注解剥除 |
+| Preset                     | 作用                                            |
+| -------------------------- | ----------------------------------------------- |
+| `@babel/preset-env`        | 根据目标浏览器自动确定需要的语法转换和 polyfill |
+| `@babel/preset-react`      | JSX 转换 + React 相关语法                       |
+| `@babel/preset-typescript` | TS 类型剥除（不做类型检查）                     |
+| `@babel/preset-flow`       | Flow 类型注解剥除                               |
 
 **`@babel/plugin-transform-runtime` 的作用：**
 
@@ -284,10 +299,10 @@ Plugin 先于 Preset 执行，且 Preset 内部的 plugins 也有自己的顺序
 // ✅ 总是把类型相关的 preset 放在数组最后（最先执行）
 
 presets: [
-  '@babel/preset-env',         // 最后执行（处理已经是纯 JS 的代码）
-  '@babel/preset-react',       // 中间执行（处理 JSX）
-  '@babel/preset-typescript',  // ✅ 最先执行（先剥除类型）
-]
+  "@babel/preset-env", // 最后执行（处理已经是纯 JS 的代码）
+  "@babel/preset-react", // 中间执行（处理 JSX）
+  "@babel/preset-typescript", // ✅ 最先执行（先剥除类型）
+];
 ```
 
 **🎯 面试追问**

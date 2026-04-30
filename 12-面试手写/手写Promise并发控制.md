@@ -7,6 +7,7 @@
 ## 题目要求
 
 实现函数 `limitConcurrency(tasks, limit)`，满足：
+
 - `tasks`：异步任务函数数组，每个函数调用后返回 Promise
 - `limit`：最大并发数
 - 最多同时运行 `limit` 个 Promise
@@ -16,9 +17,9 @@
 ```typescript
 // 调用示例
 const tasks = [
-  () => fetch('/api/1'),
-  () => fetch('/api/2'),
-  () => fetch('/api/3'),
+  () => fetch("/api/1"),
+  () => fetch("/api/2"),
+  () => fetch("/api/3"),
   // ...100 个请求
 ];
 
@@ -46,6 +47,7 @@ const results = await limitConcurrency(tasks, 3); // 最多同时 3 个
 ```
 
 **关键点**：
+
 - 用递归"自补位"：任务完成后，同一个槽位立刻认领下一个任务
 - 保持原始顺序：用 `results[index]` 按索引存结果，而非 push
 
@@ -62,7 +64,7 @@ const results = await limitConcurrency(tasks, 3); // 最多同时 3 个
 ```typescript
 async function limitConcurrency<T>(
   tasks: (() => Promise<T>)[],
-  limit: number
+  limit: number,
 ): Promise<PromiseSettledResult<T>[]> {
   const results: PromiseSettledResult<T>[] = new Array(tasks.length);
   let currentIndex = 0; // 下一个待执行任务的索引
@@ -70,20 +72,19 @@ async function limitConcurrency<T>(
   // 每个"worker"代表一个并发槽位，不断认领任务直到队列为空
   async function worker() {
     while (currentIndex < tasks.length) {
-      const index = currentIndex++;  // 原子性地认领当前索引
+      const index = currentIndex++; // 原子性地认领当前索引
       try {
         const value = await tasks[index]();
-        results[index] = { status: 'fulfilled', value };
+        results[index] = { status: "fulfilled", value };
       } catch (reason) {
-        results[index] = { status: 'rejected', reason };
+        results[index] = { status: "rejected", reason };
       }
     }
   }
 
   // 启动 limit 个 worker，并发运行
-  const workers = Array.from(
-    { length: Math.min(limit, tasks.length) },
-    () => worker()
+  const workers = Array.from({ length: Math.min(limit, tasks.length) }, () =>
+    worker(),
   );
 
   await Promise.all(workers);
@@ -96,7 +97,7 @@ async function limitConcurrency<T>(
 ```typescript
 async function limitConcurrency2<T>(
   tasks: (() => Promise<T>)[],
-  limit: number
+  limit: number,
 ): Promise<T[]> {
   const results: T[] = [];
   const running = new Set<Promise<void>>();
@@ -107,14 +108,14 @@ async function limitConcurrency2<T>(
 
     // 将任务包装，完成后从 running 中移除自身
     const p: Promise<void> = task().then(
-      result => {
+      (result) => {
         results[index] = result;
         running.delete(p);
       },
-      err => {
+      (err) => {
         running.delete(p);
         throw err; // 如需 allSettled 语义，这里改为存 rejected 结果
-      }
+      },
     );
 
     running.add(p);
@@ -143,7 +144,7 @@ class ConcurrencyLimit {
   async run<T>(task: () => Promise<T>): Promise<T> {
     // 如果并发已满，进入等待队列
     if (this.running >= this.limit) {
-      await new Promise<void>(resolve => this.queue.push(resolve));
+      await new Promise<void>((resolve) => this.queue.push(resolve));
     }
 
     this.running++;
@@ -159,9 +160,7 @@ class ConcurrencyLimit {
 
 // 使用方式
 const limiter = new ConcurrencyLimit(3);
-const results = await Promise.all(
-  tasks.map(task => limiter.run(task))
-);
+const results = await Promise.all(tasks.map((task) => limiter.run(task)));
 ```
 
 ---
@@ -172,7 +171,7 @@ const results = await Promise.all(
 // 模拟耗时任务
 function delay(ms: number, id: number): () => Promise<string> {
   return () =>
-    new Promise(resolve => setTimeout(() => resolve(`task-${id}`), ms));
+    new Promise((resolve) => setTimeout(() => resolve(`task-${id}`), ms));
 }
 
 // 测试 1：基础并发限制
@@ -183,7 +182,7 @@ async function test1() {
   const tasks = [100, 200, 150, 80, 120].map((ms, i) => {
     return () => {
       startTimes[i] = Date.now();
-      return delay(ms, i)().then(result => {
+      return delay(ms, i)().then((result) => {
         endTimes[i] = Date.now();
         return result;
       });
@@ -194,7 +193,10 @@ async function test1() {
   const results = await limitConcurrency(tasks, 2);
   const total = Date.now() - start;
 
-  console.log('results:', results.map(r => r.status === 'fulfilled' ? r.value : r.reason));
+  console.log(
+    "results:",
+    results.map((r) => (r.status === "fulfilled" ? r.value : r.reason)),
+  );
   // 预期：['task-0', 'task-1', 'task-2', 'task-3', 'task-4']（顺序保持）
   console.log(`total time: ${total}ms`);
   // limit=2, 最优路径约 300ms（slot1: 100+150=250, slot2: 200+80+120=400 → 约400ms）
@@ -203,9 +205,9 @@ async function test1() {
 // 测试 2：错误处理
 async function test2() {
   const tasks = [
-    () => Promise.resolve('ok-1'),
-    () => Promise.reject(new Error('fail!')),
-    () => Promise.resolve('ok-3'),
+    () => Promise.resolve("ok-1"),
+    () => Promise.reject(new Error("fail!")),
+    () => Promise.resolve("ok-3"),
   ];
 
   const results = await limitConcurrency(tasks, 2);
@@ -219,9 +221,9 @@ async function test2() {
 
 // 测试 3：limit 大于任务数
 async function test3() {
-  const tasks = [1, 2, 3].map(i => () => Promise.resolve(i));
+  const tasks = [1, 2, 3].map((i) => () => Promise.resolve(i));
   const results = await limitConcurrency(tasks, 10); // limit > tasks.length
-  console.log(results.map(r => r.status === 'fulfilled' && r.value));
+  console.log(results.map((r) => r.status === "fulfilled" && r.value));
   // [1, 2, 3]
 }
 
@@ -240,7 +242,7 @@ test3();
 // 用 AbortController 实现可取消版本
 async function limitConcurrencyWithAbort<T>(
   tasks: ((signal: AbortSignal) => Promise<T>)[],
-  limit: number
+  limit: number,
 ): Promise<T[]> {
   const controller = new AbortController();
   const results: T[] = new Array(tasks.length);
@@ -254,9 +256,8 @@ async function limitConcurrencyWithAbort<T>(
   }
 
   try {
-    const workers = Array.from(
-      { length: Math.min(limit, tasks.length) },
-      () => worker()
+    const workers = Array.from({ length: Math.min(limit, tasks.length) }, () =>
+      worker(),
     );
     await Promise.all(workers);
     return results;
@@ -277,7 +278,10 @@ class RateLimiter {
   private tokens: number;
   private lastRefill: number;
 
-  constructor(private maxTokens: number, private interval: number) {
+  constructor(
+    private maxTokens: number,
+    private interval: number,
+  ) {
     this.tokens = maxTokens;
     this.lastRefill = Date.now();
   }
@@ -285,7 +289,10 @@ class RateLimiter {
   async acquire(): Promise<void> {
     const now = Date.now();
     const elapsed = now - this.lastRefill;
-    this.tokens = Math.min(this.maxTokens, this.tokens + (elapsed / this.interval) * this.maxTokens);
+    this.tokens = Math.min(
+      this.maxTokens,
+      this.tokens + (elapsed / this.interval) * this.maxTokens,
+    );
     this.lastRefill = now;
 
     if (this.tokens >= 1) {
@@ -294,7 +301,7 @@ class RateLimiter {
     }
 
     // 等待令牌补充
-    await new Promise(resolve => setTimeout(resolve, this.interval));
+    await new Promise((resolve) => setTimeout(resolve, this.interval));
     return this.acquire();
   }
 }
@@ -307,13 +314,13 @@ class RateLimiter {
 ### Q4：Node.js 环境下如何限制文件 IO 并发？
 
 ```typescript
-import pLimit from 'p-limit';
-import { readFile } from 'fs/promises';
+import pLimit from "p-limit";
+import { readFile } from "fs/promises";
 
 const limit = pLimit(5); // 最多同时读 5 个文件
 
-const files = ['a.txt', 'b.txt', /* ... */ 'z.txt'];
+const files = ["a.txt", "b.txt", /* ... */ "z.txt"];
 const contents = await Promise.all(
-  files.map(f => limit(() => readFile(f, 'utf8')))
+  files.map((f) => limit(() => readFile(f, "utf8"))),
 );
 ```

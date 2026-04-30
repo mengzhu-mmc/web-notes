@@ -14,7 +14,7 @@ iPhone 14 的 DPR = 3，意味着 CSS 写的 `1px` 实际由 3×3 = 9 个物理�
 
 ```javascript
 // 获取 DPR
-window.devicePixelRatio // iPhone 14 返回 3
+window.devicePixelRatio; // iPhone 14 返回 3
 ```
 
 ---
@@ -34,7 +34,7 @@ window.devicePixelRatio // iPhone 14 返回 3
   position: relative;
 }
 .border-1px::after {
-  content: '';
+  content: "";
   position: absolute;
   left: 0;
   bottom: 0;
@@ -52,9 +52,10 @@ window.devicePixelRatio // iPhone 14 返回 3
 
 ```css
 .border-1px::after {
-  content: '';
+  content: "";
   position: absolute;
-  top: 0; left: 0;
+  top: 0;
+  left: 0;
   width: 200%; /* 放大2倍 */
   height: 200%;
   border: 1px solid #e5e5e5;
@@ -70,13 +71,13 @@ window.devicePixelRatio // iPhone 14 返回 3
 
 ```html
 <!-- 根据 DPR 动态设置 viewport 缩放 -->
-<meta name="viewport" content="width=device-width, initial-scale=0.5">
+<meta name="viewport" content="width=device-width, initial-scale=0.5" />
 ```
 
 ```javascript
 const dpr = window.devicePixelRatio;
-const meta = document.querySelector('meta[name=viewport]');
-meta.setAttribute('content', `width=device-width, initial-scale=${1/dpr}`);
+const meta = document.querySelector("meta[name=viewport]");
+meta.setAttribute("content", `width=device-width, initial-scale=${1 / dpr}`);
 ```
 
 **原理**：把整个页面缩小 1/DPR，所有尺寸按物理像素精确渲染。  
@@ -87,7 +88,8 @@ meta.setAttribute('content', `width=device-width, initial-scale=${1/dpr}`);
 ```css
 .border-1px {
   border: 1px solid transparent;
-  border-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg'><rect width='100%' height='100%' fill='none' stroke='%23E5E5E5' stroke-width='0.5'/></svg>") 1 stretch;
+  border-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg'><rect width='100%' height='100%' fill='none' stroke='%23E5E5E5' stroke-width='0.5'/></svg>")
+    1 stretch;
 }
 ```
 
@@ -113,13 +115,13 @@ meta.setAttribute('content', `width=device-width, initial-scale=${1/dpr}`);
 
 ### 方案对比
 
-| 方案 | 适用场景 | 兼容性 | 推荐度 |
-|------|---------|--------|--------|
-| `scaleY(0.5)` | 单条边 | ✅ 全兼容 | ⭐⭐⭐⭐⭐ |
-| `scale(0.5)` 四边 | 四条边+圆角 | ✅ 全兼容 | ⭐⭐⭐⭐ |
-| viewport 缩放 | 整体项目 | ✅ 全兼容 | ⭐⭐⭐（改造成本高） |
-| `0.5px` | iOS H5 | ❌ 仅 iOS | ⭐⭐ |
-| box-shadow | 简单场景 | ⚠️ 部分安卓有问题 | ⭐⭐⭐ |
+| 方案              | 适用场景    | 兼容性            | 推荐度               |
+| ----------------- | ----------- | ----------------- | -------------------- |
+| `scaleY(0.5)`     | 单条边      | ✅ 全兼容         | ⭐⭐⭐⭐⭐           |
+| `scale(0.5)` 四边 | 四条边+圆角 | ✅ 全兼容         | ⭐⭐⭐⭐             |
+| viewport 缩放     | 整体项目    | ✅ 全兼容         | ⭐⭐⭐（改造成本高） |
+| `0.5px`           | iOS H5      | ❌ 仅 iOS         | ⭐⭐                 |
+| box-shadow        | 简单场景    | ⚠️ 部分安卓有问题 | ⭐⭐⭐               |
 
 ---
 
@@ -133,14 +135,14 @@ meta.setAttribute('content', `width=device-width, initial-scale=${1/dpr}`);
 
 ```javascript
 // 设计稿 750px，基准 100px
-(function() {
+(function () {
   function setRem() {
     const clientWidth = document.documentElement.clientWidth;
     // 750px 设计稿 → 根字体 100px，其他按比例
-    document.documentElement.style.fontSize = 100 * (clientWidth / 750) + 'px';
+    document.documentElement.style.fontSize = 100 * (clientWidth / 750) + "px";
   }
   setRem();
-  window.addEventListener('resize', setRem);
+  window.addEventListener("resize", setRem);
 })();
 ```
 
@@ -167,19 +169,21 @@ meta.setAttribute('content', `width=device-width, initial-scale=${1/dpr}`);
 
 ```javascript
 // vite.config.js
-import pxToViewport from 'postcss-px-to-viewport';
+import pxToViewport from "postcss-px-to-viewport";
 export default {
   css: {
     postcss: {
-      plugins: [pxToViewport({
-        viewportWidth: 750, // 设计稿宽度
-        unitPrecision: 5,
-        viewportUnit: 'vw',
-        exclude: [/node_modules/]
-      })]
-    }
-  }
-}
+      plugins: [
+        pxToViewport({
+          viewportWidth: 750, // 设计稿宽度
+          unitPrecision: 5,
+          viewportUnit: "vw",
+          exclude: [/node_modules/],
+        }),
+      ],
+    },
+  },
+};
 ```
 
 **优点**：纯 CSS，无需 JS，代码直观  
@@ -189,13 +193,20 @@ export default {
 
 ```css
 /* 移动端优先 */
-.container { width: 100%; }
+.container {
+  width: 100%;
+}
 
 @media (min-width: 768px) {
-  .container { max-width: 750px; margin: 0 auto; }
+  .container {
+    max-width: 750px;
+    margin: 0 auto;
+  }
 }
 @media (min-width: 1024px) {
-  .container { max-width: 1200px; }
+  .container {
+    max-width: 1200px;
+  }
 }
 ```
 
@@ -205,12 +216,12 @@ export default {
 
 ### 方案对比
 
-| 方案 | 适用场景 | 推荐度 |
-|------|---------|--------|
-| vw/vh + PostCSS | 移动端 H5，新项目首选 | ⭐⭐⭐⭐⭐ |
-| rem + JS | 兼容性要求高的老项目 | ⭐⭐⭐⭐ |
-| 媒体查询 | PC端响应式、多断点布局 | ⭐⭐⭐ |
-| Flexible.js | 已废弃，了解即可 | ⭐⭐ |
+| 方案            | 适用场景               | 推荐度     |
+| --------------- | ---------------------- | ---------- |
+| vw/vh + PostCSS | 移动端 H5，新项目首选  | ⭐⭐⭐⭐⭐ |
+| rem + JS        | 兼容性要求高的老项目   | ⭐⭐⭐⭐   |
+| 媒体查询        | PC端响应式、多断点布局 | ⭐⭐⭐     |
+| Flexible.js     | 已废弃，了解即可       | ⭐⭐       |
 
 ---
 
@@ -221,15 +232,21 @@ export default {
 原因：早期移动端浏览器等待 300ms 判断是否双击缩放。
 
 解决：
+
 ```html
 <!-- 禁用缩放，浏览器直接取消 300ms 延迟 -->
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1, maximum-scale=1"
+/>
 ```
 
 或使用 `touch-action: manipulation`：
 
 ```css
-html { touch-action: manipulation; }
+html {
+  touch-action: manipulation;
+}
 ```
 
 ### iOS 安全区域（刘海屏）
@@ -243,8 +260,9 @@ html { touch-action: manipulation; }
 ```
 
 HTML 需开启：
+
 ```html
-<meta name="viewport" content="viewport-fit=cover">
+<meta name="viewport" content="viewport-fit=cover" />
 ```
 
 ### 滚动回弹（橡皮筋效果）

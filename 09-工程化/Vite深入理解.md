@@ -7,7 +7,7 @@
 ### 1.1 核心差异
 
 | 维度 | Webpack | Vite |
-|------|---------|------|
+| --- | --- | --- |
 | 开发模式 | 先打包再启动（Bundle-based） | 原生 ESM，按需编译（No-bundle） |
 | 生产构建 | Webpack 自身 | Rollup |
 | 预处理 | 所有模块先经过 loader → 打包 | 仅预构建依赖（esbuild） |
@@ -28,6 +28,7 @@ Vite:
 ```
 
 浏览器支持 `<script type="module">`，Vite 利用这一特性：
+
 1. 开发服务器直接以 ESM 格式提供源码
 2. 浏览器负责模块的加载和拼装
 3. Vite 只需要转译被请求的文件（按需）
@@ -61,12 +62,12 @@ Vite Dev Server 处理流程:
 
 ```javascript
 // 源码
-import { useState } from 'react';
-import dayjs from 'dayjs';
+import { useState } from "react";
+import dayjs from "dayjs";
 
 // Vite 重写后
-import { useState } from '/node_modules/.vite/deps/react.js?v=abc123';
-import dayjs from '/node_modules/.vite/deps/dayjs.js?v=def456';
+import { useState } from "/node_modules/.vite/deps/react.js?v=abc123";
+import dayjs from "/node_modules/.vite/deps/dayjs.js?v=def456";
 // 指向预构建产物，而非 node_modules 里的原始文件
 ```
 
@@ -127,16 +128,16 @@ esbuild（Go）vs Babel/Webpack（JavaScript）:
 export default defineConfig({
   optimizeDeps: {
     // 强制包含（自动扫描可能遗漏的依赖）
-    include: ['lodash-es', 'axios'],
+    include: ["lodash-es", "axios"],
 
     // 排除（如已是 ESM 的包，不需要预构建）
-    exclude: ['@vueuse/core'],
+    exclude: ["@vueuse/core"],
 
     // esbuild 选项
     esbuildOptions: {
-      target: 'es2020',
+      target: "es2020",
       // 处理 JSX
-      loader: { '.js': 'jsx' },
+      loader: { ".js": "jsx" },
     },
   },
 });
@@ -166,11 +167,11 @@ if (import.meta.hot) {
   // 接受自身更新
   import.meta.hot.accept((newModule) => {
     // 用新模块替换旧的
-    console.log('Module updated:', newModule);
+    console.log("Module updated:", newModule);
   });
 
   // 接受依赖更新
-  import.meta.hot.accept('./module.ts', (newModule) => {
+  import.meta.hot.accept("./module.ts", (newModule) => {
     // ./module.ts 变更时触发
   });
 
@@ -212,15 +213,15 @@ Vue: @vitejs/plugin-vue
 
 ```typescript
 // vite.config.ts
-import { defineConfig } from 'vite';
+import { defineConfig } from "vite";
 
 export default defineConfig({
   build: {
     // 构建目标
-    target: 'es2020', // 或 'modules'（支持 ESM 的浏览器）
+    target: "es2020", // 或 'modules'（支持 ESM 的浏览器）
 
     // 输出目录
-    outDir: 'dist',
+    outDir: "dist",
 
     // 资源内联阈值（小于此大小的资源转为 base64）
     assetsInlineLimit: 4096, // 4KB
@@ -237,32 +238,32 @@ export default defineConfig({
     // Rollup 选项
     rollupOptions: {
       input: {
-        main: 'index.html',
-        admin: 'admin.html', // 多页面
+        main: "index.html",
+        admin: "admin.html", // 多页面
       },
       output: {
         // 手动分 chunk
         manualChunks: {
-          vendor: ['react', 'react-dom'],
-          utils: ['lodash-es', 'dayjs'],
+          vendor: ["react", "react-dom"],
+          utils: ["lodash-es", "dayjs"],
         },
         // 或函数形式
         manualChunks(id) {
-          if (id.includes('node_modules')) {
-            if (id.includes('react')) return 'react-vendor';
-            if (id.includes('lodash') || id.includes('dayjs')) return 'utils';
-            return 'vendor';
+          if (id.includes("node_modules")) {
+            if (id.includes("react")) return "react-vendor";
+            if (id.includes("lodash") || id.includes("dayjs")) return "utils";
+            return "vendor";
           }
         },
         // 文件名格式
-        entryFileNames: 'assets/[name]-[hash].js',
-        chunkFileNames: 'assets/[name]-[hash].js',
-        assetFileNames: 'assets/[name]-[hash].[ext]',
+        entryFileNames: "assets/[name]-[hash].js",
+        chunkFileNames: "assets/[name]-[hash].js",
+        assetFileNames: "assets/[name]-[hash].[ext]",
       },
     },
 
     // 压缩方式
-    minify: 'esbuild', // 'esbuild' | 'terser' | false
+    minify: "esbuild", // 'esbuild' | 'terser' | false
     // esbuild 快但不支持某些高级压缩；terser 更全面但慢
   },
 });
@@ -272,12 +273,12 @@ export default defineConfig({
 
 ```typescript
 // 使用 @vitejs/plugin-legacy 支持旧浏览器
-import legacy from '@vitejs/plugin-legacy';
+import legacy from "@vitejs/plugin-legacy";
 
 export default defineConfig({
   plugins: [
     legacy({
-      targets: ['> 1%', 'last 2 versions', 'not dead'],
+      targets: ["> 1%", "last 2 versions", "not dead"],
       // 自动生成 legacy chunk + polyfills
       // 现代浏览器加载 ESM 版本，旧浏览器加载 legacy 版本
     }),
@@ -293,9 +294,9 @@ export default defineConfig({
 
 ```typescript
 // vite.config.ts
-import { defineConfig, loadEnv } from 'vite';
-import react from '@vitejs/plugin-react';
-import path from 'path';
+import { defineConfig, loadEnv } from "vite";
+import react from "@vitejs/plugin-react";
+import path from "path";
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd());
@@ -307,8 +308,8 @@ export default defineConfig(({ mode }) => {
     // 路径别名
     resolve: {
       alias: {
-        '@': path.resolve(__dirname, 'src'),
-        '@components': path.resolve(__dirname, 'src/components'),
+        "@": path.resolve(__dirname, "src"),
+        "@components": path.resolve(__dirname, "src/components"),
       },
     },
 
@@ -318,10 +319,10 @@ export default defineConfig(({ mode }) => {
       open: true,
       // 代理配置
       proxy: {
-        '/api': {
-          target: env.VITE_API_URL || 'http://localhost:8080',
+        "/api": {
+          target: env.VITE_API_URL || "http://localhost:8080",
           changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/api/, ''),
+          rewrite: (path) => path.replace(/^\/api/, ""),
         },
       },
     },
@@ -329,7 +330,7 @@ export default defineConfig(({ mode }) => {
     // CSS 配置
     css: {
       modules: {
-        localsConvention: 'camelCase', // CSS Modules 类名转驼峰
+        localsConvention: "camelCase", // CSS Modules 类名转驼峰
       },
       preprocessorOptions: {
         scss: {
@@ -337,13 +338,13 @@ export default defineConfig(({ mode }) => {
         },
         less: {
           javascriptEnabled: true,
-          modifyVars: { '@primary-color': '#1890ff' }, // antd 主题
+          modifyVars: { "@primary-color": "#1890ff" }, // antd 主题
         },
       },
     },
 
     // 环境变量前缀
-    envPrefix: 'VITE_',
+    envPrefix: "VITE_",
   };
 });
 ```
@@ -352,25 +353,25 @@ export default defineConfig(({ mode }) => {
 
 ```typescript
 // 自动导入 API
-import AutoImport from 'unplugin-auto-import/vite';
+import AutoImport from "unplugin-auto-import/vite";
 // 组件自动注册
-import Components from 'unplugin-vue-components/vite';
+import Components from "unplugin-vue-components/vite";
 // SVG 组件化
-import svgr from 'vite-plugin-svgr';
+import svgr from "vite-plugin-svgr";
 // 打包分析
-import { visualizer } from 'rollup-plugin-visualizer';
+import { visualizer } from "rollup-plugin-visualizer";
 // 压缩（gzip/brotli）
-import compression from 'vite-plugin-compression';
+import compression from "vite-plugin-compression";
 // Mock
-import { viteMockServe } from 'vite-plugin-mock';
+import { viteMockServe } from "vite-plugin-mock";
 // PWA
-import { VitePWA } from 'vite-plugin-pwa';
+import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig({
   plugins: [
     react(),
     svgr(),
-    compression({ algorithm: 'gzip' }),
+    compression({ algorithm: "gzip" }),
     visualizer({ open: true, gzipSize: true }),
   ],
 });
@@ -393,7 +394,7 @@ VITE_API_URL=https://api.example.com
 // 使用
 console.log(import.meta.env.VITE_API_URL);
 console.log(import.meta.env.MODE); // 'development' | 'production'
-console.log(import.meta.env.DEV);  // boolean
+console.log(import.meta.env.DEV); // boolean
 console.log(import.meta.env.PROD); // boolean
 
 // 类型声明（src/env.d.ts）

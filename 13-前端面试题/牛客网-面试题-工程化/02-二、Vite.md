@@ -108,14 +108,15 @@ Vite 的 Koa 中间件拦截
 浏览器原生 ESM 加载的最大问题：每个 `import` 都是一个 HTTP 请求，如果依赖链很深，会有大量串行请求（A → B → C → D...），造成"请求瀑布"。
 
 Vite 的解法：
+
 1. **依赖预构建**：把 node_modules 里的依赖合并，减少请求数
 2. **HTTP/2 Push**：服务端提前推送依赖
 3. **模块预加载（modulepreload）**：在 `<link rel="modulepreload">` 提前声明所有依赖
 
 ```html
 <!-- Vite 生成的 modulepreload 标签 -->
-<link rel="modulepreload" href="/src/App.vue">
-<link rel="modulepreload" href="/src/router/index.ts">
+<link rel="modulepreload" href="/src/App.vue" />
+<link rel="modulepreload" href="/src/router/index.ts" />
 ```
 
 **💡 踩坑点**
@@ -124,7 +125,9 @@ Vite 的解法：
 // 坑1：第一次启动后某些依赖没被预构建，动态 import 触发时才发现
 // 导致页面出现短暂的多请求或重新刷新
 // ✅ 手动 include 进 optimizeDeps
-optimizeDeps: { include: ['some-deep-dependency'] }
+optimizeDeps: {
+  include: ["some-deep-dependency"];
+}
 
 // 坑2：Vite 不支持直接 require()（Node.js CJS 语法）
 // ❌ const fs = require('fs') 在浏览器模块里不可用
@@ -138,7 +141,7 @@ optimizeDeps: { include: ['some-deep-dependency'] }
 // 坑4：动态 import 里的变量路径，Vite 和 webpack 行为不同
 // Vite 要求路径包含文件扩展名，且不能完全是动态变量
 const module = await import(`./pages/${page}.vue`); // ✅ Vite 支持有限的动态路径
-const module = await import(dynamicPath);            // ❌ 完全动态路径不支持
+const module = await import(dynamicPath); // ❌ 完全动态路径不支持
 ```
 
 **🎯 面试追问**
@@ -165,16 +168,16 @@ const module = await import(dynamicPath);            // ❌ 完全动态路径�
 **答：**
 
 | 维度 | Webpack | Vite |
-|---|---|---|
-| **开发启动** | 全量打包后启动（慢，几秒~几分钟）| 即时启动，按需编译（快，<1s）|
-| **开发 HMR** | 重编译 chunk（几百ms）| 精确模块替换（<50ms）|
-| **生产构建** | webpack 自己的打包 | Rollup 打包（产物更优）|
+| --- | --- | --- |
+| **开发启动** | 全量打包后启动（慢，几秒~几分钟） | 即时启动，按需编译（快，<1s） |
+| **开发 HMR** | 重编译 chunk（几百ms） | 精确模块替换（<50ms） |
+| **生产构建** | webpack 自己的打包 | Rollup 打包（产物更优） |
 | **底层语言** | JS | esbuild（Go）做转换，Rollup（JS）做打包 |
-| **配置复杂度** | 高（loader/plugin/optimization）| 低（约定优先，开箱即用）|
-| **生态** | 极其丰富（10+ 年积累）| 快速增长（2021 起）|
+| **配置复杂度** | 高（loader/plugin/optimization） | 低（约定优先，开箱即用） |
+| **生态** | 极其丰富（10+ 年积累） | 快速增长（2021 起） |
 | **兼容性** | 可配置支持 IE11 | 默认不支持 IE，需 @vitejs/plugin-legacy |
 | **SSR 支持** | 需要额外配置 | 内置 SSR 模式 |
-| **微前端** | Module Federation（成熟）| vite-plugin-federation（较新）|
+| **微前端** | Module Federation（成熟） | vite-plugin-federation（较新） |
 
 **选型建议：**
 
@@ -214,7 +217,7 @@ const module = await import(dynamicPath);            // ❌ 完全动态路径�
 const API = process.env.REACT_APP_API_URL; // Create React App 约定
 
 // Vite:
-const API = import.meta.env.VITE_API_URL;  // 必须以 VITE_ 开头才暴露给客户端
+const API = import.meta.env.VITE_API_URL; // 必须以 VITE_ 开头才暴露给客户端
 
 // 坑3：Vite 默认不处理 .env 文件里的 BASE_URL 等系统变量
 // 需要显式配置 envPrefix

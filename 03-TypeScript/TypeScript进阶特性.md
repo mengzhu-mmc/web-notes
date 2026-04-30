@@ -20,8 +20,8 @@
 function identity<T>(arg: T): T {
   return arg;
 }
-identity<string>('hello'); // 显式指定
-identity(42);              // 类型推断
+identity<string>("hello"); // 显式指定
+identity(42); // 类型推断
 
 // 泛型接口
 interface ApiResponse<T> {
@@ -33,8 +33,8 @@ interface ApiResponse<T> {
 // 使用
 const userResponse: ApiResponse<{ name: string; age: number }> = {
   code: 200,
-  message: 'success',
-  data: { name: '张三', age: 25 }
+  message: "success",
+  data: { name: "张三", age: 25 },
 };
 ```
 
@@ -45,17 +45,17 @@ const userResponse: ApiResponse<{ name: string; age: number }> = {
 function getLength<T extends { length: number }>(arg: T): number {
   return arg.length;
 }
-getLength('hello');  // ✅
+getLength("hello"); // ✅
 getLength([1, 2, 3]); // ✅
-getLength(42);        // ❌ number 没有 length
+getLength(42); // ❌ number 没有 length
 
 // keyof 约束：K 必须是 T 的键
 function getProperty<T, K extends keyof T>(obj: T, key: K): T[K] {
   return obj[key];
 }
-const user = { name: '张三', age: 25 };
-getProperty(user, 'name'); // ✅ 返回 string
-getProperty(user, 'xxx');  // ❌ 编译错误
+const user = { name: "张三", age: 25 };
+getProperty(user, "name"); // ✅ 返回 string
+getProperty(user, "xxx"); // ❌ 编译错误
 
 // 多个泛型参数
 function merge<T extends object, U extends object>(obj1: T, obj2: U): T & U {
@@ -117,11 +117,11 @@ type ReadonlyUser = Readonly<User>;
 // { readonly id: number; readonly name: string; ... }
 
 // Pick<T, K>：选取指定属性
-type UserPreview = Pick<User, 'id' | 'name'>;
+type UserPreview = Pick<User, "id" | "name">;
 // { id: number; name: string }
 
 // Omit<T, K>：排除指定属性
-type UserWithoutId = Omit<User, 'id'>;
+type UserWithoutId = Omit<User, "id">;
 // { name: string; email: string; age?: number }
 
 // Record<K, V>：创建键值对类型
@@ -129,24 +129,30 @@ type UserMap = Record<string, User>;
 // { [key: string]: User }
 
 // Exclude<T, U>：从联合类型中排除
-type T1 = Exclude<'a' | 'b' | 'c', 'a' | 'b'>; // 'c'
+type T1 = Exclude<"a" | "b" | "c", "a" | "b">; // 'c'
 
 // Extract<T, U>：从联合类型中提取
-type T2 = Extract<'a' | 'b' | 'c', 'a' | 'b'>; // 'a' | 'b'
+type T2 = Extract<"a" | "b" | "c", "a" | "b">; // 'a' | 'b'
 
 // NonNullable<T>：排除 null 和 undefined
 type T3 = NonNullable<string | null | undefined>; // string
 
 // ReturnType<T>：获取函数返回值类型
-function fetchUser(): Promise<User> { /* ... */ }
+function fetchUser(): Promise<User> {
+  /* ... */
+}
 type FetchResult = ReturnType<typeof fetchUser>; // Promise<User>
 
 // Parameters<T>：获取函数参数类型
-function createUser(name: string, age: number): User { /* ... */ }
+function createUser(name: string, age: number): User {
+  /* ... */
+}
 type CreateParams = Parameters<typeof createUser>; // [string, number]
 
 // InstanceType<T>：获取构造函数实例类型
-class MyClass { value = 42; }
+class MyClass {
+  value = 42;
+}
 type MyInstance = InstanceType<typeof MyClass>; // MyClass
 ```
 
@@ -156,18 +162,21 @@ type MyInstance = InstanceType<typeof MyClass>; // MyClass
 
 ```typescript
 // 基础条件类型
-type IsString<T> = T extends string ? 'yes' : 'no';
+type IsString<T> = T extends string ? "yes" : "no";
 type A = IsString<string>; // 'yes'
 type B = IsString<number>; // 'no'
 
 // infer：在条件类型中推断类型
 type UnpackPromise<T> = T extends Promise<infer U> ? U : T;
 type C = UnpackPromise<Promise<string>>; // string
-type D = UnpackPromise<number>;          // number
+type D = UnpackPromise<number>; // number
 
 // 获取函数返回值（手写 ReturnType）
-type MyReturnType<T extends (...args: any) => any> =
-  T extends (...args: any) => infer R ? R : never;
+type MyReturnType<T extends (...args: any) => any> = T extends (
+  ...args: any
+) => infer R
+  ? R
+  : never;
 
 // 分布式条件类型
 type ToArray<T> = T extends any ? T[] : never;
@@ -203,7 +212,10 @@ type Getters<T> = {
   [K in keyof T as `get${Capitalize<string & K>}`]: () => T[K];
 };
 
-interface Person { name: string; age: number; }
+interface Person {
+  name: string;
+  age: number;
+}
 type PersonGetters = Getters<Person>;
 // { getName: () => string; getAge: () => number }
 ```
@@ -215,15 +227,19 @@ type PersonGetters = Getters<Person>;
 ```typescript
 // 1. typeof 守卫
 function processValue(value: string | number) {
-  if (typeof value === 'string') {
+  if (typeof value === "string") {
     return value.toUpperCase(); // 这里 value 是 string
   }
   return value.toFixed(2); // 这里 value 是 number
 }
 
 // 2. instanceof 守卫
-class Dog { bark() {} }
-class Cat { meow() {} }
+class Dog {
+  bark() {}
+}
+class Cat {
+  meow() {}
+}
 
 function makeSound(animal: Dog | Cat) {
   if (animal instanceof Dog) {
@@ -234,20 +250,24 @@ function makeSound(animal: Dog | Cat) {
 }
 
 // 3. in 守卫
-interface Fish { swim(): void; }
-interface Bird { fly(): void; }
+interface Fish {
+  swim(): void;
+}
+interface Bird {
+  fly(): void;
+}
 
 function move(animal: Fish | Bird) {
-  if ('swim' in animal) {
+  if ("swim" in animal) {
     animal.swim(); // Fish
   } else {
-    animal.fly();  // Bird
+    animal.fly(); // Bird
   }
 }
 
 // 4. 自定义类型守卫（is 关键字）
 function isString(value: unknown): value is string {
-  return typeof value === 'string';
+  return typeof value === "string";
 }
 
 function processUnknown(value: unknown) {
@@ -258,8 +278,8 @@ function processUnknown(value: unknown) {
 
 // 5. 断言函数（asserts）
 function assertIsString(value: unknown): asserts value is string {
-  if (typeof value !== 'string') {
-    throw new Error('Not a string!');
+  if (typeof value !== "string") {
+    throw new Error("Not a string!");
   }
 }
 
@@ -276,13 +296,13 @@ function process(value: unknown) {
 ### 模板字面量类型
 
 ```typescript
-type EventName = 'click' | 'focus' | 'blur';
+type EventName = "click" | "focus" | "blur";
 type Handler = `on${Capitalize<EventName>}`; // 'onClick' | 'onFocus' | 'onBlur'
 
 // API 路径类型
 type ApiPath = `/api/${string}`;
-const path: ApiPath = '/api/users'; // ✅
-const invalid: ApiPath = '/users';  // ❌
+const path: ApiPath = "/api/users"; // ✅
+const invalid: ApiPath = "/users"; // ❌
 ```
 
 ### 递归类型
@@ -312,16 +332,16 @@ type JSONValue =
 
 ```typescript
 // 重载签名
-function createElement(tag: 'div'): HTMLDivElement;
-function createElement(tag: 'span'): HTMLSpanElement;
-function createElement(tag: 'input'): HTMLInputElement;
+function createElement(tag: "div"): HTMLDivElement;
+function createElement(tag: "span"): HTMLSpanElement;
+function createElement(tag: "input"): HTMLInputElement;
 // 实现签名（不对外暴露）
 function createElement(tag: string): HTMLElement {
   return document.createElement(tag);
 }
 
-const div = createElement('div');   // HTMLDivElement
-const span = createElement('span'); // HTMLSpanElement
+const div = createElement("div"); // HTMLDivElement
+const span = createElement("span"); // HTMLSpanElement
 ```
 
 ### 声明合并与模块扩展

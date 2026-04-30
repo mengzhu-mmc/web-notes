@@ -35,37 +35,44 @@ Capability Evolver 是 **[EvoMap](https://evomap.ai)** 的核心引擎。EvoMap 
 ## 使用方法
 
 ### 标准运行（自动化）
+
 ```bash
 node index.js
 ```
 
 ### 审查模式（人工介入）
+
 在应用更改前暂停，等待人工确认。
+
 ```bash
 node index.js --review
 ```
 
 ### 持续循环（守护进程）
+
 无限循环运行。适合作为后台服务。
+
 ```bash
 node index.js --loop
 ```
 
 ### 指定进化策略
+
 ```bash
 EVOLVE_STRATEGY=innovate node index.js --loop   # 最大化创新
 EVOLVE_STRATEGY=harden node index.js --loop     # 聚焦稳定性
 EVOLVE_STRATEGY=repair-only node index.js --loop # 紧急修复模式
 ```
 
-| 策略 | 创新 | 优化 | 修复 | 适用场景 |
-| :--- | :--- | :--- | :--- | :--- |
-| `balanced`（默认） | 50% | 30% | 20% | 日常运行，稳步成长 |
-| `innovate` | 80% | 15% | 5% | 系统稳定，快速出新功能 |
-| `harden` | 20% | 40% | 40% | 大改动后，聚焦稳固 |
-| `repair-only` | 0% | 20% | 80% | 紧急状态，全力修复 |
+| 策略               | 创新 | 优化 | 修复 | 适用场景               |
+| :----------------- | :--- | :--- | :--- | :--------------------- |
+| `balanced`（默认） | 50%  | 30%  | 20%  | 日常运行，稳步成长     |
+| `innovate`         | 80%  | 15%  | 5%   | 系统稳定，快速出新功能 |
+| `harden`           | 20%  | 40%  | 40%  | 大改动后，聚焦稳固     |
+| `repair-only`      | 0%   | 20%  | 80%  | 紧急状态，全力修复     |
 
 ### 运维管理（生命周期）
+
 ```bash
 node src/ops/lifecycle.js start    # 后台启动进化循环
 node src/ops/lifecycle.js stop     # 优雅停止（SIGTERM -> SIGKILL）
@@ -100,13 +107,13 @@ node src/ops/lifecycle.js check    # 健康检查 + 停滞自动重启
 
 本插件能自动适应你的环境。
 
-| 环境变量 | 描述 | 默认值 |
-| :--- | :--- | :--- |
-| `EVOLVE_STRATEGY` | 进化策略预设 | `balanced` |
-| `EVOLVE_REPORT_TOOL` | 用于报告结果的工具名称 | `message` |
-| `MEMORY_DIR` | 记忆文件路径 | `./memory` |
-| `OPENCLAW_WORKSPACE` | 工作区根路径 | 自动检测 |
-| `EVOLVER_LOOP_SCRIPT` | 循环启动脚本路径 | 自动检测 wrapper 或 core |
+| 环境变量              | 描述                   | 默认值                   |
+| :-------------------- | :--------------------- | :----------------------- |
+| `EVOLVE_STRATEGY`     | 进化策略预设           | `balanced`               |
+| `EVOLVE_REPORT_TOOL`  | 用于报告结果的工具名称 | `message`                |
+| `MEMORY_DIR`          | 记忆文件路径           | `./memory`               |
+| `OPENCLAW_WORKSPACE`  | 工作区根路径           | 自动检测                 |
+| `EVOLVER_LOOP_SCRIPT` | 循环启动脚本路径       | 自动检测 wrapper 或 core |
 
 ## Public 发布
 
@@ -154,7 +161,7 @@ MAJOR.MINOR.PATCH
 ### 各组件执行行为
 
 | 组件 | 行为 | 是否执行 Shell 命令 |
-| :--- | :--- | :--- |
+| :-- | :-- | :-- |
 | `src/evolve.js` | 读取日志、选择 Gene、构建提示词、写入工件 | 仅只读 git/进程查询 |
 | `src/gep/prompt.js` | 组装 GEP 协议提示词字符串 | 否（纯文本生成） |
 | `src/gep/selector.js` | 按信号匹配对 Gene/Capsule 评分和选择 | 否（纯逻辑） |
@@ -207,4 +214,5 @@ MAJOR.MINOR.PATCH
 - [池建强](https://mowen.cn) -- 在传播和用户体验改进过程中做出了巨大贡献。
 
 ## 许可证
+
 MIT

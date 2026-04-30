@@ -15,7 +15,7 @@ ArkTS 是华为在 TypeScript 基础上扩展的语言，用于 HarmonyOS 的 Ar
 ## 二、与 React / Vue 的核心区别
 
 | 对比项 | React | Vue | ArkTS |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | 响应式原理 | 重新执行函数 + vdom diff | Proxy 响应式 | 装饰器 + 编译时依赖分析 |
 | 有无 Virtual DOM | 有 | 有 | **无** |
 | 运行环境 | 浏览器 | 浏览器 | HarmonyOS |
@@ -98,14 +98,14 @@ List() {
 
 ### 3.3 状态装饰器
 
-| 装饰器 | 作用 | 类比 |
-|---|---|---|
-| `@State` | 组件内部私有状态 | `useState` / `ref` |
-| `@Prop` | 父传子，单向，子不能改 | React props（只读） |
-| `@Link` | 父子双向绑定 | Vue `v-model` |
-| `@Observed` + `@ObjectLink` | 嵌套对象深层响应式 | Vue 深层响应式 |
-| `@Provide` / `@Consume` | 跨层级传递 | React Context |
-| `@StorageLink` | 绑定 AppStorage 全局状态 | Redux / Pinia |
+| 装饰器                      | 作用                     | 类比                |
+| --------------------------- | ------------------------ | ------------------- |
+| `@State`                    | 组件内部私有状态         | `useState` / `ref`  |
+| `@Prop`                     | 父传子，单向，子不能改   | React props（只读） |
+| `@Link`                     | 父子双向绑定             | Vue `v-model`       |
+| `@Observed` + `@ObjectLink` | 嵌套对象深层响应式       | Vue 深层响应式      |
+| `@Provide` / `@Consume`     | 跨层级传递               | React Context       |
+| `@StorageLink`              | 绑定 AppStorage 全局状态 | Redux / Pinia       |
 
 ```typescript
 // 父组件
@@ -236,10 +236,10 @@ struct Index {
 
 ```typescript
 // 发送
-router.pushUrl({ url: 'pages/B', params: { userId: 1 } })
+router.pushUrl({ url: "pages/B", params: { userId: 1 } });
 
 // 接收
-const params = router.getParams() as { userId: number }
+const params = router.getParams() as { userId: number };
 ```
 
 ### 5.2 AppStorage（全局状态）
@@ -305,25 +305,22 @@ aboutToDisappear() {
 ## 六、网络请求
 
 ```typescript
-import http from '@ohos.net.http'
+import http from "@ohos.net.http";
 
 async function fetchData() {
-  const httpRequest = http.createHttp()
+  const httpRequest = http.createHttp();
 
-  const response = await httpRequest.request(
-    'https://api.example.com/data',
-    {
-      method: http.RequestMethod.GET,
-      header: { 'Content-Type': 'application/json' }
-    }
-  )
+  const response = await httpRequest.request("https://api.example.com/data", {
+    method: http.RequestMethod.GET,
+    header: { "Content-Type": "application/json" },
+  });
 
   if (response.responseCode === 200) {
-    const data = JSON.parse(response.result as string)
-    console.log(data)
+    const data = JSON.parse(response.result as string);
+    console.log(data);
   }
 
-  httpRequest.destroy()
+  httpRequest.destroy();
 }
 ```
 

@@ -15,7 +15,7 @@ const createValidator = (target, rules) => {
       }
       obj[prop] = value;
       return true;
-    }
+    },
   });
 };
 ```
@@ -30,14 +30,14 @@ const reactive = (target) => {
     get(obj, prop, receiver) {
       track(obj, prop);
       const value = Reflect.get(obj, prop, receiver);
-      return typeof value === 'object' ? reactive(value) : value;
+      return typeof value === "object" ? reactive(value) : value;
     },
     set(obj, prop, value, receiver) {
       const oldValue = obj[prop];
       const result = Reflect.set(obj, prop, value, receiver);
       if (oldValue !== value) trigger(obj, prop);
       return result;
-    }
+    },
   });
 };
 ```
@@ -60,7 +60,7 @@ const createCacheProxy = (fn) => {
       const result = Reflect.apply(target, thisArg, args);
       cache.set(key, result);
       return result;
-    }
+    },
   });
 };
 ```
@@ -79,26 +79,30 @@ const createCacheProxy = (fn) => {
 
 ```javascript
 const obj = {
-  _name: 'John',
-  get name() { return this._name; }
+  _name: "John",
+  get name() {
+    return this._name;
+  },
 };
 
 // ❌ 不使用 Reflect：继承链断裂
 const proxy1 = new Proxy(obj, {
-  get(target, prop) { return target[prop]; }
+  get(target, prop) {
+    return target[prop];
+  },
 });
 const child = Object.create(proxy1);
-child._name = 'Child';
+child._name = "Child";
 child.name; // "John" ❌ this 指向了 obj
 
 // ✅ 使用 Reflect：正确传递 receiver
 const proxy2 = new Proxy(obj, {
   get(target, prop, receiver) {
     return Reflect.get(target, prop, receiver);
-  }
+  },
 });
 const child2 = Object.create(proxy2);
-child2._name = 'Child';
+child2._name = "Child";
 child2.name; // "Child" ✅ this 正确指向 child2
 ```
 
@@ -110,12 +114,12 @@ child2.name; // "Child" ✅ this 正确指向 child2
 
 ```javascript
 const obj = {};
-Object.defineProperty(obj, 'name', { value: 'John', writable: false });
+Object.defineProperty(obj, "name", { value: "John", writable: false });
 
 // 直接赋值：严格模式下报错
 // Reflect.set：返回 false，代码继续执行
-if (!Reflect.set(obj, 'name', 'Jane')) {
-  console.log('设置失败，但程序不中断');
+if (!Reflect.set(obj, "name", "Jane")) {
+  console.log("设置失败，但程序不中断");
 }
 ```
 
@@ -145,19 +149,27 @@ Proxy 的核心价值在于元编程能力——拦截和自定义对象的基�
 
 ```javascript
 // Object.defineProperty：必须遍历现有属性
-Object.keys(obj).forEach(key => {
+Object.keys(obj).forEach((key) => {
   let value = obj[key];
   Object.defineProperty(obj, key, {
-    get() { return value; },
-    set(newValue) { value = newValue; }
+    get() {
+      return value;
+    },
+    set(newValue) {
+      value = newValue;
+    },
   });
 });
 obj.newProp = 1; // 监听不到
 
 // Proxy：代理整个对象
 const proxy = new Proxy(obj, {
-  get(target, key) { return Reflect.get(target, key); },
-  set(target, key, value) { return Reflect.set(target, key, value); }
+  get(target, key) {
+    return Reflect.get(target, key);
+  },
+  set(target, key, value) {
+    return Reflect.set(target, key, value);
+  },
 });
 proxy.newProp = 1; // 能监听到
 ```

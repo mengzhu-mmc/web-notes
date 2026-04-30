@@ -60,7 +60,7 @@ TypeScript
 ## 🎯 面试重点
 
 | 主题 | 关键点 | 笔记链接 |
-|------|--------|----------|
+| --- | --- | --- |
 | type vs interface | 声明合并、联合类型、映射类型 | [[TypeScript基础到进阶#三、Interface vs Type]] |
 | 泛型 | 约束、条件类型、infer、协变逆变 | [[TypeScript基础到进阶#四、泛型（Generics）深入]] |
 | 工具类型手写 | Partial、Pick、Omit、ReturnType | [[TypeScript基础到进阶#五、工具类型详解]] |

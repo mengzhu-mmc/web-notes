@@ -408,57 +408,74 @@ promises-aplus-tests Promise.js
 
 ### 精选评论
 
-##### **5008：
+##### \*\*5008：
+
 > 规范中说了只能有三种状态pending, fulfilled, or rejected为什么代码中又是 resloved 呢
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; Resolve不是状态，你仔细理解学习一下，Promise里面就三种状态
 
-##### **yunxiaomeng：
+##### \*\*yunxiaomeng：
+
 > 老师是不是可以认为“因为promise的then方法的onFullfilled（失败的话是onReject）参数必须被调用而且调用次数不能超过一次而且then方法返回的是一个新的promise对象，所以说promise状态值一旦改变不可中断或逆转”？
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 是的，Promise的状态值一旦改变不能逆转
 
-##### **web前端：
+##### \*\*web前端：
+
 > Promise.resolve().then(function(){console.log(0);return Promise.resolve(4);}).then(function(res){console.log(res);});Promise.resolve().then(function(){console.log(1);}).then(function(){console.log(2);}).then(function(){console.log(3);}).then(function(){console.log(5);}).then(function(){console.log(6);});老师有看到过这道题么,执行顺序不知道怎么解释
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 可以再看下21讲，结合宏任务和微任务那一讲一起看一下
 
-##### **俊：
+##### \*\*俊：
+
 > 请教这个，thenCalledOrThrow 是为了什么？好像删掉，并没有影响程序
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; then被调用或者throw出去
 
-##### **生：
+##### \*\*生：
+
 > 我接着我的上一个问题提疑：onResolved之后的值怎么可能会完全与promise2相等呢？
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; onresolved 之后 Promise 对象最后都会返回值，因此拿他来和 x 判断就是看这个Promise是否已经执行完返回预期的值，状态已经不可逆转了，不知道是否理解了
 
-##### **生：
+##### \*\*生：
+
 > 若离老是，你好！if (promise2 === x) { return reject(new TypeError('Chaining cycle detected for promise!')) }这个代码块我一直理解不了：promise2怎么可能和x完全相等呢？
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 可以看下resolvePromise是给下面then方法内部调用的，x是参数，传入的是onResolved之后的值，通过这个来进行判断的
 
-##### **帆：
+##### \*\*帆：
+
 > 催更了！！
 
-##### **zzz：
+##### \*\*zzz：
+
 > 再有不到三周就可以学完了，老师辛苦
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 加油！
 
-##### *洋：
+##### \*洋：
+
 > 多久更新一节啊？
 
- ###### &nbsp;&nbsp;&nbsp; 编辑回复：
+###### &nbsp;&nbsp;&nbsp; 编辑回复：
+
 > &nbsp;&nbsp;&nbsp; 每周一、周三更哦
 
-##### **帆：
-> 读了好几遍，敲了一边终于弄懂了。代码还是得仔细品味呀！
+##### \*\*帆：
 
+> 读了好几遍，敲了一边终于弄懂了。代码还是得仔细品味呀！

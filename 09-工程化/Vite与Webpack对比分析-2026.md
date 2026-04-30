@@ -7,7 +7,7 @@
 ## 一、核心定位差异
 
 | 维度 | Vite 5.x | Webpack 5.x |
-|------|----------|-------------|
+| --- | --- | --- |
 | 设计理念 | No-bundle（开发）/ Rollup（生产） | Bundle-first（始终打包） |
 | 开发冷启动 | **< 1s**（按需编译） | 5s ~ 60s+（取决于项目规模） |
 | HMR 速度 | **< 50ms**（模块级，O(1)） | 200ms ~ 2000ms（chunk 级） |
@@ -62,10 +62,10 @@ node --version  # 必须 >= 18
 
 ```javascript
 // ❌ Vite 5 已废弃（CJS 模式）
-const { createServer } = require('vite');
+const { createServer } = require("vite");
 
 // ✅ 使用 ESM
-import { createServer } from 'vite';
+import { createServer } from "vite";
 ```
 
 ### 3.3 `define` 行为变更（更符合直觉）
@@ -75,7 +75,7 @@ import { createServer } from 'vite';
 export default defineConfig({
   define: {
     // Vite 5: 字符串值会被当做 JS 表达式（与 Webpack 一致）
-    __APP_VERSION__: JSON.stringify('1.0.0'),
+    __APP_VERSION__: JSON.stringify("1.0.0"),
     // ❌ 不要写：__APP_VERSION__: '1.0.0'（会被当做标识符）
   },
 });
@@ -87,7 +87,7 @@ export default defineConfig({
 // Vite 5 新增 'module' 条件，更好地处理 ESM 优先的包
 export default defineConfig({
   resolve: {
-    conditions: ['module', 'browser', 'development|production'],
+    conditions: ["module", "browser", "development|production"],
   },
 });
 ```
@@ -96,8 +96,8 @@ export default defineConfig({
 
 ```typescript
 // Vite 5: Web Worker 默认输出 ESM
-const worker = new Worker(new URL('./worker.ts', import.meta.url), {
-  type: 'module', // Vite 5 默认
+const worker = new Worker(new URL("./worker.ts", import.meta.url), {
+  type: "module", // Vite 5 默认
 });
 ```
 
@@ -106,7 +106,7 @@ const worker = new Worker(new URL('./worker.ts', import.meta.url), {
 ```typescript
 export default defineConfig({
   build: {
-    cssMinify: 'lightningcss', // Vite 5 新增，比 esbuild CSS 压缩更快
+    cssMinify: "lightningcss", // Vite 5 新增，比 esbuild CSS 压缩更快
   },
 });
 ```
@@ -114,12 +114,12 @@ export default defineConfig({
 ### 3.7 完整 `vite.config.ts` 示例（Vite 5 最佳实践）
 
 ```typescript
-import { defineConfig, loadEnv } from 'vite';
-import react from '@vitejs/plugin-react';
-import { resolve } from 'path';
+import { defineConfig, loadEnv } from "vite";
+import react from "@vitejs/plugin-react";
+import { resolve } from "path";
 
 export default defineConfig(({ mode, command }) => {
-  const env = loadEnv(mode, process.cwd(), '');
+  const env = loadEnv(mode, process.cwd(), "");
 
   return {
     plugins: [
@@ -131,10 +131,10 @@ export default defineConfig(({ mode, command }) => {
 
     resolve: {
       alias: {
-        '@': resolve(__dirname, 'src'),
+        "@": resolve(__dirname, "src"),
       },
       // Vite 5: 明确扩展名解析顺序
-      extensions: ['.mjs', '.js', '.mts', '.ts', '.jsx', '.tsx', '.json'],
+      extensions: [".mjs", ".js", ".mts", ".ts", ".jsx", ".tsx", ".json"],
     },
 
     server: {
@@ -142,36 +142,38 @@ export default defineConfig(({ mode, command }) => {
       strictPort: false,
       host: true, // 暴露给局域网
       proxy: {
-        '/api': {
-          target: env.VITE_API_BASE_URL || 'http://localhost:8080',
+        "/api": {
+          target: env.VITE_API_BASE_URL || "http://localhost:8080",
           changeOrigin: true,
-          rewrite: path => path.replace(/^\/api/, ''),
+          rewrite: (path) => path.replace(/^\/api/, ""),
         },
       },
     },
 
     build: {
-      target: 'es2020',
-      outDir: 'dist',
-      sourcemap: mode === 'development',
-      minify: 'esbuild',
-      cssMinify: 'esbuild', // 或 'lightningcss'
+      target: "es2020",
+      outDir: "dist",
+      sourcemap: mode === "development",
+      minify: "esbuild",
+      cssMinify: "esbuild", // 或 'lightningcss'
       rollupOptions: {
         output: {
           manualChunks(id) {
-            if (id.includes('node_modules')) {
+            if (id.includes("node_modules")) {
               // React 相关
-              if (/react(-dom|-router|-refresh)?\//.test(id)) return 'react-vendor';
+              if (/react(-dom|-router|-refresh)?\//.test(id))
+                return "react-vendor";
               // UI 库
-              if (id.includes('antd') || id.includes('@ant-design')) return 'antd';
+              if (id.includes("antd") || id.includes("@ant-design"))
+                return "antd";
               // 工具库
-              if (id.includes('lodash') || id.includes('dayjs')) return 'utils';
-              return 'vendor';
+              if (id.includes("lodash") || id.includes("dayjs")) return "utils";
+              return "vendor";
             }
           },
-          entryFileNames: 'assets/[name]-[hash].js',
-          chunkFileNames: 'assets/[name]-[hash].js',
-          assetFileNames: 'assets/[name]-[hash].[ext]',
+          entryFileNames: "assets/[name]-[hash].js",
+          chunkFileNames: "assets/[name]-[hash].js",
+          assetFileNames: "assets/[name]-[hash].[ext]",
         },
       },
       // Vite 5: chunk 大小警告
@@ -180,12 +182,12 @@ export default defineConfig(({ mode, command }) => {
 
     // 依赖预构建（Vite 5 优化了自动扫描）
     optimizeDeps: {
-      include: ['react', 'react-dom'],
+      include: ["react", "react-dom"],
       exclude: [],
     },
 
     // 环境变量
-    envPrefix: 'VITE_',
+    envPrefix: "VITE_",
   };
 });
 ```
@@ -198,14 +200,14 @@ export default defineConfig(({ mode, command }) => {
 
 ```javascript
 // webpack.config.js — 生产级微前端，Vite 目前没有完整替代方案
-const { ModuleFederationPlugin } = require('webpack').container;
+const { ModuleFederationPlugin } = require("webpack").container;
 
 module.exports = {
   plugins: [
     new ModuleFederationPlugin({
-      name: 'host',
+      name: "host",
       remotes: {
-        app1: 'app1@http://cdn.example.com/remoteEntry.js',
+        app1: "app1@http://cdn.example.com/remoteEntry.js",
       },
       shared: { react: { singleton: true } },
     }),
@@ -221,10 +223,12 @@ module.exports = {
 // Webpack 的 loader 链式调用机制没有 Vite 对应物
 module.exports = {
   module: {
-    rules: [{
-      test: /\.md$/,
-      use: ['html-loader', 'markdown-loader'], // 链式处理
-    }],
+    rules: [
+      {
+        test: /\.md$/,
+        use: ["html-loader", "markdown-loader"], // 链式处理
+      },
+    ],
   },
 };
 ```
@@ -249,13 +253,13 @@ optimization: {
 
 ### 5.1 迁移成本评估
 
-| 项目特征 | 迁移难度 | 建议 |
-|---------|---------|------|
-| 标准 React/Vue SPA | ⭐ 低 | 强烈推荐迁移 |
-| 使用 Module Federation | ⭐⭐⭐ 高 | 暂缓，等 Vite 生态完善 |
-| 大量自定义 Webpack Loader | ⭐⭐ 中 | 逐步迁移，先新功能用 Vite |
-| Webpack 配置 < 100 行 | ⭐ 低 | 可在 1 天内完成迁移 |
-| Webpack 配置 > 500 行 | ⭐⭐⭐ 高 | 分阶段迁移 |
+| 项目特征                  | 迁移难度  | 建议                      |
+| ------------------------- | --------- | ------------------------- |
+| 标准 React/Vue SPA        | ⭐ 低     | 强烈推荐迁移              |
+| 使用 Module Federation    | ⭐⭐⭐ 高 | 暂缓，等 Vite 生态完善    |
+| 大量自定义 Webpack Loader | ⭐⭐ 中   | 逐步迁移，先新功能用 Vite |
+| Webpack 配置 < 100 行     | ⭐ 低     | 可在 1 天内完成迁移       |
+| Webpack 配置 > 500 行     | ⭐⭐⭐ 高 | 分阶段迁移                |
 
 ### 5.2 常见迁移问题
 
@@ -263,17 +267,17 @@ optimization: {
 // 1. require() 不可用（Vite 使用 ESM）
 // ❌ Webpack: const logo = require('./logo.png')
 // ✅ Vite:
-import logo from './logo.png';
+import logo from "./logo.png";
 
 // 2. process.env 替换
 // ❌ process.env.NODE_ENV
 // ✅ Vite:
-import.meta.env.MODE
+import.meta.env.MODE;
 
 // 3. __dirname 不可用（ESM 模式）
 // ✅ 替代方案：
-import { fileURLToPath } from 'url';
-const __dirname = fileURLToPath(new URL('.', import.meta.url));
+import { fileURLToPath } from "url";
+const __dirname = fileURLToPath(new URL(".", import.meta.url));
 
 // 4. Webpack alias 迁移
 // webpack: { resolve: { alias: { '@': path.resolve('src') } } }
@@ -331,11 +335,8 @@ npm install -D vite @vitejs/plugin-react
 
 ## 面试快答
 
-**Q：Vite 为什么比 Webpack 快？**
-开发时利用浏览器原生 ESM 按需编译，不打包；依赖用 esbuild (Go) 预构建，比 JS 快 10-100x；HMR 是文件级 O(1)，不重新编译 chunk。
+**Q：Vite 为什么比 Webpack 快？** 开发时利用浏览器原生 ESM 按需编译，不打包；依赖用 esbuild (Go) 预构建，比 JS 快 10-100x；HMR 是文件级 O(1)，不重新编译 chunk。
 
-**Q：Vite 生产构建为什么用 Rollup 而不是 esbuild？**
-esbuild 缺少高级代码分割、CSS 代码分割等生产优化。Rollup 的 Tree Shaking 更彻底。（Vite 5 实验性引入 rolldown，未来可能统一。）
+**Q：Vite 生产构建为什么用 Rollup 而不是 esbuild？** esbuild 缺少高级代码分割、CSS 代码分割等生产优化。Rollup 的 Tree Shaking 更彻底。（Vite 5 实验性引入 rolldown，未来可能统一。）
 
-**Q：什么情况下还是选 Webpack？**
-① 用了 Module Federation 做微前端；② 大量自定义 loader 依赖 Webpack 特有机制；③ 需要精细的 SplitChunks 策略；④ 需要支持 IE11（Vite legacy plugin 兼容性有限）。
+**Q：什么情况下还是选 Webpack？** ① 用了 Module Federation 做微前端；② 大量自定义 loader 依赖 Webpack 特有机制；③ 需要精细的 SplitChunks 策略；④ 需要支持 IE11（Vite legacy plugin 兼容性有限）。

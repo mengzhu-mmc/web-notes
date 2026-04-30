@@ -77,10 +77,10 @@ Tapable 是 webpack 内部的事件总线，类似 Node.js 的 EventEmitter，�
 class MyPlugin {
   apply(compiler) {
     // tap = 同步   tapAsync = 异步回调   tapPromise = Promise 异步
-    compiler.hooks.emit.tapAsync('MyPlugin', (compilation, callback) => {
+    compiler.hooks.emit.tapAsync("MyPlugin", (compilation, callback) => {
       // compilation.assets 是本次构建所有输出文件的 Map
       const content = `Build time: ${new Date().toISOString()}`;
-      compilation.assets['build-info.txt'] = {
+      compilation.assets["build-info.txt"] = {
         source: () => content,
         size: () => Buffer.byteLength(content),
       };
@@ -93,7 +93,7 @@ class MyPlugin {
 **Compiler vs Compilation 的区别（高频追问）：**
 
 | 对象 | 生命周期 | 职责 |
-|---|---|---|
+| --- | --- | --- |
 | `Compiler` | 整个 webpack 进程（全局唯一） | 管理配置、插件、文件系统、启动/停止编译 |
 | `Compilation` | 单次编译（watch 模式每次文件变化都新建一个） | 管理本次编译的模块、Chunk、依赖图、生成的 assets |
 
@@ -146,7 +146,7 @@ compiler.hooks.emit.tapAsync('MyPlugin', (compilation, callback) => {
 **答：**
 
 | 对比 | Loader | Plugin |
-|---|---|---|
+| --- | --- | --- |
 | 本质 | **转换器**：将一种文件格式转换为另一种 | **扩展器**：监听构建生命周期钩子，执行任意逻辑 |
 | 作用时机 | 加载模块时（逐文件处理） | 整个构建流程的任意阶段 |
 | 配置位置 | `module.rules` 中 | `plugins` 数组中 |
@@ -163,15 +163,15 @@ module.exports = {
         // sass-loader:  .scss → CSS 字符串
         // css-loader:   处理 @import / url()，返回 JS 模块
         // style-loader: 运行时往 DOM 插入 <style> 标签
-        use: ['style-loader', 'css-loader', 'sass-loader'],
+        use: ["style-loader", "css-loader", "sass-loader"],
       },
-    ]
+    ],
   },
   plugins: [
-    new HtmlWebpackPlugin({ template: './index.html' }),
+    new HtmlWebpackPlugin({ template: "./index.html" }),
     // 生产环境用 MiniCssExtractPlugin 替代 style-loader，抽离成独立 CSS 文件
-    new MiniCssExtractPlugin({ filename: '[name].[contenthash].css' }),
-  ]
+    new MiniCssExtractPlugin({ filename: "[name].[contenthash].css" }),
+  ],
 };
 ```
 
@@ -207,16 +207,16 @@ Webpack 模块注册（可被其他模块 import）
 module.exports = function stripConsoleLoader(source) {
   // this.cacheable() → 声明此 loader 结果可缓存（webpack4 需要手动调用）
   // webpack5 默认开启缓存，不需要
-  
+
   // this.resourcePath → 当前处理文件的绝对路径，用于条件处理
-  if (this.resourcePath.includes('node_modules')) {
+  if (this.resourcePath.includes("node_modules")) {
     return source; // 不处理第三方库
   }
 
   // 使用正则移除 console.log/warn/error 调用（处理多行情况）
   const result = source.replace(
     /console\.(log|warn|error|info|debug)\([^)]*\);?\s*/g,
-    ''
+    "",
   );
 
   return result;
@@ -228,12 +228,12 @@ module.exports = function asyncLoader(source) {
   const callback = this.async(); // 声明异步，返回 callback 函数
 
   someAsyncOperation(source)
-    .then(result => {
+    .then((result) => {
       // callback 签名：(error, result, sourceMap?, meta?)
       // sourceMap 可选，传递给下一个 Loader
       callback(null, result);
     })
-    .catch(err => {
+    .catch((err) => {
       callback(err); // 传入 error，构建失败
     });
 };
@@ -241,32 +241,34 @@ module.exports = function asyncLoader(source) {
 // webpack.config.js 中使用自定义 Loader
 module.exports = {
   module: {
-    rules: [{
-      test: /\.[jt]sx?$/,
-      exclude: /node_modules/,
-      use: [
-        'babel-loader',
-        // 相对路径或绝对路径引用本地 loader
-        path.resolve(__dirname, './loaders/strip-console-loader.js'),
-      ]
-    }]
+    rules: [
+      {
+        test: /\.[jt]sx?$/,
+        exclude: /node_modules/,
+        use: [
+          "babel-loader",
+          // 相对路径或绝对路径引用本地 loader
+          path.resolve(__dirname, "./loaders/strip-console-loader.js"),
+        ],
+      },
+    ],
   },
   // 或配置 resolveLoader 使 loader 路径解析更简洁
   resolveLoader: {
-    modules: ['node_modules', path.resolve(__dirname, 'loaders')]
+    modules: ["node_modules", path.resolve(__dirname, "loaders")],
     // 这样就可以直接写 'strip-console-loader' 而不是绝对路径
-  }
+  },
 };
 ```
 
 **常见 Loader / Plugin 清单：**
 
 | 场景 | 常用方案 |
-|---|---|
+| --- | --- |
 | TS 编译 | `ts-loader`（稳定）/ `esbuild-loader`（快 10-100x） |
 | 样式处理 | `sass-loader` → `css-loader` → `style-loader`（开发）/ `MiniCssExtractPlugin.loader`（生产） |
-| 静态资源 | webpack5 内置 `asset/resource`（替代 file-loader）|
-| 代码压缩 | `TerserPlugin`（webpack5 内置）|
+| 静态资源 | webpack5 内置 `asset/resource`（替代 file-loader） |
+| 代码压缩 | `TerserPlugin`（webpack5 内置） |
 | HTML 生成 | `HtmlWebpackPlugin` |
 | 包体积分析 | `webpack-bundle-analyzer` |
 
@@ -278,11 +280,11 @@ module.exports = {
 // 但最终输出给 webpack 的必须是 JS 字符串或 Buffer！
 
 // ❌ 坑2：在 Loader 里用 require 加载文件但没有声明依赖
-module.exports = function(source) {
-  const config = require('./config.json'); // 这个文件变了不会触发重编译！
+module.exports = function (source) {
+  const config = require("./config.json"); // 这个文件变了不会触发重编译！
   // ✅ 正确做法：
-  this.addDependency(path.resolve('./config.json')); // 声明文件依赖
-  const config = JSON.parse(fs.readFileSync('./config.json', 'utf-8'));
+  this.addDependency(path.resolve("./config.json")); // 声明文件依赖
+  const config = JSON.parse(fs.readFileSync("./config.json", "utf-8"));
   return transformSource(source, config);
 };
 
@@ -290,10 +292,10 @@ module.exports = function(source) {
 // style-loader 把 CSS 注入 <style>，MiniCssExtractPlugin 抽成独立文件
 // 两者功能互斥，不能共用同一个 rule
 use: [
-  isDev ? 'style-loader' : MiniCssExtractPlugin.loader,  // ✅ 二选一
-  'css-loader',
-  'sass-loader'
-]
+  isDev ? "style-loader" : MiniCssExtractPlugin.loader, // ✅ 二选一
+  "css-loader",
+  "sass-loader",
+];
 ```
 
 **🎯 面试追问**
@@ -344,7 +346,7 @@ export const add = (a, b) => a + b;
 export const multiply = (a, b) => a * b; // ← 没有任何地方 import 它
 
 // main.js
-import { add } from './utils';  // 只导入 add
+import { add } from "./utils"; // 只导入 add
 
 // webpack 打包后（生产模式），multiply 被完全删除：
 const add = (a, b) => a + b;
@@ -423,14 +425,15 @@ export const MyClass = /*#__PURE__*/ createClass(SomeBase);
 ```
 
 **webpack 配置：**
+
 ```js
 module.exports = {
-  mode: 'production',  // 自动开启 usedExports + Terser
+  mode: "production", // 自动开启 usedExports + Terser
   optimization: {
-    usedExports: true,   // 标记未使用导出
-    sideEffects: true,   // 读取 package.json 的 sideEffects 字段
-    minimize: true,      // 开启 Terser 删除死代码（production 默认开启）
-  }
+    usedExports: true, // 标记未使用导出
+    sideEffects: true, // 读取 package.json 的 sideEffects 字段
+    minimize: true, // 开启 Terser 删除死代码（production 默认开启）
+  },
 };
 ```
 
@@ -490,35 +493,38 @@ export { Input } from './Input';
 Code Splitting 的目的：**减少首屏 bundle 体积**，让首屏更快，非首屏内容按需加载。
 
 | 方式 | 配置 | 适用场景 |
-|---|---|---|
+| --- | --- | --- |
 | 多入口（Entry Points） | `entry: { a: './a', b: './b' }` | MPA 多页应用 |
-| 动态导入（Dynamic Import）| `import('./module')` | 路由懒加载、功能按需加载 |
+| 动态导入（Dynamic Import） | `import('./module')` | 路由懒加载、功能按需加载 |
 | SplitChunksPlugin | `optimization.splitChunks` | 提取公共依赖（vendor chunk） |
 
-**1. 动态导入（最常用）
+\*\*1. 动态导入（最常用）
+
 ```js
 // React Router v6 路由懒加载示例
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense } from "react";
 
 // import() 返回 Promise，webpack 自动将 Dashboard 拆成独立 chunk
-const Dashboard = lazy(() => import('./pages/Dashboard'));
-const Settings = lazy(() => import('./pages/Settings'));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const Settings = lazy(() => import("./pages/Settings"));
 
 // 使用 webpack magic comments 控制 chunk 名称和加载策略
-const AboutPage = lazy(() =>
-  import(
-    /* webpackChunkName: "about" */       // chunk 文件名：about.[hash].js
-    /* webpackPrefetch: true */           // 浏览器空闲时预加载
-    './pages/About'
-  )
+const AboutPage = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "about" */ // chunk 文件名：about.[hash].js
+      /* webpackPrefetch: true */ // 浏览器空闲时预加载
+      "./pages/About"
+    ),
 );
 
-const HeavyComponent = lazy(() =>
-  import(
-    /* webpackChunkName: "heavy" */
-    /* webpackPreload: true */            // 与父 chunk 并行加载（高优先级）
-    './components/HeavyChart'
-  )
+const HeavyComponent = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "heavy" */
+      /* webpackPreload: true */ // 与父 chunk 并行加载（高优先级）
+      "./components/HeavyChart"
+    ),
 );
 
 function App() {
@@ -536,7 +542,7 @@ function App() {
 **prefetch vs preload 的区别：**
 
 | 指令 | 时机 | 优先级 | 适用场景 |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `webpackPrefetch` | 浏览器**空闲**时加载 | 低 | 未来可能访问的页面 |
 | `webpackPreload` | 与父 chunk **并行**加载 | 高 | 当前页面依赖的关键资源 |
 
@@ -547,31 +553,31 @@ function App() {
 module.exports = {
   optimization: {
     splitChunks: {
-      chunks: 'all',  // 'async'（默认，只分割异步）| 'initial' | 'all'
+      chunks: "all", // 'async'（默认，只分割异步）| 'initial' | 'all'
       minSize: 20000, // 生成 chunk 的最小体积（bytes），默认 20KB
-      minChunks: 1,   // 模块被引用至少 n 次才提取
+      minChunks: 1, // 模块被引用至少 n 次才提取
       cacheGroups: {
         // vendor chunk：将 node_modules 依赖单独打包
         // 优点：依赖不变时，vendor chunk 的 hash 不变，浏览器长期缓存
         vendor: {
           test: /[\\/]node_modules[\\/]/,
-          name: 'vendors',
-          chunks: 'all',
-          priority: 10,   // 优先级，数字越大越优先匹配
+          name: "vendors",
+          chunks: "all",
+          priority: 10, // 优先级，数字越大越优先匹配
         },
         // common chunk：被多个入口引用的业务代码
         common: {
-          name: 'common',
-          minChunks: 2,   // 至少被 2 个 chunk 引用才提取
+          name: "common",
+          minChunks: 2, // 至少被 2 个 chunk 引用才提取
           priority: 5,
           reuseExistingChunk: true, // 如果模块已经被打包则复用，不再打包
         },
         // 单独抽离 React 相关（体积大，版本稳定，命中缓存率高）
         react: {
           test: /[\\/]node_modules[\\/](react|react-dom|react-router)[\\/]/,
-          name: 'react-vendor',
-          chunks: 'all',
-          priority: 20,  // 优先级最高，先匹配 react
+          name: "react-vendor",
+          chunks: "all",
+          priority: 20, // 优先级最高，先匹配 react
         },
       },
     },
@@ -590,25 +596,26 @@ module.exports = {
 // 3. chunk 加载完成后 resolve Promise
 
 // 编译后的伪代码（webpack runtime）：
-__webpack_require__.e("about") // 加载 about chunk
+__webpack_require__
+  .e("about") // 加载 about chunk
   .then(__webpack_require__.bind(null, "./pages/About.js"))
-  .then(module => module.default);
+  .then((module) => module.default);
 
 // __webpack_require__.e 的实现：
 function requireEnsure(chunkId) {
   // 检查 chunk 是否已加载
   if (installedChunks[chunkId] === 0) return Promise.resolve();
-  
+
   // 创建 Promise，保存 resolve/reject
   var promise = new Promise((resolve, reject) => {
     installedChunks[chunkId] = [resolve, reject];
   });
-  
+
   // 动态创建 <script> 标签
-  var script = document.createElement('script');
+  var script = document.createElement("script");
   script.src = jsonpScriptSrc(chunkId); // 拼接 chunk URL
   document.head.appendChild(script);
-  
+
   return promise;
 }
 ```
@@ -624,8 +631,8 @@ const module = await import(`./pages/${pageName}`);
 // ✅ 改为明确的路径或有限的条件
 const loadPage = (name) => {
   const pages = {
-    home: () => import('./pages/Home'),
-    about: () => import('./pages/About'),
+    home: () => import("./pages/Home"),
+    about: () => import("./pages/About"),
   };
   return pages[name]?.();
 };
@@ -640,7 +647,7 @@ export const MyComponent = () => <div />;
 export default MyComponent;
 // 方案2：包一层
 const MyComponent = lazy(() =>
-  import('./MyComponent').then(m => ({ default: m.MyComponent }))
+  import("./MyComponent").then((m) => ({ default: m.MyComponent })),
 );
 
 // 坑3：splitChunks 的 chunks: 'async' 不处理同步 import
@@ -678,55 +685,57 @@ Webpack 性能优化分两个维度：**构建速度优化**（开发体验）�
 
 ```js
 // webpack.config.js
-const os = require('os');
-const TerserPlugin = require('terser-webpack-plugin');
+const os = require("os");
+const TerserPlugin = require("terser-webpack-plugin");
 
 module.exports = {
   // ① thread-loader：多进程并行编译（CPU 密集型 Loader 前使用）
   module: {
-    rules: [{
-      test: /\.[jt]sx?$/,
-      use: [
-        {
-          loader: 'thread-loader',
-          options: {
-            workers: os.cpus().length - 1, // 留一个 CPU 给主进程
-            poolTimeout: 2000,             // 进程池保持时间（ms）
+    rules: [
+      {
+        test: /\.[jt]sx?$/,
+        use: [
+          {
+            loader: "thread-loader",
+            options: {
+              workers: os.cpus().length - 1, // 留一个 CPU 给主进程
+              poolTimeout: 2000, // 进程池保持时间（ms）
+            },
           },
-        },
-        'babel-loader',  // 放在 thread-loader 后，在子进程里执行
-        // 注意：thread-loader 后的 loader 不能用 this.emitFile 等特殊 API
-      ],
-    }],
+          "babel-loader", // 放在 thread-loader 后，在子进程里执行
+          // 注意：thread-loader 后的 loader 不能用 this.emitFile 等特殊 API
+        ],
+      },
+    ],
   },
 
   // ② cache：持久化缓存（webpack5 内置，二次构建速度提升 60%+）
   cache: {
-    type: 'filesystem',                       // 写入磁盘，而非内存（默认）
-    cacheDirectory: path.resolve('.webpack-cache'), // 自定义缓存目录
+    type: "filesystem", // 写入磁盘，而非内存（默认）
+    cacheDirectory: path.resolve(".webpack-cache"), // 自定义缓存目录
     buildDependencies: {
-      config: [__filename],  // webpack.config.js 变化时使缓存失效
+      config: [__filename], // webpack.config.js 变化时使缓存失效
     },
   },
 
   // ③ resolve 优化：减少模块查找时间
   resolve: {
     // 只找这些后缀，减少尝试次数（顺序就是查找优先级）
-    extensions: ['.ts', '.tsx', '.js', '.jsx'],
+    extensions: [".ts", ".tsx", ".js", ".jsx"],
     // alias 路径别名，避免深层相对路径查找
     alias: {
-      '@': path.resolve(__dirname, 'src'),
-      '@components': path.resolve(__dirname, 'src/components'),
+      "@": path.resolve(__dirname, "src"),
+      "@components": path.resolve(__dirname, "src/components"),
     },
     // 指定 node_modules 的查找位置，避免逐级向上查找
-    modules: [path.resolve(__dirname, 'src'), 'node_modules'],
+    modules: [path.resolve(__dirname, "src"), "node_modules"],
   },
 
   // ④ 多进程压缩（生产构建）
   optimization: {
     minimizer: [
       new TerserPlugin({
-        parallel: true,  // 使用多进程并行压缩（默认 os.cpus().length - 1）
+        parallel: true, // 使用多进程并行压缩（默认 os.cpus().length - 1）
       }),
     ],
   },
@@ -737,23 +746,23 @@ module.exports = {
 
 ```js
 // webpack.dll.config.js（单独运行，提前编译第三方库）
-const webpack = require('webpack');
-const path = require('path');
+const webpack = require("webpack");
+const path = require("path");
 
 module.exports = {
   entry: {
     // 把不常变化的第三方库打成 DLL
-    vendor: ['react', 'react-dom', 'lodash-es', 'axios'],
+    vendor: ["react", "react-dom", "lodash-es", "axios"],
   },
   output: {
-    filename: '[name].dll.js',       // vendor.dll.js
-    path: path.resolve(__dirname, 'dll'),
-    library: '[name]_lib',           // 暴露到全局变量
+    filename: "[name].dll.js", // vendor.dll.js
+    path: path.resolve(__dirname, "dll"),
+    library: "[name]_lib", // 暴露到全局变量
   },
   plugins: [
     new webpack.DllPlugin({
-      name: '[name]_lib',            // 和 library 保持一致
-      path: path.resolve(__dirname, 'dll/[name]-manifest.json'),
+      name: "[name]_lib", // 和 library 保持一致
+      path: path.resolve(__dirname, "dll/[name]-manifest.json"),
     }),
   ],
 };
@@ -763,11 +772,11 @@ module.exports = {
   plugins: [
     // 告诉 webpack 这些模块不需要打包，从 DLL 里找
     new webpack.DllReferencePlugin({
-      manifest: require('./dll/vendor-manifest.json'),
+      manifest: require("./dll/vendor-manifest.json"),
     }),
     // 自动把 dll.js 注入 HTML
     new AddAssetHtmlPlugin({
-      filepath: path.resolve(__dirname, 'dll/vendor.dll.js'),
+      filepath: path.resolve(__dirname, "dll/vendor.dll.js"),
     }),
   ],
 };
@@ -837,13 +846,13 @@ cache: {
 **产物体积优化（速查）：**
 
 | 优化手段 | 效果 | 备注 |
-|---|---|---|
+| --- | --- | --- |
 | Tree Shaking | 删除未使用代码 | 需 ESM + sideEffects 配置 |
 | Code Splitting | 按需加载，减少首屏 | `import()` + SplitChunks |
-| 压缩（Terser/esbuild）| 减少 JS 体积 30-50% | production 默认开启 |
+| 压缩（Terser/esbuild） | 减少 JS 体积 30-50% | production 默认开启 |
 | gzip/brotli 压缩 | 减少传输体积 60-70% | 需服务端配合 |
 | 图片压缩/WebP | 减少图片体积 | `image-minimizer-webpack-plugin` |
-| 外部化（externals）| 大库不打包，走 CDN | React/Vue 可外部化 |
+| 外部化（externals） | 大库不打包，走 CDN | React/Vue 可外部化 |
 
 **🎯 面试追问**
 
@@ -891,17 +900,17 @@ HMR（Hot Module Replacement）在不刷新整个页面的情况下，将修改�
 // webpack 会在 bundle 中注入这段 HMR 运行时代码
 
 // WebSocket 连接（接收服务端推送）
-const socket = new WebSocket('ws://localhost:8080');
+const socket = new WebSocket("ws://localhost:8080");
 
 socket.onmessage = ({ data }) => {
   const message = JSON.parse(data);
-  
-  if (message.type === 'hash') {
+
+  if (message.type === "hash") {
     // 保存最新的 hash，用于构造 hot-update 文件的 URL
     currentHash = message.hash;
   }
-  
-  if (message.type === 'ok') {
+
+  if (message.type === "ok") {
     // 编译完成，检查并应用更新
     checkForUpdates();
   }
@@ -911,12 +920,12 @@ async function checkForUpdates() {
   // 1. 请求 hot-update.json：{ c: { "main": true }, r: [], m: [] }
   //    c = changed chunks, r = removed modules, m = updated modules
   const manifest = await fetch(`/${currentHash}.hot-update.json`);
-  
+
   // 2. 加载更新的 chunk
   for (const chunkId of manifest.c) {
     await loadChunk(`${chunkId}.${currentHash}.hot-update.js`);
   }
-  
+
   // 3. 应用更新（触发 module.hot.accept 回调）
   applyUpdates();
 }
@@ -934,15 +943,15 @@ if (module.hot) {
   });
 
   // accept 带路径：指定依赖变化时的处理
-  module.hot.accept('./utils', () => {
+  module.hot.accept("./utils", () => {
     // utils.js 变化后，重新导入并更新引用
-    const newUtils = require('./utils');
+    const newUtils = require("./utils");
     updateWithNewUtils(newUtils);
   });
-  
+
   // dispose：模块被替换前的清理工作
   module.hot.dispose((data) => {
-    clearInterval(timer);      // 清理定时器
+    clearInterval(timer); // 清理定时器
     data.state = currentState; // 把需要保留的状态传给新模块
   });
 }
@@ -983,10 +992,10 @@ CSS 热更新不走 webpack HMR 的模块替换流程，`style-loader` 直接在
 // React 项目配了 react-refresh 就自动处理了，手写代码时要注意
 
 // 坑2：module.hot.accept 里的 require 是静态缓存的
-module.hot.accept('./utils', () => {
+module.hot.accept("./utils", () => {
   // ❌ 这里的 import 是 ESM，ES6 import 是绑定引用，会自动更新
   // 但 require 是值拷贝，需要重新 require
-  const utils = require('./utils'); // ← 需要重新 require 才能拿到新模块
+  const utils = require("./utils"); // ← 需要重新 require 才能拿到新模块
 });
 
 // 坑3：HMR 不等于状态保留，需要框架支持
@@ -996,10 +1005,10 @@ module.hot.accept('./utils', () => {
 // 坑4：webpack-dev-server 的 hot 和 liveReload 区别
 module.exports = {
   devServer: {
-    hot: true,        // 开启 HMR（模块热替换）
+    hot: true, // 开启 HMR（模块热替换）
     liveReload: true, // 开启实时刷新（整页刷新，比 HMR 低级）
     // hot 优先级高于 liveReload，HMR 失败才 fallback 到 liveReload
-  }
+  },
 };
 ```
 
@@ -1032,13 +1041,13 @@ source map 是一个 JSON 文件，记录了**编译后代码到源代码的位�
 
 ```json
 {
-  "version": 3,            // source map 规范版本
-  "file": "main.js",       // 编译后的文件名
-  "sourceRoot": "/src/",   // 源文件根路径（可选）
+  "version": 3, // source map 规范版本
+  "file": "main.js", // 编译后的文件名
+  "sourceRoot": "/src/", // 源文件根路径（可选）
   "sources": ["./app.ts"], // 源文件路径列表
-  "sourcesContent": ["..."],// 源文件内容（内嵌，可选）
-  "names": ["add","result"],// 原始变量名列表
-  "mappings": "AAAA,SAAS,GAAG..."  // VLQ 编码的位置映射（核心）
+  "sourcesContent": ["..."], // 源文件内容（内嵌，可选）
+  "names": ["add", "result"], // 原始变量名列表
+  "mappings": "AAAA,SAAS,GAAG..." // VLQ 编码的位置映射（核心）
 }
 ```
 
@@ -1057,24 +1066,24 @@ mappings 是用分号（;）分隔行、逗号（,）分隔列的 Base64 VLQ 编
 ```js
 module.exports = {
   // 开发环境推荐：速度快，映射准确
-  devtool: 'eval-cheap-module-source-map',
-  
+  devtool: "eval-cheap-module-source-map",
+
   // 生产环境推荐：单独文件，不暴露源码
-  devtool: 'hidden-source-map',
+  devtool: "hidden-source-map",
 };
 ```
 
 **常用 devtool 对比：**
 
 | devtool 值 | 构建速度 | 重建速度 | 映射质量 | 适用环境 |
-|---|---|---|---|---|
-| `eval` | 最快 | 最快 | 低（无列信息）| 开发（快速迭代）|
-| `eval-source-map` | 慢 | 快 | 高（有列信息）| 开发 |
-| `eval-cheap-module-source-map` | 较快 | 快 | 中（只有行）| 开发（推荐）|
-| `source-map` | 最慢 | 最慢 | 最高 | 生产（需要调试）|
-| `hidden-source-map` | 最慢 | 最慢 | 最高 | 生产（上报给 Sentry）|
-| `nosources-source-map` | 慢 | 慢 | 中 | 生产（显示行列但不暴露源码）|
-| `false` / 不设置 | 最快 | 最快 | 无 | 生产（不需要调试）|
+| --- | --- | --- | --- | --- |
+| `eval` | 最快 | 最快 | 低（无列信息） | 开发（快速迭代） |
+| `eval-source-map` | 慢 | 快 | 高（有列信息） | 开发 |
+| `eval-cheap-module-source-map` | 较快 | 快 | 中（只有行） | 开发（推荐） |
+| `source-map` | 最慢 | 最慢 | 最高 | 生产（需要调试） |
+| `hidden-source-map` | 最慢 | 最慢 | 最高 | 生产（上报给 Sentry） |
+| `nosources-source-map` | 慢 | 慢 | 中 | 生产（显示行列但不暴露源码） |
+| `false` / 不设置 | 最快 | 最快 | 无 | 生产（不需要调试） |
 
 **关键词含义：**
 
@@ -1091,15 +1100,15 @@ hidden:  生成 source map 文件但不在 bundle 里引用（.js 末尾无 sour
 ```js
 // 生产环境推荐配置
 module.exports = {
-  devtool: 'hidden-source-map',
+  devtool: "hidden-source-map",
   plugins: [
     // 将 source map 上传到 Sentry 错误监控平台
     // 这样出错时能看到源码位置，但用户无法在浏览器下载 source map
     new SentryWebpackPlugin({
       authToken: process.env.SENTRY_AUTH_TOKEN,
-      org: 'your-org',
-      project: 'your-project',
-      include: './dist',
+      org: "your-org",
+      project: "your-project",
+      include: "./dist",
       release: process.env.BUILD_VERSION,
     }),
   ],

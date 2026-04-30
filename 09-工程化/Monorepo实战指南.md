@@ -23,13 +23,13 @@ Monorepo（单仓库）：多个项目/包放在同一个 Git 仓库中管理。
 
 ### 优势 vs 劣势
 
-| 维度 | Monorepo 优势 | Monorepo 劣势 |
-|------|-------------|-------------|
+| 维度     | Monorepo 优势         | Monorepo 劣势        |
+| -------- | --------------------- | -------------------- |
 | 代码共享 | 直接 import，无需发包 | 仓库体积大，clone 慢 |
-| 原子提交 | 跨包改动一次 commit | 权限控制复杂 |
-| 依赖管理 | 统一版本，避免不一致 | 初始配置复杂 |
-| 构建缓存 | Turborepo 智能缓存 | 需要专门工具支持 |
-| CI/CD | 统一流水线 | 需要按变更范围拆分 |
+| 原子提交 | 跨包改动一次 commit   | 权限控制复杂         |
+| 依赖管理 | 统一版本，避免不一致  | 初始配置复杂         |
+| 构建缓存 | Turborepo 智能缓存    | 需要专门工具支持     |
+| CI/CD    | 统一流水线            | 需要按变更范围拆分   |
 
 ---
 
@@ -64,8 +64,8 @@ my-monorepo/
 ```yaml
 # pnpm-workspace.yaml（根目录）
 packages:
-  - 'apps/*'
-  - 'packages/*'
+  - "apps/*"
+  - "packages/*"
   # 如有更深层嵌套：
   # - 'packages/**'
 ```
@@ -159,14 +159,14 @@ pnpm add @my/ui --filter web
 {
   "name": "web",
   "dependencies": {
-    "@my/ui": "workspace:*"   // ← workspace 协议，始终用最新本地版本
+    "@my/ui": "workspace:*" // ← workspace 协议，始终用最新本地版本
   }
 }
 ```
 
 ```typescript
 // apps/web/src/App.tsx
-import { Button } from '@my/ui';  // 直接引用本地包，TypeScript 类型完整
+import { Button } from "@my/ui"; // 直接引用本地包，TypeScript 类型完整
 ```
 
 ### 3.3 workspace 协议说明
@@ -222,6 +222,7 @@ import { Button } from '@my/ui';  // 直接引用本地包，TypeScript 类型�
 ```
 
 **关键字段说明：**
+
 - `dependsOn: ["^build"]`：先构建依赖包再构建自己（`^` 表示上游依赖）
 - `dependsOn: ["build"]`：同一包的 build 任务先完成
 - `cache: true`：输入文件 hash 不变则跳过执行，直接用缓存
@@ -236,7 +237,7 @@ import { Button } from '@my/ui';  // 直接引用本地包，TypeScript 类型�
 
 二次构建（输入未变）：
   Input hash 相同 → 直接还原缓存输出 → 跳过执行
-  
+
 Remote Cache（团队共享缓存）：
   本地缓存 miss → 查远程缓存（Vercel / 自建）
   → 命中则下载输出，跳过本地构建
@@ -356,6 +357,7 @@ pnpm add react --filter web --filter admin  # 给多个包添加
 ### Q2：为什么 Turborepo 没有利用缓存？
 
 常见原因：
+
 1. `inputs` 没有覆盖所有影响构建的文件
 2. 环境变量没有加到 `globalEnv`
 3. 输出目录没有在 `outputs` 中声明（导致缓存还原失败）
@@ -367,7 +369,7 @@ pnpm add react --filter web --filter admin  # 给多个包添加
     "build": {
       "inputs": ["src/**", "package.json", "tsconfig.json", "vite.config.ts"],
       "outputs": ["dist/**"],
-      "env": ["VITE_API_URL"]  // 包级环境变量
+      "env": ["VITE_API_URL"] // 包级环境变量
     }
   }
 }
@@ -393,7 +395,7 @@ module.exports = {
 {
   "exports": {
     ".": {
-      "import": "./src/index.ts"  // 开发时直接指向 TS 源文件
+      "import": "./src/index.ts" // 开发时直接指向 TS 源文件
     }
   }
 }
@@ -403,11 +405,8 @@ module.exports = {
 
 ## 面试快答
 
-**Q：Monorepo 和 Polyrepo 怎么选？**
-团队 >= 3人且有共享代码/组件的场景推荐 Monorepo；独立项目团队、权限需要严格隔离时选 Polyrepo。
+**Q：Monorepo 和 Polyrepo 怎么选？** 团队 >= 3人且有共享代码/组件的场景推荐 Monorepo；独立项目团队、权限需要严格隔离时选 Polyrepo。
 
-**Q：pnpm workspace 的核心优势是什么？**
-① 比 npm/yarn workspace 更严格的依赖隔离（无幽灵依赖）；② 软链接实现零拷贝，节省磁盘空间；③ 安装速度快（并行 + 全局内容寻址缓存）。
+**Q：pnpm workspace 的核心优势是什么？** ① 比 npm/yarn workspace 更严格的依赖隔离（无幽灵依赖）；② 软链接实现零拷贝，节省磁盘空间；③ 安装速度快（并行 + 全局内容寻址缓存）。
 
-**Q：Turborepo 如何加速 CI/CD？**
-通过 hash 缓存 + Remote Cache：输入文件不变则跳过构建。A 提交没改 UI 包 → UI 包构建命中缓存，直接复用结果。团队共用远程缓存，B 的 CI 直接用 A 构建好的产物。
+**Q：Turborepo 如何加速 CI/CD？** 通过 hash 缓存 + Remote Cache：输入文件不变则跳过构建。A 提交没改 UI 包 → UI 包构建命中缓存，直接复用结果。团队共用远程缓存，B 的 CI 直接用 A 构建好的产物。

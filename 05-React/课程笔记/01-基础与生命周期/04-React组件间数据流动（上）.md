@@ -76,23 +76,8 @@
     <span class="hljs-attr">text</span>: <span class="hljs-string">'子组件的文本'</span>
   }
 
-  <span class="hljs-comment">// 子组件的按钮监听函数</span>
-  changeText = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
-    <span class="hljs-comment">// changeText 中，调用了父组件传入的 changeFatherText 方法</span>
-    <span class="hljs-keyword">this</span>.props.changeFatherText(<span class="hljs-keyword">this</span>.state.text)
-  }
-  render() {
-    <span class="hljs-keyword">return</span> (
-      <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"child"</span>&gt;</span>
-        {/* 注意这里把修改父组件文本的动作放在了 Child 里 */}
-        <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">onClick</span>=<span class="hljs-string">{this.changeText}</span>&gt;</span>
-          点击更新父组件的文本
-        <span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>
-      <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span>
-    );
-  }
-}
-</code></pre>
+<span class="hljs-comment">// 子组件的按钮监听函数</span> changeText = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> { <span class="hljs-comment">// changeText 中，调用了父组件传入的 changeFatherText 方法</span> <span class="hljs-keyword">this</span>.props.changeFatherText(<span class="hljs-keyword">this</span>.state.text) } render() { <span class="hljs-keyword">return</span> ( <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"child"</span>&gt;</span> {/_ 注意这里把修改父组件文本的动作放在了 Child 里 _/} <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">onClick</span>=<span class="hljs-string">{this.changeText}</span>&gt;</span> 点击更新父组件的文本 <span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span> <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span> ); } } </code></pre>
+
 <p data-nodeid="13021">在父组件中，我们只需要在 changeText 函数上开一个传参的口子，作为数据通信的入口，然后把 changeText 放在 props 里交给子组件即可。父组件的编码内容如下：</p>
 <pre class="lang-js" data-nodeid="13022"><code data-language="js"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Father</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">React</span>.<span class="hljs-title">Component</span> </span>{
   <span class="hljs-comment">// 初始化父组件的 state</span>
@@ -261,10 +246,6 @@
 </ul>
 <p data-nodeid="16627" class="">所谓“订阅”，也就是注册事件监听函数的过程。这是一个“写”操作，具体来说就是把事件和对应的监听函数写入到 eventMap 里面去：</p>
 
-
-
-
-
 <pre class="lang-java te-preview-highlight" data-nodeid="38471"><code data-language="java"><span class="hljs-comment">// type 这里就代表事件的名称</span>
 on(type, handler) {
   <span class="hljs-comment">// hanlder 必须是一个函数，如果不是直接报错</span>
@@ -280,32 +261,6 @@ on(type, handler) {
   <span class="hljs-keyword">this</span>.eventMap[type].push(handler)
 }
 </code></pre>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 <ul data-nodeid="13102">
 <li data-nodeid="13103">
@@ -461,143 +416,189 @@ myEvent.emit(<span class="hljs-string">"test"</span>, <span class="hljs-string">
 ### 精选评论
 
 ##### Loktar：
-> 老哥这个  右移符号用的妙啊😀
 
-##### **峰：
+> 老哥这个 右移符号用的妙啊😀
+
+##### \*\*峰：
+
 > 我来解释一下 off 方法中无符号右移的作用吧，这里是为了处理传入一个事件队列中不存在的函数时，不会意外的移除掉，我们知道 splice 的第一个参数是负数时，会从数组的最后往前找。试想一下，如果传入一个不存在的函数给 off 方法，indexOf 找不到会返回 -1 ，再调用 splice 就会将队列中最后一个函数删除掉了。而使用无符号右移，-1 无符号右移的结果为 4294967295，这个数足够大，不会对原队列造成影响，就很秒 )：
 
-##### **用户7412：
-> 这个无符号右移，之前都没用过，二进制的转码看了一下也是一知半解，不过这地方之所以能用是因为 -1  0 一定等于4294967295。而这个数够大，已经相当于没有对原数组做任何处理了，秒啊
+##### \*\*用户7412：
+
+> 这个无符号右移，之前都没用过，二进制的转码看了一下也是一知半解，不过这地方之所以能用是因为 -1 0 一定等于4294967295。而这个数够大，已经相当于没有对原数组做任何处理了，秒啊
 
 ##### WEL：
+
 > 本人小白一枚，对于代码中的这个：const globalEvent = window.myEvent 如何定义，我在代码中定义，一直报错，网上也没给出相应的答案，老师可否指点迷津😀
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; window.myEvent = new myEventEmitter();
 
-##### **光：
+##### \*\*光：
+
 > 修言老师有没有 Vue 的教程呀，准不准备出出，老师的 React 课程实在是太棒了！很期待能有 Vue 的课程
 
- ###### &nbsp;&nbsp;&nbsp; 编辑回复：
+###### &nbsp;&nbsp;&nbsp; 编辑回复：
+
 > &nbsp;&nbsp;&nbsp; 可以期待一下哦
 
-##### **飞：
+##### \*\*飞：
+
 > B组件注册 A组件触发
 
-##### *飞：
+##### \*飞：
+
 > 非常赞
 
-##### *阳：
+##### \*阳：
+
 > 非常好，和直前的设计模式小册 对上了
 
-##### **原：
+##### \*\*原：
+
 > 循序渐进，娓娓道来，听得太舒服啦
 
-##### *赢：
+##### \*赢：
+
 > 写的太好了！大佬的小册我也都买过！一如既往的好！讲的太明白了！
 
-##### **8542：
+##### \*\*8542：
+
 > 父子，子父，兄弟基于props的通信，单向数据流，向下流动。任意组件发布订阅模式。重点考核发布订阅模式。
 
-##### *鹤：
+##### \*鹤：
+
 > 这是位运算
 
-##### **涛：
+##### \*\*涛：
+
 > 点赞
 
-##### *浩：
+##### \*浩：
+
 > 右移符号涨姿势了
 
-##### *攀：
+##### \*攀：
+
 > 给修大点个赞
 
-##### **逸：
+##### \*\*逸：
+
 > const globalEvent = window.myEvent，是指赋值给全局window对象，方便调用
 
-##### **安：
+##### \*\*安：
+
 > 继续打卡
 
-##### **克：
+##### \*\*克：
+
 > 无符号右移骚操作啊
 
-##### *平：
+##### \*平：
+
 > 哈哈，这个无符号右移运算符，一开始我确实没看懂。看了下面各位大佬的解释，以及这篇博文https://www.jianshu.com/p/6c518e7b4690 之后，我算明白了精髓所在。首先负数以其正值的补码形式表达，而无符号运算符( 0)，这里没有移动一位数，但是会把这个补码转化为一个正值，一个足够大的正值4294967295。正常情况下没人会往数据塞这么多数据，所以这个做法可以认为实际上可行，虽然理论上有上限。
 
-##### **9390：
+##### \*\*9390：
+
 > 请问redux是不是就直接解决了多层component数据流传输不方便的问题？
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 是的
 
-##### **舟：
+##### \*\*舟：
+
 > 最后这个-1＞＞＞0怎么理解啊
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; >>> 是无符号按位右移运算符。考虑 indexOf 返回-1 的情况：splice方法喜欢把-1解读为当前数组的最后一个元素，这样子的话，在压根没有对应函数可以删的情况下，不管三七二十一就把最后一个元素给干掉了。而 >>> 符号对正整数没有影响，但对于-1来说它会把-1转换为一个巨大的数（你可以本地运行下试试看，应该是一个32位全是1的二进制数，折算成十进制就是 4294967295）。这个巨大的索引splice是找不到的，找不到就不删，于是一切保持原状，刚好符合我们的预期。
 
-##### **奎：
+##### \*\*奎：
+
 > 发布-订阅 讲的真好，大佬大佬，无符号右移看了一下评论区 哈哈 又学会一个骚操作
 
-##### **琪：
+##### \*\*琪：
+
 > 研究了下位运算符">正数有符号右移与无符号右移结果是一样的，而负数无符号右移，会用0填充空位，同时把负数作为正数处理，结果会非常大。-14294967295
 
-##### *忠：
-> 右移运算符 这个精妙在哪里呢？indexOf()  0
+##### \*忠：
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+> 右移运算符 这个精妙在哪里呢？indexOf() 0
+
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 考虑 indexOf 返回-1 的情况：splice方法喜欢把-1解读为当前数组的最后一个元素，这样子的话，在压根没有对应函数可以删的情况下，不管三七二十一就把最后一个元素给干掉了。而 >>> 符号对正整数没有影响，但对于-1来说它会把-1转换为一个巨大的数（你可以本地运行下试试看，应该是一个32位全是1的二进制数，折算成十进制就是 4294967295）。这个巨大的索引splice是找不到的，找不到就不删，于是一切保持原状，刚好符合我们的预期。
 
-##### **刚：
+##### \*\*刚：
+
 > 对发布-订阅 又有了进一步的认识...
 
-##### **环：
+##### \*\*环：
+
 > 太喜欢老师的课了，通俗易懂！感谢老师！
 
-##### **燕：
+##### \*\*燕：
+
 > 写的太好了，有收获
 
-##### **4992：
+##### \*\*4992：
+
 > 这个 右移 运算符精妙，捣鼓了一会才弄明白，恍然大悟的感觉，哈哈哈
 
-##### *琴：
+##### \*琴：
+
 > const globalEvent = window.myEvent，这里需要怎么挂载到全局呀
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; window.myEvent = new myEventEmitter();
 
-##### **阳：
+##### \*\*阳：
+
 > 内容逻辑清晰，也很好理解，讲的特别好
 
-##### **龙：
+##### \*\*龙：
+
 > 大佬，我有个不太明白的地方，off函数里边的那个右移符号的作用？可以去掉或者用其他方式替代吗？
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 考虑 indexOf 返回-1 的情况：splice方法喜欢把-1解读为当前数组的最后一个元素，这样子的话，在压根没有对应函数可以删的情况下，不管三七二十一就把最后一个元素给干掉了。而 >>> 符号对正整数没有影响，但对于-1来说它会把-1转换为一个巨大的数（你可以本地运行下试试看，应该是一个32位全是1的二进制数，折算成十进制就是 4294967295）。这个巨大的索引splice是找不到的，找不到就不删，于是一切保持原状，刚好符合我们的预期。
 
-##### **涛：
+##### \*\*涛：
+
 > 前排学习小队
 
-##### **成：
+##### \*\*成：
+
 > 耐心看完了,有收获😁
 
-##### *旭：
+##### \*旭：
+
 > 打卡
 
 ##### fanta：
+
 > this.eventMap[type].splice(this.eventMap[type].indexOf(handler)0,1)修言老师您好 请问这里位运算有什么特殊用意吗？
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 那个不是大于号，>>> 是无符号按位右移运算符。考虑 indexOf 返回-1 的情况：splice方法喜欢把-1解读为当前数组的最后一个元素，这样子的话，在压根没有对应函数可以删的情况下，不管三七二十一就把最后一个元素给干掉了。而 >>> 符号对正整数没有影响，但对于-1来说它会把-1转换为一个巨大的数（你可以本地运行下试试看，应该是一个32位全是1的二进制数，折算成十进制就是 4294967295）。这个巨大的索引splice是找不到的，找不到就不删，于是一切保持原状，刚好符合我们的预期。
 
 ##### jhawn：
+
 > this.eventMap[type].splice(this.eventMap[type].indexOf(handler) 0,1)这里indexOf后面三个大于号如何理解
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 这三个大于号 >>> 是无符号按位右移运算符。考虑 indexOf 返回-1 的情况：splice方法喜欢把-1解读为当前数组的最后一个元素，这样子的话，在压根没有对应函数可以删的情况下，不管三七二十一就把最后一个元素给干掉了。而 >>> 符号对正整数没有影响，但对于-1来说它会把-1转换为一个巨大的数（你可以本地运行下试试看，应该是一个32位全是1的二进制数，折算成十进制就是 4294967295）。这个巨大的索引splice是找不到的，找不到就不删，于是一切保持原状，刚好符合我们的预期。
 
-##### **3970：
+##### \*\*3970：
+
 > off(type, handler) { if (this.eventMap[type]) { } }请问这里的移位操作符的作用是什么呢?
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
-> &nbsp;&nbsp;&nbsp; >>> 是无符号按位右移运算符。考虑 indexOf 返回-1 的情况：splice方法喜欢把-1解读为当前数组的最后一个元素，这样子的话，在压根没有对应函数可以删的情况下，不管三七二十一就把最后一个元素给干掉了。而 >>> 符号对正整数没有影响，但对于-1来说它会把-1转换为一个巨大的数（你可以本地运行下试试看，应该是一个32位全是1的二进制数，折算成十进制就是 4294967295）。这个巨大的索引splice是找不到的，找不到就不删，于是一切保持原状，刚好符合我们的预期。
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
 
+> &nbsp;&nbsp;&nbsp; >>> 是无符号按位右移运算符。考虑 indexOf 返回-1 的情况：splice方法喜欢把-1解读为当前数组的最后一个元素，这样子的话，在压根没有对应函数可以删的情况下，不管三七二十一就把最后一个元素给干掉了。而 >>> 符号对正整数没有影响，但对于-1来说它会把-1转换为一个巨大的数（你可以本地运行下试试看，应该是一个32位全是1的二进制数，折算成十进制就是 4294967295）。这个巨大的索引splice是找不到的，找不到就不删，于是一切保持原状，刚好符合我们的预期。

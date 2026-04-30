@@ -39,11 +39,13 @@
 ### 虚拟 DOM 的优缺点
 
 **优点：**
+
 - **跨平台**：虚拟 DOM 是纯 JS 对象，可以渲染到不同平台（浏览器、Native、服务端）
 - **批量更新**：将多次 DOM 操作合并，减少真实 DOM 操作次数
 - **声明式编程**：开发者只需描述"应该是什么样"，框架负责"怎么变"
 
 **缺点：**
+
 - **首次渲染慢**：需要额外创建虚拟 DOM 树
 - **内存占用**：需要维护一份虚拟 DOM 树
 - **不一定比直接操作 DOM 快**：对于简单场景，直接操作 DOM 可能更快
@@ -93,10 +95,14 @@ React 的 diff 算法基于三个假设（启发式算法，O(n) 复杂度）：
 // 只需要移动 DOM 节点，不需要更新内容
 
 // ❌ 不要用 index 作为 key（列表重排时会出问题）
-{list.map((item, index) => <Item key={index} data={item} />)}
+{
+  list.map((item, index) => <Item key={index} data={item} />);
+}
 
 // ✅ 用稳定唯一的 id
-{list.map(item => <Item key={item.id} data={item} />)}
+{
+  list.map((item) => <Item key={item.id} data={item} />);
+}
 ```
 
 ---
@@ -167,7 +173,7 @@ React 18 引入了并发模式，不同更新有不同优先级：
 
 ```jsx
 // React 18 并发特性
-import { startTransition, useTransition, useDeferredValue } from 'react';
+import { startTransition, useTransition, useDeferredValue } from "react";
 
 // startTransition：标记为低优先级更新
 startTransition(() => {
@@ -176,7 +182,7 @@ startTransition(() => {
 
 // useTransition：带 pending 状态的 transition
 const [isPending, startTransition] = useTransition();
-startTransition(() => setTab('heavy'));
+startTransition(() => setTab("heavy"));
 // isPending 为 true 时可以显示 loading
 
 // useDeferredValue：延迟更新某个值
@@ -257,7 +263,7 @@ function completeUnitOfWork(unitOfWork) {
 React 时间切片底层用的是 **MessageChannel**，不是 `requestIdleCallback`，原因如下：
 
 | 对比项 | requestIdleCallback | MessageChannel |
-|--------|---------------------|----------------|
+| --- | --- | --- |
 | 执行时机 | 浏览器空闲时才执行，用户交互频繁时可能一直被推迟 | 每帧都能稳定执行（宏任务） |
 | 给的时间 | 可能不足 1ms | 可以精确控制（React 设为 5ms） |
 | 兼容性 | Safari 不支持 | 全面支持 |
@@ -292,7 +298,7 @@ function shouldYieldToHost() {
 ### 提交阶段（commit）——不可中断，分3个子阶段
 
 | 子阶段 | 时机 | 执行内容 |
-|--------|------|----------|
+| --- | --- | --- |
 | **before mutation** | DOM 修改前 | 处理 `useEffect` 清理函数、`getSnapshotBeforeUpdate` |
 | **mutation** | 真正操作 DOM | 根据 flags 执行插入/更新/删除 |
 | **layout** | DOM 更新后、绘制前 | 执行 `componentDidMount/Update`、`useLayoutEffect` |

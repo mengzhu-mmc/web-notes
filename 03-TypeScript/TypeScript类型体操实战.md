@@ -16,25 +16,23 @@
 
 ### 1.1 类型关键字速查
 
-| 关键字 | 作用 |
-|--------|------|
-| `extends` | 条件判断、泛型约束 |
-| `infer` | 类型推断，用于提取类型 |
-| `keyof` | 获取对象类型的所有键 |
-| `typeof` | 获取值的类型 |
-| `in` | 映射类型的遍历 |
-| `as` | 类型断言、重映射 |
-| `&` | 交叉类型 |
-| `\|` | 联合类型 |
+| 关键字    | 作用                   |
+| --------- | ---------------------- |
+| `extends` | 条件判断、泛型约束     |
+| `infer`   | 类型推断，用于提取类型 |
+| `keyof`   | 获取对象类型的所有键   |
+| `typeof`  | 获取值的类型           |
+| `in`      | 映射类型的遍历         |
+| `as`      | 类型断言、重映射       |
+| `&`       | 交叉类型               |
+| `\|`      | 联合类型               |
 
 ### 1.2 递归基础
 
 ```typescript
 // 递归终止条件 + 递归调用
 type DeepReadonly<T> = {
-  readonly [K in keyof T]: T[K] extends object 
-    ? DeepReadonly<T[K]> 
-    : T[K];
+  readonly [K in keyof T]: T[K] extends object ? DeepReadonly<T[K]> : T[K];
 };
 ```
 
@@ -89,8 +87,8 @@ type PathValue<T, P extends string> = P extends `${infer K}.${infer Rest}`
     ? PathValue<T[K], Rest>
     : never
   : P extends keyof T
-  ? T[P]
-  : never;
+    ? T[P]
+    : never;
 
 // 使用示例
 interface Data {
@@ -121,7 +119,7 @@ type KebabCase<S extends string> = S extends `${infer C}${infer Rest}`
 
 // 使用示例
 type T1 = KebabCase<"FooBarBaz">; // "foo-bar-baz"
-type T2 = KebabCase<"fooBar">;    // "foo-bar"
+type T2 = KebabCase<"fooBar">; // "foo-bar"
 
 // KebabCase 转 CamelCase
 type CamelCase<S extends string> = S extends `${infer P}-${infer Q}${infer R}`
@@ -136,15 +134,14 @@ type T3 = CamelCase<"foo-bar-baz">; // "fooBarBaz"
 
 ```typescript
 // 解析 URL 参数
-type ParseQueryString<S extends string> = 
+type ParseQueryString<S extends string> =
   S extends `${infer Param}&${infer Rest}`
     ? ParseParam<Param> & ParseQueryString<Rest>
     : ParseParam<S>;
 
-type ParseParam<S extends string> = 
-  S extends `${infer K}=${infer V}`
-    ? { [P in K]: V }
-    : {};
+type ParseParam<S extends string> = S extends `${infer K}=${infer V}`
+  ? { [P in K]: V }
+  : {};
 
 // 使用示例
 type Query = ParseQueryString<"a=1&b=2&c=3">;
@@ -159,25 +156,31 @@ type Query = ParseQueryString<"a=1&b=2&c=3">;
 
 ```typescript
 // 获取元组长度
-type Length<T extends readonly any[]> = T['length'];
+type Length<T extends readonly any[]> = T["length"];
 
 // 获取元组第一个元素
-type First<T extends readonly any[]> = T extends [infer F, ...any[]] ? F : never;
+type First<T extends readonly any[]> = T extends [infer F, ...any[]]
+  ? F
+  : never;
 
 // 获取元组最后一个元素
 type Last<T extends readonly any[]> = T extends [...any[], infer L] ? L : never;
 
 // 去掉第一个元素
-type Tail<T extends readonly any[]> = T extends [any, ...infer Rest] ? Rest : never;
+type Tail<T extends readonly any[]> = T extends [any, ...infer Rest]
+  ? Rest
+  : never;
 
 // 去掉最后一个元素
-type Init<T extends readonly any[]> = T extends [...infer Rest, any] ? Rest : never;
+type Init<T extends readonly any[]> = T extends [...infer Rest, any]
+  ? Rest
+  : never;
 
 // 使用示例
-type T1 = Length<[1, 2, 3]>;  // 3
-type T2 = First<[1, 2, 3]>;   // 1
-type T3 = Last<[1, 2, 3]>;    // 3
-type T4 = Tail<[1, 2, 3]>;    // [2, 3]
+type T1 = Length<[1, 2, 3]>; // 3
+type T2 = First<[1, 2, 3]>; // 1
+type T3 = Last<[1, 2, 3]>; // 3
+type T4 = Tail<[1, 2, 3]>; // [2, 3]
 ```
 
 ### 4.2 元组转联合类型
@@ -195,15 +198,16 @@ type UnionToTuple<U, Last = LastInUnion<U>> = [U] extends [never]
   ? []
   : [...UnionToTuple<Exclude<U, Last>>, Last];
 
-type LastInUnion<U> = UnionToIntersection<
-  U extends any ? (x: U) => void : never
-> extends (x: infer L) => void
-  ? L
-  : never;
+type LastInUnion<U> =
+  UnionToIntersection<U extends any ? (x: U) => void : never> extends (
+    x: infer L,
+  ) => void
+    ? L
+    : never;
 
-type UnionToIntersection<U> = (
-  U extends any ? (x: U) => void : never
-) extends (x: infer I) => void
+type UnionToIntersection<U> = (U extends any ? (x: U) => void : never) extends (
+  x: infer I,
+) => void
   ? I
   : never;
 
@@ -241,8 +245,8 @@ const curriedAdd = curry(add);
 type MyAwaited<T> = T extends Promise<infer R> ? MyAwaited<R> : T;
 
 // 使用示例
-type T1 = MyAwaited<Promise<string>>;           // string
-type T2 = MyAwaited<Promise<Promise<number>>>;  // number
+type T1 = MyAwaited<Promise<string>>; // string
+type T2 = MyAwaited<Promise<Promise<number>>>; // number
 
 // 实现 Promise.all 类型
 type PromiseAll<T extends readonly unknown[]> = Promise<{
@@ -251,10 +255,14 @@ type PromiseAll<T extends readonly unknown[]> = Promise<{
 
 // 使用示例
 declare function promiseAll<T extends readonly unknown[]>(
-  values: T
+  values: T,
 ): PromiseAll<T>;
 
-const p = promiseAll([Promise.resolve(1), Promise.resolve("a"), Promise.resolve(true)]);
+const p = promiseAll([
+  Promise.resolve(1),
+  Promise.resolve("a"),
+  Promise.resolve(true),
+]);
 // p: Promise<[number, string, boolean]>
 ```
 
@@ -276,14 +284,14 @@ type T1 = Flatten<[1, [2, 3], [[4]]]>;
 type FlattenDepth<
   T extends any[],
   D extends number = 1,
-  C extends any[] = []
-> = C['length'] extends D
+  C extends any[] = [],
+> = C["length"] extends D
   ? T
   : T extends [infer F, ...infer R]
-  ? F extends any[]
-    ? [...FlattenDepth<F, D, [...C, 1]>, ...FlattenDepth<R, D, C>]
-    : [F, ...FlattenDepth<R, D, C>]
-  : [];
+    ? F extends any[]
+      ? [...FlattenDepth<F, D, [...C, 1]>, ...FlattenDepth<R, D, C>]
+      : [F, ...FlattenDepth<R, D, C>]
+    : [];
 
 // 使用示例
 type T2 = FlattenDepth<[1, [2, [3, [4]]]], 2>;
@@ -329,14 +337,13 @@ type TypeGuard<T, U extends T> = (value: T) => value is U;
 
 // 实现 isString 类型守卫
 type IsString = TypeGuard<unknown, string>;
-const isString: IsString = (value): value is string => 
-  typeof value === 'string';
+const isString: IsString = (value): value is string =>
+  typeof value === "string";
 
 // 实现 isArrayOf 高阶类型守卫
 type IsArrayOf<T> = (value: unknown) => value is T[];
 function isArrayOf<T>(guard: (x: unknown) => x is T): IsArrayOf<T> {
-  return (value): value is T[] => 
-    Array.isArray(value) && value.every(guard);
+  return (value): value is T[] => Array.isArray(value) && value.every(guard);
 }
 ```
 

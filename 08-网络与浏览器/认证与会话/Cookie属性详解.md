@@ -13,7 +13,7 @@
 ## Cookie 完整属性一览
 
 | 属性 | 说明 | 示例 |
-|------|------|------|
+| --- | --- | --- |
 | `Name=Value` | Cookie 的键值对 | `token=abc123` |
 | `Domain` | 哪些域名可以访问该 Cookie | `domain=.example.com` |
 | `Path` | 哪些路径下的请求携带该 Cookie | `path=/api` |
@@ -106,9 +106,9 @@ Set-Cookie: token=abc; Secure
 控制跨站请求（不同站点发出的请求）是否携带 Cookie。
 
 | 值 | 说明 | 跨站 GET | 跨站 POST | 场景 |
-|----|------|:---:|:---:|------|
-| `Strict` | 完全禁止跨站携带 | ❌ | ❌ | 高安全需求（银行）|
-| `Lax` | 允许顶层导航的 GET 跨站携带 | ✅（超链接跳转）| ❌ | 大多数网站（**浏览器默认值**）|
+| --- | --- | :-: | :-: | --- |
+| `Strict` | 完全禁止跨站携带 | ❌ | ❌ | 高安全需求（银行） |
+| `Lax` | 允许顶层导航的 GET 跨站携带 | ✅（超链接跳转） | ❌ | 大多数网站（**浏览器默认值**） |
 | `None` | 不限制，跨站都携带 | ✅ | ✅ | 需要跨站携带（第三方 widget、嵌入式登录），**必须同时设置 Secure** |
 
 ```
@@ -129,13 +129,13 @@ Set-Cookie: token=abc; SameSite=Lax
 
 ```javascript
 // 登录成功后设置安全 Cookie
-res.cookie('sessionId', sessionId, {
-  httpOnly: true,            // 禁止 JS 读取，防 XSS
-  secure: true,              // 仅 HTTPS 传输
-  sameSite: 'Lax',           // 防 CSRF（大多数场景用 Lax）
-  domain: '.example.com',    // 允许所有子域访问（SSO 场景）
+res.cookie("sessionId", sessionId, {
+  httpOnly: true, // 禁止 JS 读取，防 XSS
+  secure: true, // 仅 HTTPS 传输
+  sameSite: "Lax", // 防 CSRF（大多数场景用 Lax）
+  domain: ".example.com", // 允许所有子域访问（SSO 场景）
   maxAge: 7 * 24 * 60 * 60 * 1000, // 7天过期（毫秒）
-  path: '/',
+  path: "/",
 });
 ```
 
@@ -144,7 +144,7 @@ res.cookie('sessionId', sessionId, {
 ```javascript
 // 读取指定 Cookie
 function getCookie(name) {
-  const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+  const match = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)"));
   return match ? decodeURIComponent(match[2]) : null;
 }
 

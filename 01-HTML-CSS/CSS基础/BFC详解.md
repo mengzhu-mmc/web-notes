@@ -76,7 +76,9 @@ BFC（Block Formatting Context，块级格式化上下文）是一个独立的�
 }
 
 /* ❌ 父元素高度塌陷为 0 */
-.parent { background: lightblue; }
+.parent {
+  background: lightblue;
+}
 
 /* ✅ 触发父元素的 BFC，使其包裹浮动子元素 */
 .parent {
@@ -102,10 +104,14 @@ BFC（Block Formatting Context，块级格式化上下文）是一个独立的�
 ```
 
 ```css
-.child { margin-top: 20px; }
+.child {
+  margin-top: 20px;
+}
 
 /* ❌ 子元素的 margin-top 折叠到父元素外面 */
-.parent { background: lightblue; }
+.parent {
+  background: lightblue;
+}
 
 /* ✅ 父元素触发 BFC，隔离内部 margin，防止折叠 */
 .parent {
@@ -121,7 +127,8 @@ BFC（Block Formatting Context，块级格式化上下文）是一个独立的�
 
 <!-- ✅ 用 BFC 容器隔离其中一个，阻止折叠 -->
 <div style="margin-bottom: 20px;">上方元素</div>
-<div style="display: flow-root;">  <!-- BFC 容器 -->
+<div style="display: flow-root;">
+  <!-- BFC 容器 -->
   <div style="margin-top: 30px;">下方元素</div>
 </div>
 ```
@@ -151,7 +158,9 @@ BFC（Block Formatting Context，块级格式化上下文）是一个独立的�
 }
 
 /* ❌ 右侧文字会环绕左侧浮动元素 */
-.right { background: lightblue; }
+.right {
+  background: lightblue;
+}
 
 /* ✅ 右侧触发 BFC，BFC 区域不与浮动元素重叠，自动形成两栏 */
 .right {

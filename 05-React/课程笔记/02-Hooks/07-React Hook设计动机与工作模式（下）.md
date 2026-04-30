@@ -11,31 +11,10 @@
 <pre class="lang-js" data-nodeid="14038"><code data-language="js"><span class="hljs-keyword">import</span> React, { Component } <span class="hljs-keyword">from</span> <span class="hljs-string">"react"</span>;
 <span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TextButton</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Component</span> </span>{
 
-  <span class="hljs-keyword">constructor</span>() {
-    <span class="hljs-keyword">super</span>();
-    <span class="hljs-keyword">this</span>.state = {
-      <span class="hljs-attr">text</span>: <span class="hljs-string">"初始文本"</span>
-    };
-  }
+<span class="hljs-keyword">constructor</span>() { <span class="hljs-keyword">super</span>(); <span class="hljs-keyword">this</span>.state = { <span class="hljs-attr">text</span>: <span class="hljs-string">"初始文本"</span> }; }
 
-  changeText = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
-    <span class="hljs-keyword">this</span>.setState(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
-      <span class="hljs-keyword">return</span> {
-        <span class="hljs-attr">text</span>: <span class="hljs-string">"修改后的文本"</span>
-      };
-    });
-  };
-  render() {
-    <span class="hljs-keyword">const</span> { text } = <span class="hljs-keyword">this</span>.state;
-    <span class="hljs-keyword">return</span> (
-      <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"textButton"</span>&gt;</span>
-        <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>{text}<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
-        <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">onClick</span>=<span class="hljs-string">{this.changeText}</span>&gt;</span>点击修改文本<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>
-      <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span>
-    );
-  }
-}
-</code></pre>
+changeText = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> { <span class="hljs-keyword">this</span>.setState(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> { <span class="hljs-keyword">return</span> { <span class="hljs-attr">text</span>: <span class="hljs-string">"修改后的文本"</span> }; }); }; render() { <span class="hljs-keyword">const</span> { text } = <span class="hljs-keyword">this</span>.state; <span class="hljs-keyword">return</span> ( <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"textButton"</span>&gt;</span> <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>{text}<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span> <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">onClick</span>=<span class="hljs-string">{this.changeText}</span>&gt;</span>点击修改文本<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span> <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span> ); } } </code></pre>
+
 <p data-nodeid="14039">有了 useState 后，我们就可以直接在函数组件里引入 state。以下是使用 useState 改造过后的 TextButton 组件：</p>
 <pre class="lang-js" data-nodeid="14040"><code data-language="js"><span class="hljs-keyword">import</span> React, { useState } <span class="hljs-keyword">from</span> <span class="hljs-string">"react"</span>;
 <span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Button</span>(<span class="hljs-params"></span>) </span>{
@@ -121,46 +100,10 @@
 <span class="hljs-comment">// 定义类组件</span>
 <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">IncreasingTodoList</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">React</span>.<span class="hljs-title">Component</span> </span>{
 
-  <span class="hljs-comment">// 初始化 state</span>
-  state = { <span class="hljs-attr">count</span>: <span class="hljs-number">0</span> }
-  <span class="hljs-comment">// 此处调用上个 demo 中 useEffect 中传入的函数</span>
-  componentDidMount() {
-    <span class="hljs-keyword">this</span>.addTodoItem()
-  }
-  <span class="hljs-comment">// 此处调用上个 demo 中 useEffect 中传入的函数</span>
-  componentDidUpdate() {
-    <span class="hljs-keyword">this</span>.addTodoItem()
-  }
-  <span class="hljs-comment">// 每次 count 增加时，都增加对应的待办项</span>
-  addTodoItem = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
-    <span class="hljs-keyword">const</span> { count } = <span class="hljs-keyword">this</span>.state
-    <span class="hljs-keyword">const</span> todoList = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">"todoList"</span>)
-    <span class="hljs-keyword">const</span> newItem = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">"li"</span>)
-    newItem.innerHTML = <span class="hljs-string">`我是第<span class="hljs-subst">${count}</span>个待办项`</span>
-    todoList.append(newItem)
-  }
+<span class="hljs-comment">// 初始化 state</span> state = { <span class="hljs-attr">count</span>: <span class="hljs-number">0</span> } <span class="hljs-comment">// 此处调用上个 demo 中 useEffect 中传入的函数</span> componentDidMount() { <span class="hljs-keyword">this</span>.addTodoItem() } <span class="hljs-comment">// 此处调用上个 demo 中 useEffect 中传入的函数</span> componentDidUpdate() { <span class="hljs-keyword">this</span>.addTodoItem() } <span class="hljs-comment">// 每次 count 增加时，都增加对应的待办项</span> addTodoItem = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> { <span class="hljs-keyword">const</span> { count } = <span class="hljs-keyword">this</span>.state <span class="hljs-keyword">const</span> todoList = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">"todoList"</span>) <span class="hljs-keyword">const</span> newItem = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">"li"</span>) newItem.innerHTML = <span class="hljs-string">`我是第<span class="hljs-subst">${count}</span>个待办项`</span> todoList.append(newItem) }
 
-  <span class="hljs-comment">// 定义渲染内容</span>
-  render() {
-    <span class="hljs-keyword">const</span> { count } = <span class="hljs-keyword">this</span>.state
-    <span class="hljs-keyword">return</span> (
-      <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>
-        <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>当前共计 {count} 个todo Item<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
-        <span class="hljs-tag">&lt;<span class="hljs-name">ul</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"todoList"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">ul</span>&gt;</span>
-        <span class="hljs-tag">&lt;<span class="hljs-name">button</span>
-          <span class="hljs-attr">onClick</span>=<span class="hljs-string">{()</span> =&gt;</span>
-            this.setState({
-              count: this.state.count + 1,
-            })
-          }
-        &gt;
-          点我增加一个待办项
-        <span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>
-      <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span>
-    )
-  }
-}
-</code></pre>
+<span class="hljs-comment">// 定义渲染内容</span> render() { <span class="hljs-keyword">const</span> { count } = <span class="hljs-keyword">this</span>.state <span class="hljs-keyword">return</span> ( <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span> <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>当前共计 {count} 个todo Item<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span> <span class="hljs-tag">&lt;<span class="hljs-name">ul</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"todoList"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">ul</span>&gt;</span> <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">onClick</span>=<span class="hljs-string">{()</span> =&gt;</span> this.setState({ count: this.state.count + 1, }) } &gt; 点我增加一个待办项 <span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span> <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span> ) } } </code></pre>
+
 <p data-nodeid="14070">通过这样一个对比，类组件生命周期和函数组件 useEffect 之间的转换关系可以说是跃然纸上了。</p>
 <p data-nodeid="14071">在这里，我提个醒：初学 useEffect 时，我们难免习惯于借助对生命周期的理解来推导对 useEffect 的理解。但长期来看，若是执着于这个学习路径，无疑将阻碍你真正从心智模式的层面拥抱 React-Hooks。</p>
 <p data-nodeid="14072"><strong data-nodeid="14219">有时候，我们必须学会忘记旧的知识，才能够更好地拥抱新的知识</strong>。对于每一个学习 useEffect 的人来说，生命周期到 useEffect 之间的转换关系都不是最重要的，最重要的是在脑海中构建一个“组件有副作用 → 引入 useEffect”这样的条件反射——<strong data-nodeid="14220">当你真正抛却类组件带给你的刻板印象、拥抱函数式编程之后，想必你会更加认同“useEffect 是用于为函数组件引入副作用的钩子”这个定义</strong>。</p>
@@ -193,11 +136,8 @@
 <pre class="lang-java" data-nodeid="14088"><code data-language="java">useEffect(()=&gt;{
   <span class="hljs-comment">// 这里是 A 的业务逻辑</span>
 
-  <span class="hljs-comment">// 返回一个函数记为 B</span>
-  <span class="hljs-keyword">return</span> ()=&gt;{
-  }
-}, [])
-</code></pre>
+<span class="hljs-comment">// 返回一个函数记为 B</span> <span class="hljs-keyword">return</span> ()=&gt;{ } }, []) </code></pre>
+
 <p data-nodeid="14089">这里需要注意，这种调用方式之所以会在卸载阶段去触发 B 函数的逻辑，是由 useEffect 的执行规则决定的：<strong data-nodeid="14246">useEffect 回调中返回的函数被称为“清除函数”</strong>，当 React 识别到清除函数时，会在调用新的 effect 逻辑之前执行清除函数内部的逻辑。<strong data-nodeid="14247">这个规律不会受第二个参数或者其他因素的影响，只要你在 useEffect 回调中返回了一个函数，它就会被作为清除函数来处理</strong>。</p>
 <ul data-nodeid="14090">
 <li data-nodeid="14091">
@@ -207,11 +147,8 @@
 <pre class="lang-java" data-nodeid="14093"><code data-language="java">useEffect(()=&gt;{
   <span class="hljs-comment">// 这里是 A 的业务逻辑</span>
 
-  <span class="hljs-comment">// 返回一个函数记为 B</span>
-  <span class="hljs-keyword">return</span> ()=&gt;{
-  }
-})
-</code></pre>
+<span class="hljs-comment">// 返回一个函数记为 B</span> <span class="hljs-keyword">return</span> ()=&gt;{ } }) </code></pre>
+
 <p data-nodeid="14094">上面这段代码就会使得 React 在每一次渲染都去触发 A 逻辑，并且在下一次 A 逻辑被触发之前去触发 B 逻辑。</p>
 <p data-nodeid="14095">其实你只要记住，如果你有一段 effect 逻辑，需要在每次调用它之前对上一次的 effect 进行清理，那么把对应的清理逻辑写进 useEffect 回调的返回函数（上面示例中的 B 函数）里就行了。</p>
 <ul data-nodeid="15008">
@@ -219,7 +156,6 @@
 <p data-nodeid="15010" class="te-preview-highlight">根据一定的依赖条件来触发的副作用：传入回调函数，同时传入一个非空的数组，如下所示：</p>
 </li>
 </ul>
-
 
 <pre class="lang-java" data-nodeid="14099"><code data-language="java">useEffect(()=&gt;{
   <span class="hljs-comment">// 这是回调函数的业务逻辑 </span>
@@ -285,21 +221,14 @@
   <span class="hljs-comment">// 1. 这里发起异步调用</span>
   <span class="hljs-comment">// 2. 这里从 props 里获取某个数据，根据这个数据更新 DOM</span>
 
-  <span class="hljs-comment">// 3. 这里设置一个订阅</span>
+<span class="hljs-comment">// 3. 这里设置一个订阅</span>
 
-  <span class="hljs-comment">// 4. 这里随便干点别的什么 </span>
+<span class="hljs-comment">// 4. 这里随便干点别的什么 </span>
 
-  <span class="hljs-comment">// ...</span>
-}
-componentWillUnMount() {
-  <span class="hljs-comment">// 在这里卸载订阅</span>
-}
-componentDidUpdate() {
-  <span class="hljs-comment">// 1. 在这里根据 DidMount 获取到的异步数据更新 DOM</span>
+<span class="hljs-comment">// ...</span> } componentWillUnMount() { <span class="hljs-comment">// 在这里卸载订阅</span> } componentDidUpdate() { <span class="hljs-comment">// 1. 在这里根据 DidMount 获取到的异步数据更新 DOM</span>
 
-  <span class="hljs-comment">// 2. 这里从 props 里获取某个数据，根据这个数据更新 DOM（和 DidMount 的第2步一样）</span>
-}
-</code></pre>
+<span class="hljs-comment">// 2. 这里从 props 里获取某个数据，根据这个数据更新 DOM（和 DidMount 的第2步一样）</span> } </code></pre>
+
 <p data-nodeid="14131">像这样的生命周期函数，它的体积过于庞大，做的事情过于复杂，会给阅读和维护者带来很多麻烦。最重要的是，<strong data-nodeid="14301">这些事情之间看上去毫无关联，逻辑就像是被“打散”进生命周期里了一样</strong>。比如，设置订阅和卸载订阅的逻辑，虽然它们在逻辑上是有强关联的，但是却只能被分散到不同的生命周期函数里去处理，这无论如何也不能算作是一个非常合理的设计。</p>
 <p data-nodeid="14132">而在 Hooks 的帮助下，我们完全可以把这些繁杂的操作<strong data-nodeid="14312">按照逻辑上的关联拆分进不同的函数组件里：<strong data-nodeid="14311">我们可以有专门管理订阅的函数组件、专门处理 DOM 的函数组件、专门获取数据的函数组件等。Hooks 能够帮助我们</strong>实现业务逻辑的聚合，避免复杂的组件和冗余的代码</strong>。</p>
 <h4 data-nodeid="14133">3. 状态复用：Hooks 将复杂的问题变简单</h4>
@@ -328,45 +257,58 @@ componentDidUpdate() {
 
 ### 精选评论
 
-##### **森：
+##### \*\*森：
+
 > 本节收获：学会了“为什么需要 React-Hooks”作为面试题的回答点
 
-##### **雄：
+##### \*\*雄：
+
 > 本质上都是在用实践层面的约束来解决设计层面的问题。老师这句话真的是醍醐灌顶，如获至宝。这样看待react格局就完全变了。实践层面，api设计的好，用起来就特别丝滑。如果设计的不好，那就是架构设计的问题。要看清本质，this，bind不能本质的解决问题。因为从设计上就出现了问题
 
-##### **英：
+##### \*\*英：
+
 > 回复楼上：A 逻辑会在渲染后触发，B 逻辑会在下次渲染前触发。如果只想触发一次，那就将 useEffets 第二个参数写成空数组[]。如果传递的是一个 [state]，那就将是每次 state 发生改变(通过 setState)，都会触发里面的 A。
 
-##### *权：
+##### \*权：
+
 > 大大你好，useEffect(()={ // 这里是 A 的业务逻辑 // 返回一个函数记为 B{ }})这个是不是每次渲染后，都会先执行B，再执行A，而且B捕获的是上次render的props和state
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 是的
 
-##### **杰：
+##### \*\*杰：
+
 > React 官方不建议在 useEffect 中执行 DOM 操作，因为 useEffect 的执行时机是在浏览器完成整个布局和绘制之后执行的，此时执行 DOM 操作会引发浏览器的重渲染，会产生性能损耗对用户造成视觉阻塞的问题。对 DOM 操作建议使用 useLayoutEffect 中执行，这个 Hooks 会在DOM挂载后就执行。
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 这个理解一半对一半不对。两个钩子的区别在于，useEffect 是异步的，要等到浏览器将所有变化渲染到屏幕后才会被执行；而useLayoutEffect 是同步的——这是执行时机上的区别，这块你应该是理解的。问题在于：1.React官方真的不建议使用 useEffect 操作 DOM 吗？我在官方网站上找到了相反的描述：“尽可能使用标准的 useEffect 以避免阻塞视觉更新（出自 https://zh-hans.reactjs.org/docs/hooks-reference.html#uselayouteffect）”。 2. useEffect 会造成视觉阻塞吗？恰恰相反，因为 useLayoutEffect 是同步渲染的机制，而 useEffect 是异步非阻塞的渲染，所以说阻塞渲染的恰恰是 useLayoutEffect 而不是 useEffect。如果你有一段逻辑确实存在“阻塞渲染”这个同步的需求，那么可以使用 useLayoutEffect。否则就应该像 React 官网原文所说的那样，“尽可能使用标准的 useEffect 以避免阻塞视觉更新”
 
-##### **5949：
+##### \*\*5949：
+
 > 老师，您好！请问一下这里“每一次渲染都触发，且卸载阶段也会被触发的副作用：传入回调函数，且这个函数的返回值是一个函数，同时不传第二个参数”这里的B的调用时机：是不是第一次渲染，A会被触发，然后下次渲染先执行B然后在触发A啊？还是B只会在卸载阶段被触发呢（如果是只在卸载阶段触发B，那么您上面应该存在笔误：“阶段去触发 B 逻辑”）？
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; B不会只在卸载阶段触发哈。你前面的理解是正确的，会在下次渲染先执行B、然后再触发A。
 
-##### **杰：
+##### \*\*杰：
+
 > 小丑竟是我自己！感谢讲师的对我理解的纠正
 
-##### *浩：
+##### \*浩：
+
 > 对于每一个学习 useEffect 的人来说，生命周期到 useEffect 之间的转换关系都不是最重要的，最重要的是在脑海中构建一个“组件有副作用 → 引入 useEffect”这样的条件反射——当你真正抛却类组件带给你的刻板印象、拥抱函数式编程之后，想必你会更加认同“useEffect 是用于为函数组件引入副作用的钩子”这个定义。写的真好
 
-##### *辉：
+##### \*辉：
+
 > 打卡
 
-##### **峰：
+##### \*\*峰：
+
 > 耦合和内聚的边界，有时候真的很难把握，感触颇深，期待社区尽早地沉淀出最佳实践啦~
 
-##### **梁：
-> hooks写起来简单方便，一个简单的需求不像class那样杀鸡用牛刀的感觉，且麻烦。
+##### \*\*梁：
 
+> hooks写起来简单方便，一个简单的需求不像class那样杀鸡用牛刀的感觉，且麻烦。

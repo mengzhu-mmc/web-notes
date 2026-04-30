@@ -1,21 +1,23 @@
 # TypeScript 6.0 Release Candidate
 
-> 来源: JavaScript Weekly #776 | 2026-03-10
-> 原文: https://devblogs.microsoft.com/typescript/announcing-typescript-6-0-rc/
+> 来源: JavaScript Weekly #776 | 2026-03-10原文: https://devblogs.microsoft.com/typescript/announcing-typescript-6-0-rc/
 
 ## 要点
 
 ### 定位：过渡版本
+
 - TS 6.0 是通向 **Go 重写版 TypeScript 7.0** 的过渡
 - TypeScript 7.0 将使用 Go 重写，预计 2026 年晚些发布
 - 6.0 主要做好 tsconfig.json 的配置迁移
 
 ### 关键变化
+
 - tsconfig.json 中部分选项调整（为 7.0 做准备）
 - RC 相比 Beta 只有少量改动
 - 建议现在就升级到 6.0，这样未来迁移 7.0 更平滑
 
 ## 面试相关
+
 - TypeScript 7.0 用 Go 重写是大新闻，可以提到性能将有 10x 提升
 - 体现对工具链演进的了解
 
@@ -47,7 +49,7 @@ npx tsc --noEmit
 {
   "compilerOptions": {
     // TS 6.0 对 module 配置做了整理，推荐明确指定
-    "module": "NodeNext",       // 或 "Bundler"（用于 webpack/vite 项目）
+    "module": "NodeNext", // 或 "Bundler"（用于 webpack/vite 项目）
     "moduleResolution": "NodeNext", // 与 module 保持一致
 
     // target 推荐 ES2022+（为 7.0 做准备）
@@ -58,16 +60,16 @@ npx tsc --noEmit
 
     // TS 6.0 新增：更严格的类型检查选项
     "noUncheckedSideEffectImports": true, // 检查有副作用的纯 import
-    "exactOptionalPropertyTypes": true,   // 可选属性严格区分 undefined vs 缺失
+    "exactOptionalPropertyTypes": true, // 可选属性严格区分 undefined vs 缺失
 
     // 其他推荐
     "esModuleInterop": true,
     "skipLibCheck": true,
     "outDir": "./dist",
-    "rootDir": "./src"
+    "rootDir": "./src",
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"]
+  "exclude": ["node_modules", "dist"],
 }
 ```
 
@@ -128,6 +130,7 @@ function processItems<T>(items: T[]): T extends string ? string[] : number[] {
 ### Q1：TypeScript 和 JavaScript 的关系是什么？
 
 **标准答案要点：**
+
 - TS 是 JS 的**超集**：所有合法 JS 都是合法 TS
 - TS 增加了**静态类型系统**，在编译时（而非运行时）发现类型错误
 - TS 最终编译为 JS 运行，浏览器/Node.js 不认识 TS
@@ -136,14 +139,17 @@ function processItems<T>(items: T[]): T extends string ? string[] : number[] {
 ### Q2：TypeScript 的编译过程是什么？
 
 **标准答案要点：**
+
 1. **解析（Parse）**：`.ts` → AST（抽象语法树）
 2. **类型检查（Type Check）**：分析类型，发现错误（不影响输出）
 3. **代码生成（Emit）**：AST → `.js`（类型注解被擦除，不影响运行时行为）
+
 - 关键：**类型是纯编译时概念**，运行时完全消失
 
 ### Q3：`interface` 和 `type` 的区别？
 
 **标准答案要点：**
+
 - `interface`：只能描述对象/函数形状；支持**声明合并**（同名 interface 会合并）；支持 `extends`
 - `type`：可以描述任意类型（联合类型、交叉类型、字面量类型等）；不支持声明合并；用 `&` 做交叉
 - 实践建议：对外暴露的 API 用 `interface`（可被扩展），内部使用 `type`（更灵活）
@@ -151,6 +157,7 @@ function processItems<T>(items: T[]): T extends string ? string[] : number[] {
 ### Q4：`any` 和 `unknown` 的区别？
 
 **标准答案要点：**
+
 - `any`：完全绕过类型检查，可赋值给任何类型，也可被任何类型赋值 → **不安全**
 - `unknown`：可以接受任何值赋入，但**使用前必须做类型收窄**（instanceof/typeof/类型守卫）→ **类型安全的 any**
 - 原则：接受未知输入时用 `unknown`，强制调用方做检查；永远不要无脑用 `any`
@@ -158,6 +165,7 @@ function processItems<T>(items: T[]): T extends string ? string[] : number[] {
 ### Q5：为什么 TypeScript 7.0 要用 Go 重写？
 
 **标准答案要点：**
+
 - 原因：大型 TS 项目（百万行代码）的**编译速度**成为开发体验瓶颈
 - Go 比 Node.js 有更好的并发模型和更低的内存开销
 - 预计性能提升 **10x**，语言行为/类型语义完全不变

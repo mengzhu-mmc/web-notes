@@ -21,8 +21,12 @@
 最佳实践：在动画开始前添加（如 `:hover` 时），动画结束后移除（设为 `auto`）。不要对所有元素使用（`* { will-change: transform }` 会消耗大量内存），不要长期保持。
 
 ```css
-.button:hover { will-change: transform; }
-.button:active { transform: scale(0.95); }
+.button:hover {
+  will-change: transform;
+}
+.button:active {
+  transform: scale(0.95);
+}
 ```
 
 ## 三、content-visibility
@@ -108,7 +112,7 @@
 ```css
 /* 将 antd/tailwind 等第三方样式放在最底层 */
 @layer third-party {
-  @import url('antd/dist/reset.css');
+  @import url("antd/dist/reset.css");
 }
 
 /* 自己的样式默认在 layer 之外，优先级更高，不会被覆盖 */
@@ -125,7 +129,7 @@
 /* 1. 先给容器设置 container-type */
 .card-container {
   container-type: inline-size; /* 监听宽度变化 */
-  container-name: card;        /* 可选：给容器命名 */
+  container-name: card; /* 可选：给容器命名 */
 }
 
 /* 2. 子元素根据容器尺寸调整样式 */
@@ -186,7 +190,7 @@ Chrome 112+ 原生支持 CSS 嵌套，无需 Sass/Less 预处理器（但要注�
 
   /* & 代表父选择器 */
   &:hover {
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   }
 
   &.active {
@@ -206,7 +210,8 @@ Chrome 112+ 原生支持 CSS 嵌套，无需 Sass/Less 预处理器（但要注�
 
 /* 注意：纯标签选择器嵌套需要加 & 前缀（避免歧义）*/
 .list {
-  & li {      /* ✅ 推荐写法 */
+  & li {
+    /* ✅ 推荐写法 */
     color: gray;
   }
   /* li { }  ← Chrome 120 以前不支持直接嵌套标签选择器 */
@@ -214,6 +219,7 @@ Chrome 112+ 原生支持 CSS 嵌套，无需 Sass/Less 预处理器（但要注�
 ```
 
 **与 Sass 的区别**：
+
 - 原生嵌套中标签选择器需要 `&` 前缀（Sass 不需要）
 - 原生嵌套支持 `@media` / `@container` 等规则嵌套
 - 编译后产物与 Sass 相同，但省去了编译步骤

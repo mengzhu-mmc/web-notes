@@ -39,6 +39,7 @@
 ```
 
 **三者关系**：
+
 - `target` 决定输出的 JS 语法（如 `async/await` 是否转为 Promise 链）
 - `module` 决定输出的模块格式（`import/export` 还是 `require/module.exports`）
 - `lib` 决定 TypeScript 知道哪些全局 API（如 `Promise`、`fetch`、`document`）
@@ -48,30 +49,30 @@
 ```json
 {
   "compilerOptions": {
-    "strict": true  // 开启所有严格检查（强烈推荐）
+    "strict": true // 开启所有严格检查（强烈推荐）
   }
 }
 ```
 
 `"strict": true` 等价于同时开启以下所有选项：
 
-| 选项 | 作用 |
-|------|------|
-| `strictNullChecks` | `null` 和 `undefined` 不能赋值给其他类型 |
-| `strictFunctionTypes` | 函数参数类型逆变检查 |
-| `strictBindCallApply` | `bind/call/apply` 的参数类型检查 |
-| `strictPropertyInitialization` | 类属性必须在构造函数中初始化 |
-| `noImplicitAny` | 禁止隐式 `any`（必须显式声明类型） |
-| `noImplicitThis` | 禁止 `this` 隐式为 `any` |
-| `alwaysStrict` | 每个文件都加 `"use strict"` |
-| `useUnknownInCatchVariables` | catch 的 error 类型为 `unknown` 而非 `any` |
+| 选项                           | 作用                                       |
+| ------------------------------ | ------------------------------------------ |
+| `strictNullChecks`             | `null` 和 `undefined` 不能赋值给其他类型   |
+| `strictFunctionTypes`          | 函数参数类型逆变检查                       |
+| `strictBindCallApply`          | `bind/call/apply` 的参数类型检查           |
+| `strictPropertyInitialization` | 类属性必须在构造函数中初始化               |
+| `noImplicitAny`                | 禁止隐式 `any`（必须显式声明类型）         |
+| `noImplicitThis`               | 禁止 `this` 隐式为 `any`                   |
+| `alwaysStrict`                 | 每个文件都加 `"use strict"`                |
+| `useUnknownInCatchVariables`   | catch 的 error 类型为 `unknown` 而非 `any` |
 
 **为什么要开启 strict？**
 
 ```typescript
 // 不开启 strictNullChecks 时：
 function getUser(id: number) {
-  return users.find(u => u.id === id); // 返回 User | undefined
+  return users.find((u) => u.id === id); // 返回 User | undefined
 }
 const user = getUser(1);
 console.log(user.name); // ❌ 运行时可能报错，但 TS 不报错！
@@ -86,16 +87,16 @@ console.log(user?.name); // ✅ 必须处理 undefined 情况
 ```json
 {
   "compilerOptions": {
-    "outDir": "./dist",          // 编译输出目录
-    "rootDir": "./src",          // 源码根目录
+    "outDir": "./dist", // 编译输出目录
+    "rootDir": "./src", // 源码根目录
 
-    "declaration": true,         // 生成 .d.ts 类型声明文件（库开发必须）
-    "declarationMap": true,      // 生成 .d.ts.map，支持"跳转到源码"
-    "sourceMap": true,           // 生成 .js.map，调试时映射到 TS 源码
+    "declaration": true, // 生成 .d.ts 类型声明文件（库开发必须）
+    "declarationMap": true, // 生成 .d.ts.map，支持"跳转到源码"
+    "sourceMap": true, // 生成 .js.map，调试时映射到 TS 源码
 
-    "removeComments": false,     // 是否删除注释
-    "noEmit": true,              // 只做类型检查，不输出文件（配合 Vite/Webpack 使用）
-    "emitDeclarationOnly": true, // 只输出 .d.ts，不输出 .js（配合 Rollup 使用）
+    "removeComments": false, // 是否删除注释
+    "noEmit": true, // 只做类型检查，不输出文件（配合 Vite/Webpack 使用）
+    "emitDeclarationOnly": true // 只输出 .d.ts，不输出 .js（配合 Rollup 使用）
   }
 }
 ```
@@ -126,14 +127,14 @@ console.log(user?.name); // ✅ 必须处理 undefined 情况
 
 ```typescript
 // vite.config.ts
-import { defineConfig } from 'vite';
-import path from 'path';
+import { defineConfig } from "vite";
+import path from "path";
 
 export default defineConfig({
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
-      '@components': path.resolve(__dirname, './src/components'),
+      "@": path.resolve(__dirname, "./src"),
+      "@components": path.resolve(__dirname, "./src/components"),
     },
   },
 });
@@ -145,14 +146,14 @@ export default defineConfig({
 
 ```javascript
 // webpack.config.js
-const path = require('path');
+const path = require("path");
 
 module.exports = {
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, 'src'),
+      "@": path.resolve(__dirname, "src"),
     },
-    extensions: ['.ts', '.tsx', '.js', '.jsx'],
+    extensions: [".ts", ".tsx", ".js", ".jsx"],
   },
 };
 ```
@@ -164,17 +165,17 @@ module.exports = {
 ```json
 {
   "include": [
-    "src/**/*",          // 编译 src 目录下所有文件
-    "types/**/*.d.ts"    // 包含自定义类型声明
+    "src/**/*", // 编译 src 目录下所有文件
+    "types/**/*.d.ts" // 包含自定义类型声明
   ],
   "exclude": [
-    "node_modules",      // 默认已排除
+    "node_modules", // 默认已排除
     "dist",
-    "**/*.test.ts",      // 排除测试文件（生产构建时）
+    "**/*.test.ts", // 排除测试文件（生产构建时）
     "**/*.spec.ts"
   ],
   "files": [
-    "src/main.ts"        // 精确指定入口文件（与 include 二选一）
+    "src/main.ts" // 精确指定入口文件（与 include 二选一）
   ]
 }
 ```
@@ -188,7 +189,7 @@ module.exports = {
 ```typescript
 // 方式一：在 src/types/ 目录下创建声明文件
 // src/types/some-lib.d.ts
-declare module 'some-untyped-lib' {
+declare module "some-untyped-lib" {
   export function doSomething(input: string): number;
   export interface Config {
     timeout: number;
@@ -198,8 +199,8 @@ declare module 'some-untyped-lib' {
 
 // 方式二：扩展已有模块的类型（模块增强）
 // src/types/express.d.ts
-import 'express';
-declare module 'express' {
+import "express";
+declare module "express" {
   interface Request {
     user?: { id: number; name: string }; // 给 Request 添加 user 属性
   }
@@ -222,12 +223,12 @@ interface Window {
 }
 
 // 声明非 JS 模块（如 SVG、图片）
-declare module '*.svg' {
+declare module "*.svg" {
   const content: string;
   export default content;
 }
 
-declare module '*.png' {
+declare module "*.png" {
   const content: string;
   export default content;
 }
@@ -239,7 +240,7 @@ declare module '*.png' {
 {
   "compilerOptions": {
     "typeRoots": ["./node_modules/@types", "./src/types"],
-    "types": ["node", "jest"]  // 只引入指定的 @types 包，不自动引入所有
+    "types": ["node", "jest"] // 只引入指定的 @types 包，不自动引入所有
   }
 }
 ```

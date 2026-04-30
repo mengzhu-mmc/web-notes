@@ -12,6 +12,7 @@
 **题目描述**：给你一个只包含 `(` 和 `)` 的字符串，找出最长有效（格式正确且连续）括号子串的长度。
 
 **自测用例**：
+
 - 输入: `"(()"` → 输出: `2`
 - 输入: `")()())"` → 输出: `4`
 - 输入: `""` → 输出: `0`
@@ -23,12 +24,12 @@
 **代码**：
 
 ```js
-var longestValidParentheses = function(s) {
+var longestValidParentheses = function (s) {
   let max = 0;
   const stack = [-1]; // 哨兵
 
   for (let i = 0; i < s.length; i++) {
-    if (s[i] === '(') {
+    if (s[i] === "(") {
       stack.push(i);
     } else {
       stack.pop();
@@ -53,6 +54,7 @@ var longestValidParentheses = function(s) {
 **题目描述**：给定 n 个非负整数，用来表示柱状图中各柱的高度，每个柱的宽度为 1，求能勾勒出来的矩形的最大面积。
 
 **自测用例**：
+
 - 输入: `heights = [2,1,5,6,2,3]` → 输出: `10`
 - 输入: `heights = [2,4]` → 输出: `4`
 - 输入: `heights = [1]` → 输出: `1`
@@ -64,7 +66,7 @@ var longestValidParentheses = function(s) {
 **代码**：
 
 ```js
-var largestRectangleArea = function(heights) {
+var largestRectangleArea = function (heights) {
   // 首尾加哨兵 0，简化边界处理
   heights = [0, ...heights, 0];
   const stack = [0]; // 存索引，单调递增栈
@@ -96,7 +98,7 @@ var largestRectangleArea = function(heights) {
 一个完整的前端错误监控 SDK 需要覆盖以下几类错误：
 
 | 错误类型 | 捕获方式 |
-|---------|---------|
+| --- | --- |
 | JS 运行时错误 | `window.onerror` / `window.addEventListener('error')` |
 | Promise 未捕获异常 | `window.addEventListener('unhandledrejection')` |
 | 资源加载失败 | `window.addEventListener('error', e => e.target instanceof HTMLElement)` |
@@ -110,14 +112,14 @@ var largestRectangleArea = function(heights) {
 class ErrorMonitorSDK {
   constructor(options = {}) {
     this.options = {
-      dsn: '',           // 上报地址
-      appId: '',         // 应用 ID
-      userId: '',        // 用户 ID
-      maxQueueSize: 10,  // 批量上报队列大小
-      sampleRate: 1,     // 采样率 0-1
-      ...options
+      dsn: "", // 上报地址
+      appId: "", // 应用 ID
+      userId: "", // 用户 ID
+      maxQueueSize: 10, // 批量上报队列大小
+      sampleRate: 1, // 采样率 0-1
+      ...options,
     };
-    this.queue = [];     // 待上报队列
+    this.queue = []; // 待上报队列
     this.init();
   }
 
@@ -128,49 +130,57 @@ class ErrorMonitorSDK {
     this._interceptXHR();
     this._interceptFetch();
     // 页面卸载前上报剩余队列
-    window.addEventListener('beforeunload', () => this._flush());
+    window.addEventListener("beforeunload", () => this._flush());
   }
 
   // 1. 监听 JS 运行时错误
   _listenJSError() {
-    window.addEventListener('error', (e) => {
-      // 区分 JS 错误和资源加载错误
-      if (e.target instanceof HTMLElement) return; // 资源错误由 _listenResourceError 处理
-      this._capture({
-        type: 'js_error',
-        message: e.message,
-        filename: e.filename,
-        lineno: e.lineno,
-        colno: e.colno,
-        stack: e.error?.stack || '',
-      });
-    }, true); // 捕获阶段（资源错误不冒泡，必须捕获阶段）
+    window.addEventListener(
+      "error",
+      (e) => {
+        // 区分 JS 错误和资源加载错误
+        if (e.target instanceof HTMLElement) return; // 资源错误由 _listenResourceError 处理
+        this._capture({
+          type: "js_error",
+          message: e.message,
+          filename: e.filename,
+          lineno: e.lineno,
+          colno: e.colno,
+          stack: e.error?.stack || "",
+        });
+      },
+      true,
+    ); // 捕获阶段（资源错误不冒泡，必须捕获阶段）
   }
 
   // 2. 监听 Promise 未捕获异常
   _listenPromiseError() {
-    window.addEventListener('unhandledrejection', (e) => {
+    window.addEventListener("unhandledrejection", (e) => {
       const reason = e.reason;
       this._capture({
-        type: 'promise_error',
+        type: "promise_error",
         message: reason instanceof Error ? reason.message : String(reason),
-        stack: reason instanceof Error ? reason.stack : '',
+        stack: reason instanceof Error ? reason.stack : "",
       });
     });
   }
 
   // 3. 监听资源加载失败（图片、脚本、样式等）
   _listenResourceError() {
-    window.addEventListener('error', (e) => {
-      const target = e.target;
-      if (!(target instanceof HTMLElement)) return;
-      this._capture({
-        type: 'resource_error',
-        tagName: target.tagName,
-        src: target.src || target.href || '',
-        outerHTML: target.outerHTML.slice(0, 200),
-      });
-    }, true);
+    window.addEventListener(
+      "error",
+      (e) => {
+        const target = e.target;
+        if (!(target instanceof HTMLElement)) return;
+        this._capture({
+          type: "resource_error",
+          tagName: target.tagName,
+          src: target.src || target.href || "",
+          outerHTML: target.outerHTML.slice(0, 200),
+        });
+      },
+      true,
+    );
   }
 
   // 4. 拦截 XMLHttpRequest
@@ -179,16 +189,16 @@ class ErrorMonitorSDK {
     const originalSend = XMLHttpRequest.prototype.send;
     const capture = this._capture.bind(this);
 
-    XMLHttpRequest.prototype.open = function(method, url, ...args) {
+    XMLHttpRequest.prototype.open = function (method, url, ...args) {
       this._monitor = { method, url, startTime: Date.now() };
       return originalOpen.apply(this, [method, url, ...args]);
     };
 
-    XMLHttpRequest.prototype.send = function(body) {
-      this.addEventListener('loadend', () => {
+    XMLHttpRequest.prototype.send = function (body) {
+      this.addEventListener("loadend", () => {
         if (this.status >= 400 || this.status === 0) {
           capture({
-            type: 'xhr_error',
+            type: "xhr_error",
             method: this._monitor?.method,
             url: this._monitor?.url,
             status: this.status,
@@ -205,16 +215,17 @@ class ErrorMonitorSDK {
     const originalFetch = window.fetch;
     const capture = this._capture.bind(this);
 
-    window.fetch = function(input, init = {}) {
-      const url = typeof input === 'string' ? input : input.url;
-      const method = init.method || 'GET';
+    window.fetch = function (input, init = {}) {
+      const url = typeof input === "string" ? input : input.url;
+      const method = init.method || "GET";
       const startTime = Date.now();
 
-      return originalFetch.apply(this, [input, init])
+      return originalFetch
+        .apply(this, [input, init])
         .then((response) => {
           if (!response.ok) {
             capture({
-              type: 'fetch_error',
+              type: "fetch_error",
               method,
               url,
               status: response.status,
@@ -225,7 +236,7 @@ class ErrorMonitorSDK {
         })
         .catch((err) => {
           capture({
-            type: 'fetch_error',
+            type: "fetch_error",
             method,
             url,
             status: 0,
@@ -270,14 +281,14 @@ class ErrorMonitorSDK {
 
     // sendBeacon：即使页面关闭也能上报，不阻塞页面卸载
     if (navigator.sendBeacon) {
-      const blob = new Blob([payload], { type: 'application/json' });
+      const blob = new Blob([payload], { type: "application/json" });
       navigator.sendBeacon(this.options.dsn, blob);
     } else {
       // 降级方案
       fetch(this.options.dsn, {
-        method: 'POST',
+        method: "POST",
         body: payload,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
         keepalive: true, // 页面卸载时仍能发送
       }).catch(() => {}); // 上报失败不影响主业务
     }
@@ -285,15 +296,15 @@ class ErrorMonitorSDK {
 
   // 手动上报（业务代码主动调用）
   report(errorInfo) {
-    this._capture({ type: 'manual', ...errorInfo });
+    this._capture({ type: "manual", ...errorInfo });
   }
 }
 
 // 使用示例
 const monitor = new ErrorMonitorSDK({
-  dsn: 'https://error-collect.example.com/report',
-  appId: 'my-app',
-  userId: 'user-123',
+  dsn: "https://error-collect.example.com/report",
+  appId: "my-app",
+  userId: "user-123",
   sampleRate: 0.8, // 80% 采样
 });
 
@@ -301,13 +312,18 @@ const monitor = new ErrorMonitorSDK({
 try {
   // some risky operation
 } catch (e) {
-  monitor.report({ message: e.message, stack: e.stack, extra: { page: 'checkout' } });
+  monitor.report({
+    message: e.message,
+    stack: e.stack,
+    extra: { page: "checkout" },
+  });
 }
 ```
 
 #### 进阶设计要点
 
 **1. 错误去重**：同一错误频繁上报浪费资源
+
 ```js
 // 用 Map 记录最近上报的错误指纹，1 分钟内相同错误只报一次
 const errorCache = new Map();
@@ -325,10 +341,11 @@ _isDuplicate(errorInfo) {
 **3. 面包屑（Breadcrumbs）**：记录错误发生前的用户操作轨迹（点击、路由跳转、XHR 请求），帮助复现问题。
 
 **4. 白屏检测**：
+
 ```js
 // 检查关键节点是否存在，连续检测 3 次都为空则上报白屏
 const checkWhiteScreen = () => {
-  const rootEl = document.getElementById('app');
+  const rootEl = document.getElementById("app");
   return !rootEl || rootEl.children.length === 0;
 };
 ```
@@ -360,6 +377,7 @@ A: 浏览器出于安全考虑，跨域脚本的错误信息会被屏蔽。解�
 **题目描述**：给你单链表的头节点 `head`，请你反转链表，并返回反转后的链表头节点。
 
 **自测用例**：
+
 - 输入: `1→2→3→4→5` → 输出: `5→4→3→2→1`
 - 输入: `1→2` → 输出: `2→1`
 - 输入: `[]` → 输出: `[]`
@@ -371,7 +389,7 @@ A: 浏览器出于安全考虑，跨域脚本的错误信息会被屏蔽。解�
 **代码**：
 
 ```js
-var reverseList = function(head) {
+var reverseList = function (head) {
   let prev = null;
   let curr = head;
 
@@ -395,6 +413,7 @@ var reverseList = function(head) {
 **题目描述**：给你单链表的头指针 `head` 和两个整数 `left` 和 `right`，其中 `left <= right`，请你反转从位置 `left` 到位置 `right` 的链表节点，返回反转后的链表。
 
 **自测用例**：
+
 - 输入: `head = 1→2→3→4→5, left = 2, right = 4` → 输出: `1→4→3→2→5`
 - 输入: `head = 5, left = 1, right = 1` → 输出: `5`
 - 输入: `head = 1→2→3, left = 1, right = 3` → 输出: `3→2→1`
@@ -406,7 +425,7 @@ var reverseList = function(head) {
 **代码**：
 
 ```js
-var reverseBetween = function(head, left, right) {
+var reverseBetween = function (head, left, right) {
   const dummy = new ListNode(0, head);
   let pre = dummy;
 
@@ -435,6 +454,7 @@ var reverseBetween = function(head, left, right) {
 **题目描述**：给你链表的头节点 `head`，每 `k` 个节点一组进行翻转，返回修改后的链表。若节点总数不是 `k` 的整数倍，最后剩余的节点保持原有顺序。
 
 **自测用例**：
+
 - 输入: `head = 1→2→3→4→5, k = 2` → 输出: `2→1→4→3→5`
 - 输入: `head = 1→2→3→4→5, k = 3` → 输出: `3→2→1→4→5`
 - 输入: `head = 1→2, k = 3` → 输出: `1→2`（不足 k 个保持原序）
@@ -446,7 +466,7 @@ var reverseBetween = function(head, left, right) {
 **代码**：
 
 ```js
-var reverseKGroup = function(head, k) {
+var reverseKGroup = function (head, k) {
   const dummy = new ListNode(0, head);
   let groupPrev = dummy;
 
@@ -492,6 +512,7 @@ function getKth(node, k) {
 **题目描述**：给你链表的头结点 `head`，请你将其按升序排列并返回排序后的链表。要求时间复杂度 O(n log n)、空间复杂度 O(1)（常数级）。
 
 **自测用例**：
+
 - 输入: `4→2→1→3` → 输出: `1→2→3→4`
 - 输入: `-1→5→3→4→0` → 输出: `-1→0→3→4→5`
 - 输入: `[]` → 输出: `[]`
@@ -503,11 +524,12 @@ function getKth(node, k) {
 **代码**：
 
 ```js
-var sortList = function(head) {
+var sortList = function (head) {
   if (!head || !head.next) return head;
 
   // 快慢指针找中点（slow 停在左半段末尾）
-  let slow = head, fast = head.next;
+  let slow = head,
+    fast = head.next;
   while (fast && fast.next) {
     slow = slow.next;
     fast = fast.next.next;
@@ -524,8 +546,13 @@ function merge(l1, l2) {
   const dummy = new ListNode(0);
   let cur = dummy;
   while (l1 && l2) {
-    if (l1.val <= l2.val) { cur.next = l1; l1 = l1.next; }
-    else { cur.next = l2; l2 = l2.next; }
+    if (l1.val <= l2.val) {
+      cur.next = l1;
+      l1 = l1.next;
+    } else {
+      cur.next = l2;
+      l2 = l2.next;
+    }
     cur = cur.next;
   }
   cur.next = l1 || l2;
@@ -542,6 +569,7 @@ function merge(l1, l2) {
 **题目描述**：设计并实现一个满足 LRU（最近最少使用）缓存约束的数据结构。实现 `LRUCache` 类，支持 `get(key)` 和 `put(key, value)` 操作，均要求 O(1) 时间复杂度。当缓存达到容量上限时，在插入新数据前删除最久未使用的数据。
 
 **自测用例**：
+
 - 操作: `LRUCache(2)` → `put(1,1)` → `put(2,2)` → `get(1)` → `put(3,3)` → `get(2)` → 输出: `1, -1`（2被淘汰）
 - 操作: `LRUCache(1)` → `put(1,1)` → `put(2,2)` → `get(1)` → 输出: `-1`
 - 操作: `LRUCache(2)` → `put(1,1)` → `get(1)` → 输出: `1`
@@ -620,6 +648,7 @@ class LRUCache {
 **题目描述**：给你二叉树的根节点 `root`，返回其节点值的层序遍历结果（即逐层从左到右访问所有节点），结果为二维数组，每层节点为一个子数组。
 
 **自测用例**：
+
 - 输入: `root = [3,9,20,null,null,15,7]` → 输出: `[[3],[9,20],[15,7]]`
 - 输入: `root = [1]` → 输出: `[[1]]`
 - 输入: `root = []` → 输出: `[]`
@@ -631,7 +660,7 @@ class LRUCache {
 **代码**：
 
 ```js
-var levelOrder = function(root) {
+var levelOrder = function (root) {
   if (!root) return [];
   const res = [];
   const queue = [root];
@@ -661,6 +690,7 @@ var levelOrder = function(root) {
 **题目描述**：给定一棵二叉树，找到该树中两个指定节点 `p` 和 `q` 的最近公共祖先（LCA）。LCA 定义为：在树中同时拥有 `p` 和 `q` 为后代的最深节点（节点可以是自身的后代）。
 
 **自测用例**：
+
 - 输入: `root = [3,5,1,6,2,0,8], p = 5, q = 1` → 输出: `3`
 - 输入: `root = [3,5,1,6,2,0,8], p = 5, q = 4` → 输出: `5`（5 是 4 的祖先）
 - 输入: `root = [1,2], p = 1, q = 2` → 输出: `1`
@@ -672,14 +702,14 @@ var levelOrder = function(root) {
 **代码**：
 
 ```js
-var lowestCommonAncestor = function(root, p, q) {
+var lowestCommonAncestor = function (root, p, q) {
   if (!root || root === p || root === q) return root;
 
   const left = lowestCommonAncestor(root.left, p, q);
   const right = lowestCommonAncestor(root.right, p, q);
 
   if (left && right) return root; // 左右各找到一个，当前节点就是 LCA
-  return left || right;           // 返回非 null 的那一侧
+  return left || right; // 返回非 null 的那一侧
 };
 ```
 
@@ -692,6 +722,7 @@ var lowestCommonAncestor = function(root, p, q) {
 **题目描述**：给你一棵二叉树的根节点 `root`，返回其最大路径和。路径是指从树中任意节点出发，沿父子节点连接到达任意节点的序列（每个节点最多出现一次），路径和为路径上各节点值之和。
 
 **自测用例**：
+
 - 输入: `root = [1,2,3]` → 输出: `6`（路径: 2→1→3）
 - 输入: `root = [-10,9,20,null,null,15,7]` → 输出: `42`（路径: 15→20→7）
 - 输入: `root = [-3]` → 输出: `-3`
@@ -703,7 +734,7 @@ var lowestCommonAncestor = function(root, p, q) {
 **代码**：
 
 ```js
-var maxPathSum = function(root) {
+var maxPathSum = function (root) {
   let max = -Infinity;
 
   function dfs(node) {
@@ -731,6 +762,7 @@ var maxPathSum = function(root) {
 **题目描述**：给你一个由 `'1'`（陆地）和 `'0'`（水）组成的二维网格，请你计算网格中岛屿的数量。岛屿由水平或垂直方向相邻的陆地连接而成，并且四周都被水包围。
 
 **自测用例**：
+
 - 输入: `grid = [["1","1","1"],["0","1","0"],["1","1","1"]]` → 输出: `1`
 - 输入: `grid = [["1","1","0"],["1","1","0"],["0","0","1"]]` → 输出: `2`
 - 输入: `grid = [["1","0","1"],["0","0","0"],["1","0","1"]]` → 输出: `4`
@@ -742,20 +774,23 @@ var maxPathSum = function(root) {
 **代码**：
 
 ```js
-var numIslands = function(grid) {
-  const m = grid.length, n = grid[0].length;
+var numIslands = function (grid) {
+  const m = grid.length,
+    n = grid[0].length;
   let count = 0;
 
   function dfs(i, j) {
-    if (i < 0 || i >= m || j < 0 || j >= n || grid[i][j] !== '1') return;
-    grid[i][j] = '0'; // 标记已访问
-    dfs(i + 1, j); dfs(i - 1, j);
-    dfs(i, j + 1); dfs(i, j - 1);
+    if (i < 0 || i >= m || j < 0 || j >= n || grid[i][j] !== "1") return;
+    grid[i][j] = "0"; // 标记已访问
+    dfs(i + 1, j);
+    dfs(i - 1, j);
+    dfs(i, j + 1);
+    dfs(i, j - 1);
   }
 
   for (let i = 0; i < m; i++) {
     for (let j = 0; j < n; j++) {
-      if (grid[i][j] === '1') {
+      if (grid[i][j] === "1") {
         count++;
         dfs(i, j);
       }
@@ -775,6 +810,7 @@ var numIslands = function(grid) {
 **题目描述**：你这个学期必须选修 `numCourses` 门课程，有些课程有先修要求，用 `prerequisites[i] = [a, b]` 表示选修 `a` 前必须先完成 `b`。判断你是否可以完成所有课程（即有向图中是否存在环）。
 
 **自测用例**：
+
 - 输入: `numCourses = 2, prerequisites = [[1,0]]` → 输出: `true`
 - 输入: `numCourses = 2, prerequisites = [[1,0],[0,1]]` → 输出: `false`（存在环）
 - 输入: `numCourses = 3, prerequisites = [[1,0],[2,1]]` → 输出: `true`
@@ -786,7 +822,7 @@ var numIslands = function(grid) {
 **代码**：
 
 ```js
-var canFinish = function(numCourses, prerequisites) {
+var canFinish = function (numCourses, prerequisites) {
   const inDegree = new Array(numCourses).fill(0);
   const graph = Array.from({ length: numCourses }, () => []);
 
@@ -824,6 +860,7 @@ var canFinish = function(numCourses, prerequisites) {
 **题目描述**：给你一个整数数组 `coins`（代表不同面额的硬币）和一个整数 `amount`（总金额），计算凑成总金额所需的最少硬币数量。如果无法凑成，返回 `-1`。每种硬币可以无限次使用。
 
 **自测用例**：
+
 - 输入: `coins = [1,2,5], amount = 11` → 输出: `3`（5+5+1）
 - 输入: `coins = [2], amount = 3` → 输出: `-1`
 - 输入: `coins = [1], amount = 0` → 输出: `0`
@@ -835,7 +872,7 @@ var canFinish = function(numCourses, prerequisites) {
 **代码**：
 
 ```js
-var coinChange = function(coins, amount) {
+var coinChange = function (coins, amount) {
   const dp = new Array(amount + 1).fill(Infinity);
   dp[0] = 0;
 
@@ -860,6 +897,7 @@ var coinChange = function(coins, amount) {
 **题目描述**：给你一个整数数组 `nums`，找到其中最长严格递增子序列的长度。子序列是从数组中删除部分元素（也可不删除）而不改变剩余元素顺序得到的序列。
 
 **自测用例**：
+
 - 输入: `nums = [10,9,2,5,3,7,101,18]` → 输出: `4`（[2,3,7,101]）
 - 输入: `nums = [0,1,0,3,2,3]` → 输出: `4`
 - 输入: `nums = [7,7,7,7,7]` → 输出: `1`
@@ -872,7 +910,7 @@ var coinChange = function(coins, amount) {
 
 ```js
 // O(n²) DP
-var lengthOfLIS = function(nums) {
+var lengthOfLIS = function (nums) {
   const n = nums.length;
   const dp = new Array(n).fill(1);
 
@@ -888,11 +926,12 @@ var lengthOfLIS = function(nums) {
 };
 
 // O(n log n) 贪心 + 二分
-var lengthOfLIS2 = function(nums) {
+var lengthOfLIS2 = function (nums) {
   const tails = []; // tails[i] 表示长度 i+1 的 LIS 末尾最小值
 
   for (const num of nums) {
-    let lo = 0, hi = tails.length;
+    let lo = 0,
+      hi = tails.length;
     while (lo < hi) {
       const mid = (lo + hi) >> 1;
       if (tails[mid] < num) lo = mid + 1;
@@ -914,6 +953,7 @@ var lengthOfLIS2 = function(nums) {
 **题目描述**：给定两个字符串 `text1` 和 `text2`，返回这两个字符串的最长公共子序列（LCS）的长度。公共子序列是指同时出现在两个字符串中的子序列（可以不连续），若不存在则返回 0。
 
 **自测用例**：
+
 - 输入: `text1 = "abcde", text2 = "ace"` → 输出: `3`（"ace"）
 - 输入: `text1 = "abc", text2 = "abc"` → 输出: `3`
 - 输入: `text1 = "abc", text2 = "def"` → 输出: `0`
@@ -925,8 +965,9 @@ var lengthOfLIS2 = function(nums) {
 **代码**：
 
 ```js
-var longestCommonSubsequence = function(text1, text2) {
-  const m = text1.length, n = text2.length;
+var longestCommonSubsequence = function (text1, text2) {
+  const m = text1.length,
+    n = text2.length;
   const dp = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
 
   for (let i = 1; i <= m; i++) {
@@ -952,6 +993,7 @@ var longestCommonSubsequence = function(text1, text2) {
 **题目描述**：给你一个整数数组 `coins` 表示不同面额的硬币，以及一个整数 `amount` 表示总金额。计算可以凑成总金额的硬币组合数（每种硬币可无限次使用，不计顺序）。
 
 **自测用例**：
+
 - 输入: `amount = 5, coins = [1,2,5]` → 输出: `4`（5; 2+2+1; 2+1+1+1; 1+1+1+1+1）
 - 输入: `amount = 3, coins = [2]` → 输出: `0`
 - 输入: `amount = 0, coins = [1,2,3]` → 输出: `1`（空组合）
@@ -963,7 +1005,7 @@ var longestCommonSubsequence = function(text1, text2) {
 **代码**：
 
 ```js
-var change = function(amount, coins) {
+var change = function (amount, coins) {
   const dp = new Array(amount + 1).fill(0);
   dp[0] = 1;
 
@@ -988,6 +1030,7 @@ var change = function(amount, coins) {
 **题目描述**：给你一个整数数组 `nums`，判断是否存在三元组 `[nums[i], nums[j], nums[k]]`（三个下标互不相同）使得三数之和为 0，返回所有不重复的满足条件的三元组。
 
 **自测用例**：
+
 - 输入: `nums = [-1,0,1,2,-1,-4]` → 输出: `[[-1,-1,2],[-1,0,1]]`
 - 输入: `nums = [0,1,1]` → 输出: `[]`
 - 输入: `nums = [0,0,0]` → 输出: `[[0,0,0]]`
@@ -999,7 +1042,7 @@ var change = function(amount, coins) {
 **代码**：
 
 ```js
-var threeSum = function(nums) {
+var threeSum = function (nums) {
   nums.sort((a, b) => a - b);
   const res = [];
 
@@ -1007,14 +1050,16 @@ var threeSum = function(nums) {
     if (nums[i] > 0) break;
     if (i > 0 && nums[i] === nums[i - 1]) continue; // 去重
 
-    let l = i + 1, r = nums.length - 1;
+    let l = i + 1,
+      r = nums.length - 1;
     while (l < r) {
       const sum = nums[i] + nums[l] + nums[r];
       if (sum === 0) {
         res.push([nums[i], nums[l], nums[r]]);
         while (l < r && nums[l] === nums[l + 1]) l++;
         while (l < r && nums[r] === nums[r - 1]) r--;
-        l++; r--;
+        l++;
+        r--;
       } else if (sum < 0) {
         l++;
       } else {
@@ -1036,6 +1081,7 @@ var threeSum = function(nums) {
 **题目描述**：给你一个整数数组 `nums`，找出其下一个字典序更大的排列，并原地修改数组。如果不存在更大的排列（已是最大），则将数组重排为最小的排列（升序）。
 
 **自测用例**：
+
 - 输入: `nums = [1,2,3]` → 输出: `[1,3,2]`
 - 输入: `nums = [3,2,1]` → 输出: `[1,2,3]`（已最大，重置为最小）
 - 输入: `nums = [1,1,5]` → 输出: `[1,5,1]`
@@ -1047,7 +1093,7 @@ var threeSum = function(nums) {
 **代码**：
 
 ```js
-var nextPermutation = function(nums) {
+var nextPermutation = function (nums) {
   const n = nums.length;
   let i = n - 2;
 
@@ -1062,10 +1108,12 @@ var nextPermutation = function(nums) {
   }
 
   // 反转 i+1 到末尾
-  let l = i + 1, r = n - 1;
+  let l = i + 1,
+    r = n - 1;
   while (l < r) {
     [nums[l], nums[r]] = [nums[r], nums[l]];
-    l++; r--;
+    l++;
+    r--;
   }
 };
 ```
@@ -1079,6 +1127,7 @@ var nextPermutation = function(nums) {
 **题目描述**：给定整数数组 `nums` 和整数 `k`，返回数组中第 `k` 个最大的元素（排序后第 k 大，非第 k 个不同的元素）。要求时间复杂度优于 O(n log n)。
 
 **自测用例**：
+
 - 输入: `nums = [3,2,1,5,6,4], k = 2` → 输出: `5`
 - 输入: `nums = [3,2,3,1,2,4,5,5,6], k = 4` → 输出: `4`
 - 输入: `nums = [1], k = 1` → 输出: `1`
@@ -1090,7 +1139,7 @@ var nextPermutation = function(nums) {
 **代码**：
 
 ```js
-var findKthLargest = function(nums, k) {
+var findKthLargest = function (nums, k) {
   const target = nums.length - k;
 
   function quickSelect(l, r) {
@@ -1122,6 +1171,7 @@ var findKthLargest = function(nums, k) {
 **题目描述**：给你一个字符串 `s` 和一个字符串列表 `wordDict` 作为字典，如果 `s` 可以由字典中的单词（可重复使用）拼接而成，返回 `true`，否则返回 `false`。
 
 **自测用例**：
+
 - 输入: `s = "leetcode", wordDict = ["leet","code"]` → 输出: `true`
 - 输入: `s = "applepenapple", wordDict = ["apple","pen"]` → 输出: `true`（重复使用）
 - 输入: `s = "catsandog", wordDict = ["cats","dog","sand","and","cat"]` → 输出: `false`
@@ -1133,7 +1183,7 @@ var findKthLargest = function(nums, k) {
 **代码**：
 
 ```js
-var wordBreak = function(s, wordDict) {
+var wordBreak = function (s, wordDict) {
   const wordSet = new Set(wordDict);
   const n = s.length;
   const dp = new Array(n + 1).fill(false);
@@ -1163,6 +1213,7 @@ var wordBreak = function(s, wordDict) {
 **题目描述**：给定 n 个非负整数表示每个宽度为 1 的柱子的高度图，计算按此排列的柱子，下雨之后能接多少雨水。
 
 **自测用例**：
+
 - 输入: `height = [0,1,0,2,1,0,1,3,2,1,2,1]` → 输出: `6`
 - 输入: `height = [4,2,0,3,2,5]` → 输出: `9`
 - 输入: `height = [3,0,3]` → 输出: `3`
@@ -1174,9 +1225,11 @@ var wordBreak = function(s, wordDict) {
 **代码**：
 
 ```js
-var trap = function(height) {
-  let l = 0, r = height.length - 1;
-  let maxL = 0, maxR = 0;
+var trap = function (height) {
+  let l = 0,
+    r = height.length - 1;
+  let maxL = 0,
+    maxR = 0;
   let water = 0;
 
   while (l < r) {
@@ -1204,6 +1257,7 @@ var trap = function(height) {
 **题目描述**：给你一个链表数组，每个链表都已经按升序排列，请你将所有链表合并到一个升序链表中，返回合并后的链表。
 
 **自测用例**：
+
 - 输入: `lists = [[1,4,5],[1,3,4],[2,6]]` → 输出: `1→1→2→3→4→4→5→6`
 - 输入: `lists = []` → 输出: `[]`
 - 输入: `lists = [[]]` → 输出: `[]`
@@ -1216,7 +1270,7 @@ var trap = function(height) {
 
 ```js
 // JS 中用最小堆模拟（面试可用数组 + sort 简化，实际应用用堆）
-var mergeKLists = function(lists) {
+var mergeKLists = function (lists) {
   // 分治归并（面试更推荐，思路清晰）
   if (!lists.length) return null;
   return mergeRange(lists, 0, lists.length - 1);
@@ -1234,8 +1288,13 @@ function mergeTwoLists(l1, l2) {
   const dummy = new ListNode(0);
   let cur = dummy;
   while (l1 && l2) {
-    if (l1.val <= l2.val) { cur.next = l1; l1 = l1.next; }
-    else { cur.next = l2; l2 = l2.next; }
+    if (l1.val <= l2.val) {
+      cur.next = l1;
+      l1 = l1.next;
+    } else {
+      cur.next = l2;
+      l2 = l2.next;
+    }
     cur = cur.next;
   }
   cur.next = l1 || l2;
@@ -1254,7 +1313,7 @@ function mergeTwoLists(l1, l2) {
 ```js
 function debounce(fn, delay) {
   let timer = null;
-  return function(...args) {
+  return function (...args) {
     clearTimeout(timer);
     timer = setTimeout(() => {
       fn.apply(this, args);
@@ -1269,7 +1328,7 @@ function debounce(fn, delay) {
 ```js
 function throttle(fn, interval) {
   let lastTime = 0;
-  return function(...args) {
+  return function (...args) {
     const now = Date.now();
     if (now - lastTime >= interval) {
       lastTime = now;
@@ -1283,7 +1342,7 @@ function throttle(fn, interval) {
 
 ```js
 function deepClone(obj, map = new WeakMap()) {
-  if (obj === null || typeof obj !== 'object') return obj;
+  if (obj === null || typeof obj !== "object") return obj;
   if (map.has(obj)) return map.get(obj); // 处理循环引用
 
   if (obj instanceof Date) return new Date(obj);
@@ -1311,10 +1370,12 @@ function promiseAll(promises) {
     if (!promises.length) return resolve(results);
 
     promises.forEach((p, i) => {
-      Promise.resolve(p).then(val => {
-        results[i] = val;
-        if (++count === promises.length) resolve(results);
-      }).catch(reject);
+      Promise.resolve(p)
+        .then((val) => {
+          results[i] = val;
+          if (++count === promises.length) resolve(results);
+        })
+        .catch(reject);
     });
   });
 }
@@ -1324,11 +1385,13 @@ function promiseAll(promises) {
 
 ```js
 function promiseAllSettled(promises) {
-  return Promise.all(promises.map(p =>
-    Promise.resolve(p)
-      .then(value => ({ status: 'fulfilled', value }))
-      .catch(reason => ({ status: 'rejected', reason }))
-  ));
+  return Promise.all(
+    promises.map((p) =>
+      Promise.resolve(p)
+        .then((value) => ({ status: "fulfilled", value }))
+        .catch((reason) => ({ status: "rejected", reason })),
+    ),
+  );
 }
 ```
 
@@ -1365,7 +1428,7 @@ function myNew(Constructor, ...args) {
 ### 手写 call
 
 ```js
-Function.prototype.myCall = function(context, ...args) {
+Function.prototype.myCall = function (context, ...args) {
   context = context ?? globalThis;
   const sym = Symbol();
   context[sym] = this;
@@ -1378,7 +1441,7 @@ Function.prototype.myCall = function(context, ...args) {
 ### 手写 apply
 
 ```js
-Function.prototype.myApply = function(context, args = []) {
+Function.prototype.myApply = function (context, args = []) {
   context = context ?? globalThis;
   const sym = Symbol();
   context[sym] = this;
@@ -1391,9 +1454,9 @@ Function.prototype.myApply = function(context, args = []) {
 ### 手写 bind
 
 ```js
-Function.prototype.myBind = function(context, ...outerArgs) {
+Function.prototype.myBind = function (context, ...outerArgs) {
   const fn = this;
-  return function(...innerArgs) {
+  return function (...innerArgs) {
     // 处理 new 调用：new BoundFn() 时 this 指向新实例，忽略绑定的 context
     if (new.target) {
       return new fn(...outerArgs, ...innerArgs);
@@ -1404,6 +1467,7 @@ Function.prototype.myBind = function(context, ...outerArgs) {
 ```
 
 **关键点**：
+
 - `bind` 返回一个新函数，支持柯里化传参（外层参数 + 内层参数合并）
 - 用 `new.target` 检测是否被 `new` 调用，`new` 时忽略绑定的 `this`，指向新实例
 - `call/apply` 直接执行，`bind` 返回函数不执行

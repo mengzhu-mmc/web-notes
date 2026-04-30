@@ -7,20 +7,20 @@
 ## 一、核心差异对比表
 
 | 维度 | React 19 | Vue 3.5 |
-|------|---------|---------|
-| **定位** | UI 库（自由组合） | 渐进式框架（开箱即用）|
+| --- | --- | --- |
+| **定位** | UI 库（自由组合） | 渐进式框架（开箱即用） |
 | **响应式模型** | 不可变状态 + 手动 setState | Proxy 响应式，自动追踪依赖 |
 | **渲染机制** | 并发渲染 + Fiber 调度 | 响应式自动追踪 + 静态提升 |
-| **编写风格** | JSX（JavaScript 一体） | SFC（`.vue` 单文件组件）|
-| **TypeScript** | 良好（JSX 天然 TS 友好）| 很好（Vue 3 为 TS 重写）|
-| **学习曲线** | 较陡（需理解 Hooks 规则）| 较平（模板 + Options API 直观）|
-| **性能优化** | 手动 memo/useMemo/useCallback | 自动追踪（几乎无需手动优化）|
-| **自动编译优化** | React Compiler（实验中）| 编译时静态分析（已稳定）|
-| **服务端渲染** | Next.js（Server Components）| Nuxt 3（SSR/SSG/ISR）|
-| **状态管理** | Zustand / Jotai / Redux Toolkit | Pinia（官方推荐）|
+| **编写风格** | JSX（JavaScript 一体） | SFC（`.vue` 单文件组件） |
+| **TypeScript** | 良好（JSX 天然 TS 友好） | 很好（Vue 3 为 TS 重写） |
+| **学习曲线** | 较陡（需理解 Hooks 规则） | 较平（模板 + Options API 直观） |
+| **性能优化** | 手动 memo/useMemo/useCallback | 自动追踪（几乎无需手动优化） |
+| **自动编译优化** | React Compiler（实验中） | 编译时静态分析（已稳定） |
+| **服务端渲染** | Next.js（Server Components） | Nuxt 3（SSR/SSG/ISR） |
+| **状态管理** | Zustand / Jotai / Redux Toolkit | Pinia（官方推荐） |
 | **路由** | React Router v7 / TanStack Router | Vue Router 4 |
 | **表单处理** | React Hook Form / useActionState | VeeValidate / 手动 |
-| **生态规模** | 极大（npm 周下载 ~3000万）| 大（npm 周下载 ~600万）|
+| **生态规模** | 极大（npm 周下载 ~3000万） | 大（npm 周下载 ~600万） |
 | **企业使用** | Meta / Airbnb / Netflix | 阿里 / 字节 / 腾讯 |
 | **社区** | 英文为主 | 中文文档极佳 |
 
@@ -34,15 +34,15 @@
 // React：状态变化必须通过 setState 显式触发
 function Counter() {
   const [count, setCount] = useState(0);
-  const [user, setUser] = useState({ name: '张三', age: 25 });
+  const [user, setUser] = useState({ name: "张三", age: 25 });
 
   // ❌ 直接修改不会触发渲染
   // count++;
   // user.name = '李四';
 
   // ✅ 必须调用 setter
-  const increment = () => setCount(c => c + 1);
-  const updateName = (name) => setUser(prev => ({ ...prev, name })); // 不可变更新
+  const increment = () => setCount((c) => c + 1);
+  const updateName = (name) => setUser((prev) => ({ ...prev, name })); // 不可变更新
 
   return <button onClick={increment}>{count}</button>;
 }
@@ -52,14 +52,16 @@ function Counter() {
 
 ```vue
 <script setup>
-import { ref, reactive } from 'vue';
+import { ref, reactive } from "vue";
 
 const count = ref(0);
-const user = reactive({ name: '张三', age: 25 });
+const user = reactive({ name: "张三", age: 25 });
 
 // ✅ 直接修改，Vue 自动检测变化
 const increment = () => count.value++;
-const updateName = (name) => { user.name = name; }; // 直接赋值！
+const updateName = (name) => {
+  user.name = name;
+}; // 直接赋值！
 </script>
 ```
 
@@ -83,14 +85,16 @@ function Parent({ data }) {
 
   return (
     <>
-      <button onClick={() => setCount(c => c + 1)}>{count}</button>
+      <button onClick={() => setCount((c) => c + 1)}>{count}</button>
       {/* 手动 memo 组件 */}
       <MemoChild data={processedData} onClick={handleClick} />
     </>
   );
 }
 
-const MemoChild = React.memo(({ data, onClick }) => <div onClick={onClick}>{data}</div>);
+const MemoChild = React.memo(({ data, onClick }) => (
+  <div onClick={onClick}>{data}</div>
+));
 ```
 
 ### Vue：自动追踪，无需手动
@@ -99,13 +103,15 @@ const MemoChild = React.memo(({ data, onClick }) => <div onClick={onClick}>{data
 <script setup>
 // Vue：响应式自动追踪，只有用到的数据变化才重渲染
 const count = ref(0);
-const data = defineProps(['data']);
+const data = defineProps(["data"]);
 
 // computed 自动缓存，等同于 useMemo
 const processedData = computed(() => expensiveProcess(data.data));
 
 // 方法不需要 useCallback，天生稳定
-function handleClick() { doSomething(); }
+function handleClick() {
+  doSomething();
+}
 </script>
 
 <template>
@@ -124,20 +130,26 @@ function handleClick() { doSomething(); }
 // React 19：use() Hook
 function Comments({ commentsPromise }) {
   const comments = use(commentsPromise); // 可以在条件语句中！
-  return <ul>{comments.map(c => <li key={c.id}>{c.text}</li>)}</ul>;
+  return (
+    <ul>
+      {comments.map((c) => (
+        <li key={c.id}>{c.text}</li>
+      ))}
+    </ul>
+  );
 }
 
 // 配合 Suspense
 <Suspense fallback={<Loading />}>
   <Comments commentsPromise={fetchComments()} />
-</Suspense>
+</Suspense>;
 ```
 
 ```vue
 <!-- Vue 3：async setup（更直观）-->
 <script setup>
 // async setup 配合 <Suspense>
-const comments = await fetch('/api/comments').then(r => r.json());
+const comments = await fetch("/api/comments").then((r) => r.json());
 </script>
 
 <!-- 父组件 -->
@@ -160,7 +172,7 @@ function Form() {
   return (
     <form action={action}>
       <input name="email" />
-      <button disabled={isPending}>{isPending ? '提交中...' : '提交'}</button>
+      <button disabled={isPending}>{isPending ? "提交中..." : "提交"}</button>
       {state?.success && <p>提交成功！</p>}
     </form>
   );
@@ -183,7 +195,9 @@ async function handleSubmit(e) {
 <template>
   <form @submit.prevent="handleSubmit">
     <input name="email" />
-    <button :disabled="isLoading">{{ isLoading ? '提交中...' : '提交' }}</button>
+    <button :disabled="isLoading">
+      {{ isLoading ? "提交中..." : "提交" }}
+    </button>
     <p v-if="success">提交成功！</p>
   </form>
 </template>
@@ -194,12 +208,12 @@ async function handleSubmit(e) {
 ```jsx
 // React：需要手动实现（没有原生 v-model 等价物）
 function Parent() {
-  const [value, setValue] = useState('');
+  const [value, setValue] = useState("");
   return <Input value={value} onChange={setValue} />;
 }
 
 function Input({ value, onChange }) {
-  return <input value={value} onChange={e => onChange(e.target.value)} />;
+  return <input value={value} onChange={(e) => onChange(e.target.value)} />;
 }
 ```
 
@@ -223,9 +237,9 @@ const model = defineModel<string>();
 ### 选 React 的场景
 
 | 场景 | 原因 |
-|------|------|
+| --- | --- |
 | 🌍 **面向海外/国际化产品** | 生态更大，英文资源丰富 |
-| 📱 **需要 React Native 跨端** | 代码复用（Web + Native 共用逻辑）|
+| 📱 **需要 React Native 跨端** | 代码复用（Web + Native 共用逻辑） |
 | 🏢 **大型团队、复杂应用** | JSX + TypeScript 类型安全，重构更安全 |
 | ⚡ **服务端组件 SSR** | Next.js App Router + Server Components 最成熟 |
 | 🔧 **高度自定义 UI 架构** | 只是库，不强制约束，自由组合 |
@@ -234,7 +248,7 @@ const model = defineModel<string>();
 ### 选 Vue 的场景
 
 | 场景 | 原因 |
-|------|------|
+| --- | --- |
 | 🇨🇳 **国内项目、中文团队** | 文档最好，社区活跃，Element Plus / Ant Design Vue |
 | 🚀 **快速交付、中小团队** | 学习曲线平，响应式自动优化，开发效率高 |
 | 📝 **内容管理系统、后台系统** | SFC 模板语法直观，Pinia 简单 |
@@ -274,6 +288,7 @@ const model = defineModel<string>();
 ### 2026 年技术栈推荐组合
 
 **React 方向：**
+
 ```
 React 19 + TypeScript
 + Next.js 15 (SSR/SSG/Server Components)
@@ -284,6 +299,7 @@ React 19 + TypeScript
 ```
 
 **Vue 方向：**
+
 ```
 Vue 3.5 + TypeScript
 + Nuxt 3 (全栈) 或 Vite (纯前端)
@@ -300,10 +316,12 @@ Vue 3.5 + TypeScript
 ### Q1：React 和 Vue 最核心的区别是什么？
 
 **响应式模型不同**：
+
 - React 采用**不可变状态**模型，状态变化必须显式调用 setter，React 通过比较前后状态树决定更新范围
 - Vue 采用**可变响应式**模型，通过 Proxy 自动追踪依赖，直接修改数据即可触发精准更新
 
 **编写模型不同**：
+
 - React 是 JavaScript-first，用 JSX 把 HTML 嵌入 JS
 - Vue 是 HTML-first，用模板把逻辑嵌入 HTML（也支持 JSX）
 
@@ -318,7 +336,7 @@ React 19 的 Compiler 目标是让 React 也能做到 Vue 那样的自动优化�
 ### Q3：React Server Components 和 Vue/Nuxt 的 SSR 有什么区别？
 
 | 维度 | React Server Components | Nuxt SSR |
-|------|------------------------|----------|
+| --- | --- | --- |
 | **组件在哪运行** | 部分组件永远在服务端 | 所有组件 SSR 后 hydrate 到客户端 |
 | **客户端 JS** | 服务端组件不发送 JS | 所有组件代码都发到客户端 |
 | **数据获取** | 直接在组件中 async/await | `useAsyncData` / `useFetch` |
@@ -328,6 +346,7 @@ React 19 的 Compiler 目标是让 React 也能做到 Vue 那样的自动优化�
 ### Q4：2026年新项目你会选 React 还是 Vue？
 
 客观回答：**看团队和场景**。
+
 - 个人偏好：国内项目、快速迭代选 Vue 3 + Nuxt；需要 React Native 或者国际化产品选 React + Next.js
 - 技术趋势：两者都在快速进化，React Compiler 和 Vue 3.5 都很值得关注
 - 不存在绝对优劣，最适合团队的就是最好的

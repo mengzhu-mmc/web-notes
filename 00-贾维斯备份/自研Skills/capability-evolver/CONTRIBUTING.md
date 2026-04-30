@@ -8,4 +8,3 @@ Thank you for contributing. Please follow these rules:
 - Run `node index.js` for a quick sanity check.
 
 Submit PRs with clear intent and scope.
-

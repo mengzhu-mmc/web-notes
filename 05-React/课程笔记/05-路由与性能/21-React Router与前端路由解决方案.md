@@ -33,29 +33,11 @@
       <span class="hljs-tag">&lt;<span class="hljs-name">Route</span> <span class="hljs-attr">path</span>=<span class="hljs-string">"/about"</span> <span class="hljs-attr">component</span>=<span class="hljs-string">{About}</span> /&gt;</span>
       <span class="hljs-tag">&lt;<span class="hljs-name">Route</span> <span class="hljs-attr">path</span>=<span class="hljs-string">"/dashboard"</span> <span class="hljs-attr">component</span>=<span class="hljs-string">{Dashboard}</span> /&gt;</span>
     <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
-  <span class="hljs-tag">&lt;/<span class="hljs-name">Router</span>&gt;</span></span>
-);
-<span class="hljs-comment">// Home 组件的定义</span>
-<span class="hljs-keyword">const</span> Home = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> (
-  <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">h2</span>&gt;</span>Home<span class="hljs-tag">&lt;/<span class="hljs-name">h2</span>&gt;</span>
-  <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span>
-);
-<span class="hljs-comment">// About 组件的定义</span>
-<span class="hljs-keyword">const</span> About = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> (
-  <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">h2</span>&gt;</span>About<span class="hljs-tag">&lt;/<span class="hljs-name">h2</span>&gt;</span>
-  <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span>
-);
-<span class="hljs-comment">// Dashboard 的定义</span>
-<span class="hljs-keyword">const</span> Dashboard = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> (
-  <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">h2</span>&gt;</span>Dashboard<span class="hljs-tag">&lt;/<span class="hljs-name">h2</span>&gt;</span>
-  <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span>
-);
 
-<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> BasicExample;
-</code></pre>
+<span class="hljs-tag">&lt;/<span class="hljs-name">Router</span>&gt;</span></span> ); <span class="hljs-comment">// Home 组件的定义</span> <span class="hljs-keyword">const</span> Home = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> ( <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span> <span class="hljs-tag">&lt;<span class="hljs-name">h2</span>&gt;</span>Home<span class="hljs-tag">&lt;/<span class="hljs-name">h2</span>&gt;</span> <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span> ); <span class="hljs-comment">// About 组件的定义</span> <span class="hljs-keyword">const</span> About = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> ( <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span> <span class="hljs-tag">&lt;<span class="hljs-name">h2</span>&gt;</span>About<span class="hljs-tag">&lt;/<span class="hljs-name">h2</span>&gt;</span> <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span> ); <span class="hljs-comment">// Dashboard 的定义</span> <span class="hljs-keyword">const</span> Dashboard = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> ( <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span> <span class="hljs-tag">&lt;<span class="hljs-name">h2</span>&gt;</span>Dashboard<span class="hljs-tag">&lt;/<span class="hljs-name">h2</span>&gt;</span> <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span> );
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> BasicExample; </code></pre>
+
 <p data-nodeid="1195">这个 Demo 渲染出的页面效果如下图所示：</p>
 <p data-nodeid="1196"><img src="https://s0.lgstatic.com/i/image/M00/8B/20/CgqCHl_bOA2AfagHAAAwif17aiI096.png" alt="Drawing 0.png" data-nodeid="1313"></p>
 <p data-nodeid="1197">当我点击不同的链接时，ul 元素内部就会展示不同的组件内容。比如当我点击“About”链接时，就会展示 About 组件的内容，效果如下图所示：</p>
@@ -108,7 +90,6 @@
 </li>
 </ul>
 <p data-nodeid="2073" class=""><img src="https://s0.lgstatic.com/i/image2/M01/03/78/Cip5yF_cKqmATWf8AAN3hb7gX3k493.png" alt="图片1.png" data-nodeid="2086"></p>
-
 
 <ul data-nodeid="1236">
 <li data-nodeid="1237">
@@ -212,6 +193,6 @@ window.addEventListener(<span class="hljs-string">'hashchange'</span>, function(
 
 ### 精选评论
 
-##### **威：
-> 快看完了，意犹未尽😀
+##### \*\*威：
 
+> 快看完了，意犹未尽😀

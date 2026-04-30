@@ -6,11 +6,6 @@
 <p data-nodeid="27093"><img src="https://s0.lgstatic.com/i/image/M00/46/40/Ciqc1F9EvvmAC2x9AAAVgzc1Izg188.png" alt="image.png" data-nodeid="27097"></p>
 <div data-nodeid="27676" class=""><p style="text-align:center">Node.js 的依赖模块</p></div>
 
-
-
-
-
-
 <ul data-nodeid="24478">
 <li data-nodeid="24479">
 <p data-nodeid="24480">acorn：前面的课程中已经提过，用 JavaScript 编写的轻量级 JavaScript 解析器。</p>
@@ -66,11 +61,6 @@
 <div data-nodeid="29977" class=""><p style="text-align:center">libuv 结构图</p></div>
 <p></p>
 
-
-
-
-
-
 <p data-nodeid="24516">我用黄色线框将图中模块分为了两部分，分别代表了两种不同的异步实现方式。</p>
 <p data-nodeid="24517">左边部分为网络 I/O 模块，在不同平台下有不同的实现机制，Linux 系统下通过 epoll 实现，OSX 和其他 BSD 系统采用 KQueue，SunOS 系统采用 Event ports，Windows 系统采用的是IOCP。由于涉及操作系统底层 API，理解起来比较复杂，这里就不多介绍了，对这些实现机制比较感兴趣的同学可以查阅这篇文章“<a href="https://cloud.tencent.com/developer/article/1373483" data-nodeid="24614">各种 IO 复用模式之 select、poll、epoll、kqueue、iocp 分析</a>”。</p>
 <p data-nodeid="24518">右边部分包括文件 I/O 模块、DNS 模块和用户代码，通过线程池来实现异步操作。文件 I/O 与网络 I/O 不同，libuv 没有依赖于系统底层的 API，而是在全局线程池中执行阻塞的文件 I/O 操作。</p>
@@ -78,11 +68,6 @@
 <p data-nodeid="32242">下图是 libuv 官网给出的事件轮询工作流程图，我们结合代码来一起分析。</p>
 <p data-nodeid="32243" class=""><img src="https://s0.lgstatic.com/i/image/M00/46/4C/CgqCHl9EvySAMrSYAADR1tJd-r8402.png" alt="image (1).png" data-nodeid="32252"></p>
 <div data-nodeid="32244"><p style="text-align:center">libuv 事件轮询</p></div>
-
-
-
-
-
 
 <p data-nodeid="24523">libuv 事件循环的核心代码是在 uv_run() 函数中实现的，下面是 Unix 系统下的部分核心代码。虽然是用 C 语言编写的，但和 JavaScript 一样都是高级语言，所以理解起来也不算太困难。最大的区别可能是星号和箭头，星号我们可以直接忽略。例如，函数参数中 uv_loop_t* loop 可以理解为 uv_loop_t 类型的变量 loop。箭头“→”可以理解为点号“.”，例如，loop→stop_flag 可以理解为 loop.stop_flag。</p>
 <pre class="lang-c++" data-nodeid="24524"><code data-language="c++"><span class="hljs-comment">// deps/uv/src/unix/core.c</span>
@@ -276,33 +261,10 @@ const traverse = () =&gt; {
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="hljs-keyword">const</span>&nbsp;asyncId&nbsp;=&nbsp;tock[async_id_symbol];
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;emitBefore(asyncId,&nbsp;tock[trigger_async_id_symbol],&nbsp;tock);
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="hljs-keyword">try</span>&nbsp;{
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="hljs-keyword">const</span>&nbsp;callback&nbsp;=&nbsp;tock.callback;
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="hljs-keyword">if</span>&nbsp;(tock.args&nbsp;===&nbsp;undefined)&nbsp;{
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;callback();
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;<span class="hljs-keyword">else</span>&nbsp;{
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="hljs-keyword">const</span>&nbsp;args&nbsp;=&nbsp;tock.args;
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="hljs-keyword">switch</span>&nbsp;(args.length)&nbsp;{
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="hljs-keyword">case</span>&nbsp;<span class="hljs-number">1</span>:&nbsp;callback(args[<span class="hljs-number">0</span>]);&nbsp;<span class="hljs-keyword">break</span>;
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="hljs-keyword">case</span>&nbsp;<span class="hljs-number">2</span>:&nbsp;callback(args[<span class="hljs-number">0</span>],&nbsp;args[<span class="hljs-number">1</span>]);&nbsp;<span class="hljs-keyword">break</span>;
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="hljs-keyword">case</span>&nbsp;<span class="hljs-number">3</span>:&nbsp;callback(args[<span class="hljs-number">0</span>],&nbsp;args[<span class="hljs-number">1</span>],&nbsp;args[<span class="hljs-number">2</span>]);&nbsp;<span class="hljs-keyword">break</span>;
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="hljs-keyword">case</span>&nbsp;<span class="hljs-number">4</span>:&nbsp;callback(args[<span class="hljs-number">0</span>],&nbsp;args[<span class="hljs-number">1</span>],&nbsp;args[<span class="hljs-number">2</span>],&nbsp;args[<span class="hljs-number">3</span>]);&nbsp;<span class="hljs-keyword">break</span>;
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="hljs-keyword">default</span>:&nbsp;callback(...args);
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;finally&nbsp;{
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="hljs-keyword">if</span>&nbsp;(destroyHooksExist())
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;emitDestroy(asyncId);
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="hljs-keyword">try</span>&nbsp;{ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="hljs-keyword">const</span>&nbsp;callback&nbsp;=&nbsp;tock.callback; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="hljs-keyword">if</span>&nbsp;(tock.args&nbsp;===&nbsp;undefined)&nbsp;{ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;callback(); &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;<span class="hljs-keyword">else</span>&nbsp;{ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="hljs-keyword">const</span>&nbsp;args&nbsp;=&nbsp;tock.args; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="hljs-keyword">switch</span>&nbsp;(args.length)&nbsp;{ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="hljs-keyword">case</span>&nbsp;<span class="hljs-number">1</span>:&nbsp;callback(args[<span class="hljs-number">0</span>]);&nbsp;<span class="hljs-keyword">break</span>; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="hljs-keyword">case</span>&nbsp;<span class="hljs-number">2</span>:&nbsp;callback(args[<span class="hljs-number">0</span>],&nbsp;args[<span class="hljs-number">1</span>]);&nbsp;<span class="hljs-keyword">break</span>; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="hljs-keyword">case</span>&nbsp;<span class="hljs-number">3</span>:&nbsp;callback(args[<span class="hljs-number">0</span>],&nbsp;args[<span class="hljs-number">1</span>],&nbsp;args[<span class="hljs-number">2</span>]);&nbsp;<span class="hljs-keyword">break</span>; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="hljs-keyword">case</span>&nbsp;<span class="hljs-number">4</span>:&nbsp;callback(args[<span class="hljs-number">0</span>],&nbsp;args[<span class="hljs-number">1</span>],&nbsp;args[<span class="hljs-number">2</span>],&nbsp;args[<span class="hljs-number">3</span>]);&nbsp;<span class="hljs-keyword">break</span>; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="hljs-keyword">default</span>:&nbsp;callback(...args); &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;finally&nbsp;{ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="hljs-keyword">if</span>&nbsp;(destroyHooksExist()) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;emitDestroy(asyncId); &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;emitAfter(asyncId);
-&nbsp;&nbsp;&nbsp;&nbsp;}
-&nbsp;&nbsp;&nbsp;&nbsp;runMicrotasks();
-&nbsp;&nbsp;}&nbsp;<span class="hljs-keyword">while</span>&nbsp;(!<span class="hljs-built_in">queue</span>.isEmpty()&nbsp;||&nbsp;processPromiseRejections());
-&nbsp;&nbsp;setHasTickScheduled(<span class="hljs-literal">false</span>);
-&nbsp;&nbsp;setHasRejectionToWarn(<span class="hljs-literal">false</span>);
-}
-</code></pre>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;emitAfter(asyncId); &nbsp;&nbsp;&nbsp;&nbsp;} &nbsp;&nbsp;&nbsp;&nbsp;runMicrotasks(); &nbsp;&nbsp;}&nbsp;<span class="hljs-keyword">while</span>&nbsp;(!<span class="hljs-built_in">queue</span>.isEmpty()&nbsp;||&nbsp;processPromiseRejections()); &nbsp;&nbsp;setHasTickScheduled(<span class="hljs-literal">false</span>); &nbsp;&nbsp;setHasRejectionToWarn(<span class="hljs-literal">false</span>); } </code></pre>
+
 <p data-nodeid="24562">从 processTicksAndRejections() 函数中可以看出，首先通过 while 循环取出 queue 队列的回调函数，而这个 queue 队列中的回调函数就是通过 process.nextTick来添加的。当 while 循环结束后才调用 runMicrotasks() 函数执行 Promise 的回调函数。</p>
 <h3 data-nodeid="24563">总结</h3>
 <p data-nodeid="24564">这一课时我们主要分析了 Node.js 的核心依赖 libuv。libuv 的结构可以分两部分，一部分是网络 I/O，底层实现会根据不同操作系统依赖不同的系统 API，另一部分是文件 I/O、DNS、用户代码，这一部分采用线程池来处理。</p>
@@ -314,9 +276,10 @@ const traverse = () =&gt; {
 
 ### 精选评论
 
-##### **贤：
+##### \*\*贤：
+
 > 通过递归调用 prcoess.nextTick 而导致 fs.readFile 的回调函数无法执行的例子这个例子代码，不知道为何会阻塞。看traverse都没有执行的样子
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
-> &nbsp;&nbsp;&nbsp; 因为会在 nextTick 队列中不断执行 traverse 函数，可简单的理解为  function traverse() {traverse()}。
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
 
+> &nbsp;&nbsp;&nbsp; 因为会在 nextTick 队列中不断执行 traverse 函数，可简单的理解为 function traverse() {traverse()}。

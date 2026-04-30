@@ -5,6 +5,7 @@
 ## 核心内容
 
 两个重要的 HTML/CSS 新特性：
+
 1. `interestfor` 属性：纯 HTML+CSS 实现悬停触发 Popover
 2. `dialog.closedBy`：原生弹窗支持点击蒙层关闭
 
@@ -32,7 +33,9 @@
 
 ```css
 /* 默认隐藏 */
-[popover] { display: none; }
+[popover] {
+  display: none;
+}
 
 /* popover 显示时的样式 */
 [popover]:popover-open {
@@ -60,11 +63,11 @@
 
 ### 属性值
 
-| 值 | 行为 |
-|----|------|
-| `any` | 点击 backdrop 蒙层 或 按 Esc 都能关闭 |
+| 值             | 行为                                          |
+| -------------- | --------------------------------------------- |
+| `any`          | 点击 backdrop 蒙层 或 按 Esc 都能关闭         |
 | `closerequest` | 默认值，只有按 Esc（或调用 `.close()`）才关闭 |
-| `none` | 禁止自动关闭，必须通过代码显式关闭 |
+| `none`         | 禁止自动关闭，必须通过代码显式关闭            |
 
 ### 代码示例
 
@@ -90,7 +93,7 @@ dialog::backdrop {
 ### dialog 完整 API 复习
 
 ```javascript
-const dialog = document.getElementById('modal');
+const dialog = document.getElementById("modal");
 
 // 打开为模态框（有 ::backdrop 蒙层，阻止背后交互）
 dialog.showModal();
@@ -99,10 +102,10 @@ dialog.showModal();
 dialog.show();
 
 // 关闭，可传返回值
-dialog.close('submitted');
+dialog.close("submitted");
 
 // 获取关闭时传入的值
-dialog.addEventListener('close', () => {
+dialog.addEventListener("close", () => {
   console.log(dialog.returnValue); // 'submitted'
 });
 ```

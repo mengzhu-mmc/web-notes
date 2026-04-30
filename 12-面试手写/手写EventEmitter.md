@@ -18,8 +18,8 @@ class EventEmitter {
 
   // 注册事件监听器
   on(event, listener) {
-    if (typeof listener !== 'function') {
-      throw new TypeError('listener must be a function');
+    if (typeof listener !== "function") {
+      throw new TypeError("listener must be a function");
     }
     if (!this._events[event]) {
       this._events[event] = [];
@@ -30,8 +30,8 @@ class EventEmitter {
 
   // 注册只触发一次的监听器
   once(event, listener) {
-    if (typeof listener !== 'function') {
-      throw new TypeError('listener must be a function');
+    if (typeof listener !== "function") {
+      throw new TypeError("listener must be a function");
     }
     // 包装函数：执行一次后自动移除
     const wrapper = (...args) => {
@@ -98,26 +98,26 @@ class EventEmitter {
 const emitter = new EventEmitter();
 
 // 基础用法
-emitter.on('data', (msg) => console.log('收到数据:', msg));
-emitter.emit('data', 'hello'); // 收到数据: hello
+emitter.on("data", (msg) => console.log("收到数据:", msg));
+emitter.emit("data", "hello"); // 收到数据: hello
 
 // once - 只触发一次
-emitter.once('login', (user) => console.log('用户登录:', user));
-emitter.emit('login', 'Alice'); // 用户登录: Alice
-emitter.emit('login', 'Bob'); // 无输出（已自动移除）
+emitter.once("login", (user) => console.log("用户登录:", user));
+emitter.emit("login", "Alice"); // 用户登录: Alice
+emitter.emit("login", "Bob"); // 无输出（已自动移除）
 
 // off - 移除监听器
-const handler = (v) => console.log('value:', v);
-emitter.on('change', handler);
-emitter.emit('change', 1); // value: 1
-emitter.off('change', handler);
-emitter.emit('change', 2); // 无输出
+const handler = (v) => console.log("value:", v);
+emitter.on("change", handler);
+emitter.emit("change", 1); // value: 1
+emitter.off("change", handler);
+emitter.emit("change", 2); // 无输出
 
 // 链式调用
 emitter
-  .on('event', () => console.log('listener 1'))
-  .on('event', () => console.log('listener 2'))
-  .emit('event');
+  .on("event", () => console.log("listener 1"))
+  .on("event", () => console.log("listener 2"))
+  .emit("event");
 ```
 
 ## 核心要点

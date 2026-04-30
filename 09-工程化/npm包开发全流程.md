@@ -93,12 +93,12 @@ npm install --save-dev rollup @rollup/plugin-typescript @rollup/plugin-node-reso
 
 ### 多格式输出
 
-| 文件 | 格式 | 用途 |
-|------|------|------|
-| `dist/index.cjs.js` | CommonJS | Node.js `require()` |
-| `dist/index.esm.js` | ESModule | Webpack/Vite Tree-shaking |
-| `dist/index.umd.js` | UMD | 浏览器 `<script>` 标签 |
-| `dist/index.d.ts` | TypeScript | 类型提示 |
+| 文件                | 格式       | 用途                      |
+| ------------------- | ---------- | ------------------------- |
+| `dist/index.cjs.js` | CommonJS   | Node.js `require()`       |
+| `dist/index.esm.js` | ESModule   | Webpack/Vite Tree-shaking |
+| `dist/index.umd.js` | UMD        | 浏览器 `<script>` 标签    |
+| `dist/index.d.ts`   | TypeScript | 类型提示                  |
 
 Rollup 配置要点：通过 `pkg.dependencies` 和 `pkg.peerDependencies` 设置 `external`（不打包进产物），使用 `@rollup/plugin-terser` 压缩，`rollup-plugin-dts` 生成类型声明，`rollup-plugin-delete` 构建前清空 `dist`。
 

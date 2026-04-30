@@ -45,7 +45,7 @@ location / {
 ### 1.4 其他关键区别
 
 | 维度 | HashRouter | BrowserRouter |
-|------|-----------|---------------|
+| --- | --- | --- |
 | URL 形式 | `/#/user` | `/user` |
 | 原生锚点 | 冲突，需手动处理 | 原生支持 |
 | State 传参 | 依赖 sessionStorage，较脆弱 | 依赖 History API，健壮 |
@@ -64,20 +64,20 @@ React Router v6 相比 v5 有重大改动，面试常考"v5 和 v6 的区别"。
 
 ### 2.1 主要变化对比
 
-| 特性 | v5 | v6 |
-|------|----|----|
-| 路由组件 | `<Switch>` | `<Routes>` |
-| 路由匹配 | 需要 `exact` 精确匹配 | 默认精确匹配，无需 `exact` |
-| 嵌套路由 | 在子组件内写 `<Route>` | 集中在父路由配置，用 `<Outlet>` 占位 |
-| 重定向 | `<Redirect to="/home">` | `<Navigate to="/home" />` |
-| 编程式导航 | `useHistory()` | `useNavigate()` |
-| 路由参数 | `useParams()` | `useParams()`（不变） |
-| 相对路径 | 不支持 | 支持相对路径 |
+| 特性       | v5                      | v6                                   |
+| ---------- | ----------------------- | ------------------------------------ |
+| 路由组件   | `<Switch>`              | `<Routes>`                           |
+| 路由匹配   | 需要 `exact` 精确匹配   | 默认精确匹配，无需 `exact`           |
+| 嵌套路由   | 在子组件内写 `<Route>`  | 集中在父路由配置，用 `<Outlet>` 占位 |
+| 重定向     | `<Redirect to="/home">` | `<Navigate to="/home" />`            |
+| 编程式导航 | `useHistory()`          | `useNavigate()`                      |
+| 路由参数   | `useParams()`           | `useParams()`（不变）                |
+| 相对路径   | 不支持                  | 支持相对路径                         |
 
 ### 2.2 基础用法
 
 ```jsx
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 
 function App() {
   return (
@@ -91,7 +91,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/user/:id" element={<User />} />
-        <Route path="*" element={<NotFound />} />  {/* 404 兜底 */}
+        <Route path="*" element={<NotFound />} /> {/* 404 兜底 */}
       </Routes>
     </BrowserRouter>
   );
@@ -106,10 +106,10 @@ function App() {
 
 ```jsx
 // 路由定义
-<Route path="/user/:id" element={<UserDetail />} />
+<Route path="/user/:id" element={<UserDetail />} />;
 
 // 组件内获取
-import { useParams } from 'react-router-dom';
+import { useParams } from "react-router-dom";
 
 function UserDetail() {
   const { id } = useParams();
@@ -121,19 +121,23 @@ function UserDetail() {
 
 ```jsx
 // URL: /search?keyword=react&page=2
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from "react-router-dom";
 
 function SearchPage() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const keyword = searchParams.get('keyword'); // 'react'
-  const page = searchParams.get('page');       // '2'
+  const keyword = searchParams.get("keyword"); // 'react'
+  const page = searchParams.get("page"); // '2'
 
   // 更新查询参数
   const handlePageChange = (newPage) => {
     setSearchParams({ keyword, page: newPage });
   };
 
-  return <div>搜索: {keyword}，第 {page} 页</div>;
+  return (
+    <div>
+      搜索: {keyword}，第 {page} 页
+    </div>
+  );
 }
 ```
 
@@ -141,20 +145,20 @@ function SearchPage() {
 
 ```jsx
 // 跳转时传递 state
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 
 function ProductList() {
   const navigate = useNavigate();
-  
+
   const goToDetail = (product) => {
-    navigate('/product/detail', {
-      state: { product }  // 不会出现在 URL 中
+    navigate("/product/detail", {
+      state: { product }, // 不会出现在 URL 中
     });
   };
 }
 
 // 目标页面接收
-import { useLocation } from 'react-router-dom';
+import { useLocation } from "react-router-dom";
 
 function ProductDetail() {
   const location = useLocation();
@@ -176,7 +180,7 @@ function App() {
     <Routes>
       <Route path="/dashboard" element={<DashboardLayout />}>
         {/* 子路由，路径自动拼接为 /dashboard/overview */}
-        <Route index element={<Overview />} />          {/* 默认子路由 */}
+        <Route index element={<Overview />} /> {/* 默认子路由 */}
         <Route path="overview" element={<Overview />} />
         <Route path="settings" element={<Settings />} />
         <Route path="user/:id" element={<UserDetail />} />
@@ -194,7 +198,7 @@ function DashboardLayout() {
         <Link to="settings">设置</Link>
       </aside>
       <main>
-        <Outlet />  {/* 子路由在这里渲染 */}
+        <Outlet /> {/* 子路由在这里渲染 */}
       </main>
     </div>
   );
@@ -208,18 +212,18 @@ function DashboardLayout() {
 ## 五、编程式导航
 
 ```jsx
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 
 function LoginPage() {
   const navigate = useNavigate();
 
   const handleLogin = async () => {
     await login();
-    navigate('/dashboard');           // 跳转
-    navigate('/dashboard', { replace: true }); // 替换历史记录（不能后退）
-    navigate(-1);                     // 后退一步
-    navigate(1);                      // 前进一步
-    navigate(-2);                     // 后退两步
+    navigate("/dashboard"); // 跳转
+    navigate("/dashboard", { replace: true }); // 替换历史记录（不能后退）
+    navigate(-1); // 后退一步
+    navigate(1); // 前进一步
+    navigate(-2); // 后退两步
   };
 }
 ```
@@ -231,13 +235,13 @@ function LoginPage() {
 结合 `React.lazy` 和 `Suspense` 实现按需加载，减小首屏 bundle 体积。
 
 ```jsx
-import React, { Suspense, lazy } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import React, { Suspense, lazy } from "react";
+import { Routes, Route } from "react-router-dom";
 
 // 懒加载组件
-const Home = lazy(() => import('./pages/Home'));
-const About = lazy(() => import('./pages/About'));
-const Dashboard = lazy(() => import('./pages/Dashboard'));
+const Home = lazy(() => import("./pages/Home"));
+const About = lazy(() => import("./pages/About"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
 
 function App() {
   return (
@@ -262,7 +266,7 @@ React Router 没有内置路由守卫，需要自己封装高阶组件。
 
 ```jsx
 // 封装 PrivateRoute 组件
-import { Navigate, useLocation } from 'react-router-dom';
+import { Navigate, useLocation } from "react-router-dom";
 
 function PrivateRoute({ children }) {
   const isAuthenticated = useAuth(); // 自定义 hook 获取登录状态
@@ -284,13 +288,13 @@ function PrivateRoute({ children }) {
       <Dashboard />
     </PrivateRoute>
   }
-/>
+/>;
 
 // 登录成功后跳回原页面
 function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const from = location.state?.from?.pathname || '/';
+  const from = location.state?.from?.pathname || "/";
 
   const handleLogin = async () => {
     await login();
@@ -306,26 +310,30 @@ function LoginPage() {
 v6 支持用 JavaScript 对象配置路由，更适合动态路由场景（如根据权限动态生成菜单）。
 
 ```jsx
-import { useRoutes } from 'react-router-dom';
+import { useRoutes } from "react-router-dom";
 
 const routes = [
   {
-    path: '/',
+    path: "/",
     element: <Layout />,
     children: [
       { index: true, element: <Home /> },
-      { path: 'about', element: <About /> },
+      { path: "about", element: <About /> },
       {
-        path: 'dashboard',
-        element: <PrivateRoute><Dashboard /></PrivateRoute>,
+        path: "dashboard",
+        element: (
+          <PrivateRoute>
+            <Dashboard />
+          </PrivateRoute>
+        ),
         children: [
-          { path: 'overview', element: <Overview /> },
-          { path: 'settings', element: <Settings /> },
+          { path: "overview", element: <Overview /> },
+          { path: "settings", element: <Settings /> },
         ],
       },
     ],
   },
-  { path: '*', element: <NotFound /> },
+  { path: "*", element: <NotFound /> },
 ];
 
 function App() {
@@ -349,13 +357,13 @@ function App() {
 **Q: 如何获取当前路由信息？**
 
 ```jsx
-import { useLocation, useParams, useSearchParams } from 'react-router-dom';
+import { useLocation, useParams, useSearchParams } from "react-router-dom";
 
 function MyComponent() {
-  const location = useLocation();    // { pathname, search, hash, state }
-  const params = useParams();        // URL 动态参数
+  const location = useLocation(); // { pathname, search, hash, state }
+  const params = useParams(); // URL 动态参数
   const [searchParams] = useSearchParams(); // 查询参数
-  
-  console.log(location.pathname);    // 当前路径
+
+  console.log(location.pathname); // 当前路径
 }
 ```

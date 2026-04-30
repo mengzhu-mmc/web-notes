@@ -19,6 +19,7 @@
 ### 交互范围
 
 INP 测量以下三类用户交互：
+
 - **点击**（鼠标点击、触屏 tap）
 - **键盘输入**（keydown、keypress、keyup）
 - **触摸**（touchstart、touchend）
@@ -48,18 +49,18 @@ INP 测量以下三类用户交互：
 
 ## 三、INP 评分标准
 
-| 评分 | 数值 | 说明 |
-|------|------|------|
-| ✅ Good（良好） | ≤ **200ms** | 用户几乎感觉不到延迟 |
-| ⚠️ Needs Improvement（需要改进） | 200ms ~ 500ms | 用户可感知轻微卡顿 |
-| ❌ Poor（差） | > **500ms** | 明显卡顿，体验很差 |
+| 评分                             | 数值          | 说明                 |
+| -------------------------------- | ------------- | -------------------- |
+| ✅ Good（良好）                  | ≤ **200ms**   | 用户几乎感觉不到延迟 |
+| ⚠️ Needs Improvement（需要改进） | 200ms ~ 500ms | 用户可感知轻微卡顿   |
+| ❌ Poor（差）                    | > **500ms**   | 明显卡顿，体验很差   |
 
 ---
 
 ## 四、FID vs INP 对比
 
 | 对比维度 | FID | INP |
-|---------|-----|-----|
+| --- | --- | --- |
 | **测量范围** | 仅第一次交互 | 整个页面生命周期所有交互 |
 | **测量内容** | 输入延迟（到事件处理开始） | 输入延迟 + 处理时间 + 呈现延迟 |
 | **计算方式** | 第一次输入的延迟值 | 第 98 百分位（最差的交互） |
@@ -89,20 +90,23 @@ npx lighthouse https://example.com --output html --view
 ### 方法三：web-vitals JS 库（Real User Monitoring）
 
 ```javascript
-import { onINP } from 'web-vitals';
+import { onINP } from "web-vitals";
 
-onINP((metric) => {
-  console.log('INP:', metric.value, 'ms');
-  console.log('Rating:', metric.rating); // 'good' | 'needs-improvement' | 'poor'
-  
-  // 上报到监控平台
-  sendToAnalytics({
-    metric_name: metric.name,
-    metric_value: metric.value,
-    metric_rating: metric.rating,
-    metric_id: metric.id,
-  });
-}, { reportAllChanges: true }); // 每次交互都上报
+onINP(
+  (metric) => {
+    console.log("INP:", metric.value, "ms");
+    console.log("Rating:", metric.rating); // 'good' | 'needs-improvement' | 'poor'
+
+    // 上报到监控平台
+    sendToAnalytics({
+      metric_name: metric.name,
+      metric_value: metric.value,
+      metric_rating: metric.rating,
+      metric_id: metric.id,
+    });
+  },
+  { reportAllChanges: true },
+); // 每次交互都上报
 ```
 
 ### 方法四：PerformanceObserver 原生 API
@@ -111,8 +115,9 @@ onINP((metric) => {
 // 查看长动画帧 (LoAF - Long Animation Frame)，与 INP 强相关
 const observer = new PerformanceObserver((list) => {
   for (const entry of list.getEntries()) {
-    if (entry.duration > 50) { // 超过 50ms 的帧
-      console.log('Long Animation Frame:', {
+    if (entry.duration > 50) {
+      // 超过 50ms 的帧
+      console.log("Long Animation Frame:", {
         duration: entry.duration,
         scripts: entry.scripts, // 执行了哪些脚本
         startTime: entry.startTime,
@@ -120,14 +125,14 @@ const observer = new PerformanceObserver((list) => {
     }
   }
 });
-observer.observe({ type: 'long-animation-frame', buffered: true });
+observer.observe({ type: "long-animation-frame", buffered: true });
 
 // 直接观测 event 类型
 const eventObserver = new PerformanceObserver((list) => {
   for (const entry of list.getEntries()) {
     if (entry.duration > 200) {
-      console.log('Slow Interaction:', {
-        name: entry.name,      // 'click' / 'keydown' 等
+      console.log("Slow Interaction:", {
+        name: entry.name, // 'click' / 'keydown' 等
         duration: entry.duration,
         processingStart: entry.processingStart,
         processingEnd: entry.processingEnd,
@@ -136,7 +141,7 @@ const eventObserver = new PerformanceObserver((list) => {
     }
   }
 });
-eventObserver.observe({ type: 'event', buffered: true, durationThreshold: 16 });
+eventObserver.observe({ type: "event", buffered: true, durationThreshold: 16 });
 ```
 
 ### 方法五：Google Search Console（真实用户数据）
@@ -157,14 +162,14 @@ eventObserver.observe({ type: 'event', buffered: true, durationThreshold: 16 });
 ```javascript
 // ❌ 一个长任务阻塞主线程
 function processLargeData(items) {
-  items.forEach(item => heavyProcess(item)); // 假设执行 500ms
+  items.forEach((item) => heavyProcess(item)); // 假设执行 500ms
 }
 
 // ✅ 使用 scheduler.yield() 拆分任务（Chrome 115+）
 async function processLargeData(items) {
   for (let i = 0; i < items.length; i++) {
     heavyProcess(items[i]);
-    
+
     if (i % 50 === 0) {
       // 每处理 50 条，让出主线程
       await scheduler.yield();
@@ -176,9 +181,9 @@ async function processLargeData(items) {
 async function processLargeDataFallback(items) {
   for (let i = 0; i < items.length; i++) {
     heavyProcess(items[i]);
-    
+
     if (i % 50 === 0) {
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 0));
     }
   }
 }
@@ -188,17 +193,17 @@ async function processLargeDataFallback(items) {
 
 ```javascript
 // main.js
-const worker = new Worker('./data-worker.js');
+const worker = new Worker("./data-worker.js");
 
 // 把计算密集型任务移到 Worker
-worker.postMessage({ type: 'process', data: largeData });
+worker.postMessage({ type: "process", data: largeData });
 worker.onmessage = (e) => {
   updateUI(e.data.result); // 只在主线程更新 UI
 };
 
 // data-worker.js
 self.onmessage = (e) => {
-  if (e.data.type === 'process') {
+  if (e.data.type === "process") {
     const result = heavyProcess(e.data.data); // Worker 中计算
     self.postMessage({ result });
   }
@@ -211,16 +216,16 @@ self.onmessage = (e) => {
 
 ```javascript
 // ❌ 点击时同步计算
-button.addEventListener('click', () => {
+button.addEventListener("click", () => {
   const result = heavySynchronousCompute(); // 阻塞主线程
   updateDOM(result);
 });
 
 // ✅ 推迟非关键工作
-button.addEventListener('click', () => {
+button.addEventListener("click", () => {
   // 立即更新 UI 反馈（如 loading 状态）
   showLoadingState();
-  
+
   // 推迟到下一个微任务或宏任务
   queueMicrotask(() => {
     const result = heavySynchronousCompute();
@@ -234,13 +239,13 @@ button.addEventListener('click', () => {
 
 ```javascript
 // 搜索框输入优化
-import { debounce } from 'lodash-es';
+import { debounce } from "lodash-es";
 
 const handleSearch = debounce((query) => {
   fetchSearchResults(query); // 延迟请求
 }, 300);
 
-searchInput.addEventListener('input', (e) => {
+searchInput.addEventListener("input", (e) => {
   // 立即更新输入框（保证 INP 良好）
   // 延迟触发搜索
   handleSearch(e.target.value);
@@ -251,7 +256,7 @@ searchInput.addEventListener('input', (e) => {
 
 ```javascript
 // 使用 Virtual Scroller 只渲染可视区域
-import { VirtualScroller } from '@tanstack/virtual'; // or react-window
+import { VirtualScroller } from "@tanstack/virtual"; // or react-window
 
 // 替代直接渲染 10000 条数据
 // 只渲染视口内的 ~20 条，点击响应极快
@@ -264,19 +269,19 @@ import { VirtualScroller } from '@tanstack/virtual'; // or react-window
 ```javascript
 // ❌ 强制同步布局（Layout Thrashing）
 function resizeAll(elements) {
-  elements.forEach(el => {
+  elements.forEach((el) => {
     const width = el.offsetWidth; // 读取 → 触发回流
-    el.style.width = (width * 2) + 'px'; // 写入 → 触发回流
+    el.style.width = width * 2 + "px"; // 写入 → 触发回流
   });
 }
 
 // ✅ 批量读写分离
 function resizeAll(elements) {
   // 先批量读取
-  const widths = elements.map(el => el.offsetWidth);
+  const widths = elements.map((el) => el.offsetWidth);
   // 再批量写入
   elements.forEach((el, i) => {
-    el.style.width = (widths[i] * 2) + 'px';
+    el.style.width = widths[i] * 2 + "px";
   });
 }
 ```
@@ -306,7 +311,7 @@ function resizeAll(elements) {
 ```jsx
 // ❌ 每次状态更新都重新渲染整个列表
 function TodoList({ todos }) {
-  return todos.map(todo => <TodoItem key={todo.id} todo={todo} />);
+  return todos.map((todo) => <TodoItem key={todo.id} todo={todo} />);
 }
 
 // ✅ 用 memo 避免无关重渲染
@@ -315,15 +320,15 @@ const TodoItem = React.memo(({ todo }) => {
 });
 
 // ✅ startTransition 降级非紧急更新
-import { startTransition, useState } from 'react';
+import { startTransition, useState } from "react";
 
 function SearchBox() {
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
 
   const handleChange = (e) => {
     setQuery(e.target.value); // 紧急：立即更新输入框
-    
+
     startTransition(() => {
       setResults(filterResults(e.target.value)); // 非紧急：可打断的渲染
     });
@@ -338,7 +343,7 @@ function SearchBox() {
 }
 
 // ✅ useDeferredValue 延迟低优先级值的更新
-import { useDeferredValue } from 'react';
+import { useDeferredValue } from "react";
 
 function SearchResults({ query }) {
   const deferredQuery = useDeferredValue(query);
@@ -353,7 +358,7 @@ function SearchResults({ query }) {
 ## 七、Core Web Vitals 三件套对比（2024 后）
 
 | 指标 | 全称 | 测量内容 | Good 阈值 |
-|------|------|---------|----------|
+| --- | --- | --- | --- |
 | **LCP** | Largest Contentful Paint | 最大内容渲染时间（加载速度） | ≤ 2.5s |
 | **INP** | Interaction to Next Paint | 交互到绘制延迟（响应速度） | ≤ 200ms |
 | **CLS** | Cumulative Layout Shift | 累计布局偏移（视觉稳定性） | ≤ 0.1 |

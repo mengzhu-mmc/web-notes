@@ -8,11 +8,11 @@ description: 系统自愈 skill。检测并自动修复常见异常：钉钉/大
 ## 功能
 
 1. **Gateway 进程检测** — 进程挂了自动重启
-2. **WebSocket 断线未重连检测** *(新)* — 断线后若 N 分钟内未重连，自动重启 gateway
+2. **WebSocket 断线未重连检测** _(新)_ — 断线后若 N 分钟内未重连，自动重启 gateway
 3. **钉钉连接时效检测** — `connect success` 超过 10 分钟未刷新，视为断连并重启
-4. **私聊 session deliveryContext 检测 v2** *(新)* — 精准检测 `channel` / `to` 字段缺失，自动备份损坏 session，让系统重建
+4. **私聊 session deliveryContext 检测 v2** _(新)_ — 精准检测 `channel` / `to` 字段缺失，自动备份损坏 session，让系统重建
 5. **Channel 连通性检测** — 检查 ddingtalk / daxiang channel 状态
-6. **钉钉 deliveryTo 配置检测** *(新)* — 检测 `openclaw.json` 中 `deliveryTo` / `defaultTarget` 是否为空，用持久化 staffId 自动补全
+6. **钉钉 deliveryTo 配置检测** _(新)_ — 检测 `openclaw.json` 中 `deliveryTo` / `defaultTarget` 是否为空，用持久化 staffId 自动补全
 7. **Cron delivery 失效检测** — 扫描连续失败的 cron 任务，自动修复
 
 > 新增检测项来自 2026-03-24 钉钉断线故障复盘：WebSocket 断线 + deliveryContext 损坏 + deliveryTo 为空三重叠加

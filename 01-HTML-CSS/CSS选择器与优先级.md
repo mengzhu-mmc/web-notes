@@ -50,7 +50,7 @@ A ~ B          /* 通用兄弟（A 后面所有的 B） */
 CSS 优先级分为 6 个等级，**不同等级之间不可跨越**：
 
 | 等级 | 类型 | 示例 |
-|------|------|------|
+| --- | --- | --- |
 | 0 级 | 通配符 `*`、选择符、`:not()` / `:is()` / `:where()` | `*`、`>`、`:not(.foo)` |
 | 1 级 | 标签选择器、伪元素 | `div`、`::before` |
 | 2 级 | 类选择器、属性选择器、伪类 | `.foo`、`[type]`、`:hover` |
@@ -66,13 +66,19 @@ CSS 优先级分为 6 个等级，**不同等级之间不可跨越**：
 
 ```css
 /* (0, 1, 1) */
-div.foo { color: red; }
+div.foo {
+  color: red;
+}
 
 /* (0, 2, 0) — 类数更多，优先级更高 */
-.foo.bar { color: blue; }
+.foo.bar {
+  color: blue;
+}
 
 /* (1, 0, 0) — ID 直接碾压 */
-#app { color: green; }
+#app {
+  color: green;
+}
 ```
 
 ### 提升优先级的技巧
@@ -81,14 +87,22 @@ div.foo { color: red; }
 
 ```css
 /* 不推荐：依赖父元素，耦合度高 */
-.parent .foo { color: red; }
+.parent .foo {
+  color: red;
+}
 
 /* 推荐：重复自身，不增加耦合 */
-.foo.foo { color: red; }
+.foo.foo {
+  color: red;
+}
 
 /* 也可以借助属性选择器 */
-.foo[class] { color: red; }
-#bar[id] { color: red; }
+.foo[class] {
+  color: red;
+}
+#bar[id] {
+  color: red;
+}
 ```
 
 ### `!important` 使用原则
@@ -114,17 +128,28 @@ div.foo { color: red; }
 
 ```css
 /* 外部链接自动加图标 */
-a[href^="http"]::after { content: " ↗"; }
+a[href^="http"]::after {
+  content: " ↗";
+}
 
 /* 邮件链接 */
-a[href^="mailto:"]::before { content: "📧 "; }
+a[href^="mailto:"]::before {
+  content: "📧 ";
+}
 
 /* 根据文件后缀显示不同样式 */
-a[href$=".pdf"] { color: red; }
-a[href$=".zip"] { color: green; }
+a[href$=".pdf"] {
+  color: red;
+}
+a[href$=".zip"] {
+  color: green;
+}
 
 /* 禁用状态的按钮 */
-button[disabled] { opacity: 0.5; cursor: not-allowed; }
+button[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 ```
 
 ### :nth-child 常用模式

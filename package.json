@@ -1,0 +1,24 @@
+{
+  "name": "web-notes-global-optim",
+  "version": "1.0.0",
+  "description": "> 个人前端学习笔记，覆盖 HTML/CSS → JS → 框架 → 工程化 → 算法 → 面试手写全链路。",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mengzhu-mmc/web-notes.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/mengzhu-mmc/web-notes/issues"
+  },
+  "homepage": "https://github.com/mengzhu-mmc/web-notes#readme",
+  "devDependencies": {
+    "prettier": "^3.8.3"
+  }
+}

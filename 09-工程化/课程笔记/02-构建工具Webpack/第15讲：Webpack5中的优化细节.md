@@ -1,6 +1,5 @@
 <p data-nodeid="45253">开始课程前，我们先来解答上一节课的思考题：为什么在开启增量构建后，有时候 rebuild 还是会很慢呢？我们可以从两方面来找原因。首先，Webpack 4 中的增量构建只运用到了新增模块与生成 Chunk 产物阶段，其他处理过程（如代码压缩）仍需要通过其他方式进行优化，例如分包和压缩插件的缓存。其次，过程中的一些处理会额外增加构建时间，例如生成 Source Map 等。因此还是需要通过统计各阶段的执行时间来具体问题具体分析。</p>
 
-
 <p data-nodeid="44334">然后开始这节课的学习。在上节课里，我们讨论了 Webpack 4 中增量构建的原理，也分析了为什么在生产环境下难以使用增量构建，其中最主要的一点是 Webpack 4 中没有基于文件系统的持久化缓存。这个问题在 Webpack 5 中得到了解决，这节课我们就来看看 Webpack 5 有哪些新的功能特性。</p>
 <h3 data-nodeid="44335">Webpack 5 中的效率优化点</h3>
 <p data-nodeid="44336">Webpack 5 中的变化有很多，完整的功能变更清单参见<a href="https://github.com/webpack/changelog-v5" data-nodeid="44427">官方文档</a>，这里我们介绍其中与构建效率相关的几个主要功能点：</p>
@@ -36,13 +35,6 @@
 <p data-nodeid="48270" class=""><img src="https://s0.lgstatic.com/i/image/M00/57/04/Ciqc1F9sT2WAI_vnAAGUeALmmZo570.png" alt="Drawing 0.png" data-nodeid="48273"><br>
 <img src="https://s0.lgstatic.com/i/image/M00/57/0F/CgqCHl9sT2qAexnjAADgsW9ijYU168.png" alt="Drawing 1.png" data-nodeid="48277"><br>
 <img src="https://s0.lgstatic.com/i/image/M00/57/04/Ciqc1F9sT26AIkKYAAEVjcm9aeY144.png" alt="Drawing 2.png" data-nodeid="48281"></p>
-
-
-
-
-
-
-
 
 <p data-nodeid="44352">可以看到，初次构建完整花费了 3282ms，而在不修改代码进行再次构建的情况下，只花费了不到原先时间的 1/10。在修改代码文件的新情况下也只花费了 628ms，多花费的时间体现在构建被修改的文件的编译上，这就实现了上一课时所寻求的<strong data-nodeid="44450">生产环境下的增量构建</strong>。</p>
 <h4 data-nodeid="44353">Cache 基本配置</h4>
@@ -86,9 +78,6 @@
 </ul>
 <h4 data-nodeid="51908" class="">其他</h4>
 
-
-
-
 <p data-nodeid="44383">除了上述介绍的配置项外，cache 还支持其他属性：managedPath、hashAlgorithm、store、idleTimeout 等，具体功能可以通过<a href="https://webpack.js.org/configuration/other-options/#cache" data-nodeid="44569">官方文档</a>进行查询。</p>
 <p data-nodeid="52502" class="">此外，在 Webpack 4 中，部分插件是默认启用缓存功能的（例如压缩代码的 Terser 插件等），项目在生产环境下构建时，可能无意识地享受缓存带来的效率提升，但是在 Webpack 5 中则不行。无论是否设置 cache 配置，Webpack 5 都将忽略各插件的缓存设置（例如 <a href="https://webpack.js.org/plugins/terser-webpack-plugin/#cache" data-nodeid="52506">TerserWebpackPlugin</a>），而由引擎自身提供构建各环节的缓存读写逻辑。<strong data-nodeid="52511">因此，项目在迁移到 Webpack 5 时都需要通过上面介绍的 cache 属性来单独配置缓存。</strong></p>
 
@@ -111,11 +100,6 @@
 </code></pre>
 <h4 data-nodeid="53998">Inner Module Tree Shaking</h4>
 
-
-
-
-
-
 <p data-nodeid="44392">除了上面对嵌套引用模块的依赖分析优化外，Webpack 5 中还增加了分析模块中导出项与导入项的依赖关系的功能。通过 optimization.innerGraph（生产环境下默认开启）选项，Webpack 5 可以分析特定类型导出项中对导入项的依赖关系，从而找到更多未被使用的导入模块并加以移除。例如下面的示例代码：</p>
 <pre class="lang-javascript" data-nodeid="44393"><code data-language="javascript"><span class="hljs-comment">//./src/inner-module.js</span>
 <span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> a = <span class="hljs-string">'inner_a'</span>
@@ -136,7 +120,6 @@ const useB = <span class="hljs-function"><span class="hljs-keyword">function</sp
 ... const t=<span class="hljs-string">"inner_a"</span>} ...
 </code></pre>
 <p data-nodeid="54590">在 nested-module.js 中新增了导出项 usingB，该导出项间接依赖导入项 inner.b，而这一导出项在入口模块中并未使用。在默认情况下，构建完成后只保留真正被使用的 inner.a。但是如果将优化项 innerGraph 关闭（且需要同时设置 concatenateModules:false），构建后会发现间接引用的导出项没有被移除，该导出项间接引用的 inner.b 也被保留到了产物代码中。</p>
-
 
 <h4 data-nodeid="44396">CommonJS Tree Shaking</h4>
 <p data-nodeid="44397">Webpack 5 中增加了对一些 CommonJS 风格模块代码的静态分析功功能：</p>
@@ -169,14 +152,9 @@ const useB = <span class="hljs-function"><span class="hljs-keyword">function</sp
 <p data-nodeid="56640" class=""><img src="https://s0.lgstatic.com/i/image/M00/57/10/CgqCHl9sT6WAWzGiAACp4k0mjjw366.png" alt="Drawing 3.png" data-nodeid="56643"><br>
 <img src="https://s0.lgstatic.com/i/image/M00/57/05/Ciqc1F9sT6qAeQs4AAMWioPCn4s820.png" alt="Drawing 4.png" data-nodeid="56647"></p>
 
-
-
-
-
 <p data-nodeid="44412">可以看到，Webpack 5 构建输出的日志要丰富完整得多。通过这些日志能够很好地反映构建各阶段的处理过程、耗费时间，以及缓存使用的情况。在大多数情况下，它已经能够代替之前人工编写的统计插件功能了。</p>
 <h3 data-nodeid="44413">其他功能优化项</h3>
 <p data-nodeid="57830" class="">除了上面介绍的和构建效率相关的几项变化外，Webpack 5 中还有许多大大小小的功能变化，例如新增了改变微前端构建运行流程的 <a href="https://webpack.js.org/concepts/module-federation/" data-nodeid="57834">Module Federation</a> 和对产物代码进行优化处理的 Runtime Modules，优化了处理模块的工作队列，在生命周期 Hooks 中增加了 stage 选项等。感兴趣的话，你可以通过文章顶部的文档链接或官方网站来进一步了解。</p>
-
 
 <h3 data-nodeid="44415">总结</h3>
 <p data-nodeid="44416">在本节课上线后不久，<a href="https://github.com/webpack/webpack/issues/11406" data-nodeid="44629">Webpack 5 的稳定版本</a>将对外发布（2020 年 10 月 10 日）。希望这节课能让你对它有一个初步的印象。</p>
@@ -188,6 +166,6 @@ const useB = <span class="hljs-function"><span class="hljs-keyword">function</sp
 
 ### 精选评论
 
-##### **8621：
-> 今天使用webpack打包一个库发现，如果是production模式，则需要在output添加library相关配置，否则啥也不会编译。
+##### \*\*8621：
 
+> 今天使用webpack打包一个库发现，如果是production模式，则需要在output添加library相关配置，否则啥也不会编译。

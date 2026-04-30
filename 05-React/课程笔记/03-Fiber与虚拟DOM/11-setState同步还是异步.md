@@ -218,9 +218,9 @@ ReactDOM.render(
       <span class="hljs-comment">// 启动事务，将 callback 放进事务里执行</span>
       transaction.perform(callback, <span class="hljs-keyword">null</span>, a, b, c, d, e)
     }
-  }
-}
-</code></pre>
+
+} } </code></pre>
+
 <p data-nodeid="914">batchingStrategy 对象并不复杂，你可以理解为它是一个“锁管理器”。</p>
 <p data-nodeid="915">这里的“锁”，是指 React 全局唯一的 isBatchingUpdates 变量，isBatchingUpdates 的初始值是 false，意味着“当前并未进行任何批量更新操作”。每当 React 调用 batchedUpdate 去执行更新动作时，会先把这个锁给“锁上”（置为 true），表明“现在正处于批量更新过程中”。当锁被“锁上”的时候，任何需要更新的组件都只能暂时进入 dirtyComponents 里排队等候下一次的批量更新，而不能随意“插队”。此处体现的“任务锁”的思想，是 React 面对大量状态仍然能够实现有序分批处理的基石。</p>
 <p data-nodeid="916">理解了批量更新整体的管理机制，还需要注意 batchedUpdates 中，有一个引人注目的调用：</p>
@@ -274,19 +274,6 @@ ReactDOM.render(
 <p data-nodeid="928">我们把这两个 wrapper 套进 Transaction 的执行机制里，不难得出一个这样的流程：</p>
 <p data-nodeid="929"><img src="https://s0.lgstatic.com/i/image/M00/6E/2E/Ciqc1F-x-tyAbioYAACikzik89A130.png" alt="图片5.png" data-nodeid="1049"></p>
 <p data-nodeid="6630" class="te-preview-highlight">到这里，相信你对 isBatchingUpdates 管控下的批量更新机制已经了然于胸。但是 setState 为何会表现同步这个问题，似乎还是没有从当前展示出来的源码里得到根本上的回答。这是因为 batchedUpdates 这个方法，不仅仅会在 setState 之后才被调用。若我们在 React 源码中全局搜索 batchedUpdates，会发现调用它的地方很多，但与更新流有关的只有这两个地方：</p>
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 <pre class="lang-java" data-nodeid="931"><code data-language="java"><span class="hljs-comment">// ReactMount.js</span>
 _renderNewRootComponent: function( nextElement, container, shouldReuseMarkup, context ) {
@@ -355,75 +342,98 @@ dispatchEvent: function (topLevelType, nativeEvent) {
 
 ### 精选评论
 
-##### **宇：
+##### \*\*宇：
+
 > 前面的，你能给函数组件设置state，说明你的版本至少hooks都出来了，早就是fiber架构了，对state的修改全部是异步的，在16ms的刷新周期里有剩余时间才会被执行，setTimeout是试不出来的。而且函数组件里面的useState只会把某次执行时的state赋值给某个变量，是不变的，你在当前上下文只能获取当前状态切片的state，修改后的是在下一次执行上下文里获取的，所以react文档里说依赖了哪些state，就一定要在[]里写上，不然实际开发中可能会遇到“缓存”bug。
 
 ##### symboll：
+
 > 终于上硬菜了哈。
 
-##### **8542：
+##### \*\*8542：
+
 > setState 并非真异步，只是看上去像异步。在源码中，通过 isBatchingUpdates 来判断setState 是先存进 state 队列还是直接更新，如果值为 true 则执行异步操作，为 false 则直接更新。那么什么情况下 isBatchingUpdates 会为 true 呢？在 React 可以控制的地方，就为 true，比如在 React 生命周期事件和合成事件中，都会走合并操作，延迟更新的策略。但在 React 无法控制的地方，比如原生事件，具体就是在 addEventListener 、setTimeout、setInterval 等事件中，就只能同步更新。一般认为，做异步设计是为了性能优化、减少渲染次数，React 团队还补充了两点。保持内部一致性。如果将 state 改为同步更新，那尽管 state 的更新是同步的，但是 props不是。启用并发更新，完成异步渲染。
 
-##### *驰：
+##### \*驰：
+
 > 太精彩了吧，学习也有想催更的冲动
 
-##### *权：
+##### \*权：
+
 > 大大源码关键处解析的太到位，个人觉得机制还是比较复杂，要看透源码任重道远
 
-##### **愿：
+##### \*\*愿：
+
 > 这是开工的一个福利了哈
 
- ###### &nbsp;&nbsp;&nbsp; 编辑回复：
+###### &nbsp;&nbsp;&nbsp; 编辑回复：
+
 > &nbsp;&nbsp;&nbsp; 祝小伙伴开工大吉！
 
-##### **1508：
+##### \*\*1508：
+
 > 我这里有一个demo：https://codesandbox.io/s/react-dom-batched-updates-forked-05uqd?from-embed 有兴趣可以玩一玩。涵盖了hooks的场景。
 
-##### *杨：
+##### \*杨：
+
 > 这个太牛逼了，终于看到清晰的解释了
 
-##### **峰：
+##### \*\*峰：
+
 > 跪拜，太通透了
 
-##### **潮：
+##### \*\*潮：
+
 > 学习了，原先以为是react重写了settimeout等方法使得更新方式为同步，那请问老师，按文中的讲解来理解，似乎只需要在一个异步函数里去执行setstate就会是同步更新？而不仅是定时任务或dom原生事件，比如在promise的then方法中去执行setstate？但是这就涉及到微任务和宏任务对setstate的影响？求老师解惑
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 与其想这么多，不如写个demo试试看吧。你说的这些问题都可以通过本地跑个demo找到答案。
 
-##### *聪：
+##### \*聪：
+
 > 棒
 
-##### **森：
+##### \*\*森：
+
 > 赞
 
-##### **扬：
+##### \*\*扬：
+
 > 经典
 
-##### *影：
+##### \*影：
+
 > 真的很厉害 厉害厉害
 
-##### **琳：
+##### \*\*琳：
+
 > 膜拜😄
 
-##### *…：
+##### \*…：
+
 > “每来一个 setState，就把它塞进一个队列里“攒起来”。等时机成熟，再把“攒起来”的 state 结果做合并，最后只针对最新的 state 值走一次更新流程。这个过程，叫作“批量更新” "---时机成熟是什么时候呢？是怎么判断setState攒起来这个动作已经执行完了，可以进行render了呢？是通过eventloop吗？
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 看一下后半截的源码解析。
 
-##### **光：
+##### \*\*光：
+
 > 厉害
 
-##### **航：
+##### \*\*航：
+
 > 讲得好啊😀
 
-##### *聪：
+##### \*聪：
+
 > 这部分写的确实不错，期待fiber架构下的解读。
 
-##### **蓉：
+##### \*\*蓉：
+
 > 针对我之前提问的为什么在函数组件的sattimeout里修改state，表现为异步的现象，我已经有答案了，在你之前讲过的课里找到了答案：函数组件会捕获内部的状态。
 
-##### **蓉：
-> 我读完本文后明白了在类组件中，在react能监控到的范围如生命周期，react事件回调中，执行setState基本都是异步执行，但如果react监控不到代码遇到如原生事件、settimeout等setState就是同步更改。带着这样的规律我去函数组件中试了下，发现在函数组件中，setTimeout里调用更改对应state时，始终是异步。我很好奇，函数组件中state的更改流程function ProfilePage(props) {  var [a, seta] = useState({ tt: 1 });  const handleClick = () = {    setTimeout(() = {      seta({ tt: 2 });      console.log(a, 98989);    }, 1000);  };  return button onClick={handleClick}Follow----{JSON.stringify(a)}/button;}
+##### \*\*蓉：
 
+> 我读完本文后明白了在类组件中，在react能监控到的范围如生命周期，react事件回调中，执行setState基本都是异步执行，但如果react监控不到代码遇到如原生事件、settimeout等setState就是同步更改。带着这样的规律我去函数组件中试了下，发现在函数组件中，setTimeout里调用更改对应state时，始终是异步。我很好奇，函数组件中state的更改流程function ProfilePage(props) { var [a, seta] = useState({ tt: 1 }); const handleClick = () = { setTimeout(() = { seta({ tt: 2 }); console.log(a, 98989); }, 1000); }; return button onClick={handleClick}Follow----{JSON.stringify(a)}/button;}

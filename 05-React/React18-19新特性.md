@@ -12,8 +12,8 @@ React 18 最重要的改变：渲染可以**被中断**。
 
 ```jsx
 // createRoot 替代 render（开启并发特性）
-import { createRoot } from 'react-dom/client';
-const root = createRoot(document.getElementById('root'));
+import { createRoot } from "react-dom/client";
+const root = createRoot(document.getElementById("root"));
 root.render(<App />);
 
 // ❌ 旧写法（React 17）
@@ -27,16 +27,17 @@ React 17 只在事件处理器中批处理，React 18 **所有场景**都自动�
 ```jsx
 // React 18：setTimeout 里也会批处理（只触发一次渲染）
 setTimeout(() => {
-  setCount(c => c + 1);  // 不会立即渲染
-  setFlag(f => !f);       // 不会立即渲染
+  setCount((c) => c + 1); // 不会立即渲染
+  setFlag((f) => !f); // 不会立即渲染
   // React 18 会合并成一次渲染
 }, 1000);
 ```
 
 如果需要立即渲染，用 `flushSync`：
+
 ```jsx
-import { flushSync } from 'react-dom';
-flushSync(() => setCount(c => c + 1)); // 立即渲染
+import { flushSync } from "react-dom";
+flushSync(() => setCount((c) => c + 1)); // 立即渲染
 ```
 
 ### 3. startTransition
@@ -44,15 +45,15 @@ flushSync(() => setCount(c => c + 1)); // 立即渲染
 标记**非紧急**更新，让紧急更新（输入、点击）优先：
 
 ```jsx
-import { useTransition } from 'react';
+import { useTransition } from "react";
 
 function SearchPage() {
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
   const [isPending, startTransition] = useTransition();
 
   const handleChange = (e) => {
-    setQuery(e.target.value);          // 紧急：立即更新输入框
+    setQuery(e.target.value); // 紧急：立即更新输入框
     startTransition(() => {
       setResults(filterData(e.target.value)); // 非紧急：可延迟
     });
@@ -123,8 +124,8 @@ function EmailField() {
 ```jsx
 // React 19：直接写，编译器自动优化
 function TodoList({ todos, filter }) {
-  const filtered = todos.filter(t => t.status === filter);
-  return filtered.map(t => <Todo key={t.id} todo={t} />);
+  const filtered = todos.filter((t) => t.status === filter);
+  return filtered.map((t) => <Todo key={t.id} todo={t} />);
 }
 ```
 
@@ -134,12 +135,12 @@ function TodoList({ todos, filter }) {
 function ChangeName() {
   const [error, submitAction, isPending] = useActionState(
     async (prev, formData) => {
-      const name = formData.get('name');
+      const name = formData.get("name");
       const error = await updateName(name);
       if (error) return error;
-      redirect('/profile');
+      redirect("/profile");
     },
-    null
+    null,
   );
 
   return (
@@ -159,7 +160,7 @@ function ChangeName() {
 ```jsx
 function Comments({ commentsPromise }) {
   const comments = use(commentsPromise);
-  return comments.map(c => <Comment key={c.id} comment={c} />);
+  return comments.map((c) => <Comment key={c.id} comment={c} />);
 }
 ```
 
@@ -175,7 +176,7 @@ async function BlogPost({ id }) {
 }
 
 // client component（需要交互时）
-'use client';
+("use client");
 function LikeButton() {
   const [liked, setLiked] = useState(false);
   return <button onClick={() => setLiked(!liked)}>❤️</button>;
@@ -203,10 +204,10 @@ function LikeButton() {
 
 ## 面试要点总结
 
-| 问题 | 关键答案 |
-|------|---------|
-| React 18 最大改变？ | 并发渲染 + 自动批处理 |
-| startTransition 解决什么？ | 区分紧急/非紧急更新，保持 UI 响应 |
-| 为什么要 createRoot？ | 开启并发特性的入口 |
-| React 19 的 Compiler？ | 编译时自动 memo，告别手动优化 |
-| Server Components 意义？ | 减少客户端 JS 体积，直接访问后端资源 |
+| 问题                       | 关键答案                             |
+| -------------------------- | ------------------------------------ |
+| React 18 最大改变？        | 并发渲染 + 自动批处理                |
+| startTransition 解决什么？ | 区分紧急/非紧急更新，保持 UI 响应    |
+| 为什么要 createRoot？      | 开启并发特性的入口                   |
+| React 19 的 Compiler？     | 编译时自动 memo，告别手动优化        |
+| Server Components 意义？   | 减少客户端 JS 体积，直接访问后端资源 |

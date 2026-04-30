@@ -133,20 +133,12 @@
 </code></pre>
 <p data-nodeid="1307">当然啦，要是你以为函数组件的简单是因为它只能承担渲染这一种任务，那可就太小瞧它了。它同样能够承接相对复杂的交互逻辑，像这样：</p>
 <pre class="lang-js" data-nodeid="1308"><code data-language="js"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">DemoFunction</span>(<span class="hljs-params">props</span>) </span>{
-  <span class="hljs-keyword">const</span> { text } = props 
+  <span class="hljs-keyword">const</span> { text } = props
 
-  <span class="hljs-keyword">const</span> showAlert = <span class="hljs-function"><span class="hljs-params">()</span>=&gt;</span> {
-    alert(<span class="hljs-string">`我接收到的文本是<span class="hljs-subst">${text}</span>`</span>)
-  } 
+<span class="hljs-keyword">const</span> showAlert = <span class="hljs-function"><span class="hljs-params">()</span>=&gt;</span> { alert(<span class="hljs-string">`我接收到的文本是<span class="hljs-subst">${text}</span>`</span>) }
 
-  <span class="hljs-keyword">return</span> (
-    <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"demoFunction"</span>&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>{`function 组件所接收到的来自外界的文本内容是：[${text}]`}<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">onClick</span>=<span class="hljs-string">{showAlert}</span>&gt;</span>点击弹窗<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>
-    <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span>
-  );
-}
-</code></pre>
+<span class="hljs-keyword">return</span> ( <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"demoFunction"</span>&gt;</span> <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>{`function 组件所接收到的来自外界的文本内容是：[${text}]`}<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span> <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">onClick</span>=<span class="hljs-string">{showAlert}</span>&gt;</span>点击弹窗<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span> <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span> ); } </code></pre>
+
 <p data-nodeid="1309">相比于类组件，函数组件肉眼可见的特质自然包括轻量、灵活、易于组织和维护、较低的学习成本等。这些要素毫无疑问是重要的，它们也确实驱动着 React 团队做出改变。但是除此之外，还有一个非常容易被大家忽视、也极少有人能真正理解到的知识点，我在这里要着重讲一下。这个知识点缘起于 React 作者 Dan 早期特意为类组件和函数组件写过的<a href="https://overreacted.io/how-are-function-components-different-from-classes/" data-nodeid="1443">一篇非常棒的对比文章</a>，这篇文章很长，但是通篇都在论证这一句话：</p>
 <blockquote data-nodeid="1310">
 <p data-nodeid="1311"><strong data-nodeid="1448">函数组件会捕获 render 内部的状态，这是两类组件最大的不同。</strong></p>
@@ -193,13 +185,6 @@
 <p data-nodeid="1329">props 会在 ProfilePage 函数执行的一瞬间就被捕获，而 props 本身又是一个不可变值，因此<strong data-nodeid="1530">我们可以充分确保从现在开始，在任何时机下读取到的 props，都是最初捕获到的那个 props</strong>。当父组件传入新的 props 来尝试重新渲染 ProfilePage 时，本质上是基于新的 props 入参发起了一次全新的函数调用，并不会影响上一次调用对上一个 props 的捕获。这样一来，我们便确保了渲染结果确实能够符合预期。</p>
 <p data-nodeid="5982" class="te-preview-highlight">如果你认真阅读了我前面说过的那些话，相信你现在一定也不仅仅能够充分理解 Dan 所想要表达的“<strong data-nodeid="5992">函数组件会捕获 render 内部的状态</strong>”这个结论，而是能够更进一步地意识到这样一件事情：<strong data-nodeid="5993">函数组件真正地把数据和渲染绑定到了一起</strong>。</p>
 
-
-
-
-
-
-
-
 <p data-nodeid="1331">经过岁月的洗礼，React 团队显然也认识到了，<strong data-nodeid="1548">函数组件是一个更加匹配其设计理念、也更有利于逻辑拆分与重用的组件表达形式</strong>，接下来便开始“用脚投票”，用实际行动支持开发者编写函数式组件。于是，React-Hooks 便应运而生。</p>
 <h3 data-nodeid="1332">Hooks 的本质：一套能够使函数组件更强大、更灵活的“钩子”</h3>
 <p data-nodeid="1333">React-Hooks 是什么？它是一套能够使函数组件更强大、更灵活的“钩子”。</p>
@@ -214,108 +199,142 @@
 
 ### 精选评论
 
-##### **峰：
+##### \*\*峰：
+
 > 被程序耽误了的作家？文笔和文风太赞了
 
-##### **明：
+##### \*\*明：
+
 > 真的很棒。目前看过关于react最好的课程。
 
 ##### QYM：
+
 > 意犹未尽啊～
 
-##### **豪：
+##### \*\*豪：
+
 > 一元的课真香
 
 ##### leoge：
-> 视频中提到Class模式下，this发生了变化，导致follow的名字对不上。我的理解this是不会变的（实例并未重新生成），变的是传进来的props。如下，绑定到user就可以了保持一致了。showMessage = (user) = {    alert('Followed ' + user);  };handleClick = () = {    const {user} = this.props;    setTimeout(() = this.showMessage(user), 3000);  };
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+> 视频中提到Class模式下，this发生了变化，导致follow的名字对不上。我的理解this是不会变的（实例并未重新生成），变的是传进来的props。如下，绑定到user就可以了保持一致了。showMessage = (user) = { alert('Followed ' + user); };handleClick = () = { const {user} = this.props; setTimeout(() = this.showMessage(user), 3000); };
+
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 是的，这里想要表达的就是 this 上的 props 可以被更改。
 
-##### **坤：
+##### \*\*坤：
+
 > 老师说：几乎没有几个人在聊到 React-Hooks 的时候，能像聊 Diff 算法、Fiber 架构一样滔滔不绝、言之有物。 我想说， Diff算法、Fiber架构我也不知道聊啥，咋整
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 继续往后看。第10讲以栈调和为例分析了 Diff 的逻辑，13-16讲结合源码分析了 Fiber 架构的实现原理。
 
-##### *翀：
-> 杠精一下，针对老师的例子提供另一个思路。Follow按钮这个例子通过箭头函数也能避免例子中出现的问题。代码如下：import React from 'react';class ProfilePage extends React.Component {  showMessage = (name) = {    alert('Followed ' + name);  };  handleClick = (name) = {    setTimeout(()=this.showMessage(name), 3000);  };  render() {    return button onClick={()= this.handleClick(this.props.user)}/button;  }}export default ProfilePage;
+##### \*翀：
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+> 杠精一下，针对老师的例子提供另一个思路。Follow按钮这个例子通过箭头函数也能避免例子中出现的问题。代码如下：import React from 'react';class ProfilePage extends React.Component { showMessage = (name) = { alert('Followed ' + name); }; handleClick = (name) = { setTimeout(()=this.showMessage(name), 3000); }; render() { return button onClick={()= this.handleClick(this.props.user)}/button; }}export default ProfilePage;
+
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 读完下个课时应该能够化解你的执着，哈哈
 
-##### **喜：
+##### \*\*喜：
+
 > 讲的非常好，有种醍醐灌顶的感觉
 
-##### **华：
+##### \*\*华：
+
 > 虽然 props 本身是不可变的 ,这句话应该怎么理解呀老师？为什么说props本身不可变呢
 
-##### **文：
+##### \*\*文：
+
 > 讲的太棒了
 
-##### **坚：
+##### \*\*坚：
+
 > 技术和文笔深的我爱呀
 
-##### *辉：
+##### \*辉：
+
 > 打卡
 
-##### **杰：
+##### \*\*杰：
+
 > 老师声音挺好听
 
-##### *浩：
+##### \*浩：
+
 > 文中列举的demo虽然实际场景有很大概率不会出现，但问题的提出也倒是让人耳目一新。
 
-##### **威：
+##### \*\*威：
+
 > 老师写的真好，一篇文章顶十本书
 
-##### **魁：
+##### \*\*魁：
+
 > 嗯，后端看了也能明白
 
-##### **贵：
+##### \*\*贵：
+
 > 打卡
 
-##### **舟：
+##### \*\*舟：
+
 > 太棒了
 
-##### **文：
+##### \*\*文：
+
 > 讲的真好
 
-##### **娇：
+##### \*\*娇：
+
 > 真香，打卡
 
 ##### Loktar：
+
 > 所以函数组件本质就是将类方法render提取出来扩展吗？可以理解JS的闭包机制让函数组件捕获特定的渲染帧，但老想不明白hooks是怎么实现的呢？
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 08讲对 hooks 核心原理进行了分析哈，可以去看看。
 
 ##### fanta：
+
 > 辛苦了老师😁
 
-##### *菜：
+##### \*菜：
+
 > 老师讲的太好了
 
-##### *林：
+##### \*林：
+
 > 真香
 
-##### **论：
+##### \*\*论：
+
 > 打卡
 
-##### **森：
+##### \*\*森：
+
 > 打卡
 
 ##### symboll：
+
 > 一元的课真香
 
-##### **无限：
+##### \*\*无限：
+
 > 讲的很清楚
 
-##### **飞：
+##### \*\*飞：
+
 > 非常好
 
-##### **松：
+##### \*\*松：
+
 > 打卡
 
-##### **卿：
-> 打卡
+##### \*\*卿：
 
+> 打卡

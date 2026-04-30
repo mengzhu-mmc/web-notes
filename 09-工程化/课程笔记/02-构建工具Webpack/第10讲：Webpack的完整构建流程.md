@@ -1,6 +1,5 @@
 <p data-nodeid="1177">上节课我们聊了过去 20 余年里，前端项目开发时的工程化需求，以及对应产生的工具解决方案，其中最广泛运用的构建工具是 Webpack。这节课我们就来深入分析 Webpack 中的效率优化问题。</p>
 
-
 <p data-nodeid="3">要想全面地分析 Webpack 构建工具的优化方案，首先要先对它的工作流程有一定理解，这样才能针对项目中可能存在的构建问题，进行有目标地分析和优化。</p>
 <h3 data-nodeid="4">Webpack 的基本工作流程</h3>
 <p data-nodeid="5">我们从两方面来了解 Webpack 的基本工作流程：</p>
@@ -27,7 +26,6 @@ webpack(config, <span class="hljs-function">(<span class="hljs-params">err, stat
 <h4 data-nodeid="15">webpack.js 中的基本流程</h4>
 <p data-nodeid="4321" class="">无论用哪种方式运行 Webpack，本质上都是 <a href="https://github.com/webpack/webpack/blob/webpack-4/lib/webpack.js" data-nodeid="4325">webpack.js</a> 中的 Webpack 函数。</p>
 
-
 <p data-nodeid="17">这一函数的核心逻辑是：根据配置生成编译器实例 compiler，然后处理参数，执行 WebpackOptionsApply().process，根据参数加载不同内部插件。在有回调函数的情况下，根据是否是 watch 模式来决定要执行 compiler.watch 还是 compiler.run。</p>
 <p data-nodeid="18">为了讲解通用的流程，我们以没有 watch 模式的情况进行分析。简化流程后的代码示例如下：</p>
 <pre class="lang-javascript" data-nodeid="19"><code data-language="javascript"><span class="hljs-keyword">const</span> webpack = <span class="hljs-function">(<span class="hljs-params">options, callback</span>) =&gt;</span> {
@@ -45,7 +43,6 @@ webpack(config, <span class="hljs-function">(<span class="hljs-params">err, stat
 </code></pre>
 <h4 data-nodeid="20">Compiler.js 中的基本流程</h4>
 <p data-nodeid="5893" class="">我们再来看下运行编译器实例的内部逻辑，具体源代码在 <a href="https://github.com/webpack/webpack/blob/webpack-4/lib/Compiler.js" data-nodeid="5897">Compiler.js</a> 中。</p>
-
 
 <p data-nodeid="22">compiler.run(callback) 中的执行逻辑较为复杂，我们把它按流程抽象一下。抽象后的执行流程如下：</p>
 <ol data-nodeid="9235">
@@ -80,13 +77,9 @@ webpack(config, <span class="hljs-function">(<span class="hljs-params">err, stat
 </li>
 </ol>
 
-
-
-
 <p data-nodeid="43">在编译器运行的流程里，核心过程是第二步编译。具体流程在生成的 Compilation 实例中进行，接下来我们再来看下这部分的源码逻辑。</p>
 <h4 data-nodeid="44">Compilation.js 中的基本流程</h4>
 <p data-nodeid="10874" class="">这部分的源码位于 <a href="https://github.com/webpack/webpack/blob/webpack-4/lib/Compilation.js" data-nodeid="10878">Compilation.js</a> 中。其中，在编译执行过程中，我们主要从外部调用的是两个方法：</p>
-
 
 <ol data-nodeid="46">
 <li data-nodeid="47">
@@ -209,8 +202,6 @@ lib/WebpackOptionsApply.js
 <p data-nodeid="12424">优化阶段在 seal 函数中共有 12 个主要的处理过程，如下图所示：</p>
 <p data-nodeid="12425" class=""><img src="https://s0.lgstatic.com/i/image/M00/4D/B4/Ciqc1F9bGtqAJo4uAABnYGwsyYs218.png" alt="image (4).png" data-nodeid="12433"></p>
 
-
-
 <p data-nodeid="116">每个过程都暴露了相应的 Hooks，分别如下:</p>
 <ul data-nodeid="13214">
 <li data-nodeid="13215">
@@ -290,7 +281,6 @@ lib/WebpackOptionsApply.js
 <p data-nodeid="18826">执行构建后，可以看到在控制台输出了相应的统计时间结果（这里的时间是从构建起始到各阶段 Hook 触发为止的耗时），如下图所示：</p>
 <p data-nodeid="18827" class=""><img src="https://s0.lgstatic.com/i/image/M00/4D/B4/Ciqc1F9bGvGAFRmpAAGFrvBhTHE475.png" alt="image (5).png" data-nodeid="18835"></p>
 
-
 <p data-nodeid="17254">根据这样的输出结果，我们就可以分析项目里各阶段的耗时情况，再进行针对性地优化。这个统计插件将在后面几课的优化实践中运用。</p>
 <p data-nodeid="17255">除了这类自己编写的统计插件外，Webpack 社区中也有一些较成熟的统计插件，例如<a href="https://github.com/stephencookdev/speed-measure-webpack-plugin" data-nodeid="17268">speed-measure-webpack-plugin</a>等，感兴趣的话，你可以进一步了解。</p>
 <h3 data-nodeid="17256">总结</h3>
@@ -301,12 +291,14 @@ lib/WebpackOptionsApply.js
 
 ### 精选评论
 
-##### *忠：
+##### \*忠：
+
 > 看不太懂，不应该从入口开始分析吗，一步一步，loader怎么用起来的，plugin会在什么时机执行，依赖的模块是怎么被加载进来的，列一堆API并解释其含义，很难把这些流程串起来。
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 这个主题的切入角度是效率优化方面的，篇幅关系不会包含所有的webpack中所有内容的工作原理，例如loader部分我们并不关注它的内部工作过程，而是在后面课程中会讲到如何利用一些loader的缓存机制。而对于plugin的执行时机，则正是课程中提到的相关hook决定的。只看这一课的内容觉得不容易理解也没关系，后面几课会结合实际优化的示例来帮助进一步理解。
 
-##### **棋：
-> 非常棒，先对 webpack 工作有一个大体的了解，然后再了解里面的 Hook😀😀😀
+##### \*\*棋：
 
+> 非常棒，先对 webpack 工作有一个大体的了解，然后再了解里面的 Hook😀😀😀

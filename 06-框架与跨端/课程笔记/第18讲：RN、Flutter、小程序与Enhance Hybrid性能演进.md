@@ -87,7 +87,6 @@
 <p data-nodeid="1288">好了，以上就是 RN、Flutter、小程序等的优化方案。在具体的实施过程中，我们遭遇了不少坑，最大的坑是 RN 方案接入期遇到的。我们在新技术生命周期的“早期采用者”阶段就已经介入了。</p>
 <p data-nodeid="1289" class=""><img src="https://s0.lgstatic.com/i/image6/M00/3A/2A/Cgp9HWB-eNuAKyT9AAC2PWHXEiY575.png" alt="图片2.png" data-nodeid="1293"></p>
 
-
 <p data-nodeid="815">这个阶段 BAT 都没有大规模使用，出现问题后（如页面报错）需要去向 Facebook 开发同学提issue 去解决，往往解决一个问题就需要 2 周时间，业务往往等不及，严重影响了项目进入生产环境的进度。所以建议你以后在采用新技术方案时，尽量在上图的“早期大众”阶段再进入，这个时期很多常见的坑都蹚过了， Flutter 方案我们就是这么做的。</p>
 <p data-nodeid="816">下面给你留一个问题：</p>
 <blockquote data-nodeid="817">
@@ -99,9 +98,10 @@
 
 ### 精选评论
 
-##### **康：
+##### \*\*康：
+
 > 这里 Flutter 只提到性能指标的收集，有优化方案吗？
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
-> &nbsp;&nbsp;&nbsp; Flutter这块儿，优化方案还在做的过程中，主要是卡顿优化，长列表优化和内存优化等
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
 
+> &nbsp;&nbsp;&nbsp; Flutter这块儿，优化方案还在做的过程中，主要是卡顿优化，长列表优化和内存优化等

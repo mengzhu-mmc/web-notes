@@ -65,12 +65,12 @@ Evaluate:
 
 ### Step 4: Risk Classification
 
-| Risk Level | Examples | Action |
-|------------|----------|--------|
-| 🟢 LOW | Notes, weather, formatting | Basic review, install OK |
-| 🟡 MEDIUM | File ops, browser, APIs | Full code review required |
-| 🔴 HIGH | Credentials, trading, system | Human approval required |
-| ⛔ EXTREME | Security configs, root access | Do NOT install |
+| Risk Level | Examples                      | Action                    |
+| ---------- | ----------------------------- | ------------------------- |
+| 🟢 LOW     | Notes, weather, formatting    | Basic review, install OK  |
+| 🟡 MEDIUM  | File ops, browser, APIs       | Full code review required |
+| 🔴 HIGH    | Credentials, trading, system  | Human approval required   |
+| ⛔ EXTREME | Security configs, root access | Do NOT install            |
 
 ## Output Format
 
@@ -136,4 +136,4 @@ curl -s "https://raw.githubusercontent.com/OWNER/REPO/main/skills/SKILL_NAME/SKI
 
 ---
 
-*Paranoia is a feature.* 🔒🦀
+_Paranoia is a feature._ 🔒🦀

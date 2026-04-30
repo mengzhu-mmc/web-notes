@@ -33,11 +33,8 @@
     <span class="hljs-comment">// else 的逻辑此处先不用关注</span>
   }
 
-  <span class="hljs-comment">// 以下省略大量 workInProgress 对象的属性处理逻辑</span>
-  <span class="hljs-comment">// 返回 workInProgress 节点</span>
-  <span class="hljs-keyword">return</span> workInProgress;
-}
-</code></pre>
+<span class="hljs-comment">// 以下省略大量 workInProgress 对象的属性处理逻辑</span> <span class="hljs-comment">// 返回 workInProgress 节点</span> <span class="hljs-keyword">return</span> workInProgress; } </code></pre>
+
 <p data-nodeid="2406">首先要声明的是，该函数中的 current 入参指的是现有树结构中的 rootFiber 对象，如下图所示：</p>
 <p data-nodeid="2407"><img src="https://s0.lgstatic.com/i/image/M00/70/FF/Ciqc1F-8xDeAR3RMAAClHPw_BEk265.png" alt="Drawing 3.png" data-nodeid="2599"></p>
 <p data-nodeid="2408">源码太长（其实经过处理已经不长了）不看版的重点如下：</p>
@@ -55,9 +52,8 @@
 <p data-nodeid="2416">理解了这三点，你就会自然而然地想知道 workInProgress 的本体到底是什么样的，也就是<strong data-nodeid="2628">createFiber 到底会返回什么</strong>。下面我们就看看 createFiber 的逻辑：</p>
 <pre class="lang-java" data-nodeid="2417"><code data-language="java"><span class="hljs-keyword">var</span> createFiber = function (tag, pendingProps, key, mode) {
 
-  <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> FiberNode(tag, pendingProps, key, mode);
-};
-</code></pre>
+<span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> FiberNode(tag, pendingProps, key, mode); }; </code></pre>
+
 <p data-nodeid="2418"><strong data-nodeid="2637">代码出奇的简单，但信息却给得很到位 —— createFiber 将创建一个 FiberNode 实例</strong>，而 FiberNode，上一讲已经讲过，它正是 Fiber 节点的类型。<strong data-nodeid="2638">因此 workInProgress 就是一个 Fiber 节点</strong>。不仅如此，细心的你可能还会发现 workInProgress 的创建入参其实来源于 current，如下面代码所示：</p>
 <pre class="lang-java" data-nodeid="2419"><code data-language="java"> workInProgress = createFiber(current.tag, pendingProps, current.key, current.mode);
 </code></pre>
@@ -87,11 +83,7 @@
 <pre class="lang-java" data-nodeid="2436"><code data-language="java"><span class="hljs-function">function <span class="hljs-title">beginWork</span><span class="hljs-params">(current, workInProgress, renderLanes)</span> </span>{
   ......
 
-  <span class="hljs-comment">//  current 节点不为空的情况下，会加一道辨识，看看是否有更新逻辑要处理</span>
-  <span class="hljs-keyword">if</span> (current !== <span class="hljs-keyword">null</span>) {
-    <span class="hljs-comment">// 获取新旧 props</span>
-    <span class="hljs-keyword">var</span> oldProps = current.memoizedProps;
-    <span class="hljs-keyword">var</span> newProps = workInProgress.pendingProps;
+<span class="hljs-comment">// current 节点不为空的情况下，会加一道辨识，看看是否有更新逻辑要处理</span> <span class="hljs-keyword">if</span> (current !== <span class="hljs-keyword">null</span>) { <span class="hljs-comment">// 获取新旧 props</span> <span class="hljs-keyword">var</span> oldProps = current.memoizedProps; <span class="hljs-keyword">var</span> newProps = workInProgress.pendingProps;
 
     <span class="hljs-comment">// 若 props 更新或者上下文改变，则认为需要"接受更新"</span>
     <span class="hljs-keyword">if</span> (oldProps !== newProps || hasContextChanged() || (
@@ -109,39 +101,17 @@
         didReceiveUpdate = <span class="hljs-keyword">false</span>;
       }
     }
-  } <span class="hljs-keyword">else</span> {
-    didReceiveUpdate = <span class="hljs-keyword">false</span>;
-  } 
-  ......
-  <span class="hljs-comment">// 这坨 switch 是 beginWork 中的核心逻辑，原有的代码量相当大</span>
-  <span class="hljs-keyword">switch</span> (workInProgress.tag) {
-    ......
-    <span class="hljs-comment">// 这里省略掉大量形如"case: xxx"的逻辑</span>
-    <span class="hljs-comment">// 根节点将进入这个逻辑</span>
-    <span class="hljs-keyword">case</span> HostRoot:
-      <span class="hljs-keyword">return</span> updateHostRoot(current, workInProgress, renderLanes)
-    <span class="hljs-comment">// dom 标签对应的节点将进入这个逻辑</span>
-    <span class="hljs-keyword">case</span> HostComponent:
-      <span class="hljs-keyword">return</span> updateHostComponent(current, workInProgress, renderLanes)
+
+} <span class="hljs-keyword">else</span> { didReceiveUpdate = <span class="hljs-keyword">false</span>; } ...... <span class="hljs-comment">// 这坨 switch 是 beginWork 中的核心逻辑，原有的代码量相当大</span> <span class="hljs-keyword">switch</span> (workInProgress.tag) { ...... <span class="hljs-comment">// 这里省略掉大量形如"case: xxx"的逻辑</span> <span class="hljs-comment">// 根节点将进入这个逻辑</span> <span class="hljs-keyword">case</span> HostRoot: <span class="hljs-keyword">return</span> updateHostRoot(current, workInProgress, renderLanes) <span class="hljs-comment">// dom 标签对应的节点将进入这个逻辑</span> <span class="hljs-keyword">case</span> HostComponent: <span class="hljs-keyword">return</span> updateHostComponent(current, workInProgress, renderLanes)
 
     <span class="hljs-comment">// 文本节点将进入这个逻辑</span>
     <span class="hljs-keyword">case</span> HostText:
       <span class="hljs-keyword">return</span> updateHostText(current, workInProgress)
-    ...... 
+    ......
     <span class="hljs-comment">// 这里省略掉大量形如"case: xxx"的逻辑</span>
-  }
-  <span class="hljs-comment">// 这里是错误兜底，处理 switch 匹配不上的情况</span>
-  {
-    {
-      <span class="hljs-keyword">throw</span> Error(
-        <span class="hljs-string">"Unknown unit of work tag ("</span> +
-          workInProgress.tag +
-          <span class="hljs-string">"). This error is likely caused by a bug in React. Please file an issue."</span>
-      )
-    }
-  }
-}
-</code></pre>
+
+} <span class="hljs-comment">// 这里是错误兜底，处理 switch 匹配不上的情况</span> { { <span class="hljs-keyword">throw</span> Error( <span class="hljs-string">"Unknown unit of work tag ("</span> + workInProgress.tag + <span class="hljs-string">"). This error is likely caused by a bug in React. Please file an issue."</span> ) } } } </code></pre>
+
 <p data-nodeid="2437">beginWork 源码太长不看版的重点总结：</p>
 <ol data-nodeid="2438">
 <li data-nodeid="2439">
@@ -152,9 +122,6 @@
 </li>
 </ol>
 <p data-nodeid="6574" class="">当前的 current 节点是 rootFiber，而 workInProgress 则是 current 的副本，它们的 tag 都是 3，如下图所示：</p>
-
-
-
 
 <p data-nodeid="2444"><img src="https://s0.lgstatic.com/i/image/M00/71/0B/CgqCHl-8xHmAV2FMAABmLqBlHD0379.png" alt="Drawing 6.png" data-nodeid="2716"></p>
 <p data-nodeid="2445">而 3 正是 HostRoot 所对应的值，因此第一个 beginWork 将进入 updateHostRoot 的逻辑。</p>
@@ -191,40 +158,14 @@
  
   ......
 
+<span class="hljs-comment">// 单个节点的插入逻辑</span> <span class="hljs-function">function <span class="hljs-title">placeSingleChild</span><span class="hljs-params">(newFiber)</span> </span>{ <span class="hljs-keyword">if</span> (shouldTrackSideEffects &amp;&amp; newFiber.alternate === <span class="hljs-keyword">null</span>) { newFiber.flags = Placement; } <span class="hljs-keyword">return</span> newFiber; }
 
-  <span class="hljs-comment">// 单个节点的插入逻辑</span>
-  <span class="hljs-function">function <span class="hljs-title">placeSingleChild</span><span class="hljs-params">(newFiber)</span> </span>{
-    <span class="hljs-keyword">if</span> (shouldTrackSideEffects &amp;&amp; newFiber.alternate === <span class="hljs-keyword">null</span>) {
-      newFiber.flags = Placement;
-    }
-    <span class="hljs-keyword">return</span> newFiber;
-  }
+<span class="hljs-comment">// 插入节点的逻辑</span> <span class="hljs-function">function <span class="hljs-title">placeChild</span><span class="hljs-params">(newFiber, lastPlacedIndex, newIndex)</span> </span>{ newFiber.index = newIndex; <span class="hljs-keyword">if</span> (!shouldTrackSideEffects) { <span class="hljs-comment">// Noop.</span> <span class="hljs-keyword">return</span> lastPlacedIndex; } <span class="hljs-comment">// 以下执行插入逻辑</span> } ...... <span class="hljs-comment">// 此处省略一系列 updateXXX 的函数，它们用于处理 Fiber 节点的更新</span>
 
-  <span class="hljs-comment">// 插入节点的逻辑</span>
-  <span class="hljs-function">function <span class="hljs-title">placeChild</span><span class="hljs-params">(newFiber, lastPlacedIndex, newIndex)</span> </span>{
-    newFiber.index = newIndex;
-    <span class="hljs-keyword">if</span> (!shouldTrackSideEffects) {
-      <span class="hljs-comment">// Noop.</span>
-      <span class="hljs-keyword">return</span> lastPlacedIndex;
-    }
-    <span class="hljs-comment">// 以下执行插入逻辑</span>
-  }
-  ......
-  <span class="hljs-comment">// 此处省略一系列 updateXXX 的函数，它们用于处理 Fiber 节点的更新</span>
+<span class="hljs-comment">// 处理不止一个子节点的情况</span> <span class="hljs-function">function <span class="hljs-title">reconcileChildrenArray</span><span class="hljs-params">(returnFiber, currentFirstChild, newChildren, lanes)</span> </span>{ ...... } <span class="hljs-comment">// 此处省略一堆 reconcileXXXXX 形式的函数，它们负责处理具体的 reconcile 逻辑</span> <span class="hljs-function">function <span class="hljs-title">reconcileChildFibers</span><span class="hljs-params">(returnFiber, currentFirstChild, newChild, lanes)</span> </span>{ <span class="hljs-comment">// 这是一个逻辑分发器，它读取入参后，会经过一系列的条件判断，调用上方所定义的负责具体节点操作的函数</span> }
 
-  <span class="hljs-comment">// 处理不止一个子节点的情况</span>
-  <span class="hljs-function">function <span class="hljs-title">reconcileChildrenArray</span><span class="hljs-params">(returnFiber, currentFirstChild, newChildren, lanes)</span> </span>{
-    ......
-  }
-  <span class="hljs-comment">// 此处省略一堆 reconcileXXXXX 形式的函数，它们负责处理具体的 reconcile 逻辑</span>
-  <span class="hljs-function">function <span class="hljs-title">reconcileChildFibers</span><span class="hljs-params">(returnFiber, currentFirstChild, newChild, lanes)</span> </span>{
-    <span class="hljs-comment">// 这是一个逻辑分发器，它读取入参后，会经过一系列的条件判断，调用上方所定义的负责具体节点操作的函数</span>
-  }
+<span class="hljs-comment">// 将总的 reconcileChildFibers 函数返回</span> <span class="hljs-keyword">return</span> reconcileChildFibers; } </code></pre>
 
-  <span class="hljs-comment">// 将总的 reconcileChildFibers 函数返回</span>
-  <span class="hljs-keyword">return</span> reconcileChildFibers;
-}
-</code></pre>
 <p data-nodeid="2456">由于原本的代码量着实巨大，感兴趣的同学可以点开<a href="https://github.com/facebook/react/blob/56e9feead0f91075ba0a4f725c9e4e343bca1c67/packages/react-reconciler/src/ReactChildFiber.old.js#L253" data-nodeid="2748">这个文件</a>查看细节，此处我仅针对与主流程强相关的逻辑为你总结以下要点：</p>
 <ol data-nodeid="2457">
 <li data-nodeid="2458">
@@ -385,9 +326,6 @@ next = beginWork$<span class="hljs-number">1</span>(current, unitOfWork, subtree
 <p data-nodeid="2548"><img src="https://s0.lgstatic.com/i/image/M00/71/3E/Ciqc1F-91RGAAygAAAEYVWI-PXg439.png" alt="5.png" data-nodeid="2964"></p>
 <p data-nodeid="11373" class="">以上便是 workInProgress Fiber 树的最终形态了。从图中可以看出，虽然人们习惯上仍然将眼前的这个产物称为“Fiber 树”，但<strong data-nodeid="11379">它的数据结构本质其实已经从树变成了链表</strong>。</p>
 
-
-
-
 <p data-nodeid="2550" class="te-preview-highlight">注意，在分析 Fiber 树的构建过程时，我们选取了 <strong data-nodeid="2980">beginWork</strong> 作为切入点，但整个 Fiber 树的构建过程中，并不是只有 beginWork 在工作。这其中，还穿插着 <strong data-nodeid="2981">completeWork</strong> 的工作。只有将 completeWork 和 beginWork 放在一起来看，你才能够真正理解，Fiber 架构下的“深度优先遍历”到底是怎么一回事。</p>
 <h3 data-nodeid="2551">总结</h3>
 <p data-nodeid="2552">通过本讲的学习，你掌握了 beginWork 的实现原理、理清了 Fiber 节点的创建链路，最终串联起了 Fiber 树的宏观构建过程。至此，你已经揽获了 render 阶段大半的知识，这一路道阻且难，胜在收获满满。</p>
@@ -398,39 +336,50 @@ next = beginWork$<span class="hljs-number">1</span>(current, unitOfWork, subtree
 
 ### 精选评论
 
-##### **8542：
+##### \*\*8542：
+
 > react15是通过递归来diff的元素的。而react16的reactdom. render是通过同深度优先搜索来diff。组件内部的render可以用react. createelement生成虚拟dom，在最顶部将根虚拟dom和真实dom容器，传给reactdom. render()在初次渲染的时候虚拟dom会被处理为current树，他是一个fiber树，然后渲染即可。在更新的时候，worhloopsync使用while循环，不断的执行performunitofwork，用beginwork生成一个新的fiber节点，组装到workinprocess中，此时内存里面就有2棵fiber树，一个是current，一个是workinprocess树。他们通过相互替换比较的办法完成后续的diff
 
 ##### console_man：
+
 > 老师，你好。目前有这样一个疑问。在一个页面中根据条件渲染组件A和B，初始化时默认显示A组件，点击按钮后显示B组件。请问这时是通过什么方式把B组件中的JSX转换为ReactElement的呢？
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; JSX转换为ReactElement不是运行时处理的，是编译时处理的。转换的方式都是通过编译来实现。
 
-##### **5127：
+##### \*\*5127：
+
 > 赞，这块我还得跟着代码来一遍
 
-##### **蓉：
+##### \*\*蓉：
+
 > 举步维艰
 
- ###### &nbsp;&nbsp;&nbsp; 编辑回复：
+###### &nbsp;&nbsp;&nbsp; 编辑回复：
+
 > &nbsp;&nbsp;&nbsp; 加油哦
 
-##### **强：
+##### \*\*强：
+
 > 太棒了，结合源码和视频走一遍
 
-##### **8542：
+##### \*\*8542：
+
 > 初始化的时候根据render的两个参数生成了一个对象fiberroot，他的current指向rootfiber他是后续fiber的根节点。并且用当前的current得出一个workinprogress来。进入render阶段：此时这个根workinprogress不为空，进入beginwork将他的子节点转成fiber节点，然后存在workinprogress中为下一次workloopsync的循环做准备，总之beginwork的作用就是将所有的子元素reactelement全部转成fiber节点就好了。这些fiber节点又通过他们各自属性return. children.sibli ng三个属性，相互关联，形成一颗fiber树。这个fiber树从本质来说，他就是一个链表，fiber链表
 
-##### **6943：
+##### \*\*6943：
+
 > 太牛了，老师的讲解太通俗易懂了
 
-##### **逸：
+##### \*\*逸：
+
 > 看了2遍，beginWork和workLoopSync的主要逻辑是构建fiber节点和fiber树，还没有真正映射到真实DOM上。
 
-##### **康：
+##### \*\*康：
+
 > 开始有点吃力了，给自己打个气
 
- ###### &nbsp;&nbsp;&nbsp; 编辑回复：
-> &nbsp;&nbsp;&nbsp; 加油~要相信自己！
+###### &nbsp;&nbsp;&nbsp; 编辑回复：
 
+> &nbsp;&nbsp;&nbsp; 加油~要相信自己！

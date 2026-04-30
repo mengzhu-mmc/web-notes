@@ -131,12 +131,6 @@ fib(<span class="hljs-number">4</span>)
 <p data-nodeid="2305" class="te-preview-highlight"><img src="https://s0.lgstatic.com/i/image6/M00/25/15/Cgp9HWBZVYuADfmqAACqB-v2Dq0515.png" alt="1.png" data-nodeid="2308"><br>
 Scanvage 回收过程</p>
 
-
-
-
-
-
-
 <h4 data-nodeid="974">老生代</h4>
 <p data-nodeid="975">新生代中多次回收仍然存活的对象会被转移到空间较大的老生代。因为老生代空间较大，如果回收方式仍然采用 Scanvage 算法来频繁复制对象，那性能开销就太大了。</p>
 <p data-nodeid="976">所以老生代采用的是另一种“<strong data-nodeid="1101">标记清除</strong>”（<strong data-nodeid="1102">Mark-Sweep</strong>）的方式来回收未存活的对象空间。</p>
@@ -157,30 +151,38 @@ Scanvage 回收过程</p>
 
 ### 精选评论
 
-##### **涛：
+##### \*\*涛：
+
 > 感觉越往底层分析越明白算法的重要性
 
-##### **玲：
+##### \*\*玲：
+
 > 老师讲得很好
 
-##### **童：
+##### \*\*童：
+
 > 看完后不太懂，这到底是js的编译过程还是执行机制？解析的这一步是v8引擎做的是吗？v8引擎不是解释器吗，但是后面又有其他解释器…求解惑谢谢
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 以V8引擎为例讲解的 JavaScript 编译过程，V8可以编译和执行 JavaScript 代码。
 
 ##### ezra.xu：
+
 > 引用计数，标记清除，标记整理，分代回收...
 
-##### **超：
+##### \*\*超：
+
 > 老师，关于获取摄像头以及麦克风，桌面这些是在哪个进程中实现的呢🙋
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 在启用摄像头/麦克风的时候，浏览器会启动  Video Capture 进程。
 
-##### **随行：
+##### \*\*随行：
+
 > 所以v8的垃圾回收方式跟Java中的是一样的么？
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
-> &nbsp;&nbsp;&nbsp; 大体上是相同的
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
 
+> &nbsp;&nbsp;&nbsp; 大体上是相同的

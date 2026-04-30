@@ -7,7 +7,7 @@
 ## 一、核心区别对比
 
 | 特性 | 自定义组件 | 自定义 Hook |
-|------|-----------|------------|
+| --- | --- | --- |
 | 核心职责 | 负责 UI 渲染，决定页面"长什么样" | 负责逻辑复用，决定数据"怎么变" |
 | 返回值 | 必须返回 JSX 或 null | 返回任意值（变量、函数、对象等） |
 | 命名规范 | 大驼峰（PascalCase），如 `MyButton` | `use` 开头小驼峰，如 `useWindowSize` |
@@ -25,8 +25,8 @@
 // ✅ 自定义 Hook：只管逻辑，不返回 JSX
 function useCounter(initialValue = 0) {
   const [count, setCount] = useState(initialValue);
-  const increment = () => setCount(prev => prev + 1);
-  const decrement = () => setCount(prev => prev - 1);
+  const increment = () => setCount((prev) => prev + 1);
+  const decrement = () => setCount((prev) => prev - 1);
   const reset = () => setCount(initialValue);
   return { count, increment, decrement, reset };
 }
@@ -80,7 +80,7 @@ const CounterContext = createContext(null);
 // 2. Provider 组件持有状态
 function CounterProvider({ children }) {
   const [count, setCount] = useState(0);
-  const increment = () => setCount(prev => prev + 1);
+  const increment = () => setCount((prev) => prev + 1);
   return (
     <CounterContext.Provider value={{ count, increment }}>
       {children}
@@ -92,7 +92,7 @@ function CounterProvider({ children }) {
 function useSharedCounter() {
   const context = useContext(CounterContext);
   if (!context) {
-    throw new Error('useSharedCounter 必须在 CounterProvider 内部使用');
+    throw new Error("useSharedCounter 必须在 CounterProvider 内部使用");
   }
   return context;
 }
@@ -121,13 +121,13 @@ function CounterB() {
 ### 方案二：状态管理库（Zustand 示例）
 
 ```javascript
-import { create } from 'zustand';
+import { create } from "zustand";
 
 // 创建 store（全局单例）
-const useCounterStore = create(set => ({
+const useCounterStore = create((set) => ({
   count: 0,
-  increment: () => set(state => ({ count: state.count + 1 })),
-  reset: () => set({ count: 0 })
+  increment: () => set((state) => ({ count: state.count + 1 })),
+  reset: () => set({ count: 0 }),
 }));
 
 // 任意组件都能访问同一份状态
@@ -137,7 +137,7 @@ function CounterA() {
 }
 
 function CounterB() {
-  const count = useCounterStore(state => state.count); // 选择性订阅
+  const count = useCounterStore((state) => state.count); // 选择性订阅
   return <span>B: {count}</span>;
 }
 ```
@@ -148,7 +148,7 @@ function CounterB() {
 // 将状态提升到共同父组件
 function Parent() {
   const [count, setCount] = useState(0);
-  const increment = () => setCount(prev => prev + 1);
+  const increment = () => setCount((prev) => prev + 1);
   return (
     <>
       <CounterA count={count} onIncrement={increment} />
@@ -179,6 +179,7 @@ function getData() {
 ```
 
 **React 的 Hook 规则**（ESLint `eslint-plugin-react-hooks` 会检查）：
+
 1. 只能在函数组件或自定义 Hook 的顶层调用 Hook
 2. 不能在条件语句、循环或嵌套函数中调用 Hook
 
@@ -187,6 +188,7 @@ function getData() {
 ## 六、什么时候用 Hook，什么时候用组件
 
 **用自定义 Hook 的场景**：
+
 - 多个组件需要相同的状态逻辑（如数据获取、表单处理、定时器）
 - 需要将复杂的 `useEffect` 逻辑抽离出来
 - 封装第三方库的使用方式
@@ -202,20 +204,22 @@ function useFetch(url) {
     let cancelled = false;
     setLoading(true);
     fetch(url)
-      .then(res => res.json())
-      .then(data => {
+      .then((res) => res.json())
+      .then((data) => {
         if (!cancelled) {
           setData(data);
           setLoading(false);
         }
       })
-      .catch(err => {
+      .catch((err) => {
         if (!cancelled) {
           setError(err);
           setLoading(false);
         }
       });
-    return () => { cancelled = true; }; // 清理：防止组件卸载后 setState
+    return () => {
+      cancelled = true;
+    }; // 清理：防止组件卸载后 setState
   }, [url]);
 
   return { data, loading, error };
@@ -231,6 +235,7 @@ function UserProfile({ userId }) {
 ```
 
 **用自定义组件的场景**：
+
 - 有可复用的 UI 结构（按钮、卡片、弹窗等）
 - 需要封装特定的渲染逻辑
 - 需要独立的生命周期（如错误边界 `ErrorBoundary`）
@@ -266,7 +271,11 @@ function useModal() {
 // ✅ 正确：Hook 只返回状态和方法，组件负责渲染
 function useModal() {
   const [open, setOpen] = useState(false);
-  return { open, openModal: () => setOpen(true), closeModal: () => setOpen(false) };
+  return {
+    open,
+    openModal: () => setOpen(true),
+    closeModal: () => setOpen(false),
+  };
 }
 
 function App() {

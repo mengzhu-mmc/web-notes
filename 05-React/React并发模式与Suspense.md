@@ -36,10 +36,10 @@
 
 ```javascript
 // React 17（旧版，同步模式）
-ReactDOM.render(<App />, document.getElementById('root'));
+ReactDOM.render(<App />, document.getElementById("root"));
 
 // React 18（并发模式）
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(<App />);
 ```
 
@@ -56,10 +56,10 @@ root.render(<App />);
 ### 2.2 基本用法
 
 ```javascript
-import { useState, useTransition } from 'react';
+import { useState, useTransition } from "react";
 
 function SearchPage() {
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
   const [isPending, startTransition] = useTransition();
 
@@ -102,15 +102,15 @@ SyncLane（同步）> InputContinuousLane（连续输入）> DefaultLane（默�
 ### 3.1 基本用法
 
 ```javascript
-import { useState, useDeferredValue } from 'react';
+import { useState, useDeferredValue } from "react";
 
 function SearchPage() {
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
   const deferredQuery = useDeferredValue(query); // 延迟版本的 query
 
   return (
     <div>
-      <input value={query} onChange={e => setQuery(e.target.value)} />
+      <input value={query} onChange={(e) => setQuery(e.target.value)} />
       {/* 使用延迟值渲染列表，不阻塞输入框 */}
       <SlowList query={deferredQuery} />
     </div>
@@ -122,12 +122,12 @@ function SearchPage() {
 
 ### 3.2 useTransition vs useDeferredValue
 
-| 对比项 | `useTransition` | `useDeferredValue` |
-|--------|----------------|-------------------|
-| 控制对象 | 状态更新（setter） | 值（已有的 state/prop） |
-| 使用场景 | 你能控制状态更新的地方 | 接收 prop 或无法修改更新逻辑时 |
-| loading 状态 | ✅ `isPending` | ❌ 需要自己对比新旧值 |
-| 典型场景 | 搜索、Tab 切换 | 接收父组件传来的 prop 做昂贵渲染 |
+| 对比项       | `useTransition`        | `useDeferredValue`               |
+| ------------ | ---------------------- | -------------------------------- |
+| 控制对象     | 状态更新（setter）     | 值（已有的 state/prop）          |
+| 使用场景     | 你能控制状态更新的地方 | 接收 prop 或无法修改更新逻辑时   |
+| loading 状态 | ✅ `isPending`         | ❌ 需要自己对比新旧值            |
+| 典型场景     | 搜索、Tab 切换         | 接收父组件传来的 prop 做昂贵渲染 |
 
 **选择原则**：能用 `useTransition` 就用它（更明确）；当你无法控制状态更新的来源（如 prop 来自父组件），用 `useDeferredValue`。
 
@@ -138,9 +138,9 @@ function SearchPage() {
 ### 4.1 基本用法（代码分割）
 
 ```javascript
-import { Suspense, lazy } from 'react';
+import { Suspense, lazy } from "react";
 
-const HeavyComponent = lazy(() => import('./HeavyComponent'));
+const HeavyComponent = lazy(() => import("./HeavyComponent"));
 
 function App() {
   return (
@@ -158,24 +158,33 @@ Suspense 的核心机制是**抛出 Promise**：
 ```javascript
 // 简化版原理
 function fetchData(url) {
-  let status = 'pending';
+  let status = "pending";
   let result;
-  const promise = fetch(url).then(res => res.json()).then(
-    data => { status = 'success'; result = data; },
-    err  => { status = 'error';   result = err;  }
-  );
+  const promise = fetch(url)
+    .then((res) => res.json())
+    .then(
+      (data) => {
+        status = "success";
+        result = data;
+      },
+      (err) => {
+        status = "error";
+        result = err;
+      },
+    );
 
   return {
     read() {
-      if (status === 'pending') throw promise;  // ← 抛出 Promise！
-      if (status === 'error')   throw result;
+      if (status === "pending") throw promise; // ← 抛出 Promise！
+      if (status === "error") throw result;
       return result;
-    }
+    },
   };
 }
 ```
 
 当组件调用 `resource.read()` 时：
+
 1. 数据未就绪 → 抛出 Promise → React 捕获 → 渲染最近的 `<Suspense>` 的 `fallback`
 2. Promise resolve → React 重新尝试渲染该组件
 3. 数据就绪 → `read()` 返回数据 → 正常渲染
@@ -185,7 +194,7 @@ function fetchData(url) {
 React 18 引入了 `use` Hook，可以在组件内直接 await Promise：
 
 ```javascript
-import { use, Suspense } from 'react';
+import { use, Suspense } from "react";
 
 // 在组件外创建 Promise（不能在组件内创建，否则每次渲染都是新 Promise）
 const userPromise = fetchUser(userId);
@@ -240,12 +249,12 @@ function App() {
 ### 场景：搜索 + 分页 + 懒加载
 
 ```javascript
-import { useState, useTransition, Suspense, lazy } from 'react';
+import { useState, useTransition, Suspense, lazy } from "react";
 
-const ResultDetail = lazy(() => import('./ResultDetail'));
+const ResultDetail = lazy(() => import("./ResultDetail"));
 
 function SearchApp() {
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
   const [selectedId, setSelectedId] = useState(null);
   const [isPending, startTransition] = useTransition();
@@ -266,11 +275,9 @@ function SearchApp() {
 
   return (
     <div>
-      <input onChange={e => handleSearch(e.target.value)} />
+      <input onChange={(e) => handleSearch(e.target.value)} />
 
-      {isPending ? (
-        <div className="loading-overlay">更新中...</div>
-      ) : null}
+      {isPending ? <div className="loading-overlay">更新中...</div> : null}
 
       <SearchResults query={query} page={page} onSelect={setSelectedId} />
 
@@ -295,15 +302,15 @@ function SearchApp() {
 ```javascript
 // ❌ 危险：渲染函数中的副作用可能执行多次
 function Component() {
-  console.log('渲染了'); // 可能打印多次
-  analytics.track('view'); // 可能上报多次！
+  console.log("渲染了"); // 可能打印多次
+  analytics.track("view"); // 可能上报多次！
   return <div />;
 }
 
 // ✅ 正确：副作用放在 useEffect 中
 function Component() {
   useEffect(() => {
-    analytics.track('view'); // 只在挂载时执行一次
+    analytics.track("view"); // 只在挂载时执行一次
   }, []);
   return <div />;
 }

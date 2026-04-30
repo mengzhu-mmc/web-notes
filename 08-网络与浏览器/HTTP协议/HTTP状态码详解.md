@@ -30,19 +30,30 @@
 
 ```javascript
 axios.interceptors.response.use(
-  response => response,
-  error => {
+  (response) => response,
+  (error) => {
     const status = error.response?.status;
-    switch(status) {
-      case 401: router.push('/login'); break;
-      case 403: message.error('无访问权限'); break;
-      case 404: message.error('请求的资源不存在'); break;
-      case 429: message.warning('操作过于频繁，请稍后再试'); break;
-      case 500: case 502: case 503:
-        message.error('服务器异常，请稍后重试'); break;
+    switch (status) {
+      case 401:
+        router.push("/login");
+        break;
+      case 403:
+        message.error("无访问权限");
+        break;
+      case 404:
+        message.error("请求的资源不存在");
+        break;
+      case 429:
+        message.warning("操作过于频繁，请稍后再试");
+        break;
+      case 500:
+      case 502:
+      case 503:
+        message.error("服务器异常，请稍后重试");
+        break;
     }
     return Promise.reject(error);
-  }
+  },
 );
 ```
 

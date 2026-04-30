@@ -39,11 +39,11 @@ counter(); // 3
 - **块级作用域**：`let` / `const`，`{}` 内有效（ES6+）
 
 ```js
-var a = 1;    // 全局
+var a = 1; // 全局
 function foo() {
-  var b = 2;  // 函数作用域
+  var b = 2; // 函数作用域
   if (true) {
-    let c = 3;  // 块级作用域
+    let c = 3; // 块级作用域
     console.log(a, b, c); // 1 2 3
   }
   // console.log(c); // ReferenceError
@@ -144,17 +144,17 @@ function once(fn) {
 ```js
 // ❌ 危险：DOM 引用 + 闭包 = 内存泄漏
 function bindEvent() {
-  const el = document.getElementById('btn'); // 大 DOM 对象
-  el.addEventListener('click', function () {
+  const el = document.getElementById("btn"); // 大 DOM 对象
+  el.addEventListener("click", function () {
     console.log(el.id); // 闭包持有 el 引用
   });
 }
 
 // ✅ 修复：只保存需要的值
 function bindEvent() {
-  const el = document.getElementById('btn');
+  const el = document.getElementById("btn");
   const id = el.id; // 只保留 id 字符串
-  el.addEventListener('click', function () {
+  el.addEventListener("click", function () {
     console.log(id);
   });
   // 如果 el 不再需要，可以手动置 null
@@ -162,6 +162,7 @@ function bindEvent() {
 ```
 
 **最佳实践：**
+
 - 不需要的闭包变量及时置 `null`
 - 事件监听器在不用时 `removeEventListener`
 - 避免在循环中创建大量闭包

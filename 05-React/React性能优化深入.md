@@ -17,6 +17,7 @@
 React 性能问题的根本原因：**不必要的重新渲染**。
 
 优化思路分三层：
+
 1. **减少渲染次数**：避免不必要的 re-render
 2. **减少渲染计算量**：缓存计算结果
 3. **减少渲染范围**：代码分割、懒加载
@@ -31,7 +32,7 @@ function Parent() {
   const [count, setCount] = useState(0);
   return (
     <div>
-      <button onClick={() => setCount(c => c + 1)}>+1</button>
+      <button onClick={() => setCount((c) => c + 1)}>+1</button>
       <Child name="固定名字" /> {/* 每次 Parent 更新，Child 都会重新渲染 */}
     </div>
   );
@@ -39,7 +40,7 @@ function Parent() {
 
 // 解决：用 React.memo 包裹，props 不变则跳过渲染
 const Child = React.memo(function Child({ name }) {
-  console.log('Child 渲染了');
+  console.log("Child 渲染了");
   return <div>{name}</div>;
 });
 
@@ -51,7 +52,7 @@ const Child2 = React.memo(
   (prevProps, nextProps) => {
     // 返回 true 表示相同，跳过渲染
     return prevProps.user.id === nextProps.user.id;
-  }
+  },
 );
 ```
 
@@ -63,15 +64,21 @@ const Child2 = React.memo(
 // 问题：每次渲染都重新计算昂贵的值
 function Component({ list, filter }) {
   // ❌ 每次渲染都执行，即使 list 和 filter 没变
-  const filteredList = list.filter(item => item.includes(filter));
+  const filteredList = list.filter((item) => item.includes(filter));
 
   // ✅ 只有 list 或 filter 变化时才重新计算
   const filteredList2 = useMemo(
-    () => list.filter(item => item.includes(filter)),
-    [list, filter]
+    () => list.filter((item) => item.includes(filter)),
+    [list, filter],
   );
 
-  return <ul>{filteredList2.map(item => <li key={item}>{item}</li>)}</ul>;
+  return (
+    <ul>
+      {filteredList2.map((item) => (
+        <li key={item}>{item}</li>
+      ))}
+    </ul>
+  );
 }
 
 // 适合场景：
@@ -81,10 +88,10 @@ function Parent() {
   const [count, setCount] = useState(0);
 
   // ❌ 每次渲染都创建新对象，导致 Child 每次都重新渲染
-  const config = { theme: 'dark', size: 'large' };
+  const config = { theme: "dark", size: "large" };
 
   // ✅ 引用稳定，Child 不会不必要重新渲染
-  const config2 = useMemo(() => ({ theme: 'dark', size: 'large' }), []);
+  const config2 = useMemo(() => ({ theme: "dark", size: "large" }), []);
 
   return <Child config={config2} />;
 }
@@ -100,16 +107,16 @@ function Parent() {
   const [count, setCount] = useState(0);
 
   // ❌ 每次渲染都是新函数，Child 每次都重新渲染
-  const handleClick = () => console.log('clicked');
+  const handleClick = () => console.log("clicked");
 
   // ✅ 函数引用稳定
   const handleClick2 = useCallback(() => {
-    console.log('clicked');
+    console.log("clicked");
   }, []); // 依赖为空，函数永远不变
 
   // 如果函数依赖 state，需要加入依赖
   const handleAdd = useCallback(() => {
-    setCount(c => c + 1); // 用函数式更新，不需要依赖 count
+    setCount((c) => c + 1); // 用函数式更新，不需要依赖 count
   }, []);
 
   return <Child onClick={handleClick2} />;
@@ -131,7 +138,7 @@ const double = useMemo(() => count * 2, [count]); // 没必要
 
 // ❌ 没有子组件依赖时，useCallback 没有意义
 const handleClick = useCallback(() => {
-  console.log('clicked');
+  console.log("clicked");
 }, []); // 如果这个函数只在当前组件用，没必要
 
 // ✅ 真正需要的场景：
@@ -145,11 +152,11 @@ const handleClick = useCallback(() => {
 ## 六、代码分割与懒加载
 
 ```jsx
-import React, { Suspense, lazy } from 'react';
+import React, { Suspense, lazy } from "react";
 
 // 路由级别懒加载
-const Home = lazy(() => import('./pages/Home'));
-const About = lazy(() => import('./pages/About'));
+const Home = lazy(() => import("./pages/Home"));
+const About = lazy(() => import("./pages/About"));
 
 function App() {
   return (
@@ -163,7 +170,7 @@ function App() {
 }
 
 // 组件级别懒加载（大型组件、弹窗等）
-const HeavyModal = lazy(() => import('./HeavyModal'));
+const HeavyModal = lazy(() => import("./HeavyModal"));
 
 function Page() {
   const [show, setShow] = useState(false);
@@ -188,20 +195,18 @@ function Page() {
 
 ```jsx
 // 使用 react-window（推荐）
-import { FixedSizeList } from 'react-window';
+import { FixedSizeList } from "react-window";
 
 function VirtualList({ items }) {
   const Row = ({ index, style }) => (
-    <div style={style}>
-      {items[index].name}
-    </div>
+    <div style={style}>{items[index].name}</div>
   );
 
   return (
     <FixedSizeList
-      height={600}      // 容器高度
+      height={600} // 容器高度
       itemCount={items.length}
-      itemSize={50}     // 每行高度
+      itemSize={50} // 每行高度
       width="100%"
     >
       {Row}
@@ -216,7 +221,7 @@ function SimpleVirtualList({ items, itemHeight = 50, containerHeight = 500 }) {
   const startIndex = Math.floor(scrollTop / itemHeight);
   const endIndex = Math.min(
     startIndex + Math.ceil(containerHeight / itemHeight) + 1,
-    items.length
+    items.length,
   );
 
   const visibleItems = items.slice(startIndex, endIndex);
@@ -225,10 +230,10 @@ function SimpleVirtualList({ items, itemHeight = 50, containerHeight = 500 }) {
 
   return (
     <div
-      style={{ height: containerHeight, overflow: 'auto' }}
-      onScroll={e => setScrollTop(e.target.scrollTop)}
+      style={{ height: containerHeight, overflow: "auto" }}
+      onScroll={(e) => setScrollTop(e.target.scrollTop)}
     >
-      <div style={{ height: totalHeight, position: 'relative' }}>
+      <div style={{ height: totalHeight, position: "relative" }}>
         <div style={{ transform: `translateY(${offsetY}px)` }}>
           {visibleItems.map((item, i) => (
             <div key={startIndex + i} style={{ height: itemHeight }}>
@@ -264,14 +269,18 @@ const ITEMS = [1, 2, 3];
 
 ```jsx
 // ❌ 用 index 作为 key（列表重排时性能差）
-{list.map((item, index) => <Item key={index} {...item} />)}
+{
+  list.map((item, index) => <Item key={index} {...item} />);
+}
 
 // ✅ 用稳定唯一的 id
-{list.map(item => <Item key={item.id} {...item} />)}
+{
+  list.map((item) => <Item key={item.id} {...item} />);
+}
 
 // 特殊用法：强制重置组件状态
 // 改变 key 会让 React 销毁旧组件，创建新组件
-<UserForm key={userId} userId={userId} />
+<UserForm key={userId} userId={userId} />;
 ```
 
 ### 状态下移（State Colocation）
@@ -279,10 +288,13 @@ const ITEMS = [1, 2, 3];
 ```jsx
 // ❌ 状态放在父组件，导致整个父组件重新渲染
 function Parent() {
-  const [inputValue, setInputValue] = useState('');
+  const [inputValue, setInputValue] = useState("");
   return (
     <div>
-      <input value={inputValue} onChange={e => setInputValue(e.target.value)} />
+      <input
+        value={inputValue}
+        onChange={(e) => setInputValue(e.target.value)}
+      />
       <HeavyComponent /> {/* 每次输入都重新渲染 */}
     </div>
   );
@@ -290,8 +302,10 @@ function Parent() {
 
 // ✅ 状态下移到需要它的组件
 function SearchInput() {
-  const [inputValue, setInputValue] = useState('');
-  return <input value={inputValue} onChange={e => setInputValue(e.target.value)} />;
+  const [inputValue, setInputValue] = useState("");
+  return (
+    <input value={inputValue} onChange={(e) => setInputValue(e.target.value)} />
+  );
 }
 
 function Parent() {
@@ -313,7 +327,7 @@ function Parent() {
 function ScrollTracker() {
   const [scroll, setScroll] = useState(0);
   return (
-    <div onScroll={e => setScroll(e.target.scrollTop)}>
+    <div onScroll={(e) => setScroll(e.target.scrollTop)}>
       <p>Scroll: {scroll}</p>
       <HeavyComponent /> {/* 每次滚动都重新渲染！ */}
     </div>
@@ -324,7 +338,7 @@ function ScrollTracker() {
 function ScrollTracker({ children }) {
   const [scroll, setScroll] = useState(0);
   return (
-    <div onScroll={e => setScroll(e.target.scrollTop)}>
+    <div onScroll={(e) => setScroll(e.target.scrollTop)}>
       <p>Scroll: {scroll}</p>
       {children} {/* 引用稳定，不重新渲染 */}
     </div>
@@ -334,25 +348,25 @@ function ScrollTracker({ children }) {
 // 使用时
 <ScrollTracker>
   <HeavyComponent />
-</ScrollTracker>
+</ScrollTracker>;
 ```
 
 ### 路由预加载（悬停时提前加载）
 
 ```jsx
 // 鼠标悬停时就开始加载，点击时已经加载完毕
-const importSettings = () => import('./pages/Settings');
+const importSettings = () => import("./pages/Settings");
 const Settings = lazy(importSettings);
 
 <Link to="/settings" onMouseEnter={importSettings}>
   Settings
-</Link>
+</Link>;
 ```
 
 ### 使用 @tanstack/react-virtual 虚拟滚动
 
 ```jsx
-import { useVirtualizer } from '@tanstack/react-virtual';
+import { useVirtualizer } from "@tanstack/react-virtual";
 
 function VirtualList({ items }) {
   const parentRef = useRef(null);
@@ -363,12 +377,17 @@ function VirtualList({ items }) {
   });
 
   return (
-    <div ref={parentRef} style={{ height: 400, overflow: 'auto' }}>
-      <div style={{ height: virtualizer.getTotalSize(), position: 'relative' }}>
-        {virtualizer.getVirtualItems().map(row => (
+    <div ref={parentRef} style={{ height: 400, overflow: "auto" }}>
+      <div style={{ height: virtualizer.getTotalSize(), position: "relative" }}>
+        {virtualizer.getVirtualItems().map((row) => (
           <div
             key={row.key}
-            style={{ position: 'absolute', top: row.start, height: row.size, width: '100%' }}
+            style={{
+              position: "absolute",
+              top: row.start,
+              height: row.size,
+              width: "100%",
+            }}
           >
             {items[row.index].name}
           </div>

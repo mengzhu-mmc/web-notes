@@ -32,9 +32,10 @@ function flatAll(arr) {
 }
 
 // 更简洁的写法
-const flatAll2 = arr => [].concat(...arr.map(item =>
-  Array.isArray(item) ? flatAll2(item) : item
-));
+const flatAll2 = (arr) =>
+  [].concat(
+    ...arr.map((item) => (Array.isArray(item) ? flatAll2(item) : item)),
+  );
 ```
 
 ---
@@ -63,7 +64,7 @@ function flatIterative(arr) {
 
 ```js
 // 只适合全是数字的情况，面试时说明限制
-const flatToString = arr => arr.toString().split(',').map(Number);
+const flatToString = (arr) => arr.toString().split(",").map(Number);
 ```
 
 ---
@@ -72,17 +73,18 @@ const flatToString = arr => arr.toString().split(',').map(Number);
 
 ```js
 // ES2019 原生
-[1, [2, [3, [4]]]].flat()          // [1, 2, [3, [4]]]  深度 1
-[1, [2, [3, [4]]]].flat(2)         // [1, 2, 3, [4]]    深度 2
-[1, [2, [3, [4]]]].flat(Infinity)  // [1, 2, 3, 4]      全量
+[1, [2, [3, [4]]]]
+  .flat() // [1, 2, [3, [4]]]  深度 1
+  [(1, [2, [3, [4]]])].flat(2) // [1, 2, 3, [4]]    深度 2
+  [(1, [2, [3, [4]]])].flat(Infinity); // [1, 2, 3, 4]      全量
 ```
 
 ---
 
 ## 面试追问
 
-| 问题 | 答案要点 |
-|------|---------|
-| `flat` 会跳过空位吗？ | 是的，原生 `flat` 会跳过稀疏数组的空位 |
-| 如何实现带去重的扁平化？ | `[...new Set(flat(arr, Infinity))]` |
-| 递归方案的缺点？ | 深度过大可能栈溢出，可用迭代（栈）替代 |
+| 问题                     | 答案要点                               |
+| ------------------------ | -------------------------------------- |
+| `flat` 会跳过空位吗？    | 是的，原生 `flat` 会跳过稀疏数组的空位 |
+| 如何实现带去重的扁平化？ | `[...new Set(flat(arr, Infinity))]`    |
+| 递归方案的缺点？         | 深度过大可能栈溢出，可用迭代（栈）替代 |

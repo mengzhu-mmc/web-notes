@@ -5,6 +5,7 @@
 **题目描述**：假设你正在爬楼梯。需要 n 阶你才能到达楼顶。每次你可以爬 1 或 2 个台阶。你有多少种不同的方法可以爬到楼顶？
 
 **自测用例**：
+
 - 输入: n = 2 → 输出: 2（1+1 或 2）
 - 输入: n = 3 → 输出: 3（1+1+1、1+2 或 2+1）
 - 输入: n = 5 → 输出: 8
@@ -14,12 +15,13 @@
 **思路**：每次可以爬1或2阶，到达第n阶的方案数 = 到达第n-1阶的方案数 + 到达第n-2阶的方案数，是典型的 Fibonacci 数列。递推方向：从左到右（从小状态推到大状态），因为 dp[i] 依赖 dp[i-1] 和 dp[i-2]，必须先算小的。
 
 **代码**：
+
 ```js
 /**
  * @param {number} n
  * @return {number}
  */
-var climbStairs = function(n) {
+var climbStairs = function (n) {
   if (n <= 2) return n;
   // dp[i] 表示爬到第 i 阶的方案数
   const dp = new Array(n + 1).fill(0);
@@ -33,9 +35,10 @@ var climbStairs = function(n) {
 };
 
 // 空间优化版（滚动变量）
-var climbStairsOpt = function(n) {
+var climbStairsOpt = function (n) {
   if (n <= 2) return n;
-  let prev2 = 1, prev1 = 2;
+  let prev2 = 1,
+    prev1 = 2;
   for (let i = 3; i <= n; i++) {
     const cur = prev1 + prev2;
     prev2 = prev1;
@@ -54,6 +57,7 @@ var climbStairsOpt = function(n) {
 **题目描述**：你是一个专业的小偷，计划偷窃沿街的房屋。每间房内都藏有一定的现金，影响你偷窃的唯一制约因素是相邻的房屋装有相互连通的防盗系统，如果两间相邻的房屋在同一晚上被小偷闯入，系统会自动报警。给定一个代表每个房屋存放金额的非负整数数组，计算你不触动警报装置的情况下，一夜之内能够偷窃到的最高金额。
 
 **自测用例**：
+
 - 输入: nums = [1,2,3,1] → 输出: 4（偷第1间+第3间）
 - 输入: nums = [2,7,9,3,1] → 输出: 12（偷第1间+第3间+第5间）
 - 输入: nums = [2,1] → 输出: 2
@@ -63,12 +67,13 @@ var climbStairsOpt = function(n) {
 **思路**：相邻房屋不能同时偷，对于第 i 间房，选择偷（dp[i-2] + nums[i]）或不偷（dp[i-1]），取较大值。递推方向：从左到右，因为 dp[i] 依赖前两个状态，必须从小到大计算。
 
 **代码**：
+
 ```js
 /**
  * @param {number[]} nums
  * @return {number}
  */
-var rob = function(nums) {
+var rob = function (nums) {
   const n = nums.length;
   if (n === 0) return 0;
   if (n === 1) return nums[0];
@@ -95,6 +100,7 @@ var rob = function(nums) {
 **题目描述**：给你一个整数数组 coins，代表不同面额的硬币；以及一个整数 amount，代表总金额。计算凑成总金额所需的最少的硬币个数。如果没有任何一种硬币组合能组成总金额，返回 -1。每种硬币的数量是无限的。
 
 **自测用例**：
+
 - 输入: coins = [1,2,5], amount = 11 → 输出: 3（5+5+1）
 - 输入: coins = [2], amount = 3 → 输出: -1
 - 输入: coins = [1], amount = 0 → 输出: 0
@@ -104,13 +110,14 @@ var rob = function(nums) {
 **思路**：完全背包问题，每种硬币可以重复使用。dp[i] 表示凑成金额 i 所需的最少硬币数，初始化 dp[0]=0，其余为 Infinity。递推方向：从左到右（完全背包，物品可重复使用，正序遍历）。区别于 0/1 背包需要倒序，完全背包正序是为了允许同一枚硬币被多次使用。
 
 **代码**：
+
 ```js
 /**
  * @param {number[]} coins
  * @param {number} amount
  * @return {number}
  */
-var coinChange = function(coins, amount) {
+var coinChange = function (coins, amount) {
   // dp[i] = 凑成金额 i 所需最少硬币数
   const dp = new Array(amount + 1).fill(Infinity);
   dp[0] = 0; // 凑成 0 元需要 0 枚
@@ -137,6 +144,7 @@ var coinChange = function(coins, amount) {
 **题目描述**：给你一个整数数组 nums，找到其中最长严格递增子序列的长度。子序列是由数组派生而来的序列，删除（或不删除）数组中的元素而不改变其余元素的顺序。
 
 **自测用例**：
+
 - 输入: nums = [10,9,2,5,3,7,101,18] → 输出: 4（[2,3,7,101]）
 - 输入: nums = [0,1,0,3,2,3] → 输出: 4
 - 输入: nums = [7,7,7,7,7,7,7] → 输出: 1
@@ -146,12 +154,13 @@ var coinChange = function(coins, amount) {
 **思路**：dp[i] 表示以 nums[i] 结尾的最长递增子序列长度。对每个 i，往前找所有 j < i 且 nums[j] < nums[i] 的位置，取 dp[j]+1 的最大值。递推方向：从左到右，每个位置依赖其左侧所有位置的结果。最终答案是 dp 数组的最大值（不一定是最后一个）。
 
 **代码**：
+
 ```js
 /**
  * @param {number[]} nums
  * @return {number}
  */
-var lengthOfLIS = function(nums) {
+var lengthOfLIS = function (nums) {
   const n = nums.length;
   if (n === 0) return 0;
 
@@ -173,10 +182,11 @@ var lengthOfLIS = function(nums) {
 };
 
 // 进阶：二分查找优化到 O(n log n)
-var lengthOfLISBinary = function(nums) {
+var lengthOfLISBinary = function (nums) {
   const tails = []; // tails[i] = 长度为 i+1 的递增子序列的最小结尾元素
   for (const num of nums) {
-    let lo = 0, hi = tails.length;
+    let lo = 0,
+      hi = tails.length;
     // 二分找第一个 >= num 的位置
     while (lo < hi) {
       const mid = (lo + hi) >> 1;
@@ -251,25 +261,22 @@ function flatIterative(arr) {
  * 方法4：toString + split（仅适用于纯数字数组，面试偶尔考）
  */
 function flatToString(arr) {
-  return arr
-    .toString()
-    .split(',')
-    .map(Number);
+  return arr.toString().split(",").map(Number);
 }
 
 /**
  * 方法5：JSON + 正则（更通用一些）
  */
 function flatJSON(arr) {
-  return JSON.parse('[' + JSON.stringify(arr).replace(/\[|\]/g, '') + ']');
+  return JSON.parse("[" + JSON.stringify(arr).replace(/\[|\]/g, "") + "]");
 }
 
 // 测试
 const nested = [1, [2, [3, [4, [5]]]]];
-console.log(flatRecursive(nested));      // [1,2,3,4,5]
-console.log(flatRecursive(nested, 1));   // [1,2,[3,[4,[5]]]]
-console.log(flatReduce(nested, 2));      // [1,2,3,[4,[5]]]
-console.log(flatIterative(nested));      // [1,2,3,4,5]
+console.log(flatRecursive(nested)); // [1,2,3,4,5]
+console.log(flatRecursive(nested, 1)); // [1,2,[3,[4,[5]]]]
+console.log(flatReduce(nested, 2)); // [1,2,3,[4,[5]]]
+console.log(flatIterative(nested)); // [1,2,3,4,5]
 ```
 
 ---
@@ -291,6 +298,7 @@ console.log(flatIterative(nested));      // [1,2,3,4,5]
    - 缺点：只支持 GET 请求；有 XSS 风险；需要服务端配合
 
 3. **Nginx 反向代理**：前端和 Nginx 同源，Nginx 将请求转发到后端服务。对前端完全透明，是生产中最常用的方案。
+
    ```nginx
    location /api/ {
      proxy_pass http://backend-server/;
@@ -298,12 +306,15 @@ console.log(flatIterative(nested));      // [1,2,3,4,5]
    ```
 
 4. **postMessage**：用于跨窗口（iframe/popup）通信，不是用于 Ajax 跨域。
+
    ```js
    // 发送方
-   otherWindow.postMessage('hello', 'https://target.com');
+   otherWindow.postMessage("hello", "https://target.com");
    // 接收方
-   window.addEventListener('message', (e) => {
-     if (e.origin === 'https://source.com') { /* 处理 */ }
+   window.addEventListener("message", (e) => {
+     if (e.origin === "https://source.com") {
+       /* 处理 */
+     }
    });
    ```
 

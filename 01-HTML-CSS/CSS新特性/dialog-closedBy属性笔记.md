@@ -17,17 +17,17 @@
 ## 属性值说明
 
 | 值 | 描述 | 支持的关闭方式 |
-|---|---|---|
+| --- | --- | --- |
 | `any` | 全部允许 | 点击蒙层 + Esc + `close()` + 表单提交 |
 | `closerequest` | 需要关闭请求 | Esc + `close()`；**不支持**点击蒙层关闭 |
 | `none` | 禁止自动关闭 | 仅 `close()` 或表单提交；Esc 和点击蒙层均无效 |
 
 ### 默认行为（未设置 closedBy 时）
 
-| 打开方式 | 等同于 |
-|---|---|
+| 打开方式      | 等同于                                  |
+| ------------- | --------------------------------------- |
 | `showModal()` | `closedby="closerequest"`（Esc 可关闭） |
-| `show()` | `closedby="none"` |
+| `show()`      | `closedby="none"`                       |
 
 ---
 
@@ -56,23 +56,24 @@
 
 ```js
 // 打开弹框
-document.querySelector('dialog').showModal();
+document.querySelector("dialog").showModal();
 ```
 
 ---
 
 ## 之前的 Hack 写法对比
 
-**之前的痛点：**
-`showModal()` 会显示 `::backdrop` 蒙层，但点击蒙层不会关闭弹框。开发者必须手动监听 click 事件，判断点击位置，再调用 `close()`。
+**之前的痛点：** `showModal()` 会显示 `::backdrop` 蒙层，但点击蒙层不会关闭弹框。开发者必须手动监听 click 事件，判断点击位置，再调用 `close()`。
 
 ```js
 // ❌ 以前的 hack 写法（繁琐且脆弱）
-dialog.addEventListener('click', (e) => {
+dialog.addEventListener("click", (e) => {
   const rect = dialog.getBoundingClientRect();
   if (
-    e.clientX < rect.left || e.clientX > rect.right ||
-    e.clientY < rect.top  || e.clientY > rect.bottom
+    e.clientX < rect.left ||
+    e.clientX > rect.right ||
+    e.clientY < rect.top ||
+    e.clientY > rect.bottom
   ) {
     dialog.close();
   }
@@ -89,16 +90,16 @@ dialog.addEventListener('click', (e) => {
 ## JS API
 
 ```js
-const dialog = document.querySelector('dialog');
+const dialog = document.querySelector("dialog");
 
 // 读取当前值（注意：JS 属性名用驼峰 closedBy，HTML 属性名小写 closedby）
 console.log(dialog.closedBy); // "any" | "closerequest" | "none"
 
 // 动态设置
-dialog.closedBy = 'none';
+dialog.closedBy = "none";
 
 // 配套事件：toggle（dialog 开/关时触发，类似 popover 的 toggle 事件）
-dialog.addEventListener('toggle', (e) => {
+dialog.addEventListener("toggle", (e) => {
   console.log(e.newState); // "open" | "closed"
 });
 ```
@@ -107,12 +108,12 @@ dialog.addEventListener('toggle', (e) => {
 
 ## 兼容性
 
-| 浏览器 | 支持情况 |
-|---|---|
-| Chrome 134+ | ✅ |
-| Edge 134+ | ✅ |
-| Firefox | ✅ |
-| Safari | ❌ 暂不支持 |
+| 浏览器      | 支持情况    |
+| ----------- | ----------- |
+| Chrome 134+ | ✅          |
+| Edge 134+   | ✅          |
+| Firefox     | ✅          |
+| Safari      | ❌ 暂不支持 |
 
 **渐进增强策略**：不支持的浏览器会忽略 `closedby` 属性，fallback 到默认行为（Esc 可关闭），不会报错。
 
@@ -127,12 +128,12 @@ if (!isSupported()) apply();
 
 ## 实际应用场景
 
-| 场景 | 推荐值 | 理由 |
-|---|---|---|
-| 通知/提示弹窗 | `closedby="any"` | 轻量级，点击外部即可消除 |
-| 表单弹窗 | `closedby="closerequest"` | 防止误点蒙层丢失表单数据 |
-| 确认/风险操作弹窗 | `closedby="none"` | 强制用户做出明确选择 |
-| 加载中遮罩 | `closedby="none"` | 不允许用户关闭 |
+| 场景              | 推荐值                    | 理由                     |
+| ----------------- | ------------------------- | ------------------------ |
+| 通知/提示弹窗     | `closedby="any"`          | 轻量级，点击外部即可消除 |
+| 表单弹窗          | `closedby="closerequest"` | 防止误点蒙层丢失表单数据 |
+| 确认/风险操作弹窗 | `closedby="none"`         | 强制用户做出明确选择     |
+| 加载中遮罩        | `closedby="none"`         | 不允许用户关闭           |
 
 ---
 
@@ -144,6 +145,7 @@ if (!isSupported()) apply();
 - ✅ **关联知识**：`<dialog>` API、`::backdrop` 伪元素、Popover API、`interestfor` 属性、无障碍性（a11y）
 
 **可能被追问的点：**
+
 1. `closedby="any"` 时，点击蒙层触发的是 `close` 事件还是 `toggle` 事件？→ `close` + `toggle` 都触发
 2. `show()` 和 `showModal()` 的区别？→ `showModal()` 有蒙层且阻断页面交互，`show()` 无蒙层
 3. 如何给蒙层加样式？→ `dialog::backdrop { background: rgba(0,0,0,0.5); }`

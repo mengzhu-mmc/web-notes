@@ -42,8 +42,8 @@
 
 ```js
 // 漏洞代码：直接将 URL 参数插入 DOM
-const name = location.search.split('name=')[1];
-document.getElementById('greeting').innerHTML = 'Hello, ' + name;
+const name = location.search.split("name=")[1];
+document.getElementById("greeting").innerHTML = "Hello, " + name;
 // 攻击：?name=<img src=x onerror=alert(1)>
 ```
 
@@ -119,10 +119,10 @@ Content-Security-Policy: default-src 'self'; script-src 'self' 'nonce-xxx'
 
 ```js
 // 前端：每个请求自动携带 CSRF Token
-axios.interceptors.request.use(config => {
-  const token = getCookie('csrf_token');
+axios.interceptors.request.use((config) => {
+  const token = getCookie("csrf_token");
   if (token) {
-    config.headers['X-CSRF-Token'] = token;
+    config.headers["X-CSRF-Token"] = token;
   }
   return config;
 });
@@ -168,19 +168,18 @@ HTTPS = HTTP + TLS/SSL
 
 ```html
 <!-- 只允许加载同源资源 -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'" />
 
 <!-- 允许同源 + 指定 CDN -->
-Content-Security-Policy: 
-  default-src 'self';
-  script-src 'self' https://cdn.example.com;
-  style-src 'self' 'unsafe-inline';
-  img-src 'self' data: https:;
-  connect-src 'self' https://api.example.com;
+Content-Security-Policy: default-src 'self'; script-src 'self'
+https://cdn.example.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:
+https:; connect-src 'self' https://api.example.com;
 
 <!-- 使用 nonce 允许内联脚本 -->
 Content-Security-Policy: script-src 'nonce-abc123'
-<script nonce="abc123">/* 这个内联脚本被允许 */</script>
+<script nonce="abc123">
+  /* 这个内联脚本被允许 */
+</script>
 ```
 
 ---
@@ -235,34 +234,34 @@ Trusted Types 是一种浏览器原生防御机制，通过限制危险 DOM API 
 
 ```js
 // 1. 创建 Trusted Types 策略
-const policy = trustedTypes.createPolicy('my-policy', {
+const policy = trustedTypes.createPolicy("my-policy", {
   createHTML: (input) => {
     // 在这里做净化处理（如使用 DOMPurify）
-    return DOMPurify.sanitize(input)
+    return DOMPurify.sanitize(input);
   },
   createScript: (input) => {
     // 对脚本内容做校验
     if (!allowedScripts.includes(input)) {
-      throw new Error('不允许的脚本内容')
+      throw new Error("不允许的脚本内容");
     }
-    return input
+    return input;
   },
   createScriptURL: (input) => {
     // 只允许白名单 URL
-    const url = new URL(input)
-    if (url.hostname !== 'trusted.example.com') {
-      throw new Error('不允许的脚本来源')
+    const url = new URL(input);
+    if (url.hostname !== "trusted.example.com") {
+      throw new Error("不允许的脚本来源");
     }
-    return input
-  }
-})
+    return input;
+  },
+});
 
 // 2. 使用策略创建受信任的值
-const safeHtml = policy.createHTML('<b>安全内容</b>')
-element.innerHTML = safeHtml // ✅ 传入的是 TrustedHTML 对象，不是原始字符串
+const safeHtml = policy.createHTML("<b>安全内容</b>");
+element.innerHTML = safeHtml; // ✅ 传入的是 TrustedHTML 对象，不是原始字符串
 
 // 3. 直接传字符串会报错（需要开启 CSP 策略）
-element.innerHTML = '<script>alert(1)</script>' // ❌ 抛出 TypeError
+element.innerHTML = "<script>alert(1)</script>"; // ❌ 抛出 TypeError
 
 // 4. 通过 CSP 响应头启用 Trusted Types 强制模式
 // Content-Security-Policy: require-trusted-types-for 'script'; trusted-types my-policy

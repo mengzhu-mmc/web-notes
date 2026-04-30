@@ -59,12 +59,12 @@ MCP Client 是 Host 内部的通信模块，每个 Client 实例对应一个 MCP
 
 ## 四、四个角色的分工
 
-| 角色 | 比喻 | 职责 |
-|------|------|------|
-| **LLM** | 大脑 | 只负责思考和决策，输出结构化的工具调用意图 |
-| **MCP Host** | 身体 | 总调度中枢，串联用户、LLM 和工具 |
-| **MCP Client** | 神经 | 按协议规范与 Server 通信，屏蔽传输差异 |
-| **MCP Server** | 手脚 | 封装具体能力，执行真实业务逻辑 |
+| 角色           | 比喻 | 职责                                       |
+| -------------- | ---- | ------------------------------------------ |
+| **LLM**        | 大脑 | 只负责思考和决策，输出结构化的工具调用意图 |
+| **MCP Host**   | 身体 | 总调度中枢，串联用户、LLM 和工具           |
+| **MCP Client** | 神经 | 按协议规范与 Server 通信，屏蔽传输差异     |
+| **MCP Server** | 手脚 | 封装具体能力，执行真实业务逻辑             |
 
 ---
 
@@ -131,11 +131,11 @@ MCP Client 是 Host 内部的通信模块，每个 Client 实例对应一个 MCP
 
 ### 对比
 
-| 维度 | 本地进程模式 | HTTP Server 模式 |
-|------|------------|-----------------|
-| 通信协议 | stdio | HTTP/HTTPS |
-| 部署位置 | 必须与 Host 同机 | 可本地或远程 |
-| 启动方式 | Host 启动子进程 | 独立进程监听端口 |
+| 维度     | 本地进程模式       | HTTP Server 模式     |
+| -------- | ------------------ | -------------------- |
+| 通信协议 | stdio              | HTTP/HTTPS           |
+| 部署位置 | 必须与 Host 同机   | 可本地或远程         |
+| 启动方式 | Host 启动子进程    | 独立进程监听端口     |
 | 适用场景 | 个人开发、本地工具 | 团队共享、云服务集成 |
 
 ---
@@ -160,23 +160,25 @@ const ExampleToolSchema = z.object({
 // 2. 创建 Server 实例
 const server = new Server(
   { name: "my-mcp-server", version: "1.0.0" },
-  { capabilities: { tools: {} } }
+  { capabilities: { tools: {} } },
 );
 
 // 3. 注册工具列表
 server.setRequestHandler(ListToolsRequestSchema, async () => ({
-  tools: [{
-    name: "example-tool",
-    description: "示例工具描述",
-    inputSchema: {
-      type: "object",
-      properties: {
-        param1: { type: "string", description: "参数1" },
-        param2: { type: "number", description: "参数2(可选)" },
+  tools: [
+    {
+      name: "example-tool",
+      description: "示例工具描述",
+      inputSchema: {
+        type: "object",
+        properties: {
+          param1: { type: "string", description: "参数1" },
+          param2: { type: "number", description: "参数2(可选)" },
+        },
+        required: ["param1"],
       },
-      required: ["param1"],
     },
-  }],
+  ],
 }));
 
 // 4. 处理工具调用
@@ -221,7 +223,7 @@ Skill 是通过**提示词层**扩展能力。它本质上是一份 Markdown 指
 ### 8.3 对比总结
 
 | 维度 | MCP Server | Skill |
-|------|-----------|-------|
+| --- | --- | --- |
 | 本质 | 独立运行的程序 | Markdown 指导文档 |
 | 扩展方式 | 协议层（提供新 Tool） | 提示词层（提供知识和方法论） |
 | 通信机制 | JSON-RPC 结构化调用 | AI 读取文档后自主理解执行 |

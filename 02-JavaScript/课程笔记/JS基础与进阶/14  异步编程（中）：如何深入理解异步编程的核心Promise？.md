@@ -189,15 +189,6 @@ anyPromise.then(<span class="hljs-function"><span class="hljs-keyword">function<
 <span class="hljs-comment">// 2</span>
 </code></pre>
 
-
-
-
-
-
-
-
-
-
 <p data-nodeid="867">从改造后的代码中可以看出，只要其中一个 Promise 变成 fulfilled 状态，那么 any 最后就返回这个 Promise。由于上面 resolved 这个 Promise 已经是 resolve 的了，故最后返回结果为 2。</p>
 <p data-nodeid="868">我们最后来看一下 race 方法。</p>
 <h4 data-nodeid="869">race 方法</h4>
@@ -242,15 +233,18 @@ anyPromise.then(<span class="hljs-function"><span class="hljs-keyword">function<
 
 ### 精选评论
 
-##### **飞：
+##### \*\*飞：
+
 > 老师您好，麻烦请教一下promise链式调用最后用catch捕捉错误和在每个promisethen中通过第二个回调函数接收失败状态有什么区别吗，哪种方式更好点
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 前者更好一点
 
-##### **东：
-> let readFilePromise = filename = {
-  return new Promise((resolve, reject) = {
+##### \*\*东：
+
+> let readFilePromise = filename = { return new Promise((resolve, reject) = {
+
     fs.readFile(filename, (err, data) = {    //老师。这句代码应该怎么理解
       if (err) {
         reject(err)
@@ -258,25 +252,25 @@ anyPromise.then(<span class="hljs-function"><span class="hljs-keyword">function<
         resolve(data)
       }
     })
-  })
-}
-readFilePromise('1.json').then(data = {
-  return readFilePromise('2.json')
-});
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
-> &nbsp;&nbsp;&nbsp; nodejs的 api 获取文件，参考文档地址：
-http://nodejs.cn/api/fs.html#fs_fs_readfile_path_options_callback
+}) } readFilePromise('1.json').then(data = { return readFilePromise('2.json') });
 
-##### **林：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
+> &nbsp;&nbsp;&nbsp; nodejs的 api 获取文件，参考文档地址： http://nodejs.cn/api/fs.html#fs_fs_readfile_path_options_callback
+
+##### \*\*林：
+
 > fetch请求超时是不是也可以通过race实现
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 可以
 
-##### **yunxiaomeng：
+##### \*\*yunxiaomeng：
+
 > 老师现在ajax是不是不支持异步了？我写的这段代码直接报请求失败了，但是控制台里请求成功了：let readUrlPromise=url={ return new Promise((resolve,reject)={ let xhr=new XMLHttpRequest(); xhr.open("GET",url);//这里第三个参数如果是false现在也会给出提示并且请求成功但不执行onreadystatechange里面的回调 xhr.send(null); xhr.onreadystatechange=function(){ if(xhr.readyState==4 xhr.status==200){ // console.log(JSON.parse(xhr.responseText)); resolve(JSON.parse(xhr.responseText)); }else{ reject('请求失败'); } } })}readUrlPromise("https://devapi.qweather.com/v7/weather/24h?location=114.0133938915449,33.59341588086467{ console.log(data);})
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
-> &nbsp;&nbsp;&nbsp; ajax默认就是异步请求
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
 
+> &nbsp;&nbsp;&nbsp; ajax默认就是异步请求

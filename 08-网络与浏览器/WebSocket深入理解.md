@@ -27,14 +27,14 @@
 
 ## 二、与 HTTP 核心对比
 
-| 特性 | HTTP | WebSocket |
-|------|------|-----------|
-| 通信模式 | 半双工（请求-响应） | 全双工（双向实时） |
-| 连接状态 | 无状态（每次独立） | 有状态（持久连接） |
-| 服务端主动推送 | ❌ 无法主动推送 | ✅ 可主动推送 |
-| 连接开销 | 每次请求建立/断开 | 仅一次握手 |
-| 头部开销 | 较大（每次请求带完整头） | 极小（帧头2~10字节） |
-| 适用场景 | 一次性请求响应 | 持续双向实时通信 |
+| 特性           | HTTP                     | WebSocket            |
+| -------------- | ------------------------ | -------------------- |
+| 通信模式       | 半双工（请求-响应）      | 全双工（双向实时）   |
+| 连接状态       | 无状态（每次独立）       | 有状态（持久连接）   |
+| 服务端主动推送 | ❌ 无法主动推送          | ✅ 可主动推送        |
+| 连接开销       | 每次请求建立/断开        | 仅一次握手           |
+| 头部开销       | 较大（每次请求带完整头） | 极小（帧头2~10字节） |
+| 适用场景       | 一次性请求响应           | 持续双向实时通信     |
 
 ---
 
@@ -66,29 +66,29 @@ WebSocket 借助 HTTP 完成握手，之后切换协议：
 
 ## 四、典型使用场景
 
-| 场景 | 说明 |
-|------|------|
-| **即时通信** | 在线聊天、直播弹幕、在线客服 |
-| **实时数据推送** | 股票行情、设备监控、赛事比分 |
-| **在线协作** | 腾讯文档、Figma（协同文档/设计） |
-| **实时游戏** | 网页对战游戏（需可靠传输用TCP） |
-| **直播辅助** | 礼物推送、在线人数（视频流本身用HLS/FLV） |
+| 场景             | 说明                                      |
+| ---------------- | ----------------------------------------- |
+| **即时通信**     | 在线聊天、直播弹幕、在线客服              |
+| **实时数据推送** | 股票行情、设备监控、赛事比分              |
+| **在线协作**     | 腾讯文档、Figma（协同文档/设计）          |
+| **实时游戏**     | 网页对战游戏（需可靠传输用TCP）           |
+| **直播辅助**     | 礼物推送、在线人数（视频流本身用HLS/FLV） |
 
-> 📝 注意：直播画面用 FLV/HLS 或 WebRTC，互动（弹幕/礼物）才用 WebSocket
-> 在线协作传输的是极小操作指令（几十字节），不是全量文档
+> 📝 注意：直播画面用 FLV/HLS 或 WebRTC，互动（弹幕/礼物）才用 WebSocket 在线协作传输的是极小操作指令（几十字节），不是全量文档
 
 ---
 
 ## 五、与 SSE / 轮询的对比
 
 | 方案 | 通信模式 | 实时性 | 连接 | 适用场景 |
-|------|---------|--------|------|---------|
+| --- | --- | --- | --- | --- |
 | **WebSocket** | 全双工 | 极高 | 持久 | 双向实时交互（聊天、游戏） |
 | **SSE** | 单向（服务端推） | 较高 | 持久（HTTP） | 仅服务端推送（行情/监控/AI流式输出） |
 | **长轮询** | 半双工 | 中等 | 每次重建 | 老旧系统兼容 |
 | **普通轮询** | 半双工 | 低 | 每次重建 | 低实时性简单场景 |
 
 **选型建议**：
+
 - 双向通信 → WebSocket
 - 只需服务端推 → SSE（更轻量，自动重连）
 - 兼容性要求高 → 长轮询降级
@@ -98,6 +98,7 @@ WebSocket 借助 HTTP 完成握手，之后切换协议：
 ## 六、TCP_NODELAY：禁用 Nagle 算法
 
 ### 什么是 Nagle 算法？
+
 TCP 默认开启 Nagle 算法：将小数据包攒成大包再发送（等待 200ms 或凑满 MSS），减少网络拥塞。
 
 **问题**：对 WebSocket 实时场景，200ms 延迟积压是不可接受的。
@@ -106,16 +107,16 @@ TCP 默认开启 Nagle 算法：将小数据包攒成大包再发送（等待 20
 
 ```js
 // Node.js（ws 库）禁用 Nagle 算法，立即发送每个帧
-const WebSocket = require('ws');
+const WebSocket = require("ws");
 const wss = new WebSocket.Server({ port: 8080 });
 
-wss.on('connection', (ws) => {
-    ws._socket.setNoDelay(true); // 关闭 Nagle，立即发包
-    console.log('Client connected, Nagle disabled');
+wss.on("connection", (ws) => {
+  ws._socket.setNoDelay(true); // 关闭 Nagle，立即发包
+  console.log("Client connected, Nagle disabled");
 
-    ws.on('message', (message) => {
-        ws.send(`Echo: ${message}`);
-    });
+  ws.on("message", (message) => {
+    ws.send(`Echo: ${message}`);
+  });
 });
 ```
 
@@ -130,29 +131,29 @@ wss.on('connection', (ws) => {
 ### 浏览器客户端
 
 ```js
-const ws = new WebSocket('wss://example.com/ws');
+const ws = new WebSocket("wss://example.com/ws");
 
 ws.onopen = () => {
-    console.log('连接已建立');
-    ws.send(JSON.stringify({ type: 'join', room: '123' }));
+  console.log("连接已建立");
+  ws.send(JSON.stringify({ type: "join", room: "123" }));
 };
 
 ws.onmessage = (event) => {
-    const data = JSON.parse(event.data);
-    console.log('收到消息：', data);
+  const data = JSON.parse(event.data);
+  console.log("收到消息：", data);
 };
 
 ws.onerror = (error) => {
-    console.error('WebSocket 错误：', error);
+  console.error("WebSocket 错误：", error);
 };
 
 ws.onclose = (event) => {
-    console.log('连接关闭，code:', event.code, 'reason:', event.reason);
-    // 可在此实现自动重连逻辑
+  console.log("连接关闭，code:", event.code, "reason:", event.reason);
+  // 可在此实现自动重连逻辑
 };
 
 // 主动关闭
-ws.close(1000, '正常关闭');
+ws.close(1000, "正常关闭");
 
 // 检查连接状态
 // ws.readyState: 0=CONNECTING, 1=OPEN, 2=CLOSING, 3=CLOSED
@@ -161,24 +162,24 @@ ws.close(1000, '正常关闭');
 ### Node.js 服务端（ws 库）
 
 ```js
-const WebSocket = require('ws');
+const WebSocket = require("ws");
 const wss = new WebSocket.Server({ port: 8080 });
 
-wss.on('connection', (ws, req) => {
-    ws._socket.setNoDelay(true); // 禁用 Nagle
+wss.on("connection", (ws, req) => {
+  ws._socket.setNoDelay(true); // 禁用 Nagle
 
-    ws.on('message', (message) => {
-        console.log('收到：', message.toString());
-        // 广播给所有客户端
-        wss.clients.forEach((client) => {
-            if (client.readyState === WebSocket.OPEN) {
-                client.send(message.toString());
-            }
-        });
+  ws.on("message", (message) => {
+    console.log("收到：", message.toString());
+    // 广播给所有客户端
+    wss.clients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(message.toString());
+      }
     });
+  });
 
-    ws.on('close', () => console.log('客户端断开'));
-    ws.on('error', (err) => console.error('错误：', err));
+  ws.on("close", () => console.log("客户端断开"));
+  ws.on("error", (err) => console.error("错误：", err));
 });
 ```
 

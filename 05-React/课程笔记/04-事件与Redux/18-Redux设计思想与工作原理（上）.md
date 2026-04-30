@@ -187,9 +187,9 @@ const store = createStore(
         <span class="hljs-comment">// 该变量用于防止调用多次 unsubscribe 函数</span>
         let isSubscribed = <span class="hljs-keyword">true</span>;
         <span class="hljs-comment">// 确保 nextListeners 与 currentListeners 不指向同一个引用</span>
-        ensureCanMutateNextListeners(); 
+        ensureCanMutateNextListeners();
         <span class="hljs-comment">// 注册监听函数</span>
-        nextListeners.push(listener); 
+        nextListeners.push(listener);
 
         <span class="hljs-comment">// 返回取消订阅当前 listener 的方法</span>
         <span class="hljs-keyword">return</span> <span class="hljs-function">function <span class="hljs-title">unsubscribe</span><span class="hljs-params">()</span> </span>{
@@ -269,8 +269,9 @@ const store = createStore(
       replaceReducer,
       [$$observable]: observable
     }
-}
-</code></pre>
+
+} </code></pre>
+
 <p data-nodeid="1454">通过阅读源码会发现，createStore 从外面看只是一个简单的创建动作，但在内部却别有洞天，涵盖了所有 Redux 主流程中核心方法的定义。</p>
 <p data-nodeid="1455">接下来我将 createStore 内部逻辑总结进一张大图中，这张图涵盖了每个核心方法的工作内容，它将帮助你快速把握 createStore 的逻辑框架。</p>
 <p data-nodeid="1456"><img src="https://s0.lgstatic.com/i/image/M00/7E/BB/Ciqc1F_PVkCAST4AAAJfMvoaI4Q803.png" alt="Drawing 15.png" data-nodeid="1681"></p>
@@ -296,15 +297,18 @@ const store = createStore(
 
 ### 精选评论
 
-##### **威：
+##### \*\*威：
+
 > 老师，讲得真好😊
 
-##### *琴：
+##### \*琴：
+
 > 老师真牛！！
 
-##### **你辣条就跑：
+##### \*\*你辣条就跑：
+
 > 一个典型的 Flux 工作流是这样的：用户与 View 之间产生交互，通过 View 发起一个 Action；Dispatcher 会把这个 Action 派发给 Store，通知 Store 进行相应的状态更新。Store 状态更新完成后，会进一步通知 View 去更新界面。意思是用到了该状态的页面都会直接刷新吗？不需要再次手动触发setState或useState、render?
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
-> &nbsp;&nbsp;&nbsp; 不是的。只是“通知”view，要不要更新、如何更新是由view自己决定的。
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
 
+> &nbsp;&nbsp;&nbsp; 不是的。只是“通知”view，要不要更新、如何更新是由view自己决定的。

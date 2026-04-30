@@ -62,7 +62,7 @@ React 收集所有事件类型，在 root 节点上注册原生事件监听器�
 
 ```js
 // 原生方式：1000 个按钮 = 1000 个监听器
-buttons.forEach((btn) => btn.addEventListener('click', handler));
+buttons.forEach((btn) => btn.addEventListener("click", handler));
 
 // React 方式：1000 个按钮 = 1 个监听器（在 root 上）
 items.map((item) => <button onClick={handler}>{item}</button>);
@@ -106,18 +106,21 @@ function App() {
 
   useEffect(() => {
     // 原生事件：直接绑定在 div 上
-    divRef.current.addEventListener('click', () => {
-      console.log('原生事件 - div（冒泡）');
+    divRef.current.addEventListener("click", () => {
+      console.log("原生事件 - div（冒泡）");
     });
     // 原生事件：绑定在 document 上
-    document.addEventListener('click', () => {
-      console.log('原生事件 - document（冒泡）');
+    document.addEventListener("click", () => {
+      console.log("原生事件 - document（冒泡）");
     });
   }, []);
 
   return (
-    <div ref={divRef} onClick={() => console.log('React合成事件 - div（冒泡）')}>
-      <button onClick={() => console.log('React合成事件 - button（冒泡）')}>
+    <div
+      ref={divRef}
+      onClick={() => console.log("React合成事件 - div（冒泡）")}
+    >
+      <button onClick={() => console.log("React合成事件 - button（冒泡）")}>
         点击
       </button>
     </div>
@@ -135,6 +138,7 @@ function App() {
 ```
 
 **核心规律：**
+
 - 原生事件（绑定在真实 DOM 上）先于 React 合成事件执行
 - React 合成事件先于绑定在 document 上的原生事件执行（React 17+）
 - React 16 中，React 合成事件和 document 原生事件几乎同级（都在 document 上）
@@ -159,8 +163,8 @@ function App() {
   const btnRef = useRef(null);
 
   useEffect(() => {
-    document.addEventListener('click', () => {
-      console.log('document 原生事件触发了！');
+    document.addEventListener("click", () => {
+      console.log("document 原生事件触发了！");
     });
   }, []);
 
@@ -170,7 +174,7 @@ function App() {
       onClick={(e) => {
         e.stopPropagation(); // ❌ 只阻止了 React 事件树中的冒泡
         // document 上的原生监听器依然会触发！
-        console.log('React 合成事件');
+        console.log("React 合成事件");
       }}
     >
       点击
@@ -197,16 +201,16 @@ function App() {
   const btnRef = useRef(null);
 
   useEffect(() => {
-    btnRef.current.addEventListener('click', (e) => {
+    btnRef.current.addEventListener("click", (e) => {
       e.stopPropagation(); // 阻止原生事件冒泡到 root
-      console.log('原生事件阻止了冒泡');
+      console.log("原生事件阻止了冒泡");
     });
   }, []);
 
   return (
     <button
       ref={btnRef}
-      onClick={() => console.log('React 合成事件')} // ❌ 不会触发！
+      onClick={() => console.log("React 合成事件")} // ❌ 不会触发！
     >
       点击
     </button>
@@ -257,7 +261,7 @@ React 17 彻底移除了事件池机制，合成事件对象不再被回收，�
 ## 七、阻止冒泡的方式对比
 
 | 方法 | 作用范围 | 适用场景 |
-|------|---------|---------|
+| --- | --- | --- |
 | `e.stopPropagation()` | 阻止 React 合成事件树中的冒泡 | 阻止父组件的 React 事件处理器 |
 | `e.nativeEvent.stopPropagation()` | 阻止原生事件冒泡（但不阻止同节点其他监听器） | 阻止原生事件继续冒泡 |
 | `e.nativeEvent.stopImmediatePropagation()` | 阻止原生事件冒泡 + 同节点其他监听器 | 彻底阻止所有后续处理 |

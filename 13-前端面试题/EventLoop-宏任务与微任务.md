@@ -20,7 +20,7 @@ JS 是单线程语言，通过**事件循环（Event Loop）**实现异步。每
 ## 宏任务 vs 微任务
 
 | 类型 | 包含 |
-|------|------|
+| --- | --- |
 | **宏任务（Macrotask）** | `setTimeout`、`setInterval`、`setImmediate`（Node）、`MessageChannel`、I/O、UI rendering |
 | **微任务（Microtask）** | `Promise.then/catch/finally`、`queueMicrotask`、`MutationObserver`、`async/await`（await 后面的代码） |
 
@@ -33,22 +33,23 @@ JS 是单线程语言，通过**事件循环（Event Loop）**实现异步。每
 ### 基础示例
 
 ```js
-console.log('1');          // 同步
+console.log("1"); // 同步
 
 setTimeout(() => {
-  console.log('2');        // 宏任务
+  console.log("2"); // 宏任务
 }, 0);
 
 Promise.resolve().then(() => {
-  console.log('3');        // 微任务
+  console.log("3"); // 微任务
 });
 
-console.log('4');          // 同步
+console.log("4"); // 同步
 
 // 输出顺序：1 4 3 2
 ```
 
 **分析：**
+
 1. `1` - 同步，直接执行
 2. setTimeout 回调加入宏任务队列
 3. Promise.then 回调加入微任务队列
@@ -60,19 +61,19 @@ console.log('4');          // 同步
 
 ```js
 async function async1() {
-  console.log('A1 start');        // 同步
-  await async2();                 // async2() 同步执行，await 后面进微任务
-  console.log('A1 end');          // 微任务
+  console.log("A1 start"); // 同步
+  await async2(); // async2() 同步执行，await 后面进微任务
+  console.log("A1 end"); // 微任务
 }
 
 async function async2() {
-  console.log('A2');              // 同步
+  console.log("A2"); // 同步
 }
 
-console.log('start');
-setTimeout(() => console.log('timeout'), 0);
+console.log("start");
+setTimeout(() => console.log("timeout"), 0);
 async1();
-console.log('end');
+console.log("end");
 
 // 输出：start → A1 start → A2 → end → A1 end → timeout
 ```
@@ -84,41 +85,42 @@ console.log('end');
 ## 经典面试题：输出顺序分析
 
 ```js
-console.log('1');
+console.log("1");
 
 setTimeout(function () {
-  console.log('2');
+  console.log("2");
   new Promise(function (resolve) {
-    console.log('3');
+    console.log("3");
     resolve();
   }).then(function () {
-    console.log('4');
+    console.log("4");
   });
 }, 0);
 
 new Promise(function (resolve) {
-  console.log('5');
+  console.log("5");
   resolve();
 }).then(function () {
-  console.log('6');
+  console.log("6");
 });
 
 setTimeout(function () {
-  console.log('7');
+  console.log("7");
   new Promise(function (resolve) {
-    console.log('8');
+    console.log("8");
     resolve();
   }).then(function () {
-    console.log('9');
+    console.log("9");
   });
 }, 0);
 
-console.log('10');
+console.log("10");
 
 // 输出：1 5 10 6 2 3 4 7 8 9
 ```
 
 **分步解析：**
+
 - 同步：`1`, `5`（Promise 构造函数同步）, `10`
 - 微任务：`6`（第一个 Promise.then）
 - 宏任务1（第一个 setTimeout）：`2`, `3`（同步），然后微任务 `4`
@@ -129,6 +131,7 @@ console.log('10');
 ## Node.js 与浏览器的差异
 
 ### 浏览器事件循环
+
 - 标准 HTML 规范定义
 - 宏任务逐个执行，每次清空微任务
 
@@ -141,23 +144,24 @@ timers → pending callbacks → idle/prepare
   → poll → check → close callbacks → (循环)
 ```
 
-| 阶段 | 内容 |
-|------|------|
-| timers | `setTimeout` / `setInterval` 回调 |
-| poll | I/O 回调（网络、文件） |
-| check | `setImmediate` 回调 |
-| close callbacks | `socket.on('close')` 等 |
+| 阶段            | 内容                              |
+| --------------- | --------------------------------- |
+| timers          | `setTimeout` / `setInterval` 回调 |
+| poll            | I/O 回调（网络、文件）            |
+| check           | `setImmediate` 回调               |
+| close callbacks | `socket.on('close')` 等           |
 
 **Node.js 特有：**
+
 - `setImmediate`：check 阶段，比 setTimeout(0) 在 I/O 回调中先执行
 - `process.nextTick`：**优先级最高的微任务**，在每个阶段切换时先于 Promise.then 执行
 
 ```js
 // Node.js 中
-setTimeout(() => console.log('timeout'), 0);
-setImmediate(() => console.log('immediate'));
-Promise.resolve().then(() => console.log('promise'));
-process.nextTick(() => console.log('nextTick'));
+setTimeout(() => console.log("timeout"), 0);
+setImmediate(() => console.log("immediate"));
+Promise.resolve().then(() => console.log("promise"));
+process.nextTick(() => console.log("nextTick"));
 
 // 输出：nextTick → promise → timeout/immediate（顺序不固定）
 // 在 I/O 回调内：nextTick → promise → immediate → timeout

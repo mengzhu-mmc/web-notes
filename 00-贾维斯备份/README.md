@@ -56,19 +56,22 @@
 ## 🔑 关键上下文
 
 ### 靓仔的技术栈
+
 - **主力**：JS / TypeScript / Vue / React
 - **后端涉猎**：Node.js + Koa（有练习项目）
 - **力扣**：向上的小菜鸟（slug: maomengchao）
 
 ### 3 周算法冲刺（2026-03-07 ~ 03-27）
+
 - Week 1：单调栈 / 二分 / 图 / 树
 - Week 2：DP 背包 / 子序列 / 回溯
 - Week 3：Hard 冲刺 + 面试模拟
 - **全部完成** ✅
 
 ### 贾维斯的自研 Skills 亮点
+
 | Skill | 功能 |
-|-------|------|
+| --- | --- |
 | `algo-coach` | 追踪力扣进度，按薄弱点推题，分层提示 |
 | `interview-sim` | 模拟前端面试六大模块（算法/JS/CSS/网络/系统设计/行为） |
 | `self-heal` | 自动检测并修复 Gateway/channel 断连，发钉钉报告 |
@@ -77,6 +80,7 @@
 | `capability-evolver` | 基于 GEP 协议分析运行历史，识别并应用自我进化（已暂停，安全审查） |
 
 ### 如何在新 OpenClaw 实例中恢复
+
 1. 将 `身份与配置/` 里的文件放到工作区根目录
 2. 将 `自研Skills/` 里的 skill 目录放到 `~/.openclaw/workspace/skills/`
 3. 将 `记忆日记/` 放到 `memory/` 目录

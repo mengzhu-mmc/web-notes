@@ -66,9 +66,13 @@ function withLoading(WrappedComponent) {
 function withLogger(WrappedComponent) {
   return function LoggedComponent(props) {
     useEffect(() => {
-      console.log(`[${WrappedComponent.displayName || WrappedComponent.name}] 挂载`);
+      console.log(
+        `[${WrappedComponent.displayName || WrappedComponent.name}] 挂载`,
+      );
       return () => {
-        console.log(`[${WrappedComponent.displayName || WrappedComponent.name}] 卸载`);
+        console.log(
+          `[${WrappedComponent.displayName || WrappedComponent.name}] 卸载`,
+        );
       };
     }, []);
 
@@ -84,14 +88,14 @@ function withLogger(WrappedComponent) {
 ```javascript
 // ❌ 错误：丢失了原始 props
 function withBad(WrappedComponent) {
-  return function(props) {
+  return function (props) {
     return <WrappedComponent newProp="value" />; // 忘记透传 props
   };
 }
 
 // ✅ 正确：展开透传所有 props
 function withGood(WrappedComponent) {
-  return function(props) {
+  return function (props) {
     return <WrappedComponent {...props} newProp="value" />;
   };
 }
@@ -101,7 +105,9 @@ function withGood(WrappedComponent) {
 
 ```javascript
 function withAuth(WrappedComponent) {
-  function AuthComponent(props) { /* ... */ }
+  function AuthComponent(props) {
+    /* ... */
+  }
   // 设置 displayName，方便 React DevTools 调试
   AuthComponent.displayName = `withAuth(${WrappedComponent.displayName || WrappedComponent.name})`;
   return AuthComponent;
@@ -177,7 +183,7 @@ class MouseTracker extends React.Component {
 
   render() {
     return (
-      <div onMouseMove={this.handleMouseMove} style={{ height: '100vh' }}>
+      <div onMouseMove={this.handleMouseMove} style={{ height: "100vh" }}>
         {/* 调用 render prop，将状态传出去 */}
         {this.props.render(this.state)}
       </div>
@@ -190,7 +196,9 @@ function App() {
   return (
     <MouseTracker
       render={({ x, y }) => (
-        <div>鼠标位置：({x}, {y})</div>
+        <div>
+          鼠标位置：({x}, {y})
+        </div>
       )}
     />
   );
@@ -206,7 +214,7 @@ function Toggle({ children }) {
 
   return children({
     isOpen,
-    toggle: () => setIsOpen(prev => !prev),
+    toggle: () => setIsOpen((prev) => !prev),
     open: () => setIsOpen(true),
     close: () => setIsOpen(false),
   });
@@ -218,7 +226,7 @@ function App() {
     <Toggle>
       {({ isOpen, toggle }) => (
         <div>
-          <button onClick={toggle}>{isOpen ? '收起' : '展开'}</button>
+          <button onClick={toggle}>{isOpen ? "收起" : "展开"}</button>
           {isOpen && <div className="content">这是内容</div>}
         </div>
       )}
@@ -232,13 +240,17 @@ function App() {
 ```javascript
 // DataFetcher.jsx
 function DataFetcher({ url, children }) {
-  const [state, setState] = useState({ data: null, loading: true, error: null });
+  const [state, setState] = useState({
+    data: null,
+    loading: true,
+    error: null,
+  });
 
   useEffect(() => {
     fetch(url)
-      .then(res => res.json())
-      .then(data => setState({ data, loading: false, error: null }))
-      .catch(error => setState({ data: null, loading: false, error }));
+      .then((res) => res.json())
+      .then((data) => setState({ data, loading: false, error: null }))
+      .catch((error) => setState({ data: null, loading: false, error }));
   }, [url]);
 
   return children(state);
@@ -251,7 +263,13 @@ function UserList() {
       {({ data, loading, error }) => {
         if (loading) return <Spinner />;
         if (error) return <ErrorMessage error={error} />;
-        return <ul>{data.map(user => <li key={user.id}>{user.name}</li>)}</ul>;
+        return (
+          <ul>
+            {data.map((user) => (
+              <li key={user.id}>{user.name}</li>
+            ))}
+          </ul>
+        );
       }}
     </DataFetcher>
   );
@@ -302,7 +320,11 @@ function Tabs({ defaultValue, children }) {
 }
 
 function TabList({ children }) {
-  return <div className="tab-list" role="tablist">{children}</div>;
+  return (
+    <div className="tab-list" role="tablist">
+      {children}
+    </div>
+  );
 }
 
 function Tab({ value, children }) {
@@ -313,7 +335,7 @@ function Tab({ value, children }) {
     <button
       role="tab"
       aria-selected={isActive}
-      className={`tab ${isActive ? 'active' : ''}`}
+      className={`tab ${isActive ? "active" : ""}`}
       onClick={() => setActiveTab(value)}
     >
       {children}
@@ -344,7 +366,7 @@ function Accordion({ children, allowMultiple = false }) {
   const [openItems, setOpenItems] = useState(new Set());
 
   const toggle = (id) => {
-    setOpenItems(prev => {
+    setOpenItems((prev) => {
       const next = new Set(allowMultiple ? prev : []);
       if (prev.has(id)) {
         next.delete(id);
@@ -369,7 +391,7 @@ function AccordionItem({ id, title, children }) {
   return (
     <div className="accordion-item">
       <button onClick={() => toggle(id)}>
-        {title} {isOpen ? '▲' : '▼'}
+        {title} {isOpen ? "▲" : "▼"}
       </button>
       {isOpen && <div className="accordion-content">{children}</div>}
     </div>
@@ -389,14 +411,14 @@ Accordion.Item = AccordionItem;
 
 ## 五、三种模式对比
 
-| 维度 | HOC | Render Props | 复合组件 |
-|------|-----|-------------|---------|
-| 复用类型 | 逻辑复用 | 逻辑复用 | UI + 逻辑复用 |
-| 代码可读性 | 中（嵌套多时差） | 中（回调嵌套） | 高（声明式） |
-| 灵活性 | 低（固定增强方式） | 高（完全自定义 UI） | 高（自由组合） |
-| 调试难度 | 高（来源不透明） | 低 | 低 |
-| 适用场景 | 横切关注点（权限、日志） | 逻辑与 UI 解耦 | 复杂 UI 组件库 |
-| 现代替代 | 自定义 Hook | 自定义 Hook | 仍然适用 |
+| 维度       | HOC                      | Render Props        | 复合组件       |
+| ---------- | ------------------------ | ------------------- | -------------- |
+| 复用类型   | 逻辑复用                 | 逻辑复用            | UI + 逻辑复用  |
+| 代码可读性 | 中（嵌套多时差）         | 中（回调嵌套）      | 高（声明式）   |
+| 灵活性     | 低（固定增强方式）       | 高（完全自定义 UI） | 高（自由组合） |
+| 调试难度   | 高（来源不透明）         | 低                  | 低             |
+| 适用场景   | 横切关注点（权限、日志） | 逻辑与 UI 解耦      | 复杂 UI 组件库 |
+| 现代替代   | 自定义 Hook              | 自定义 Hook         | 仍然适用       |
 
 ---
 
@@ -409,22 +431,26 @@ Accordion.Item = AccordionItem;
 const EnhancedComponent = withMousePosition(MyComponent);
 
 // ❌ 旧方式：Render Props
-<MouseTracker render={({ x, y }) => <MyComponent x={x} y={y} />} />
+<MouseTracker render={({ x, y }) => <MyComponent x={x} y={y} />} />;
 
 // ✅ 现代方式：自定义 Hook（React 16.8+）
 function useMousePosition() {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   useEffect(() => {
     const handler = (e) => setPosition({ x: e.clientX, y: e.clientY });
-    window.addEventListener('mousemove', handler);
-    return () => window.removeEventListener('mousemove', handler);
+    window.addEventListener("mousemove", handler);
+    return () => window.removeEventListener("mousemove", handler);
   }, []);
   return position;
 }
 
 function MyComponent() {
   const { x, y } = useMousePosition(); // 直接调用，简洁清晰
-  return <div>({x}, {y})</div>;
+  return (
+    <div>
+      ({x}, {y})
+    </div>
+  );
 }
 ```
 

@@ -26,40 +26,41 @@
 适合：按钮点击、搜索触发等，**不需要**与输入框 `value` 直接绑定。
 
 ```jsx
-import { useState, useRef, useCallback, useEffect } from 'react'
+import { useState, useRef, useCallback, useEffect } from "react";
 
 /**
  * 返回一个防抖后的 setState，state 是防抖后的值
  * 注意：state 是延迟更新的，不能直接作为 input 的 value（会导致输入卡顿）
  */
 const useDebouncedValue = (initialState, timeout) => {
-  const [state, setState] = useState(initialState)
-  const timer = useRef(null)
+  const [state, setState] = useState(initialState);
+  const timer = useRef(null);
 
-  const handleSetState = useCallback((newValue) => {
-    if (timer.current) {
-      clearTimeout(timer.current)
-    }
-    timer.current = setTimeout(() => setState(newValue), timeout)
-  }, [timeout])
+  const handleSetState = useCallback(
+    (newValue) => {
+      if (timer.current) {
+        clearTimeout(timer.current);
+      }
+      timer.current = setTimeout(() => setState(newValue), timeout);
+    },
+    [timeout],
+  );
 
   useEffect(() => {
     // ✅ 清理时用 timer.current，不是 timeout.current（timeout 是数字，没有 .current）
-    return () => timer.current && clearTimeout(timer.current)
-  }, [])
+    return () => timer.current && clearTimeout(timer.current);
+  }, []);
 
-  return [state, handleSetState]
-}
+  return [state, handleSetState];
+};
 
 // 使用示例
 function SearchButton() {
-  const [result, setResult] = useDebouncedValue('', 500)
+  const [result, setResult] = useDebouncedValue("", 500);
 
   return (
-    <button onClick={() => setResult('搜索结果')}>
-      搜索（防抖 500ms）
-    </button>
-  )
+    <button onClick={() => setResult("搜索结果")}>搜索（防抖 500ms）</button>
+  );
 }
 ```
 
@@ -72,7 +73,7 @@ function SearchButton() {
 适合：搜索框输入，**输入框 `value` 用原始值**（响应流畅），**接口请求用 `debouncedVal`**（防止频繁请求）。
 
 ```jsx
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from "react";
 
 /**
  * 对一个值做防抖处理，返回防抖后的值
@@ -80,34 +81,34 @@ import { useState, useEffect } from 'react'
  */
 const useDebouncedValue = (value, timeout) => {
   // ✅ 内部 state 变量名不能与函数名同名，改为 debouncedVal
-  const [debouncedVal, setDebouncedVal] = useState(value)
+  const [debouncedVal, setDebouncedVal] = useState(value);
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setDebouncedVal(value)
-    }, timeout)
-    return () => clearTimeout(timer)
-  }, [value, timeout])
+      setDebouncedVal(value);
+    }, timeout);
+    return () => clearTimeout(timer);
+  }, [value, timeout]);
 
-  return debouncedVal
-}
+  return debouncedVal;
+};
 
 // 使用示例：输入框搜索
 function SearchInput() {
-  const [query, setQuery] = useState('')
-  const debouncedQuery = useDebouncedValue(query, 500)
+  const [query, setQuery] = useState("");
+  const debouncedQuery = useDebouncedValue(query, 500);
 
   useEffect(() => {
     if (debouncedQuery) {
       // 只有用户停止输入 500ms 后才发请求
-      fetchSearchResults(debouncedQuery)
+      fetchSearchResults(debouncedQuery);
     }
-  }, [debouncedQuery])
+  }, [debouncedQuery]);
 
   return (
     // ✅ value 绑定原始 query，输入流畅无卡顿
-    <input value={query} onChange={e => setQuery(e.target.value)} />
-  )
+    <input value={query} onChange={(e) => setQuery(e.target.value)} />
+  );
 }
 ```
 
@@ -118,29 +119,32 @@ function SearchInput() {
 ### 3. useDebounce —— 防抖函数（通用版）
 
 ```jsx
-import { useRef, useCallback } from 'react'
+import { useRef, useCallback } from "react";
 
 /**
  * 对任意函数做防抖处理
  */
 const useDebounce = (fn, delay) => {
-  const timer = useRef(null)
+  const timer = useRef(null);
 
-  return useCallback((...args) => {
-    if (timer.current) clearTimeout(timer.current)
-    timer.current = setTimeout(() => {
-      fn(...args)
-    }, delay)
-  }, [fn, delay])
-}
+  return useCallback(
+    (...args) => {
+      if (timer.current) clearTimeout(timer.current);
+      timer.current = setTimeout(() => {
+        fn(...args);
+      }, delay);
+    },
+    [fn, delay],
+  );
+};
 
 // 使用示例
 function Component() {
   const handleSearch = useDebounce((keyword) => {
-    console.log('搜索：', keyword)
-  }, 300)
+    console.log("搜索：", keyword);
+  }, 300);
 
-  return <input onChange={e => handleSearch(e.target.value)} />
+  return <input onChange={(e) => handleSearch(e.target.value)} />;
 }
 ```
 
@@ -149,36 +153,39 @@ function Component() {
 ## 二、节流 Hook
 
 ```jsx
-import { useRef, useCallback } from 'react'
+import { useRef, useCallback } from "react";
 
 /**
  * 对任意函数做节流处理
  * 在 delay 时间内，无论触发多少次，只执行第一次
  */
 const useThrottle = (fn, delay) => {
-  const lastTime = useRef(0)
+  const lastTime = useRef(0);
 
-  return useCallback((...args) => {
-    const now = Date.now()
-    if (now - lastTime.current >= delay) {
-      lastTime.current = now
-      fn(...args)
-    }
-  }, [fn, delay])
-}
+  return useCallback(
+    (...args) => {
+      const now = Date.now();
+      if (now - lastTime.current >= delay) {
+        lastTime.current = now;
+        fn(...args);
+      }
+    },
+    [fn, delay],
+  );
+};
 
 // 使用示例：滚动监听
 function ScrollComponent() {
   const handleScroll = useThrottle(() => {
-    console.log('scroll position:', window.scrollY)
-  }, 200)
+    console.log("scroll position:", window.scrollY);
+  }, 200);
 
   useEffect(() => {
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [handleScroll])
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [handleScroll]);
 
-  return <div style={{ height: 2000 }}>滚动页面</div>
+  return <div style={{ height: 2000 }}>滚动页面</div>;
 }
 ```
 
@@ -187,33 +194,35 @@ function ScrollComponent() {
 ## 三、usePrevious —— 获取上一次的值
 
 ```jsx
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect } from "react";
 
 /**
  * 返回上一次渲染时的值
  * 原理：useEffect 在渲染后执行，所以 ref 保存的是上一次的值
  */
 const usePrevious = (value) => {
-  const ref = useRef(undefined)
+  const ref = useRef(undefined);
 
   useEffect(() => {
-    ref.current = value
-  }) // 故意不传依赖数组，每次渲染后都更新
+    ref.current = value;
+  }); // 故意不传依赖数组，每次渲染后都更新
 
-  return ref.current // 返回的是更新前的值
-}
+  return ref.current; // 返回的是更新前的值
+};
 
 // 使用示例
 function Counter() {
-  const [count, setCount] = useState(0)
-  const prevCount = usePrevious(count)
+  const [count, setCount] = useState(0);
+  const prevCount = usePrevious(count);
 
   return (
     <div>
-      <p>当前：{count}，上一次：{prevCount}</p>
-      <button onClick={() => setCount(c => c + 1)}>+1</button>
+      <p>
+        当前：{count}，上一次：{prevCount}
+      </p>
+      <button onClick={() => setCount((c) => c + 1)}>+1</button>
     </div>
-  )
+  );
 }
 ```
 
@@ -224,32 +233,32 @@ function Counter() {
 解决闭包陷阱的通用方案，在 `useEffect` / 定时器 / 事件回调中获取最新 state。
 
 ```jsx
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect } from "react";
 
 /**
  * 返回一个 ref，ref.current 始终是最新的值
  * 用于解决 useEffect/定时器/事件回调中的闭包陷阱
  */
 const useLatest = (value) => {
-  const ref = useRef(value)
-  ref.current = value // 每次渲染都同步更新，不需要 useEffect
-  return ref
-}
+  const ref = useRef(value);
+  ref.current = value; // 每次渲染都同步更新，不需要 useEffect
+  return ref;
+};
 
 // 使用示例：定时器中获取最新 count
 function Timer() {
-  const [count, setCount] = useState(0)
-  const countRef = useLatest(count)
+  const [count, setCount] = useState(0);
+  const countRef = useLatest(count);
 
   useEffect(() => {
     const timer = setInterval(() => {
       // ✅ 通过 ref 获取最新值，不受闭包影响
-      console.log('当前 count：', countRef.current)
-    }, 1000)
-    return () => clearInterval(timer)
-  }, []) // 依赖数组为空也没问题
+      console.log("当前 count：", countRef.current);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []); // 依赖数组为空也没问题
 
-  return <button onClick={() => setCount(c => c + 1)}>count: {count}</button>
+  return <button onClick={() => setCount((c) => c + 1)}>count: {count}</button>;
 }
 ```
 
@@ -258,7 +267,7 @@ function Timer() {
 ## 五、useLocalStorage —— 持久化状态
 
 ```jsx
-import { useState, useCallback } from 'react'
+import { useState, useCallback } from "react";
 
 /**
  * 与 localStorage 同步的 useState
@@ -266,41 +275,45 @@ import { useState, useCallback } from 'react'
 const useLocalStorage = (key, initialValue) => {
   const [storedValue, setStoredValue] = useState(() => {
     try {
-      const item = window.localStorage.getItem(key)
-      return item ? JSON.parse(item) : initialValue
+      const item = window.localStorage.getItem(key);
+      return item ? JSON.parse(item) : initialValue;
     } catch {
-      return initialValue
+      return initialValue;
     }
-  })
+  });
 
-  const setValue = useCallback((value) => {
-    try {
-      // 支持函数式更新
-      const valueToStore = value instanceof Function ? value(storedValue) : value
-      setStoredValue(valueToStore)
-      window.localStorage.setItem(key, JSON.stringify(valueToStore))
-    } catch (error) {
-      console.error(error)
-    }
-  }, [key, storedValue])
+  const setValue = useCallback(
+    (value) => {
+      try {
+        // 支持函数式更新
+        const valueToStore =
+          value instanceof Function ? value(storedValue) : value;
+        setStoredValue(valueToStore);
+        window.localStorage.setItem(key, JSON.stringify(valueToStore));
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    [key, storedValue],
+  );
 
   const removeValue = useCallback(() => {
-    setStoredValue(initialValue)
-    window.localStorage.removeItem(key)
-  }, [key, initialValue])
+    setStoredValue(initialValue);
+    window.localStorage.removeItem(key);
+  }, [key, initialValue]);
 
-  return [storedValue, setValue, removeValue]
-}
+  return [storedValue, setValue, removeValue];
+};
 
 // 使用示例
 function ThemeToggle() {
-  const [theme, setTheme] = useLocalStorage('theme', 'light')
+  const [theme, setTheme] = useLocalStorage("theme", "light");
 
   return (
-    <button onClick={() => setTheme(t => t === 'light' ? 'dark' : 'light')}>
+    <button onClick={() => setTheme((t) => (t === "light" ? "dark" : "light"))}>
       当前主题：{theme}
     </button>
-  )
+  );
 }
 ```
 
@@ -309,39 +322,39 @@ function ThemeToggle() {
 ## 六、useEventListener —— 事件监听
 
 ```jsx
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef } from "react";
 
 /**
  * 自动管理事件监听的添加和移除
  */
 const useEventListener = (eventName, handler, element = window) => {
-  const savedHandler = useRef(handler)
+  const savedHandler = useRef(handler);
 
   // 每次渲染都更新 ref，保证 handler 始终是最新的
   useEffect(() => {
-    savedHandler.current = handler
-  }, [handler])
+    savedHandler.current = handler;
+  }, [handler]);
 
   useEffect(() => {
-    const target = element?.current ?? element
-    if (!target?.addEventListener) return
+    const target = element?.current ?? element;
+    if (!target?.addEventListener) return;
 
-    const listener = (event) => savedHandler.current(event)
-    target.addEventListener(eventName, listener)
-    return () => target.removeEventListener(eventName, listener)
-  }, [eventName, element])
-}
+    const listener = (event) => savedHandler.current(event);
+    target.addEventListener(eventName, listener);
+    return () => target.removeEventListener(eventName, listener);
+  }, [eventName, element]);
+};
 
 // 使用示例
 function KeyboardShortcut() {
-  useEventListener('keydown', (e) => {
-    if (e.key === 'Escape') console.log('按下了 ESC')
-  })
+  useEventListener("keydown", (e) => {
+    if (e.key === "Escape") console.log("按下了 ESC");
+  });
 
-  const divRef = useRef(null)
-  useEventListener('click', () => console.log('点击了 div'), divRef)
+  const divRef = useRef(null);
+  useEventListener("click", () => console.log("点击了 div"), divRef);
 
-  return <div ref={divRef}>点我</div>
+  return <div ref={divRef}>点我</div>;
 }
 ```
 
@@ -350,52 +363,52 @@ function KeyboardShortcut() {
 ## 七、useInterval / useTimeout —— 定时器
 
 ```jsx
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef } from "react";
 
 /**
  * 声明式 setInterval，自动处理清理
  * delay 为 null 时暂停
  */
 const useInterval = (callback, delay) => {
-  const savedCallback = useRef(callback)
-  savedCallback.current = callback
+  const savedCallback = useRef(callback);
+  savedCallback.current = callback;
 
   useEffect(() => {
-    if (delay === null) return
-    const id = setInterval(() => savedCallback.current(), delay)
-    return () => clearInterval(id)
-  }, [delay])
-}
+    if (delay === null) return;
+    const id = setInterval(() => savedCallback.current(), delay);
+    return () => clearInterval(id);
+  }, [delay]);
+};
 
 /**
  * 声明式 setTimeout，自动处理清理
  */
 const useTimeout = (callback, delay) => {
-  const savedCallback = useRef(callback)
-  savedCallback.current = callback
+  const savedCallback = useRef(callback);
+  savedCallback.current = callback;
 
   useEffect(() => {
-    if (delay === null) return
-    const id = setTimeout(() => savedCallback.current(), delay)
-    return () => clearTimeout(id)
-  }, [delay])
-}
+    if (delay === null) return;
+    const id = setTimeout(() => savedCallback.current(), delay);
+    return () => clearTimeout(id);
+  }, [delay]);
+};
 
 // 使用示例：可暂停的计时器
 function StopwatchDemo() {
-  const [count, setCount] = useState(0)
-  const [running, setRunning] = useState(false)
+  const [count, setCount] = useState(0);
+  const [running, setRunning] = useState(false);
 
-  useInterval(() => setCount(c => c + 1), running ? 1000 : null)
+  useInterval(() => setCount((c) => c + 1), running ? 1000 : null);
 
   return (
     <div>
       <p>{count}s</p>
-      <button onClick={() => setRunning(r => !r)}>
-        {running ? '暂停' : '开始'}
+      <button onClick={() => setRunning((r) => !r)}>
+        {running ? "暂停" : "开始"}
       </button>
     </div>
-  )
+  );
 }
 ```
 
@@ -404,55 +417,57 @@ function StopwatchDemo() {
 ## 八、useFetch —— 数据请求
 
 ```jsx
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from "react";
 
 /**
  * 封装 fetch 请求，自动处理 loading/error/data 状态
  * 支持竞态条件处理（组件卸载时取消请求）
  */
 const useFetch = (url, options) => {
-  const [data, setData] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!url) return
+    if (!url) return;
 
-    let cancelled = false // 处理竞态条件
-    setLoading(true)
-    setError(null)
+    let cancelled = false; // 处理竞态条件
+    setLoading(true);
+    setError(null);
 
     fetch(url, options)
-      .then(res => {
-        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`)
-        return res.json()
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        return res.json();
       })
-      .then(data => {
+      .then((data) => {
         if (!cancelled) {
-          setData(data)
-          setLoading(false)
+          setData(data);
+          setLoading(false);
         }
       })
-      .catch(err => {
+      .catch((err) => {
         if (!cancelled) {
-          setError(err.message)
-          setLoading(false)
+          setError(err.message);
+          setLoading(false);
         }
-      })
+      });
 
-    return () => { cancelled = true } // 组件卸载时标记取消
-  }, [url])
+    return () => {
+      cancelled = true;
+    }; // 组件卸载时标记取消
+  }, [url]);
 
-  return { data, loading, error }
-}
+  return { data, loading, error };
+};
 
 // 使用示例
 function UserProfile({ userId }) {
-  const { data, loading, error } = useFetch(`/api/users/${userId}`)
+  const { data, loading, error } = useFetch(`/api/users/${userId}`);
 
-  if (loading) return <div>加载中...</div>
-  if (error) return <div>错误：{error}</div>
-  return <div>{data?.name}</div>
+  if (loading) return <div>加载中...</div>;
+  if (error) return <div>错误：{error}</div>;
+  return <div>{data?.name}</div>;
 }
 ```
 
@@ -461,57 +476,63 @@ function UserProfile({ userId }) {
 ## 九、useIntersectionObserver —— 懒加载 / 无限滚动
 
 ```jsx
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from "react";
 
 /**
  * 监听元素是否进入视口
  * 适用于：图片懒加载、无限滚动、曝光埋点
  */
 const useIntersectionObserver = (options = {}) => {
-  const [isIntersecting, setIsIntersecting] = useState(false)
-  const ref = useRef(null)
+  const [isIntersecting, setIsIntersecting] = useState(false);
+  const ref = useRef(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(([entry]) => {
-      setIsIntersecting(entry.isIntersecting)
-    }, options)
+      setIsIntersecting(entry.isIntersecting);
+    }, options);
 
-    if (ref.current) observer.observe(ref.current)
-    return () => observer.disconnect()
-  }, [])
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, []);
 
-  return [ref, isIntersecting]
-}
+  return [ref, isIntersecting];
+};
 
 // 使用示例：图片懒加载
 function LazyImage({ src, alt }) {
-  const [ref, isVisible] = useIntersectionObserver({ threshold: 0.1 })
+  const [ref, isVisible] = useIntersectionObserver({ threshold: 0.1 });
 
   return (
     <div ref={ref} style={{ minHeight: 200 }}>
       {isVisible && <img src={src} alt={alt} />}
     </div>
-  )
+  );
 }
 
 // 使用示例：无限滚动触发点
 function InfiniteList() {
-  const [items, setItems] = useState([...Array(20).keys()])
-  const [bottomRef, isBottomVisible] = useIntersectionObserver()
+  const [items, setItems] = useState([...Array(20).keys()]);
+  const [bottomRef, isBottomVisible] = useIntersectionObserver();
 
   useEffect(() => {
     if (isBottomVisible) {
       // 加载更多数据
-      setItems(prev => [...prev, ...Array(10).keys()].map((_, i) => prev.length + i))
+      setItems((prev) =>
+        [...prev, ...Array(10).keys()].map((_, i) => prev.length + i),
+      );
     }
-  }, [isBottomVisible])
+  }, [isBottomVisible]);
 
   return (
     <div>
-      {items.map(i => <div key={i} style={{ height: 50 }}>Item {i}</div>)}
+      {items.map((i) => (
+        <div key={i} style={{ height: 50 }}>
+          Item {i}
+        </div>
+      ))}
       <div ref={bottomRef}>加载中...</div>
     </div>
-  )
+  );
 }
 ```
 

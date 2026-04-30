@@ -138,9 +138,6 @@
 <p data-nodeid="56950">shouldComponentUpdate 虽然一定程度上帮我们解决了性能方面的问题，但每次避免 re-render，都要手动实现一次 shouldComponentUpdate，未免太累了。作为一个不喜欢重复劳动的前端开发者来说，在写了不计其数个 shouldComponentUpdate 逻辑之后，难免会怀疑人生，进而发出由衷的感叹——“这玩意儿要是能内置到组件里该多好啊！”。</p>
 <p data-nodeid="65835" class="">哪里有需求，哪里就有产品。React 15.3 很明显听到了开发者的声音，它新增了一个叫 <a href="https://zh-hans.reactjs.org/docs/react-api.html#reactpurecomponent" data-nodeid="65839">PureComponent</a> 的类，恰到好处地解决了“程序员写 shouldComponentUpdate 写出腱鞘炎”这个问题。</p>
 
-
-
-
 <p data-nodeid="56952">PureComponent 与 Component 的区别点，就在于它内置了对 shouldComponentUpdate 的实现：PureComponent 将会在 shouldComponentUpdate 中对组件更新前后的 props 和 state 进行<strong data-nodeid="57100">浅比较</strong>，并根据浅比较的结果，决定是否需要继续更新流程。</p>
 <p data-nodeid="56953">“浅比较”将针对值类型数据对比其值是否相等，而针对数组、对象等引用类型的数据则对比其引用是否相等。</p>
 <p data-nodeid="56954">在我们开篇的 Demo 中，若把 ChildB 的父类从 Component 替换为 PureComponent（修改后的代码如下所示），那么无须手动编写 shouldComponentUpdate，也可以达到同样避免 re-render 的目的。</p>
@@ -344,21 +341,26 @@ export <span class="hljs-keyword">default</span> React.memo(FunctionDemo, areEqu
 
 ### 精选评论
 
-##### **宇：
+##### \*\*宇：
+
 > memo后的reactdom虽然不会再次通过函数执行了，但它最终还是汇入了父组件的children里面。那么它会跟随变化后的父组件一起参与diff吗？react有没有针对memo的数据做一些特殊标记，不然还是会diff到还是有点浪费性能。
 
-##### **杰：
+##### \*\*杰：
+
 > 这一节讲的太清楚了，之前一直对这一块的知识云里雾里的，感谢作者！作者有没有技术博客之类的，可以关注下吗
 
-##### **6044：
+##### \*\*6044：
+
 > 看了这一章，受益颇多😬
 
-##### **辉：
+##### \*\*辉：
+
 > usecallback也是一种优化手段
 
-##### **5985：
+##### \*\*5985：
+
 > 打卡
 
-##### **龙：
-> 打卡
+##### \*\*龙：
 
+> 打卡

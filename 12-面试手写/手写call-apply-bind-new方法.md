@@ -33,11 +33,11 @@ Function.prototype.myCall = function (ctx, ...args) {
 
 ```js
 const num = 1;
-num.foo = 'bar';
+num.foo = "bar";
 console.log(num.foo); // undefined ❌ 原始值无法挂载属性
 
 const numObj = Object(1); // Number {1}
-numObj.foo = 'bar';
+numObj.foo = "bar";
 console.log(numObj.foo); // 'bar' ✅
 ```
 
@@ -81,7 +81,8 @@ Function.prototype.myBind = function (ctx, ...bindArgs) {
 
   const bound = function (...callArgs) {
     // 关键：如果 bound 被 new 调用，this 指向新对象（忽略绑定的 ctx）
-    const thisArg = this instanceof bound ? this : Object(ctx == null ? globalThis : ctx);
+    const thisArg =
+      this instanceof bound ? this : Object(ctx == null ? globalThis : ctx);
     return fn.apply(thisArg, [...bindArgs, ...callArgs]); // 参数拼接
   };
 
@@ -97,20 +98,20 @@ Function.prototype.myBind = function (ctx, ...bindArgs) {
 function greet(greeting, punctuation) {
   return `${greeting}, ${this.name}${punctuation}`;
 }
-const user = { name: '张三' };
-const greetUser = greet.myBind(user, 'Hello');
-greetUser('!');  // 'Hello, 张三!'
-greetUser('?');  // 'Hello, 张三?'
+const user = { name: "张三" };
+const greetUser = greet.myBind(user, "Hello");
+greetUser("!"); // 'Hello, 张三!'
+greetUser("?"); // 'Hello, 张三?'
 ```
 
 ### bind 关键点总结
 
-| 特性 | 说明 |
-|------|------|
-| 返回新函数 | 不立即执行，返回绑定了 this 的新函数 |
-| 参数预设（柯里化） | `bind` 时传的参数和调用时传的参数会合并 |
-| `new` 优先 | `new boundFn()` 时，绑定的 this 会被忽略 |
-| 无法再次 bind | 对 `bind` 返回的函数再次 `bind` 不会改变 this |
+| 特性               | 说明                                          |
+| ------------------ | --------------------------------------------- |
+| 返回新函数         | 不立即执行，返回绑定了 this 的新函数          |
+| 参数预设（柯里化） | `bind` 时传的参数和调用时传的参数会合并       |
+| `new` 优先         | `new boundFn()` 时，绑定的 this 会被忽略      |
+| 无法再次 bind      | 对 `bind` 返回的函数再次 `bind` 不会改变 this |
 
 ---
 
@@ -157,7 +158,7 @@ Person.prototype.sayHi = function () {
   console.log(`hi, I'm ${this.name}`);
 };
 
-const p = myNew(Person, '张三', 18);
+const p = myNew(Person, "张三", 18);
 console.log(p.name); // '张三'
 p.sayHi(); // hi, I'm 张三
 console.log(p instanceof Person); // true

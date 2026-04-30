@@ -20,16 +20,8 @@
 <p data-nodeid="1408">注意，这里提到的 render 方法，和我们 01 课时所说的 ReactDOM.render 可不是一个东西，它指的是 React 组件内部的这个生命周期方法：</p>
 <pre class="lang-js" data-nodeid="1409"><code data-language="js"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">LifeCycle</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">React</span>.<span class="hljs-title">Component</span> </span>{
 
-  render() {
-    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"render方法执行"</span>);
-    <span class="hljs-keyword">return</span> (
-      <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"container"</span>&gt;</span>
-        this is content
-      <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span>
-    );
-  }
-}
-</code></pre>
+render() { <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"render方法执行"</span>); <span class="hljs-keyword">return</span> ( <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"container"</span>&gt;</span> this is content <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span> ); } } </code></pre>
+
 <p data-nodeid="1410">前面咱们介绍了虚拟 DOM、组件化，倘若把这两块知识整合一下，你就会发现这两个概念似乎都在围着 render 这个生命周期打转：虚拟 DOM 自然不必多说，它的生成都要仰仗 render；而组件化概念中所提及的“渲染工作流”，这里指的是从<strong data-nodeid="1570">组件数据改变</strong>到<strong data-nodeid="1571">组件实际更新发生的</strong>过程，这个过程的实现同样离不开 render。</p>
 <p data-nodeid="1411">由此看来，render 方法在整个组件生命周期中确实举足轻重，它担得起“灵魂”这个有分量的比喻。那么如果将 render 方法比作组件的“<strong data-nodeid="1581">灵魂</strong>”，render 之外的生命周期方法就完全可以理解为是组件的“<strong data-nodeid="1582">躯干</strong>”。</p>
 <p data-nodeid="1412">“躯干”未必总是会做具体的事情（比如说我们可以选择性地省略对 render 之外的任何生命周期方法内容的编写），而“灵魂”却总是充实的（render 函数却坚决不能省略）；倘若“躯干”做了点什么，往往都会直接或间接地影响到“灵魂”（因为即便是 render 之外的生命周期逻辑，也大部分是在为 render 层面的效果服务）；“躯干”和“灵魂”一起，共同构成了 React 组件完整而不可分割的“生命时间轴”。</p>
@@ -80,82 +72,9 @@ componentWillUnmount()
     <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
   }
 
-  <span class="hljs-comment">// 组件更新时调用</span>
-  componentWillUpdate(nextProps, nextState) {
-    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"componentWillUpdate方法执行"</span>);
-  }
-  <span class="hljs-comment">// 组件更新后调用</span>
-  componentDidUpdate(preProps, preState) {
-    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"componentDidUpdate方法执行"</span>);
-  }
-  <span class="hljs-comment">// 组件卸载时调用</span>
-  componentWillUnmount() {
-    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"子组件的componentWillUnmount方法执行"</span>);
-  }
-  <span class="hljs-comment">// 点击按钮，修改子组件文本内容的方法</span>
-  changeText = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
-    <span class="hljs-keyword">this</span>.setState({
-      <span class="hljs-attr">text</span>: <span class="hljs-string">"修改后的子组件文本"</span>
-    });
-  };
-  render() {
-    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"render方法执行"</span>);
-    <span class="hljs-keyword">return</span> (
-      <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"container"</span>&gt;</span>
-        <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">onClick</span>=<span class="hljs-string">{this.changeText}</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"changeText"</span>&gt;</span>
-          修改子组件文本内容
-        <span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>
-        <span class="hljs-tag">&lt;<span class="hljs-name">p</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"textContent"</span>&gt;</span>{this.state.text}<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
-        <span class="hljs-tag">&lt;<span class="hljs-name">p</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"fatherContent"</span>&gt;</span>{this.props.text}<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
-      <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span>
-    );
-  }
-}
-<span class="hljs-comment">// 定义 LifeCycle 组件的父组件</span>
-<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">LifeCycleContainer</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">React</span>.<span class="hljs-title">Component</span> </span>{
+<span class="hljs-comment">// 组件更新时调用</span> componentWillUpdate(nextProps, nextState) { <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"componentWillUpdate方法执行"</span>); } <span class="hljs-comment">// 组件更新后调用</span> componentDidUpdate(preProps, preState) { <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"componentDidUpdate方法执行"</span>); } <span class="hljs-comment">// 组件卸载时调用</span> componentWillUnmount() { <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"子组件的componentWillUnmount方法执行"</span>); } <span class="hljs-comment">// 点击按钮，修改子组件文本内容的方法</span> changeText = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> { <span class="hljs-keyword">this</span>.setState({ <span class="hljs-attr">text</span>: <span class="hljs-string">"修改后的子组件文本"</span> }); }; render() { <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"render方法执行"</span>); <span class="hljs-keyword">return</span> ( <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"container"</span>&gt;</span> <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">onClick</span>=<span class="hljs-string">{this.changeText}</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"changeText"</span>&gt;</span> 修改子组件文本内容 <span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span> <span class="hljs-tag">&lt;<span class="hljs-name">p</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"textContent"</span>&gt;</span>{this.state.text}<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span> <span class="hljs-tag">&lt;<span class="hljs-name">p</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"fatherContent"</span>&gt;</span>{this.props.text}<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span> <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span> ); } } <span class="hljs-comment">// 定义 LifeCycle 组件的父组件</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">LifeCycleContainer</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">React</span>.<span class="hljs-title">Component</span> </span>{
 
-  <span class="hljs-comment">// state 也可以像这样用属性声明的形式初始化</span>
-  state = {
-    <span class="hljs-attr">text</span>: <span class="hljs-string">"父组件的文本"</span>,
-    <span class="hljs-attr">hideChild</span>: <span class="hljs-literal">false</span>
-  };
-  <span class="hljs-comment">// 点击按钮，修改父组件文本的方法</span>
-  changeText = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
-    <span class="hljs-keyword">this</span>.setState({
-      <span class="hljs-attr">text</span>: <span class="hljs-string">"修改后的父组件文本"</span>
-    });
-  };
-  <span class="hljs-comment">// 点击按钮，隐藏（卸载）LifeCycle 组件的方法</span>
-  hideChild = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
-    <span class="hljs-keyword">this</span>.setState({
-      <span class="hljs-attr">hideChild</span>: <span class="hljs-literal">true</span>
-    });
-  };
-  render() {
-    <span class="hljs-keyword">return</span> (
-      <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"fatherContainer"</span>&gt;</span>
-        <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">onClick</span>=<span class="hljs-string">{this.changeText}</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"changeText"</span>&gt;</span>
-          修改父组件文本内容
-        <span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>
-        <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">onClick</span>=<span class="hljs-string">{this.hideChild}</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"hideChild"</span>&gt;</span>
-          隐藏子组件
-        <span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>
-        {this.state.hideChild ? null : <span class="hljs-tag">&lt;<span class="hljs-name">LifeCycle</span> <span class="hljs-attr">text</span>=<span class="hljs-string">{this.state.text}</span> /&gt;</span>}
-      <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span>
-    );
-  }
-}
-ReactDOM.render(<span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">LifeCycleContainer</span> /&gt;</span></span>, <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">"root"</span>));
-</code></pre>
-
-
-
-
-
-
-
-
-
+<span class="hljs-comment">// state 也可以像这样用属性声明的形式初始化</span> state = { <span class="hljs-attr">text</span>: <span class="hljs-string">"父组件的文本"</span>, <span class="hljs-attr">hideChild</span>: <span class="hljs-literal">false</span> }; <span class="hljs-comment">// 点击按钮，修改父组件文本的方法</span> changeText = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> { <span class="hljs-keyword">this</span>.setState({ <span class="hljs-attr">text</span>: <span class="hljs-string">"修改后的父组件文本"</span> }); }; <span class="hljs-comment">// 点击按钮，隐藏（卸载）LifeCycle 组件的方法</span> hideChild = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> { <span class="hljs-keyword">this</span>.setState({ <span class="hljs-attr">hideChild</span>: <span class="hljs-literal">true</span> }); }; render() { <span class="hljs-keyword">return</span> ( <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"fatherContainer"</span>&gt;</span> <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">onClick</span>=<span class="hljs-string">{this.changeText}</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"changeText"</span>&gt;</span> 修改父组件文本内容 <span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span> <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">onClick</span>=<span class="hljs-string">{this.hideChild}</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"hideChild"</span>&gt;</span> 隐藏子组件 <span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span> {this.state.hideChild ? null : <span class="hljs-tag">&lt;<span class="hljs-name">LifeCycle</span> <span class="hljs-attr">text</span>=<span class="hljs-string">{this.state.text}</span> /&gt;</span>} <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span> ); } } ReactDOM.render(<span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">LifeCycleContainer</span> /&gt;</span></span>, <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">"root"</span>)); </code></pre>
 
 <p data-nodeid="1423">该入口文件对应的 index.html 中预置了 id 为 root 的真实 DOM 节点作为根节点，body 标签内容如下：</p>
 <pre class="lang-js" data-nodeid="1424"><code data-language="js">&lt;body&gt;
@@ -294,93 +213,122 @@ ReactDOM.render(<span class="xml"><span class="hljs-tag">&lt;<span class="hljs-n
 
 ### 精选评论
 
-##### **5949：
+##### \*\*5949：
+
 > 请问，为什么说虚拟DOM生成仰仗render？ 同时render与createElement有什么样的联系呀？
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; babel 只是把 JSX 转化成 createElement，这个转化的过程发生在编译阶段，代码还没有运行。执行是在 render 里做的。
 
 ##### ezra.xu：
+
 > 加深了对componentWillReceiveProps(nextProps)生命周期函数的理解，即父组件重新渲染时会触发所有子组件的该方法。
 
-##### **6400：
+##### \*\*6400：
+
 > 代码样例非常赞，请问如何能获取到可运行的代码，老师有github链接吗？
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 虽然没有 Github 链接，但是你可以使用 create-react-app 脚手架来快速完成项目的初始化（传送门 https://zh-hans.reactjs.org/docs/create-a-new-react-app.html），接下来把文中的代码塞进去就可以了。
 
-##### *铮：
+##### \*铮：
+
 > 打卡学习
 
-##### **8621：
+##### \*\*8621：
+
 > 原文中“componentDidMount 方法在渲染结束后被触发，此时因为真实 DOM 已经挂载到了页面上，我们可以在这个生命周期里执行真实 DOM 相关的操作。此外，类似于异步请求、数据初始化这样的操作也大可以放在这个生命周期来做（侧面印证了 componentWillMount 真的很鸡肋）”，这里有点疑问，componentWillMount中发起异步请求不是更好么，既不影响生命周期流程，也可以在挂载之后更快地初始化数据和重新渲染。如果在didMount中再发起异步请求，就会慢一些。原文中“componentReceiveProps 并不是由 props 的变化触发的，而是由父组件的更新触发的，这个结论，请你谨记。”这里为什么要设计成父组件更新(即使没有更新子组件相关的状态值)也要触发这个子组件生命周期函数呢？
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; componentWillMount 的局限性在第03课时有非常详细的探讨。关于异步请求这一点，“异步请求再怎么快也快不过（React 15 下）同步的生命周期。componentWillMount 结束后，render 会迅速地被触发，所以说首次渲染依然会在数据返回之前执行。这样做不仅没有达到你预想的目的，还会导致服务端渲染场景下的冗余请求等额外问题，得不偿失”。除此之外，在 Fiber 带来的异步渲染机制下，componentWillMount 可能会导致非常严重的 Bug。最后一点，即使你没有开启异步，React 15 下也有不少人能用 componentWillMount 把自己“玩死”.....等等，以上这些在03课时都有很详细的解释说明。
 
-##### **魁：
+##### \*\*魁：
+
 > 调理思路都很清晰，尤其是对于componentReceiveProps这个方法的讲解，看了很多网上的文章也没看明白，谢谢大佬。
 
-##### *川：
+##### \*川：
+
 > 调理无比清晰 我很受用
 
-##### **7323：
+##### \*\*7323：
+
 > 话不多，但是讲的真清晰
 
 ##### fanta：
+
 > 打卡 支持 赞！ 这节其实对生命周期的理解更加深刻 对于vDom还是要从另一个剖面切入来讲 期待
 
-##### **侯：
+##### \*\*侯：
+
 > 终于更新了
 
-##### **用户9471：
+##### \*\*用户9471：
+
 > 买过修言大佬两本小册 大佬讲课讲得也好好 很细致
 
-##### **8542：
+##### \*\*8542：
+
 > 15的生命周期一共有9个，在组件第一次加载的时候执行3个，component willmount里面做一些不涉真dom的操作，但是很多人喜欢将请求数据写在里面。render执行babel给我转换的createelement方法，然后将所有的组件元素转换成reactelement具有特定数据结构的对象，也就是我们说的虚拟dom，之后会执行componentdidmount，在他里面可以操作真是dom，异步请求数据，当父组件发生变化的时候，就会触发组件的更新此时执行的是componentwillreceiveprops，此时能够接受到最新的props。当组件自己的state发生变化的时候，直接触发的是should componentupdate，这是一个用于做性能优化的组件决定这个组是否更新的开关。和pure component，react.memo类似。接下来如果开关打开，组件更新，就进入了conponentwillupdate，用来做和真实dom无关的事情，此时连虚拟dom都没有产生，所以做好别做和dom有关的事情，这个生命周期和componentwillmount相似，只不过一个是第一次渲染的时候执行，一个是组件更新的时候执行，执行的除过执行时机不同，其他都一样。接下来就是render此时就要做经典的diff计算了，通过比较，产生要渲染的组件虚拟dom，之后进入componentdidupdate，他和componentdidmount一样，除过触发时机不同其他都一样，主要是用来操作dom的。如果子组件要从父组件里面移出，或者子组件的key发生了变化，此时组件就要被卸载，触发componentwillunmount，他里面不能操作state，用来解绑事件，删除定时器等。
 
-##### **用户4967：
+##### \*\*用户4967：
+
 > 老师问个问题，文中有提到“render 在执行过程中并不会去操作真实 DOM（也就是说不会渲染），它的职能是把需要渲染的内容返回出来。真实 DOM 的渲染工作，在挂载阶段是由 ReactDOM.render 来承接的”。那么更新阶段的 DOM 渲染工作是在哪里完成的呢？
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 更新阶段和挂载阶段都会触发React生命周期中的 commit 过程，真实 DOM 的渲染是在这个过程里完成的。细节可以参考13-15节。
 
-##### *辉：
+##### \*辉：
+
 > 打卡，新旧对比非常nice
 
-##### **安：
+##### \*\*安：
+
 > 不错，打卡下
 
-##### **宝：
+##### \*\*宝：
+
 > 学习了总结了
 
-##### **用户9471：
+##### \*\*用户9471：
+
 > 菜鸡提问 请问为啥类组件里面才有render方法 函数组件里面没有render方法
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; render 是 React.Component 类里面的一个实例方法，函数和类不是一个概念。函数组件本身已经覆盖了 render 方法的职能。
 
 ##### WEL：
+
 > 刚看不练是傻把式，打卡学习，github练习demo附上：https://github.com/henni-719/react-demo
 
-##### **豪：
+##### \*\*豪：
+
 > 思路清晰，干货满满，谢谢！
 
-##### **峰：
+##### \*\*峰：
+
 > 通俗易懂，赞
 
-##### **2960：
+##### \*\*2960：
+
 > 粉了秀妍
 
-##### **0376：
+##### \*\*0376：
+
 > 写的简直太好了，强力推荐
 
-##### **锐：
+##### \*\*锐：
+
 > 打卡学习
 
-##### **雨：
+##### \*\*雨：
+
 > 第二篇学完打卡
 
-##### **康：
-> 沙发
+##### \*\*康：
 
+> 沙发

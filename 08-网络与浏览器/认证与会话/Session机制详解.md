@@ -18,8 +18,6 @@
 4. 服务端查 sessionId校验session
 5. 成功后正常做业务处理
 
-
-
 ### Session 的存储方式
 
 显然，服务端只是给 cookie 一个 sessionId，而 session 的具体内容（可能包含用户信息、session 状态等），要自己存一下。存储的方式有几种：
@@ -39,14 +37,12 @@
 
 但通常还是采用第一种方式，因为第二种相当于阉割了负载均衡，且仍没有解决「用户请求的机器宕机」的问题。
 
-
-
 ### session和cookie的区别
 
-* 安全性：session比cookie安全，session存储在服务器，cookie存在客户端
-* 存取值的类型不同：Cookie 只支持存字符串数据，想要设置其他类型的数据，需要将其转换成字符串，Session 可以存任意数据类型。
-* 有效期不同：cookie可以长时间保持，但是session一般失效事件短，默认客户端关闭就失效了
-* 存储大小不同：单个 Cookie 保存的数据不能超过4K，Session 可存储数据远高于 Cookie，但是当访问量过多，会占用过多的服务器资源。
+- 安全性：session比cookie安全，session存储在服务器，cookie存在客户端
+- 存取值的类型不同：Cookie 只支持存字符串数据，想要设置其他类型的数据，需要将其转换成字符串，Session 可以存任意数据类型。
+- 有效期不同：cookie可以长时间保持，但是session一般失效事件短，默认客户端关闭就失效了
+- 存储大小不同：单个 Cookie 保存的数据不能超过4K，Session 可存储数据远高于 Cookie，但是当访问量过多，会占用过多的服务器资源。
 
 ---
 
@@ -55,33 +51,35 @@
 ### Express + express-session 基本用法
 
 ```javascript
-const express = require('express');
-const session = require('express-session');
-const RedisStore = require('connect-redis').default;
-const { createClient } = require('redis');
+const express = require("express");
+const session = require("express-session");
+const RedisStore = require("connect-redis").default;
+const { createClient } = require("redis");
 
-const redisClient = createClient({ url: 'redis://localhost:6379' });
+const redisClient = createClient({ url: "redis://localhost:6379" });
 await redisClient.connect();
 
 const app = express();
 
-app.use(session({
-  store: new RedisStore({ client: redisClient }), // 存 Redis，解决分布式问题
-  secret: 'your-secret',    // 用于签名 sessionId cookie
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    httpOnly: true,          // 防 XSS
-    secure: true,            // 仅 HTTPS
-    maxAge: 24 * 60 * 60 * 1000, // 1天过期
-  }
-}));
+app.use(
+  session({
+    store: new RedisStore({ client: redisClient }), // 存 Redis，解决分布式问题
+    secret: "your-secret", // 用于签名 sessionId cookie
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true, // 防 XSS
+      secure: true, // 仅 HTTPS
+      maxAge: 24 * 60 * 60 * 1000, // 1天过期
+    },
+  }),
+);
 
 // 登录接口：将用户信息存入 session
-app.post('/login', (req, res) => {
+app.post("/login", (req, res) => {
   const { username, password } = req.body;
   // 校验用户名密码...
-  req.session.userId = user.id;    // 存入 session
+  req.session.userId = user.id; // 存入 session
   req.session.role = user.role;
   res.json({ success: true });
 });
@@ -89,15 +87,15 @@ app.post('/login', (req, res) => {
 // 鉴权中间件：从 session 获取用户信息
 function authMiddleware(req, res, next) {
   if (!req.session.userId) {
-    return res.status(401).json({ error: 'Not authenticated' });
+    return res.status(401).json({ error: "Not authenticated" });
   }
   next();
 }
 
 // 登出：销毁 session
-app.post('/logout', (req, res) => {
-  req.session.destroy(err => {
-    res.clearCookie('connect.sid'); // 清除客户端 cookie
+app.post("/logout", (req, res) => {
+  req.session.destroy((err) => {
+    res.clearCookie("connect.sid"); // 清除客户端 cookie
     res.json({ success: true });
   });
 });

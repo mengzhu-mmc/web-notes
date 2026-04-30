@@ -71,9 +71,9 @@ Vite 生产构建使用 Rollup（不是 esbuild）
 
 ```ts
 // vite.config.ts
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-import path from 'path';
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import path from "path";
 
 export default defineConfig({
   plugins: [react()],
@@ -81,9 +81,9 @@ export default defineConfig({
   // 路径别名
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
-      '@components': path.resolve(__dirname, './src/components'),
-    }
+      "@": path.resolve(__dirname, "./src"),
+      "@components": path.resolve(__dirname, "./src/components"),
+    },
   },
 
   // 开发服务器
@@ -91,27 +91,27 @@ export default defineConfig({
     port: 3000,
     open: true, // 自动打开浏览器
     proxy: {
-      '/api': {
-        target: 'http://localhost:8080',
+      "/api": {
+        target: "http://localhost:8080",
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, '')
-      }
-    }
+        rewrite: (path) => path.replace(/^\/api/, ""),
+      },
+    },
   },
 
   // 构建配置
   build: {
-    outDir: 'dist',
+    outDir: "dist",
     sourcemap: false,
     // 代码分割
     rollupOptions: {
       output: {
         // 将 node_modules 中的包单独打包
         manualChunks: {
-          vendor: ['react', 'react-dom'],
-          router: ['react-router-dom'],
-        }
-      }
+          vendor: ["react", "react-dom"],
+          router: ["react-router-dom"],
+        },
+      },
     },
     // 小于此大小的资源内联为 base64
     assetsInlineLimit: 4096, // 4kb
@@ -121,13 +121,13 @@ export default defineConfig({
   css: {
     preprocessorOptions: {
       scss: {
-        additionalData: `@import "@/styles/variables.scss";`
-      }
+        additionalData: `@import "@/styles/variables.scss";`,
+      },
     },
     modules: {
       // CSS Modules 类名格式
-      generateScopedName: '[name]__[local]__[hash:base64:5]'
-    }
+      generateScopedName: "[name]__[local]__[hash:base64:5]",
+    },
   },
 
   // 环境变量
@@ -173,20 +173,20 @@ interface ImportMetaEnv {
 
 ```ts
 // 自定义 Vite 插件
-import type { Plugin } from 'vite';
+import type { Plugin } from "vite";
 
 function myPlugin(): Plugin {
   return {
-    name: 'my-plugin',
+    name: "my-plugin",
 
     // 构建开始
     buildStart() {
-      console.log('构建开始');
+      console.log("构建开始");
     },
 
     // 转换文件内容
     transform(code, id) {
-      if (id.endsWith('.vue')) {
+      if (id.endsWith(".vue")) {
         // 处理 .vue 文件
         return { code: transformedCode, map: null };
       }
@@ -194,24 +194,24 @@ function myPlugin(): Plugin {
 
     // 解析模块 ID
     resolveId(id) {
-      if (id === 'virtual:my-module') {
+      if (id === "virtual:my-module") {
         return id; // 返回虚拟模块 ID
       }
     },
 
     // 加载模块内容
     load(id) {
-      if (id === 'virtual:my-module') {
+      if (id === "virtual:my-module") {
         return 'export const msg = "Hello from virtual module"';
       }
     },
 
     // 开发服务器配置
     configureServer(server) {
-      server.middlewares.use('/custom', (req, res) => {
-        res.end('custom response');
+      server.middlewares.use("/custom", (req, res) => {
+        res.end("custom response");
       });
-    }
+    },
   };
 }
 ```
@@ -220,14 +220,14 @@ function myPlugin(): Plugin {
 
 ## 六、Vite vs Webpack 如何选择
 
-| 对比项 | Vite | Webpack |
-| --- | --- | --- |
+| 对比项       | Vite            | Webpack               |
+| ------------ | --------------- | --------------------- |
 | 开发启动速度 | ⚡ 极快（< 1s） | 🐢 较慢（随项目增大） |
-| HMR 速度 | ⚡ 极快 | 较快 |
-| 生产构建 | Rollup（成熟） | Webpack（成熟） |
-| 生态插件 | 较少但在增长 | 非常丰富 |
-| 配置复杂度 | 简单 | 复杂 |
-| 兼容性 | 需要现代浏览器 | 可配置兼容旧浏览器 |
-| 适用场景 | 新项目、SPA | 老项目、复杂构建需求 |
+| HMR 速度     | ⚡ 极快         | 较快                  |
+| 生产构建     | Rollup（成熟）  | Webpack（成熟）       |
+| 生态插件     | 较少但在增长    | 非常丰富              |
+| 配置复杂度   | 简单            | 复杂                  |
+| 兼容性       | 需要现代浏览器  | 可配置兼容旧浏览器    |
+| 适用场景     | 新项目、SPA     | 老项目、复杂构建需求  |
 
 **结论**：新项目优先选 Vite，老项目迁移成本高可继续用 Webpack。

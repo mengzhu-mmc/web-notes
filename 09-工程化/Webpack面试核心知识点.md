@@ -27,8 +27,7 @@
   └── 根据 output 配置将文件写入文件系统
 ```
 
-> [!tip] 面试回答要点
-> 三个阶段：初始化 → 编译（make） → 输出（seal + emit）。核心对象是 Compiler（全局单例）和 Compilation（每次构建新建）。Loader 在编译阶段工作，Plugin 通过 Tapable 钩子贯穿全流程。
+> [!tip] 面试回答要点三个阶段：初始化 → 编译（make） → 输出（seal + emit）。核心对象是 Compiler（全局单例）和 Compilation（每次构建新建）。Loader 在编译阶段工作，Plugin 通过 Tapable 钩子贯穿全流程。
 
 ### 1.2 Compiler 和 Compilation 的区别
 
@@ -72,9 +71,9 @@ Loader 本质上是一个函数，接收源文件内容作为参数，返回转�
 
 ```javascript
 // 最简单的 Loader
-module.exports = function(source) {
+module.exports = function (source) {
   // source 是文件内容字符串
-  return source.replace(/console\.log\(.*?\);?/g, '');
+  return source.replace(/console\.log\(.*?\);?/g, "");
 };
 ```
 
@@ -85,11 +84,11 @@ module: {
   rules: [
     {
       test: /\.css$/,
-      use: ['style-loader', 'css-loader', 'postcss-loader']
+      use: ["style-loader", "css-loader", "postcss-loader"],
       //     ← 从右到左执行（pitch 阶段从左到右）
       //     postcss-loader → css-loader → style-loader
-    }
-  ]
+    },
+  ];
 }
 ```
 
@@ -99,9 +98,9 @@ Loader 有两个阶段：pitch 阶段（从左到右）和 normal 阶段（从�
 
 ```javascript
 // markdown-loader.js：将 Markdown 转为 HTML 字符串模块
-const marked = require('marked');
+const marked = require("marked");
 
-module.exports = function(source) {
+module.exports = function (source) {
   // this.cacheable() 开启缓存（默认开启）
   this.cacheable && this.cacheable();
 
@@ -117,15 +116,12 @@ module.exports = function(source) {
 // webpack.config.js
 module.exports = {
   module: {
-    rules: [
-      { test: /\.md$/, use: './markdown-loader.js' }
-    ]
-  }
+    rules: [{ test: /\.md$/, use: "./markdown-loader.js" }],
+  },
 };
 ```
 
-> [!important] 面试高频
-> 常见 Loader 的作用：babel-loader（ES6+ → ES5）、css-loader（解析 CSS 中的 @import 和 url()）、style-loader（将 CSS 注入 DOM 的 style 标签）、file-loader/asset（处理文件资源）、ts-loader（TS → JS）。
+> [!important] 面试高频常见 Loader 的作用：babel-loader（ES6+ → ES5）、css-loader（解析 CSS 中的 @import 和 url()）、style-loader（将 CSS 注入 DOM 的 style 标签）、file-loader/asset（处理文件资源）、ts-loader（TS → JS）。
 
 ---
 
@@ -156,17 +152,17 @@ class BundleSizePlugin {
   }
 
   apply(compiler) {
-    const pluginName = 'BundleSizePlugin';
+    const pluginName = "BundleSizePlugin";
 
     // 在 emit 阶段（文件写入磁盘前）执行
     compiler.hooks.emit.tapAsync(pluginName, (compilation, callback) => {
       const assets = compilation.assets;
 
-      console.log('\n📦 Bundle Size Report:');
-      Object.keys(assets).forEach(filename => {
+      console.log("\n📦 Bundle Size Report:");
+      Object.keys(assets).forEach((filename) => {
         const size = assets[filename].size();
         const sizeKB = (size / 1024).toFixed(2);
-        const warning = size > this.limit ? ' ⚠️ 超出限制!' : '';
+        const warning = size > this.limit ? " ⚠️ 超出限制!" : "";
         console.log(`  ${filename}: ${sizeKB} KB${warning}`);
       });
 
@@ -179,11 +175,9 @@ module.exports = BundleSizePlugin;
 
 // 使用
 // webpack.config.js
-const BundleSizePlugin = require('./BundleSizePlugin');
+const BundleSizePlugin = require("./BundleSizePlugin");
 module.exports = {
-  plugins: [
-    new BundleSizePlugin({ limit: 150 * 1024 })
-  ]
+  plugins: [new BundleSizePlugin({ limit: 150 * 1024 })],
 };
 ```
 
@@ -191,30 +185,30 @@ module.exports = {
 
 开发插件时，最常接触的三个节点：`make`（开始分析依赖）、`processAssets`（处理代码压缩转换）、`emit`（最终生成文件前）。
 
-| 阶段 | 钩子 | 说明 |
-|------|------|------|
-| 初始化 | `entryOption` | entry 处理后 |
-| 初始化 | `afterPlugins` | 插件设置完成后 |
-| 开始编译 | `run` / `watchRun` | 开始读取记录前 |
-| 编译构建 | `compile` | 新 Compilation 创建前 |
-| 编译构建 | `compilation` | 编译创建后，可监听模块处理 |
-| 编译构建 | `make` | 从入口分析依赖、构建模块的递归过程 |
-| 优化资源 | `optimize` | 优化开始 |
-| 优化资源 | `processAssets` | 处理生成的资源（Webpack 5 推荐） |
-| 输出 | `emit` | 生成资源到 output 目录前（最后修改机会） |
-| 输出 | `afterEmit` | 文件写入磁盘后 |
-| 结束 | `done` | 编译完成（无论成功失败） |
-| 结束 | `failed` | 编译失败 |
+| 阶段     | 钩子               | 说明                                     |
+| -------- | ------------------ | ---------------------------------------- |
+| 初始化   | `entryOption`      | entry 处理后                             |
+| 初始化   | `afterPlugins`     | 插件设置完成后                           |
+| 开始编译 | `run` / `watchRun` | 开始读取记录前                           |
+| 编译构建 | `compile`          | 新 Compilation 创建前                    |
+| 编译构建 | `compilation`      | 编译创建后，可监听模块处理               |
+| 编译构建 | `make`             | 从入口分析依赖、构建模块的递归过程       |
+| 优化资源 | `optimize`         | 优化开始                                 |
+| 优化资源 | `processAssets`    | 处理生成的资源（Webpack 5 推荐）         |
+| 输出     | `emit`             | 生成资源到 output 目录前（最后修改机会） |
+| 输出     | `afterEmit`        | 文件写入磁盘后                           |
+| 结束     | `done`             | 编译完成（无论成功失败）                 |
+| 结束     | `failed`           | 编译失败                                 |
 
 ### 3.4 Loader 和 Plugin 的区别
 
-| 维度 | Loader | Plugin |
-|------|--------|--------|
-| 本质 | 转换函数 | 带 apply 方法的类 |
-| 作用 | 对特定类型的文件进行转换 | 扩展 Webpack 功能，可介入构建全流程 |
-| 执行时机 | 在模块编译阶段 | 通过钩子在任意阶段执行 |
-| 配置位置 | module.rules | plugins 数组 |
-| 使用方式 | 链式调用，从右到左 | 实例化后注册到 hooks |
+| 维度     | Loader                   | Plugin                              |
+| -------- | ------------------------ | ----------------------------------- |
+| 本质     | 转换函数                 | 带 apply 方法的类                   |
+| 作用     | 对特定类型的文件进行转换 | 扩展 Webpack 功能，可介入构建全流程 |
+| 执行时机 | 在模块编译阶段           | 通过钩子在任意阶段执行              |
+| 配置位置 | module.rules             | plugins 数组                        |
+| 使用方式 | 链式调用，从右到左       | 实例化后注册到 hooks                |
 
 ---
 
@@ -243,8 +237,7 @@ module.exports = {
    └── 用新模块替换旧模块，页面局部更新（不刷新）
 ```
 
-> [!tip] 面试回答要点
-> 核心是 WebSocket 通知 + JSONP 拉取更新。Webpack 编译生成 manifest 和更新模块，浏览器端的 HMR Runtime 负责拉取和替换。如果模块没有配置 `module.hot.accept()`，则会冒泡到入口，最终 fallback 为整页刷新。
+> [!tip] 面试回答要点核心是 WebSocket 通知 + JSONP 拉取更新。Webpack 编译生成 manifest 和更新模块，浏览器端的 HMR Runtime 负责拉取和替换。如果模块没有配置 `module.hot.accept()`，则会冒泡到入口，最终 fallback 为整页刷新。
 
 ---
 
@@ -256,41 +249,43 @@ module.exports = {
 // 1. 缩小搜索范围
 module.exports = {
   resolve: {
-    extensions: ['.js', '.jsx', '.ts', '.tsx'], // 减少不必要的后缀尝试
-    alias: { '@': path.resolve(__dirname, 'src') },
-    modules: [path.resolve(__dirname, 'node_modules')], // 指定模块目录
+    extensions: [".js", ".jsx", ".ts", ".tsx"], // 减少不必要的后缀尝试
+    alias: { "@": path.resolve(__dirname, "src") },
+    modules: [path.resolve(__dirname, "node_modules")], // 指定模块目录
   },
   module: {
     rules: [
       {
         test: /\.js$/,
-        include: path.resolve(__dirname, 'src'), // 只处理 src 目录
+        include: path.resolve(__dirname, "src"), // 只处理 src 目录
         // exclude: /node_modules/,  // 或者排除 node_modules
-        use: 'babel-loader',
-      }
-    ]
-  }
+        use: "babel-loader",
+      },
+    ],
+  },
 };
 
 // 2. 持久化缓存（Webpack 5）
 module.exports = {
   cache: {
-    type: 'filesystem',  // 文件系统缓存，二次构建速度大幅提升
+    type: "filesystem", // 文件系统缓存，二次构建速度大幅提升
     buildDependencies: {
       config: [__filename], // 配置文件变化时缓存失效
-    }
-  }
+    },
+  },
 };
 
 // 3. 多线程编译
 // thread-loader：将耗时的 Loader 放到 worker pool 中运行
 module.exports = {
   module: {
-    rules: [{
-      test: /\.js$/,
-      use: ['thread-loader', 'babel-loader'] // thread-loader 放在最前面
-    }]
-  }
+    rules: [
+      {
+        test: /\.js$/,
+        use: ["thread-loader", "babel-loader"], // thread-loader 放在最前面
+      },
+    ],
+  },
 };
 ```
 
@@ -366,15 +361,14 @@ Tree Shaking 的过程：
 ### 6.1 常用配置及区别
 
 | 模式 | 构建速度 | 重建速度 | 质量 | 适用场景 |
-|------|---------|---------|------|---------|
+| --- | --- | --- | --- | --- |
 | `eval` | 最快 | 最快 | 生成代码 | 开发（不关心映射质量） |
 | `eval-cheap-module-source-map` | 快 | 快 | 原始源码（仅行） | **开发推荐** |
 | `source-map` | 最慢 | 最慢 | 原始源码（行+列） | **生产推荐**（配合上传到错误监控平台） |
 | `hidden-source-map` | 最慢 | 最慢 | 原始源码 | 生产（不暴露给用户） |
 | `nosources-source-map` | 慢 | 慢 | 仅行列信息 | 生产（保护源码） |
 
-> [!tip] 面试回答要点
-> 开发环境用 `eval-cheap-module-source-map`（速度快，能定位到原始源码的行）。生产环境用 `hidden-source-map` 或 `nosources-source-map`（生成 map 文件上传到 Sentry 等平台，但不暴露给用户）。
+> [!tip] 面试回答要点开发环境用 `eval-cheap-module-source-map`（速度快，能定位到原始源码的行）。生产环境用 `hidden-source-map` 或 `nosources-source-map`（生成 map 文件上传到 Sentry 等平台，但不暴露给用户）。
 
 ---
 
@@ -411,17 +405,16 @@ Tree Shaking 的过程：
 
 ## 八、Webpack vs Vite
 
-| 维度 | Webpack | Vite |
-|------|---------|------|
-| 开发模式 | 先打包再启动服务 | 利用浏览器原生 ESM，按需编译 |
-| 启动速度 | 慢（项目越大越慢） | 极快（不需要打包） |
-| HMR 速度 | 与模块数量相关 | 始终快速（精确失效） |
-| 生产构建 | 自身打包 | 底层用 Rollup 打包 |
-| 生态 | 最成熟，插件最多 | 快速增长，兼容 Rollup 插件 |
-| 配置复杂度 | 较高 | 开箱即用，配置简单 |
+| 维度       | Webpack            | Vite                         |
+| ---------- | ------------------ | ---------------------------- |
+| 开发模式   | 先打包再启动服务   | 利用浏览器原生 ESM，按需编译 |
+| 启动速度   | 慢（项目越大越慢） | 极快（不需要打包）           |
+| HMR 速度   | 与模块数量相关     | 始终快速（精确失效）         |
+| 生产构建   | 自身打包           | 底层用 Rollup 打包           |
+| 生态       | 最成熟，插件最多   | 快速增长，兼容 Rollup 插件   |
+| 配置复杂度 | 较高               | 开箱即用，配置简单           |
 
-> [!tip] 面试回答要点
-> Vite 开发体验好是因为利用了浏览器原生 ES Module，不需要打包就能启动。但生产环境仍然需要打包（用 Rollup），因为浏览器请求大量小模块会有网络瀑布流问题。Webpack 的优势在于生态成熟、配置灵活、对复杂场景支持更好。
+> [!tip] 面试回答要点 Vite 开发体验好是因为利用了浏览器原生 ES Module，不需要打包就能启动。但生产环境仍然需要打包（用 Rollup），因为浏览器请求大量小模块会有网络瀑布流问题。Webpack 的优势在于生态成熟、配置灵活、对复杂场景支持更好。
 
 ---
 
@@ -458,7 +451,7 @@ babel-loader 通过 `@babel/preset-typescript` 处理 TS，只做语法转换（
 > **一句话核心：** Loader 是文件转换器（处理单个模块），Plugin 是构建流程扩展器（介入整个编译生命周期）。
 
 | 维度 | Loader | Plugin |
-|------|--------|--------|
+| --- | --- | --- |
 | 本质 | 一个函数，接收文件内容返回转换结果 | 一个带 `apply(compiler)` 方法的类 |
 | 作用范围 | 只能处理特定类型的文件（module.rules） | 可介入构建任意阶段（通过 Tapable 钩子） |
 | 执行时机 | 编译阶段，模块被加载时 | 从初始化到输出，贯穿全流程 |
@@ -472,7 +465,7 @@ babel-loader 通过 `@babel/preset-typescript` 处理 TS，只做语法转换（
 ### 2. Webpack vs Vite 各自适合的场景
 
 | 场景 | 推荐 | 原因 |
-|------|------|------|
+| --- | --- | --- |
 | 大型企业级项目、复杂构建需求 | **Webpack** | 生态最成熟、插件最多、配置最灵活，支持各种复杂场景 |
 | 中小型项目、追求开发体验 | **Vite** | 开发启动极快、HMR 毫秒级，配置简单开箱即用 |
 | 需要兼容旧浏览器（IE11） | **Webpack** | Vite 基于原生 ESM，对旧浏览器兼容性较差 |
@@ -487,7 +480,7 @@ babel-loader 通过 `@babel/preset-typescript` 处理 TS，只做语法转换（
 ### 3. hash / chunkhash / contenthash 的区别（高频考点）
 
 | 类型 | 生成依据 | 变化范围 | 适用场景 |
-|------|---------|---------|---------|
+| --- | --- | --- | --- |
 | `hash` | 整个项目的编译 hash | 任意文件改变，所有 hash 都变 | 不推荐在生产环境使用 |
 | `chunkhash` | 同一个 Chunk（入口）的内容 | 只有该 Chunk 内容变化时才变 | **JS 文件**（`output.filename`） |
 | `contenthash` | 文件自身内容 | 只有该文件内容变化时才变 | **CSS 文件**（MiniCssExtractPlugin） |
@@ -500,11 +493,11 @@ CSS 通过 MiniCssExtractPlugin 从 JS Chunk 中提取出来。如果 JS 代码�
 // 推荐配置
 module.exports = {
   output: {
-    filename: 'js/[name].[chunkhash:8].js',        // JS 用 chunkhash
+    filename: "js/[name].[chunkhash:8].js", // JS 用 chunkhash
   },
   plugins: [
     new MiniCssExtractPlugin({
-      filename: 'css/[name].[contenthash:8].css',  // CSS 用 contenthash
+      filename: "css/[name].[contenthash:8].css", // CSS 用 contenthash
     }),
   ],
 };

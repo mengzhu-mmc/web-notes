@@ -24,10 +24,8 @@
 	  }&nbsp;
 	},
 
-<span class="hljs-string">"msg"</span>:<span class="hljs-string">""</span>
-&nbsp; }
-}
-</code></pre>
+<span class="hljs-string">"msg"</span>:<span class="hljs-string">""</span> &nbsp; } } </code></pre>
+
 <p data-nodeid="604">首先是传入设备分辨率，比如 400 * 500，然后设置状态码 code。code 是 0 代表成功，-1 代表关闭图片骨架屏功能。 data 对象是具体的数据，m.58.com/enjoy-given/eg/index.html 是对应的页面 URL，骨架屏那个图片的地址是https://m.58.com/pic.png?400*500。</p>
 <p data-nodeid="605">当用户打开 WebView 时，客户端对 URL 进行解析，取得该 URL 对应的 host 和pathname，然后将这两个数据分别与 data 和 routes 中的数据做比较。</p>
 <p data-nodeid="606">如果都匹配上，说明要展示骨架屏，此时可根据 routes下面的 id 和 imgName 获取到对应的图片文件。当三个字符串拼起来，即zzSkeleton + id +imgName，就可获得最终的图片名字。其中 zzSkeleton 就是一个字符串， ID 我设置成 10001，imgName 表示具体的图片名称，比如代码中的 pic.png，最终图片名称为 “zzSkeleton10001pic.pn”。</p>
@@ -88,10 +86,6 @@ npm run dev
 <p data-nodeid="1205"><img src="https://s0.lgstatic.com/i/image6/M00/32/C2/Cgp9HWBuXziAAA4DAAI6QH-dulY404.png" alt="溪风的思维导图14.png" data-nodeid="1209"></p>
 <p data-nodeid="1206">好了，以上就是骨架屏和 SSR 性能优化方案。在实际当中，你可能会问了：SSR 说了这么多优点，为什么没全量普及，替代掉 CSR？</p>
 
-
-
-
-
 <p data-nodeid="653">这是因为， SSR 需要你对后端知识，尤其是 Node.js 知识有很好地把握，且具备一定的数据接口设计规划和设计能力，但许多前端工程师很容易忽视这方面的学习。还有，SSR 渲染进行的页面，一些事件还在绑定中，有可能会出现操作没反应的情形；一些环境变量（如 window、document ）获取不到，稍不注意也会遇到内存泄漏的问题。</p>
 <p data-nodeid="654">当然，这些对于白屏 100ms 的效果实现，都是非常值得的，而且前者可以通过提前安排Node.js 服务端开发相关培训来解决，后者可以通过整理一份 SSR 开发规范，将一步步蹚过的坑和宝贵经验沉淀下来。</p>
 <p data-nodeid="655">下面给你留一个思考题：</p>
@@ -103,5 +97,3 @@ npm run dev
 ---
 
 ### 精选评论
-
-

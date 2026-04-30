@@ -19,20 +19,20 @@ const element = (
 
 // Babel 编译后（React 17 之前）
 const element = React.createElement(
-  'div',
-  { className: 'container' },
-  React.createElement('h1', null, 'Hello'),
-  React.createElement('p', null, 'World')
+  "div",
+  { className: "container" },
+  React.createElement("h1", null, "Hello"),
+  React.createElement("p", null, "World"),
 );
 
 // React 17+ 新 JSX Transform（自动引入 jsx 函数，无需 import React）
-import { jsx as _jsx, jsxs as _jsxs } from 'react/jsx-runtime';
-const element = _jsxs('div', {
-  className: 'container',
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+const element = _jsxs("div", {
+  className: "container",
   children: [
-    _jsx('h1', { children: 'Hello' }),
-    _jsx('p', { children: 'World' })
-  ]
+    _jsx("h1", { children: "Hello" }),
+    _jsx("p", { children: "World" }),
+  ],
 });
 ```
 
@@ -84,7 +84,7 @@ React 17 之前，JSX 编译后需要调用 `React.createElement`，所以必须
 `React.Fragment` 是 React 提供的特殊组件，它不会在 DOM 中渲染任何真实节点，只是一个逻辑分组容器：
 
 ```jsx
-import React from 'react';
+import React from "react";
 
 function MyComponent() {
   return (
@@ -107,6 +107,7 @@ function MyComponent() {
 ```
 
 **Fragment 的优势**：
+
 - 不增加额外 DOM 节点，避免破坏 CSS 布局（如 Flexbox、Grid 的直接子元素关系）
 - 不影响语义化 HTML 结构
 - 性能略优于多余的 `<div>` 包裹
@@ -118,7 +119,7 @@ function MyComponent() {
   return [
     <h1 key="title">标题</h1>,
     <p key="content">内容</p>,
-    <footer key="footer">底部</footer>
+    <footer key="footer">底部</footer>,
   ];
 }
 ```
@@ -204,7 +205,7 @@ function ListItems() {
   <li>Item 1</li>
   <li>Item 2</li>
   <li>Item 3</li>
-</ul>
+</ul>;
 ```
 
 这对于需要严格 HTML 结构的场景（如 `<table>` 的 `<tr>/<td>`、`<ul>` 的 `<li>`）非常重要：
@@ -214,7 +215,7 @@ function ListItems() {
 function TableRows({ data }) {
   return (
     <>
-      {data.map(row => (
+      {data.map((row) => (
         <tr key={row.id}>
           <td>{row.name}</td>
           <td>{row.value}</td>
@@ -227,8 +228,10 @@ function TableRows({ data }) {
 // 错误：用 div 包裹会破坏 table 结构
 function TableRows({ data }) {
   return (
-    <div>  {/* <div> 不能是 <tbody> 的直接子元素！ */}
-      {data.map(row => (
+    <div>
+      {" "}
+      {/* <div> 不能是 <tbody> 的直接子元素！ */}
+      {data.map((row) => (
         <tr key={row.id}>...</tr>
       ))}
     </div>
@@ -244,20 +247,21 @@ React 17 引入了新的 JSX Transform，解决了以下问题：
 
 ```jsx
 // React 17 之前：必须手动 import React
-import React from 'react';  // 即使不直接用 React，也必须引入
+import React from "react"; // 即使不直接用 React，也必须引入
 
 function App() {
-  return <h1>Hello</h1>;  // 编译后需要 React.createElement
+  return <h1>Hello</h1>; // 编译后需要 React.createElement
 }
 
 // React 17+：无需手动 import React
 // Babel 自动从 react/jsx-runtime 引入 jsx 函数
 function App() {
-  return <h1>Hello</h1>;  // 编译后使用 _jsx，不需要 React 在作用域
+  return <h1>Hello</h1>; // 编译后使用 _jsx，不需要 React 在作用域
 }
 ```
 
 **新 Transform 的优势**：
+
 - 减少打包体积（不需要引入整个 React 对象）
 - 代码更简洁
 - 为未来优化铺路（如编译时优化）
@@ -290,11 +294,11 @@ Fragment 不会在 DOM 中生成真实节点，不影响 CSS 布局（特别是 
 
 ## 八、总结
 
-| 方案 | DOM 节点 | 支持 key | 推荐度 |
-|------|---------|---------|--------|
-| `<React.Fragment>` | 无 | ✅ | ⭐⭐⭐⭐⭐ |
-| `<>...</>` 短语法 | 无 | ❌ | ⭐⭐⭐⭐⭐ |
-| 返回数组 `[]` | 无 | 必须手动加 | ⭐⭐ |
-| `<div>` 包裹 | 有 | ✅ | ⭐⭐（有副作用时避免） |
+| 方案               | DOM 节点 | 支持 key   | 推荐度                 |
+| ------------------ | -------- | ---------- | ---------------------- |
+| `<React.Fragment>` | 无       | ✅         | ⭐⭐⭐⭐⭐             |
+| `<>...</>` 短语法  | 无       | ❌         | ⭐⭐⭐⭐⭐             |
+| 返回数组 `[]`      | 无       | 必须手动加 | ⭐⭐                   |
+| `<div>` 包裹       | 有       | ✅         | ⭐⭐（有副作用时避免） |
 
 **核心记忆点**：JSX 是 `React.createElement` 的语法糖 → 函数只能返回一个值 → 虚拟 DOM 树需要单根 → Fragment 是"透明容器"解决方案。

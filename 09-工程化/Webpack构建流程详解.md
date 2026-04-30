@@ -24,7 +24,7 @@
 ### 详细说明
 
 | 步骤 | 名称 | 做什么 |
-|------|------|--------|
+| --- | --- | --- |
 | 1 | **合并配置** | 读取 `webpack.config.js` 和命令行参数，合并生成最终配置对象 |
 | 2 | **创建编译对象** | 初始化 `Compiler` 核心对象，加载所有插件（调用 `plugin.apply(compiler)`） |
 | 3 | **从入口开始** | 根据 `entry` 找到入口文件，开始构建依赖图谱（Dependency Graph） |
@@ -37,13 +37,14 @@
 ### Loader vs Plugin
 
 | 维度 | Loader | Plugin |
-|------|--------|--------|
+| --- | --- | --- |
 | 职责 | 转换单个模块文件（文件级） | 在编译生命周期各阶段做扩展（全局级） |
 | 作用时机 | 模块加载时（步骤4） | 整个编译流程的任意钩子 |
 | 配置方式 | `module.rules` | `plugins` 数组 |
 | 示例 | `babel-loader`、`css-loader` | `HtmlWebpackPlugin`、`MiniCssExtractPlugin` |
 
 ### 最耗时的步骤
+
 - **递归解析依赖**（步骤5）+ **Loader 编译**（步骤4）
 - 优化手段：多线程（`thread-loader`）、持久化缓存（`cache: { type: 'filesystem' }`）
 
@@ -65,10 +66,10 @@
 
 ```js
 // ✅ ESM：静态导入，编译时就能确定使用了哪些导出
-import { add } from './math'; // 只用了 add，multiply 没用
+import { add } from "./math"; // 只用了 add，multiply 没用
 
 // ❌ CommonJS：动态 require，运行时才知道用了什么，无法静态分析
-const math = require('./math');
+const math = require("./math");
 math[someVariable](); // 编译时无法确定用了哪个
 ```
 
@@ -82,7 +83,7 @@ ESM 的 `import/export` 在编译时就确定了依赖关系（静态），工�
 // package.json
 {
   "name": "my-lib",
-  "sideEffects": false  // 声明所有模块都没有副作用，可以安全 Tree Shaking
+  "sideEffects": false // 声明所有模块都没有副作用，可以安全 Tree Shaking
 }
 ```
 
@@ -90,37 +91,36 @@ ESM 的 `import/export` 在编译时就确定了依赖关系（静态），工�
 // 如果有部分文件有副作用，列出来：
 {
   "sideEffects": [
-    "*.css",              // CSS 文件有副作用（注入样式）
-    "./src/polyfill.js"   // polyfill 有副作用（修改全局）
+    "*.css", // CSS 文件有副作用（注入样式）
+    "./src/polyfill.js" // polyfill 有副作用（修改全局）
   ]
 }
 ```
 
-**为什么要配置 sideEffects？**
-没有 `"sideEffects": false` 时，Webpack 无法安全删除看起来"未使用"但实际有副作用的模块（如 CSS import）。配置后，Webpack 才能更激进地做 Tree Shaking。
+**为什么要配置 sideEffects？** 没有 `"sideEffects": false` 时，Webpack 无法安全删除看起来"未使用"但实际有副作用的模块（如 CSS import）。配置后，Webpack 才能更激进地做 Tree Shaking。
 
 ### 完整配置示例
 
 ```js
 // webpack.config.js（生产模式自动启用）
 module.exports = {
-    mode: 'production', // 自动开启 Tree Shaking + Terser 压缩
+  mode: "production", // 自动开启 Tree Shaking + Terser 压缩
 
-    optimization: {
-        usedExports: true,  // 标记未使用的导出
-        minimize: true,     // 开启 Terser 删除死代码
-    },
+  optimization: {
+    usedExports: true, // 标记未使用的导出
+    minimize: true, // 开启 Terser 删除死代码
+  },
 };
 ```
 
 ```js
 // vite.config.js（Vite 基于 Rollup，默认开启 Tree Shaking）
 export default {
-    build: {
-        rollupOptions: {
-            treeshake: true, // 默认开启
-        },
+  build: {
+    rollupOptions: {
+      treeshake: true, // 默认开启
     },
+  },
 };
 ```
 

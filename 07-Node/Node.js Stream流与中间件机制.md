@@ -19,16 +19,17 @@
 
 ```javascript
 // ❌ 不用 Stream：一次性读取整个文件到内存
-const fs = require('fs');
-const data = fs.readFileSync('bigfile.mp4'); // 1GB 文件 → 占用 1GB 内存
+const fs = require("fs");
+const data = fs.readFileSync("bigfile.mp4"); // 1GB 文件 → 占用 1GB 内存
 res.end(data);
 
 // ✅ 用 Stream：边读边发，内存始终只占用一小块 Buffer（默认 64KB）
-const readable = fs.createReadStream('bigfile.mp4');
+const readable = fs.createReadStream("bigfile.mp4");
 readable.pipe(res); // 内存占用极低，且响应更快（不用等全部读完）
 ```
 
 **核心优势**：
+
 - **内存效率**：不需要一次性加载全部数据
 - **时间效率**：数据一到就开始处理，无需等待全部加载
 - **可组合性**：通过 `pipe` 将多个流串联，形成数据处理管道
@@ -36,7 +37,7 @@ readable.pipe(res); // 内存占用极低，且响应更快（不用等全部读
 ### 1.2 四种 Stream 类型
 
 | 类型 | 说明 | 典型例子 |
-|------|------|---------|
+| --- | --- | --- |
 | **Readable（可读流）** | 数据来源，只能读不能写 | `fs.createReadStream`、`http.IncomingMessage`、`process.stdin` |
 | **Writable（可写流）** | 数据终点，只能写不能读 | `fs.createWriteStream`、`http.ServerResponse`、`process.stdout` |
 | **Duplex（双工流）** | 可读可写，但读写相互独立 | `net.Socket`（TCP 连接） |
@@ -45,28 +46,28 @@ readable.pipe(res); // 内存占用极低，且响应更快（不用等全部读
 ### 1.3 Readable 流的两种模式
 
 ```javascript
-const fs = require('fs');
-const readable = fs.createReadStream('file.txt', { encoding: 'utf-8' });
+const fs = require("fs");
+const readable = fs.createReadStream("file.txt", { encoding: "utf-8" });
 
 // 模式一：流动模式（Flowing Mode）—— 数据自动推送
 // 通过监听 'data' 事件或调用 pipe() 进入流动模式
-readable.on('data', (chunk) => {
-  console.log('收到数据块:', chunk.length, '字节');
+readable.on("data", (chunk) => {
+  console.log("收到数据块:", chunk.length, "字节");
 });
-readable.on('end', () => {
-  console.log('读取完毕');
+readable.on("end", () => {
+  console.log("读取完毕");
 });
-readable.on('error', (err) => {
-  console.error('读取出错:', err);
+readable.on("error", (err) => {
+  console.error("读取出错:", err);
 });
 
 // 模式二：暂停模式（Paused Mode）—— 手动控制读取节奏
 // 默认就是暂停模式，需要手动调用 read()
-readable.on('readable', () => {
+readable.on("readable", () => {
   let chunk;
   // read() 返回 null 表示没有更多数据
   while ((chunk = readable.read(64)) !== null) {
-    console.log('手动读取:', chunk);
+    console.log("手动读取:", chunk);
   }
 });
 ```
@@ -74,22 +75,22 @@ readable.on('readable', () => {
 ### 1.4 Writable 流
 
 ```javascript
-const fs = require('fs');
-const writable = fs.createWriteStream('output.txt');
+const fs = require("fs");
+const writable = fs.createWriteStream("output.txt");
 
 // write() 返回 false 表示内部缓冲区已满，应该暂停写入（背压信号）
-const canContinue = writable.write('第一行数据\n');
+const canContinue = writable.write("第一行数据\n");
 
 if (!canContinue) {
   // 等待 drain 事件再继续写入
-  writable.once('drain', () => {
-    writable.write('缓冲区已清空，继续写入\n');
+  writable.once("drain", () => {
+    writable.write("缓冲区已清空，继续写入\n");
   });
 }
 
 // 写完后必须调用 end()，否则文件不会关闭
-writable.end('最后一行\n', () => {
-  console.log('写入完成，文件已关闭');
+writable.end("最后一行\n", () => {
+  console.log("写入完成，文件已关闭");
 });
 ```
 
@@ -103,8 +104,8 @@ writable.end('最后一行\n', () => {
 
 ```javascript
 // pipe 的简化实现原理
-Readable.prototype.pipe = function(dest) {
-  this.on('data', (chunk) => {
+Readable.prototype.pipe = function (dest) {
+  this.on("data", (chunk) => {
     const ok = dest.write(chunk);
     if (!ok) {
       // 背压：下游处理不过来了，暂停上游
@@ -112,12 +113,12 @@ Readable.prototype.pipe = function(dest) {
     }
   });
 
-  dest.on('drain', () => {
+  dest.on("drain", () => {
     // 下游缓冲区清空，恢复上游
     this.resume();
   });
 
-  this.on('end', () => {
+  this.on("end", () => {
     dest.end();
   });
 
@@ -125,10 +126,10 @@ Readable.prototype.pipe = function(dest) {
 };
 
 // 实际使用
-fs.createReadStream('input.txt')
-  .pipe(zlib.createGzip())       // 压缩
-  .pipe(crypto.createCipher('aes-256-cbc', 'key')) // 加密
-  .pipe(fs.createWriteStream('output.gz.enc'));     // 写入
+fs.createReadStream("input.txt")
+  .pipe(zlib.createGzip()) // 压缩
+  .pipe(crypto.createCipher("aes-256-cbc", "key")) // 加密
+  .pipe(fs.createWriteStream("output.gz.enc")); // 写入
 ```
 
 ### 2.2 背压（Backpressure）问题
@@ -145,23 +146,23 @@ fs.createReadStream('input.txt')
 ```
 
 ```javascript
-const { pipeline } = require('stream/promises');
+const { pipeline } = require("stream/promises");
 
 // pipeline 比 pipe 更安全：自动处理错误，防止内存泄漏
 async function compress(input, output) {
   await pipeline(
     fs.createReadStream(input),
     zlib.createGzip(),
-    fs.createWriteStream(output)
+    fs.createWriteStream(output),
   );
-  console.log('压缩完成');
+  console.log("压缩完成");
 }
 ```
 
 ### 2.3 自定义 Transform 流
 
 ```javascript
-const { Transform } = require('stream');
+const { Transform } = require("stream");
 
 // 实现一个将文本转大写的 Transform 流
 class UpperCaseTransform extends Transform {
@@ -176,9 +177,7 @@ class UpperCaseTransform extends Transform {
 }
 
 // 使用
-process.stdin
-  .pipe(new UpperCaseTransform())
-  .pipe(process.stdout);
+process.stdin.pipe(new UpperCaseTransform()).pipe(process.stdout);
 // 输入 "hello" → 输出 "HELLO"
 ```
 
@@ -201,7 +200,7 @@ process.stdin
 Express 中间件是**线性执行**的，通过 `next()` 传递控制权：
 
 ```javascript
-const express = require('express');
+const express = require("express");
 const app = express();
 
 // 中间件签名：(req, res, next) => void
@@ -214,10 +213,10 @@ app.use((req, res, next) => {
 });
 
 // 2. 路由级中间件
-app.use('/api', (req, res, next) => {
+app.use("/api", (req, res, next) => {
   const token = req.headers.authorization;
   if (!token) {
-    return res.status(401).json({ error: '未授权' });
+    return res.status(401).json({ error: "未授权" });
     // 注意：return 防止继续执行，不需要调用 next()
   }
   req.user = verifyToken(token); // 将数据挂载到 req 上传递给后续中间件
@@ -225,7 +224,7 @@ app.use('/api', (req, res, next) => {
 });
 
 // 3. 路由处理器
-app.get('/api/users', (req, res) => {
+app.get("/api/users", (req, res) => {
   res.json({ user: req.user });
 });
 
@@ -244,7 +243,7 @@ app.use((err, req, res, next) => {
 Koa 使用 `async/await` + `compose` 实现**洋葱模型**，中间件可以在 `await next()` 前后分别执行逻辑：
 
 ```javascript
-const Koa = require('koa');
+const Koa = require("koa");
 const app = new Koa();
 
 // Koa 中间件签名：async (ctx, next) => void
@@ -253,27 +252,27 @@ const app = new Koa();
 // 中间件1：计时器
 app.use(async (ctx, next) => {
   const start = Date.now();
-  console.log('→ 进入中间件1');
+  console.log("→ 进入中间件1");
   await next(); // 暂停，进入下一个中间件
   // next() 返回后，继续执行
-  console.log('← 离开中间件1');
+  console.log("← 离开中间件1");
   const ms = Date.now() - start;
-  ctx.set('X-Response-Time', `${ms}ms`);
+  ctx.set("X-Response-Time", `${ms}ms`);
 });
 
 // 中间件2：日志
 app.use(async (ctx, next) => {
-  console.log('→ 进入中间件2');
+  console.log("→ 进入中间件2");
   await next();
-  console.log('← 离开中间件2');
+  console.log("← 离开中间件2");
   console.log(`${ctx.method} ${ctx.url} - ${ctx.status}`);
 });
 
 // 路由处理
 app.use(async (ctx) => {
-  console.log('→ 路由处理器');
-  ctx.body = 'Hello World';
-  console.log('← 路由处理器');
+  console.log("→ 路由处理器");
+  ctx.body = "Hello World";
+  console.log("← 路由处理器");
 });
 
 // 执行顺序（洋葱模型）：
@@ -290,13 +289,13 @@ app.use(async (ctx) => {
 ```javascript
 // koa-compose 源码简化版（面试必备）
 function compose(middlewares) {
-  return function(ctx) {
+  return function (ctx) {
     // index 用于防止同一个中间件多次调用 next()
     let index = -1;
 
     function dispatch(i) {
       if (i <= index) {
-        return Promise.reject(new Error('next() 被多次调用'));
+        return Promise.reject(new Error("next() 被多次调用"));
       }
       index = i;
 
@@ -322,18 +321,18 @@ function compose(middlewares) {
 const middlewares = [
   async (ctx, next) => {
     ctx.result = [];
-    ctx.result.push('A-before');
+    ctx.result.push("A-before");
     await next();
-    ctx.result.push('A-after');
+    ctx.result.push("A-after");
   },
   async (ctx, next) => {
-    ctx.result.push('B-before');
+    ctx.result.push("B-before");
     await next();
-    ctx.result.push('B-after');
+    ctx.result.push("B-after");
   },
   async (ctx) => {
-    ctx.result.push('C');
-  }
+    ctx.result.push("C");
+  },
 ];
 
 const fn = compose(middlewares);
@@ -349,7 +348,7 @@ fn(ctx).then(() => {
 ## 四、Express vs Koa 对比
 
 | 对比维度 | Express | Koa |
-|---------|---------|-----|
+| --- | --- | --- |
 | **中间件模型** | 线性（Linear） | 洋葱（Onion） |
 | **异步处理** | 回调 / Promise（需手动处理） | 原生 async/await |
 | **内置功能** | 路由、静态文件、模板引擎等 | 极简内核，几乎无内置功能 |
@@ -359,7 +358,7 @@ fn(ctx).then(() => {
 
 ```javascript
 // Express 错误处理（需要显式传递 err）
-app.get('/user', async (req, res, next) => {
+app.get("/user", async (req, res, next) => {
   try {
     const user = await getUser();
     res.json(user);
@@ -375,7 +374,7 @@ app.use(async (ctx, next) => {
   } catch (err) {
     ctx.status = err.status || 500;
     ctx.body = { error: err.message };
-    ctx.app.emit('error', err, ctx); // 触发全局错误事件
+    ctx.app.emit("error", err, ctx); // 触发全局错误事件
   }
 });
 ```
@@ -385,24 +384,24 @@ app.use(async (ctx, next) => {
 ## 五、实战：用 Stream 实现大文件上传处理
 
 ```javascript
-const http = require('http');
-const fs = require('fs');
-const path = require('path');
-const { pipeline } = require('stream/promises');
-const zlib = require('zlib');
+const http = require("http");
+const fs = require("fs");
+const path = require("path");
+const { pipeline } = require("stream/promises");
+const zlib = require("zlib");
 
 const server = http.createServer(async (req, res) => {
-  if (req.method === 'POST' && req.url === '/upload') {
-    const filename = req.headers['x-filename'] || 'upload.gz';
-    const savePath = path.join(__dirname, 'uploads', filename);
+  if (req.method === "POST" && req.url === "/upload") {
+    const filename = req.headers["x-filename"] || "upload.gz";
+    const savePath = path.join(__dirname, "uploads", filename);
 
     try {
       // req 本身就是 Readable 流
       // 边接收边压缩边写入，内存占用极低
       await pipeline(
-        req,                              // 可读流：HTTP 请求体
-        zlib.createGzip(),                // 转换流：gzip 压缩
-        fs.createWriteStream(savePath)    // 可写流：写入文件
+        req, // 可读流：HTTP 请求体
+        zlib.createGzip(), // 转换流：gzip 压缩
+        fs.createWriteStream(savePath), // 可写流：写入文件
       );
 
       res.writeHead(200);
@@ -414,7 +413,7 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
-server.listen(3000, () => console.log('上传服务启动在 3000 端口'));
+server.listen(3000, () => console.log("上传服务启动在 3000 端口"));
 ```
 
 ---

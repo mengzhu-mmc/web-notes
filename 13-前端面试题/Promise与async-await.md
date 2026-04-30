@@ -21,8 +21,12 @@ const p = new Promise((resolve, reject) => {
 });
 
 p.then(
-  (value) => { /* fulfilled */ },
-  (reason) => { /* rejected */ }
+  (value) => {
+    /* fulfilled */
+  },
+  (reason) => {
+    /* rejected */
+  },
 );
 // .catch(fn) 等价于 .then(null, fn)
 // .finally(fn) 无论成功/失败都执行，不接收参数
@@ -31,12 +35,12 @@ p.then(
 ### 链式调用
 
 ```js
-fetch('/api/user')
-  .then((res) => res.json())         // 返回新 Promise
-  .then((data) => data.name)         // 继续链式
+fetch("/api/user")
+  .then((res) => res.json()) // 返回新 Promise
+  .then((data) => data.name) // 继续链式
   .then((name) => console.log(name))
   .catch((err) => console.error(err)) // 捕获任意前面的错误
-  .finally(() => console.log('done'));
+  .finally(() => console.log("done"));
 ```
 
 **链式调用关键：** 每个 `.then` 返回新 Promise，上一个的返回值作为下一个的 `value`。
@@ -91,17 +95,17 @@ Promise.myAllSettled = function (promises) {
   return Promise.myAll(
     promises.map((p) =>
       Promise.resolve(p).then(
-        (value) => ({ status: 'fulfilled', value }),
-        (reason) => ({ status: 'rejected', reason })
-      )
-    )
+        (value) => ({ status: "fulfilled", value }),
+        (reason) => ({ status: "rejected", reason }),
+      ),
+    ),
   );
 };
 
 // 使用
 Promise.myAllSettled([
   Promise.resolve(1),
-  Promise.reject('error'),
+  Promise.reject("error"),
   Promise.resolve(3),
 ]).then(console.log);
 // [
@@ -120,14 +124,14 @@ Promise.myAllSettled([
 ```js
 // async/await 可以等价转换为 Generator
 async function fetchUser() {
-  const res = await fetch('/api/user');
+  const res = await fetch("/api/user");
   const data = await res.json();
   return data;
 }
 
 // 等价的 Generator 写法
 function* fetchUserGen() {
-  const res = yield fetch('/api/user');
+  const res = yield fetch("/api/user");
   const data = yield res.json();
   return data;
 }
@@ -146,7 +150,7 @@ function run(genFn) {
       if (next.done) return resolve(next.value);
       Promise.resolve(next.value).then(
         (val) => step(() => gen.next(val)),
-        (err) => step(() => gen.throw(err))
+        (err) => step(() => gen.throw(err)),
       );
     }
     step(() => gen.next());
@@ -163,13 +167,13 @@ function run(genFn) {
 ```js
 // ❌ 错误：没有捕获 async 函数内的错误
 async function bad() {
-  const data = await fetch('/api'); // 失败时会 unhandledRejection
+  const data = await fetch("/api"); // 失败时会 unhandledRejection
 }
 
 // ✅ 方案1：try/catch
 async function good1() {
   try {
-    const data = await fetch('/api');
+    const data = await fetch("/api");
   } catch (err) {
     console.error(err);
   }
@@ -177,7 +181,7 @@ async function good1() {
 
 // ✅ 方案2：.catch() 包装
 async function good2() {
-  const data = await fetch('/api').catch((err) => {
+  const data = await fetch("/api").catch((err) => {
     console.error(err);
     return null; // 返回默认值
   });
@@ -205,7 +209,7 @@ async function parallel() {
 async function parallel2() {
   const promiseA = fetchA(); // 立即启动
   const promiseB = fetchB(); // 立即启动
-  const a = await promiseA;  // 等结果
+  const a = await promiseA; // 等结果
   const b = await promiseB;
   return [a, b];
 }
@@ -220,7 +224,7 @@ async function wrong() {
   ids.forEach(async (id) => {
     await fetchUser(id); // 这些并发了，但 forEach 不知道
   });
-  console.log('done'); // 立即打印，不等 fetch
+  console.log("done"); // 立即打印，不等 fetch
 }
 
 // ✅ 用 for...of 顺序执行
@@ -228,13 +232,13 @@ async function sequential() {
   for (const id of [1, 2, 3]) {
     await fetchUser(id);
   }
-  console.log('done'); // 真正等待
+  console.log("done"); // 真正等待
 }
 
 // ✅ 用 Promise.all 并发执行
 async function concurrent() {
   await Promise.all([1, 2, 3].map((id) => fetchUser(id)));
-  console.log('done');
+  console.log("done");
 }
 ```
 

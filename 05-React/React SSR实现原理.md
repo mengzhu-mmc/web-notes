@@ -14,7 +14,7 @@
 ## 一、CSR vs SSR vs SSG 对比
 
 | 渲染方式 | 首屏速度 | SEO | 服务器压力 | 适用场景 |
-|---------|---------|-----|----------|---------|
+| --- | --- | --- | --- | --- |
 | CSR（客户端渲染） | 慢（需下载 JS） | 差 | 低 | 后台管理系统、交互复杂的 SPA |
 | SSR（服务端渲染） | 快 | 好 | 高 | 电商、新闻、需要 SEO 的页面 |
 | SSG（静态生成） | 最快 | 最好 | 极低 | 博客、文档、内容不频繁变化的页面 |
@@ -28,23 +28,23 @@
 
 ```js
 // React 18 推荐：流式传输，可以更快发送首字节
-import { renderToPipeableStream } from 'react-dom/server';
+import { renderToPipeableStream } from "react-dom/server";
 
 // 旧方式：一次性生成完整 HTML 字符串（阻塞式）
-import { renderToString } from 'react-dom/server';
+import { renderToString } from "react-dom/server";
 
 // 生成不带 data-reactid 的纯静态 HTML（用于纯展示，不需要 hydration）
-import { renderToStaticMarkup } from 'react-dom/server';
+import { renderToStaticMarkup } from "react-dom/server";
 ```
 
 ### 客户端 API（react-dom/client）
 
 ```js
 // React 18：复用服务端 HTML，只挂载事件监听器
-import { hydrateRoot } from 'react-dom/client';
+import { hydrateRoot } from "react-dom/client";
 
 // 旧方式（React 17 及之前）
-import { hydrate } from 'react-dom';
+import { hydrate } from "react-dom";
 ```
 
 ---
@@ -55,13 +55,13 @@ import { hydrate } from 'react-dom';
 
 ```js
 // server.js
-import express from 'express';
-import { renderToString } from 'react-dom/server';
-import App from '../src/App';
+import express from "express";
+import { renderToString } from "react-dom/server";
+import App from "../src/App";
 
 const app = express();
 
-app.get('*', (req, res) => {
+app.get("*", (req, res) => {
   const appString = renderToString(<App />);
   const html = `
     <!DOCTYPE html>
@@ -85,12 +85,12 @@ app.listen(3000);
 
 ```js
 // client.js
-import { hydrateRoot } from 'react-dom/client';
-import App from './App';
+import { hydrateRoot } from "react-dom/client";
+import App from "./App";
 
 // 使用 hydrateRoot 而不是 createRoot
 // React 会复用已有的 DOM，只绑定事件监听器
-hydrateRoot(document.getElementById('root'), <App />);
+hydrateRoot(document.getElementById("root"), <App />);
 ```
 
 ### 第三步：双端构建配置
@@ -98,17 +98,17 @@ hydrateRoot(document.getElementById('root'), <App />);
 ```js
 // webpack.server.js
 module.exports = {
-  target: 'node',           // 输出 Node.js 环境代码
-  entry: './src/server.js',
-  output: { filename: 'server.bundle.js' },
+  target: "node", // 输出 Node.js 环境代码
+  entry: "./src/server.js",
+  output: { filename: "server.bundle.js" },
   // ...
 };
 
 // webpack.client.js
 module.exports = {
-  target: 'web',            // 输出浏览器环境代码
-  entry: './src/client.js',
-  output: { filename: 'client-bundle.js' },
+  target: "web", // 输出浏览器环境代码
+  entry: "./src/client.js",
+  output: { filename: "client-bundle.js" },
   // ...
 };
 ```
@@ -134,6 +134,7 @@ Hydration 是指客户端 React 接管服务端生成的静态 HTML，将其变�
 ### Hydration 的工作原理
 
 `hydrateRoot` 不会重新创建 DOM，而是：
+
 1. 遍历服务端生成的 DOM 树
 2. 与 React 组件树进行对比（reconciliation）
 3. 为每个 DOM 节点绑定对应的事件处理器
@@ -167,7 +168,7 @@ function App() {
 ```jsx
 // ✅ 方案1：使用 useEffect 在客户端更新
 function App() {
-  const [time, setTime] = useState('');
+  const [time, setTime] = useState("");
   useEffect(() => {
     setTime(new Date().toLocaleString()); // 只在客户端执行
   }, []);
@@ -221,7 +222,7 @@ const appString = renderToString(
     <StaticRouter location={req.url}>
       <App />
     </StaticRouter>
-  </Provider>
+  </Provider>,
 );
 
 // 将数据注入 HTML，避免客户端重复请求
@@ -235,7 +236,7 @@ const html = `
 // client.js - 使用服务端注入的初始数据
 const preloadedState = window.__INITIAL_STATE__;
 const store = createStore(reducer, preloadedState);
-hydrateRoot(document.getElementById('root'), <App store={store} />);
+hydrateRoot(document.getElementById("root"), <App store={store} />);
 ```
 
 ### 方案二：Next.js 的数据获取方式
@@ -268,23 +269,20 @@ React 18 的 `renderToPipeableStream` + `Suspense` 实现了流式传输：
 
 ```js
 // server.js
-import { renderToPipeableStream } from 'react-dom/server';
+import { renderToPipeableStream } from "react-dom/server";
 
-app.get('*', (req, res) => {
-  const { pipe } = renderToPipeableStream(
-    <App />,
-    {
-      bootstrapScripts: ['/client-bundle.js'],
-      onShellReady() {
-        // Shell（非 Suspense 包裹的部分）准备好后立即开始发送
-        res.setHeader('Content-Type', 'text/html');
-        pipe(res);
-      },
-      onError(error) {
-        console.error(error);
-      }
-    }
-  );
+app.get("*", (req, res) => {
+  const { pipe } = renderToPipeableStream(<App />, {
+    bootstrapScripts: ["/client-bundle.js"],
+    onShellReady() {
+      // Shell（非 Suspense 包裹的部分）准备好后立即开始发送
+      res.setHeader("Content-Type", "text/html");
+      pipe(res);
+    },
+    onError(error) {
+      console.error(error);
+    },
+  });
 });
 ```
 
@@ -294,11 +292,11 @@ function App() {
   return (
     <html>
       <body>
-        <Header />  {/* 立即渲染 */}
+        <Header /> {/* 立即渲染 */}
         <Suspense fallback={<Spinner />}>
-          <SlowDataComponent />  {/* 数据准备好后流式插入 */}
+          <SlowDataComponent /> {/* 数据准备好后流式插入 */}
         </Suspense>
-        <Footer />  {/* 立即渲染 */}
+        <Footer /> {/* 立即渲染 */}
       </body>
     </html>
   );
@@ -327,13 +325,13 @@ React 18 还支持选择性 Hydration：不需要等待所有 JS 下载完成才
 
 ### RSC 与 SSR 的区别
 
-| | SSR | RSC |
-|--|-----|-----|
-| 运行时机 | 每次请求时在服务端运行 | 构建时或请求时在服务端运行 |
-| 发送内容 | HTML 字符串 | React 组件树（序列化格式） |
-| 客户端 JS | 需要下载完整组件代码 | 服务端组件代码不发送到客户端 |
-| 状态/交互 | 通过 Hydration 恢复 | 服务端组件无状态，客户端组件有状态 |
-| 数据获取 | 需要特殊处理（loadData 等） | 直接在组件中 async/await |
+|           | SSR                         | RSC                                |
+| --------- | --------------------------- | ---------------------------------- |
+| 运行时机  | 每次请求时在服务端运行      | 构建时或请求时在服务端运行         |
+| 发送内容  | HTML 字符串                 | React 组件树（序列化格式）         |
+| 客户端 JS | 需要下载完整组件代码        | 服务端组件代码不发送到客户端       |
+| 状态/交互 | 通过 Hydration 恢复         | 服务端组件无状态，客户端组件有状态 |
+| 数据获取  | 需要特殊处理（loadData 等） | 直接在组件中 async/await           |
 
 ### RSC 的核心优势
 
@@ -354,12 +352,12 @@ async function ProductPage({ params }) {
 }
 
 // Client Component：标记 'use client'，有状态和事件
-'use client';
+("use client");
 function AddToCartButton({ productId }) {
   const [added, setAdded] = useState(false);
   return (
     <button onClick={() => setAdded(true)}>
-      {added ? '已加入购物车' : '加入购物车'}
+      {added ? "已加入购物车" : "加入购物车"}
     </button>
   );
 }
@@ -371,25 +369,25 @@ function AddToCartButton({ productId }) {
 
 ```jsx
 // 服务端使用 StaticRouter（无状态，传入当前 URL）
-import { StaticRouter } from 'react-router-dom/server';
+import { StaticRouter } from "react-router-dom/server";
 
-app.get('*', (req, res) => {
+app.get("*", (req, res) => {
   const html = renderToString(
     <StaticRouter location={req.url}>
       <App />
-    </StaticRouter>
+    </StaticRouter>,
   );
   res.send(html);
 });
 
 // 客户端使用 BrowserRouter（有状态，监听 history）
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter } from "react-router-dom";
 
 hydrateRoot(
-  document.getElementById('root'),
+  document.getElementById("root"),
   <BrowserRouter>
     <App />
-  </BrowserRouter>
+  </BrowserRouter>,
 );
 ```
 

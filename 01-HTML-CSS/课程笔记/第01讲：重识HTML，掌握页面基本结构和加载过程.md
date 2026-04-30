@@ -165,60 +165,78 @@ element1.addEventListener(<span class="hljs-string">"click"</span>, clickEventFu
 
 ### 精选评论
 
-##### **洲：
+##### \*\*洲：
+
 > HTML是web开发的基石，用于告诉浏览器如何组织页面的方式，浏览器会根据实际HTML的内容生成一棵树，就是DOM树，可以通过JavaScript访问这颗树来对页面进行更多额外的操作
 
-##### **萍：
+##### \*\*萍：
+
 > 请问: document.body添加事件委托，每次触发事件时，会产生生等待，为什么会产生等待？passive: true的作用是什么？
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 产生等待是因为合成器线程于主线程进行通信。passive 设置为 true 时，表示 listener 永远不会调用 preventDefault。根据规范，passive 选项的默认值始终为 false，这引入了处理某些触摸事件（以及其他）的事件监听器在尝试处理滚动时阻止浏览器的主线程的可能性，从而导致滚动处理期间性能可能大大降低。
 
-##### *聪：
+##### \*聪：
+
 > 老师，CSS会阻塞渲染吗？是CSSOM树构建完成之后，页面才开始渲染的吗？
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 页面渲染会解析HTML和CSS，生成 DOM Tree 和 CSS Rule Tree，两者结合生成渲染树。最终渲染在页面中的便是渲染树，所以为了避免页面重新渲染，CSS应该放在 header 里哦~更详细的我们会在第 8 讲中进行介绍~
 
-##### *聪：
+##### \*聪：
+
 > 事件委托的第二个例子：【console.log(e.target === this);】应该为【console.log(event.target === this);】
 
- ###### &nbsp;&nbsp;&nbsp; 编辑回复：
+###### &nbsp;&nbsp;&nbsp; 编辑回复：
+
 > &nbsp;&nbsp;&nbsp; get
 
-##### **8635：
+##### \*\*8635：
+
 > 虚拟dom和实际dom之间是怎么更新替换的，怎么做到页面不会被重新渲染或者局部渲染的呢？
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 其实我们会在第10讲中有比较详细的介绍，这里给点提示：我们平时操作 DOM 的方式有哪些呢？
 
-##### **4829：
+##### \*\*4829：
+
 > 最后一段关于document.body进行事件委托的，不是很明白，能解释一下么？
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 使用 document.body 添加事件委托，每次触发事件时，会产生生等待，产生等待是因为合成器线程于主线程进行通信。passive 设置为 true 时，表示 listener 永远不会调用 preventDefault。根据规范，passive 选项的默认值始终为 false，这引入了处理某些触摸事件（以及其他）的事件监听器在尝试处理滚动时阻止浏览器的主线程的可能性，从而导致滚动处理期间性能可能大大降低。
 
-##### **4344：
+##### \*\*4344：
+
 > 请问对于事件委托不能绑定在body上，还是有点不在明白？passitive是哪个上面的属性呢？我看评论回答这个问题也没怎么明白，还请老师再回复一下，谢谢😀
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; passive 是事件绑定的一个参数，可以看看 addEventListener() 这个API~
 
-##### **东：
+##### \*\*东：
+
 > React17版本的事件委托就有所修改，从原来的html到React.createElement的根元素上，这个修改的原因和都是上述所说的是不是有相同的原因。还有是个人觉得老师你读讲的语速有点快了，比如有图解的东西可以停一点点吗？，
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 收到~我会努力的
 
-##### **蓉：
+##### \*\*蓉：
+
 > 合成层具体是什么，不是很明白
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 合成又称为 Compositing，在现代浏览器渲染过程中，会将将页面的各个部分分成多个层，分别对其进行栅格化并进行合成。这部分内容我们会在第 8 讲中有介绍哦
 
-##### *聪：
+##### \*聪：
+
 > HTML的规范中指明defer属性的脚本是异步下载的，等到页面解析完成后按顺序执行，但是实际上浏览器并不保证顺序执行，所以页面中多个脚本有依赖关系的不要使用defer，平时最好只设置一个defer脚本
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
-> &nbsp;&nbsp;&nbsp; 棒~
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
 
+> &nbsp;&nbsp;&nbsp; 棒~

@@ -9,7 +9,7 @@
 ### 1.1 核心区别
 
 | 维度 | `git merge` | `git rebase` |
-|------|-------------|--------------|
+| --- | --- | --- |
 | 历史记录 | 保留完整分叉历史，生成 merge commit | 线性历史，无 merge commit |
 | 冲突解决 | 一次性解决所有冲突 | 逐 commit 解决 |
 | 适用场景 | 功能分支合并到主干、PR/MR | 同步主干更新到特性分支 |
@@ -18,6 +18,7 @@
 ### 1.2 使用场景对比
 
 **使用 `merge` 的场景：**
+
 ```bash
 # 将 feature 合并到 main（记录分支历史）
 git checkout main
@@ -27,6 +28,7 @@ git merge feature/login
 ```
 
 **使用 `rebase` 的场景：**
+
 ```bash
 # 开发过程中同步 main 的新提交，保持分支整洁
 git checkout feature/login
@@ -41,6 +43,7 @@ git rebase --abort
 ```
 
 **交互式 rebase（整理提交历史）：**
+
 ```bash
 # 合并/修改最近 3 个提交
 git rebase -i HEAD~3
@@ -56,7 +59,7 @@ git rebase -i HEAD~3
 ### 1.3 黄金法则
 
 > ⚠️ **绝对不要 rebase 已推送到远程的公共分支**（如 main、develop），会破坏他人的本地历史。
-> 
+>
 > ✅ 只对**本地未推送**的提交或**自己独有的特性分支**做 rebase。
 
 ---
@@ -247,20 +250,21 @@ ci(github): 添加 PR 自动检查 workflow
 
 **type 速查：**
 
-| Type | 说明 |
-|------|------|
-| `feat` | 新功能 |
-| `fix` | Bug 修复 |
-| `docs` | 文档变更 |
-| `style` | 格式（不影响逻辑）|
-| `refactor` | 重构（非 feat/fix）|
-| `perf` | 性能优化 |
-| `test` | 测试相关 |
-| `chore` | 构建/工具链/依赖 |
-| `ci` | CI/CD 配置 |
-| `revert` | 回退提交 |
+| Type       | 说明                |
+| ---------- | ------------------- |
+| `feat`     | 新功能              |
+| `fix`      | Bug 修复            |
+| `docs`     | 文档变更            |
+| `style`    | 格式（不影响逻辑）  |
+| `refactor` | 重构（非 feat/fix） |
+| `perf`     | 性能优化            |
+| `test`     | 测试相关            |
+| `chore`    | 构建/工具链/依赖    |
+| `ci`       | CI/CD 配置          |
+| `revert`   | 回退提交            |
 
 **Breaking Change：**
+
 ```
 feat(auth)!: 移除 OAuth1.0 支持
 
@@ -282,21 +286,32 @@ echo "npx --no -- commitlint --edit \$1" > .husky/commit-msg
 ```js
 // commitlint.config.js
 export default {
-  extends: ['@commitlint/config-conventional'],
+  extends: ["@commitlint/config-conventional"],
   rules: {
     // type 必须小写
-    'type-case': [2, 'always', 'lower-case'],
+    "type-case": [2, "always", "lower-case"],
     // subject 不能以句号结尾
-    'subject-full-stop': [2, 'never', '.'],
+    "subject-full-stop": [2, "never", "."],
     // subject 不能为空
-    'subject-empty': [2, 'never'],
+    "subject-empty": [2, "never"],
     // 最大长度 100 字符
-    'header-max-length': [2, 'always', 100],
+    "header-max-length": [2, "always", 100],
     // 允许的 type 列表（可按需扩展）
-    'type-enum': [
+    "type-enum": [
       2,
-      'always',
-      ['feat', 'fix', 'docs', 'style', 'refactor', 'perf', 'test', 'chore', 'ci', 'revert'],
+      "always",
+      [
+        "feat",
+        "fix",
+        "docs",
+        "style",
+        "refactor",
+        "perf",
+        "test",
+        "chore",
+        "ci",
+        "revert",
+      ],
     ],
   },
 };
@@ -348,7 +363,7 @@ export default {
   # 美化日志
   lg = log --oneline --graph --decorate --all
   ll = log --oneline -20        # 最近 20 条
-  
+
   # 查看某文件的修改历史
   fl = log --follow -p --
 

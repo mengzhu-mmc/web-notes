@@ -14,9 +14,9 @@ function Counter() {
 
   const handleClick = () => {
     // 连续调用3次，count 在闭包中被"冻结"为 0
-    setCount(count + 1);  // setCount(0 + 1)
-    setCount(count + 1);  // setCount(0 + 1)
-    setCount(count + 1);  // setCount(0 + 1)
+    setCount(count + 1); // setCount(0 + 1)
+    setCount(count + 1); // setCount(0 + 1)
+    setCount(count + 1); // setCount(0 + 1)
     // 最终 count 只会变成 1，而不是 3
   };
 
@@ -28,9 +28,9 @@ function Counter() {
 
 ```javascript
 const handleClick = () => {
-  setCount(c => c + 1); // c = 0，返回 1
-  setCount(c => c + 1); // c = 1，返回 2
-  setCount(c => c + 1); // c = 2，返回 3
+  setCount((c) => c + 1); // c = 0，返回 1
+  setCount((c) => c + 1); // c = 1，返回 2
+  setCount((c) => c + 1); // c = 2，返回 3
   // 最终 count 会变成 3
 };
 ```
@@ -98,7 +98,7 @@ function Timer() {
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setCount(c => c + 1); // ✅ 总是基于最新值
+      setCount((c) => c + 1); // ✅ 总是基于最新值
     }, 1000);
     return () => clearInterval(timer);
   }, []); // 可以保持空依赖
@@ -118,7 +118,7 @@ class ReactState {
   }
 
   setState(updater) {
-    if (typeof updater === 'function') {
+    if (typeof updater === "function") {
       this.updateQueue.push(updater); // 函数式：执行时传入最新状态
     } else {
       this.updateQueue.push(() => updater); // 直接值：使用给定的值
@@ -126,7 +126,7 @@ class ReactState {
   }
 
   flush() {
-    this.updateQueue.forEach(updater => {
+    this.updateQueue.forEach((updater) => {
       this.state = updater(this.state); // 关键：传入最新 state
     });
     this.updateQueue = [];
@@ -147,15 +147,15 @@ class ReactState {
 ```javascript
 // 函数式写法
 this.setState((prevState, props) => ({
-  count: prevState.count + 1
+  count: prevState.count + 1,
 }));
 
 // 带回调的写法
 this.setState(
-  state => ({ count: state.count + 1 }),
+  (state) => ({ count: state.count + 1 }),
   () => {
-    console.log('更新完成，当前count:', this.state.count);
-  }
+    console.log("更新完成，当前count:", this.state.count);
+  },
 );
 ```
 
@@ -173,10 +173,10 @@ render() {
 
 ## 使用建议
 
-| 方式 | 获取的状态 | 适用场景 |
-|------|-----------|---------|
+| 方式              | 获取的状态     | 适用场景       |
+| ----------------- | -------------- | -------------- |
 | `setState(value)` | 闭包捕获的旧值 | 新值不依赖旧值 |
-| `setState(fn)` | 最新的状态值 | 新值依赖旧值 |
+| `setState(fn)`    | 最新的状态值   | 新值依赖旧值   |
 
 当更新依赖当前状态时，永远使用函数式更新。其他解决方案包括正确设置 `useEffect` 依赖项，以及使用 `useRef` 存储不需要触发渲染的可变值。
 
@@ -197,7 +197,7 @@ const expensiveValue = useMemo(() => {
 
 // useCallback 空依赖：只创建一次函数，捕获初始 count（闭包陷阱）
 const handleClick = useCallback(() => {
-  console.log('count:', count); // 永远打印 0
+  console.log("count:", count); // 永远打印 0
 }, []);
 // 点击后 count=1，再调用 handleClick 仍然输出 0！
 ```
@@ -212,16 +212,16 @@ const handleClick = useCallback(() => {
 // 问题：连续三次调用，如何让每次都生效（值不丢）？
 
 // 方案1：函数式更新（推荐）
-setCount(prev => prev + 1);
-setCount(prev => prev + 1);
-setCount(prev => prev + 1);
+setCount((prev) => prev + 1);
+setCount((prev) => prev + 1);
+setCount((prev) => prev + 1);
 // ✅ 三次值全部生效，但只触发 1 次渲染（React 批处理合并）
 
 // 方案2：flushSync（React 18+，强制同步）
-import { flushSync } from 'react-dom';
-flushSync(() => setCount(c => c + 1));
-flushSync(() => setCount(c => c + 1));
-flushSync(() => setCount(c => c + 1));
+import { flushSync } from "react-dom";
+flushSync(() => setCount((c) => c + 1));
+flushSync(() => setCount((c) => c + 1));
+flushSync(() => setCount((c) => c + 1));
 // ✅ 三次值全部生效，触发 3 次渲染
 
 // 方案3：setTimeout 宏任务（绕开批处理）
@@ -240,7 +240,7 @@ setState({ count: count + 1 }, () => {
 ```
 
 | 方式 | 触发几次渲染 | 值是否都生效 | 推荐度 |
-|------|-------------|-------------|--------|
+| --- | --- | --- | --- |
 | 函数式更新 | 1 次（批处理合并） | ✅ 都生效 | ⭐⭐⭐⭐⭐ |
 | flushSync | 3 次 | ✅ 都生效 | ⭐⭐⭐ |
 | setTimeout | 3 次（React 17）/ 1 次（React 18） | ⚠️ 视版本 | ⭐⭐ |

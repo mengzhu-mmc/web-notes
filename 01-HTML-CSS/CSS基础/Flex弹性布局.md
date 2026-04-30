@@ -11,39 +11,39 @@ Flex 布局由**容器（container）**和**子项（item）**组成。轴分为
 ### `flex-direction` — 主轴方向
 
 ```css
-flex-direction: row;            /* 默认：水平向右 */
-flex-direction: row-reverse;    /* 水平向左 */
-flex-direction: column;         /* 垂直向下 */
+flex-direction: row; /* 默认：水平向右 */
+flex-direction: row-reverse; /* 水平向左 */
+flex-direction: column; /* 垂直向下 */
 flex-direction: column-reverse; /* 垂直向上 */
 ```
 
 ### `flex-wrap` — 换行
 
 ```css
-flex-wrap: nowrap;   /* 默认：不换行，子项会被压缩 */
-flex-wrap: wrap;     /* 换行，第一行在上 */
+flex-wrap: nowrap; /* 默认：不换行，子项会被压缩 */
+flex-wrap: wrap; /* 换行，第一行在上 */
 flex-wrap: wrap-reverse; /* 换行，第一行在下 */
 ```
 
 ### `justify-content` — 主轴对齐
 
 ```css
-justify-content: flex-start;    /* 默认：左对齐 */
-justify-content: flex-end;      /* 右对齐 */
-justify-content: center;        /* 居中 */
+justify-content: flex-start; /* 默认：左对齐 */
+justify-content: flex-end; /* 右对齐 */
+justify-content: center; /* 居中 */
 justify-content: space-between; /* 两端对齐，间距相等 */
-justify-content: space-around;  /* 每项两侧间距相等（两端是中间间距的一半） */
-justify-content: space-evenly;  /* 所有间距完全相等 */
+justify-content: space-around; /* 每项两侧间距相等（两端是中间间距的一半） */
+justify-content: space-evenly; /* 所有间距完全相等 */
 ```
 
 ### `align-items` — 交叉轴单行对齐
 
 ```css
-align-items: stretch;    /* 默认：拉伸填满容器高度 */
+align-items: stretch; /* 默认：拉伸填满容器高度 */
 align-items: flex-start; /* 交叉轴起点对齐 */
-align-items: flex-end;   /* 交叉轴终点对齐 */
-align-items: center;     /* 交叉轴居中 */
-align-items: baseline;   /* 文字基线对齐 */
+align-items: flex-end; /* 交叉轴终点对齐 */
+align-items: center; /* 交叉轴居中 */
+align-items: baseline; /* 文字基线对齐 */
 ```
 
 ### `align-content` — 多行时的交叉轴对齐
@@ -51,19 +51,19 @@ align-items: baseline;   /* 文字基线对齐 */
 > 只有 `flex-wrap: wrap` 且有多行时才生效
 
 ```css
-align-content: flex-start;    /* 多行靠上 */
-align-content: flex-end;      /* 多行靠下 */
-align-content: center;        /* 多行居中 */
+align-content: flex-start; /* 多行靠上 */
+align-content: flex-end; /* 多行靠下 */
+align-content: center; /* 多行居中 */
 align-content: space-between;
 align-content: space-around;
-align-content: stretch;       /* 默认：拉伸填满 */
+align-content: stretch; /* 默认：拉伸填满 */
 ```
 
 ### `gap` — 子项间距（现代写法）
 
 ```css
-gap: 16px;        /* 行列间距都是 16px */
-gap: 16px 24px;   /* row-gap column-gap */
+gap: 16px; /* 行列间距都是 16px */
+gap: 16px 24px; /* row-gap column-gap */
 ```
 
 ---
@@ -74,17 +74,17 @@ gap: 16px 24px;   /* row-gap column-gap */
 
 ```css
 /* flex: flex-grow  flex-shrink  flex-basis */
-flex: 1;          /* 等价于 flex: 1 1 0%，常用于等分剩余空间 */
-flex: auto;       /* 等价于 flex: 1 1 auto */
-flex: none;       /* 等价于 flex: 0 0 auto，不伸缩 */
-flex: 0 1 200px;  /* 不放大，可缩小，基准 200px */
+flex: 1; /* 等价于 flex: 1 1 0%，常用于等分剩余空间 */
+flex: auto; /* 等价于 flex: 1 1 auto */
+flex: none; /* 等价于 flex: 0 0 auto，不伸缩 */
+flex: 0 1 200px; /* 不放大，可缩小，基准 200px */
 ```
 
-| 值 | flex-grow | flex-shrink | flex-basis |
-|----|-----------|-------------|------------|
-| `flex: 1` | 1 | 1 | 0% |
-| `flex: auto` | 1 | 1 | auto |
-| `flex: none` | 0 | 0 | auto |
+| 值           | flex-grow | flex-shrink | flex-basis |
+| ------------ | --------- | ----------- | ---------- |
+| `flex: 1`    | 1         | 1           | 0%         |
+| `flex: auto` | 1         | 1           | auto       |
+| `flex: none` | 0         | 0           | auto       |
 
 - **`flex-grow`**：剩余空间分配比例，`0` = 不放大
 - **`flex-shrink`**：空间不足时缩小比例，`0` = 不缩小
@@ -101,9 +101,9 @@ align-self: auto | flex-start | flex-end | center | baseline | stretch;
 ### `order` — 排列顺序
 
 ```css
-order: 0;   /* 默认 */
-order: -1;  /* 排在前面 */
-order: 1;   /* 排在后面 */
+order: 0; /* 默认 */
+order: -1; /* 排在前面 */
+order: 1; /* 排在后面 */
 ```
 
 ---
@@ -131,5 +131,7 @@ order: 1;   /* 排在后面 */
 
 ```css
 /* 导航栏右侧按钮推到最右边 */
-.nav-right { margin-left: auto; }
+.nav-right {
+  margin-left: auto;
+}
 ```

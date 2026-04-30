@@ -10,14 +10,14 @@ WebTransport 是基于 **HTTP/3（QUIC 协议）** 的新一代 Web 实时通信
 
 ### WebTransport vs WebSocket 对比
 
-| 对比维度 | WebSocket | WebTransport |
-|---------|-----------|-------------|
-| 底层协议 | TCP（via HTTP/1.1） | QUIC（via HTTP/3） |
-| 队头阻塞 | 有（TCP 层） | 无（QUIC 多流独立） |
-| 数据可靠性 | 仅可靠传输 | 可靠流 + 不可靠数据报 |
-| 连接建立 | HTTP Upgrade 握手 | 0-RTT 快速建立 |
-| 多路复用 | 单连接单流 | 单连接多流 |
-| 浏览器支持 | 全浏览器 | 现代浏览器全支持 |
+| 对比维度   | WebSocket           | WebTransport          |
+| ---------- | ------------------- | --------------------- |
+| 底层协议   | TCP（via HTTP/1.1） | QUIC（via HTTP/3）    |
+| 队头阻塞   | 有（TCP 层）        | 无（QUIC 多流独立）   |
+| 数据可靠性 | 仅可靠传输          | 可靠流 + 不可靠数据报 |
+| 连接建立   | HTTP Upgrade 握手   | 0-RTT 快速建立        |
+| 多路复用   | 单连接单流          | 单连接多流            |
+| 浏览器支持 | 全浏览器            | 现代浏览器全支持      |
 
 ### 两种传输模式
 
@@ -28,7 +28,7 @@ WebTransport 是基于 **HTTP/3（QUIC 协议）** 的新一代 Web 实时通信
 
 ```javascript
 // 建立连接
-const transport = new WebTransport('https://example.com:443/transport');
+const transport = new WebTransport("https://example.com:443/transport");
 await transport.ready;
 
 // 发送不可靠数据报
@@ -38,7 +38,7 @@ await writer.write(new Uint8Array([1, 2, 3]));
 // 创建可靠双向流
 const stream = await transport.createBidirectionalStream();
 const writer = stream.writable.getWriter();
-await writer.write(new TextEncoder().encode('Hello'));
+await writer.write(new TextEncoder().encode("Hello"));
 
 // 监听服务器推送的单向流
 const reader = transport.incomingUnidirectionalStreams.getReader();
@@ -57,16 +57,18 @@ const { value: stream } = await reader.read();
 // 完整连接示例
 async function connectWebTransport(url) {
   const transport = new WebTransport(url);
-  
-  transport.closed.then(() => {
-    console.log('连接已关闭');
-  }).catch(err => {
-    console.error('连接异常关闭:', err);
-  });
-  
+
+  transport.closed
+    .then(() => {
+      console.log("连接已关闭");
+    })
+    .catch((err) => {
+      console.error("连接异常关闭:", err);
+    });
+
   await transport.ready;
-  console.log('WebTransport 连接就绪');
-  
+  console.log("WebTransport 连接就绪");
+
   return transport;
 }
 ```

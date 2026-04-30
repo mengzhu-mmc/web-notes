@@ -26,6 +26,7 @@ https://www.zhipin.com/web/geek/jobs?query=react前端&salary=15&city=101020100
 ```
 
 **常用城市代码：**
+
 - 北京：101010100（默认，不传 city 参数时为北京）
 - 上海：101020100
 - 深圳：101280600
@@ -77,6 +78,7 @@ sleep 3
 ## 常见问题处理
 
 **搜索页岗位列表为空（result: []）**：页面可能未加载搜索结果，改用以下方式获取链接：
+
 ```bash
 ~/.catpaw/bin/catdesk browser-action '{"action":"evaluate","script":"[...document.querySelectorAll(\"a[href*=job_detail]\")].filter(a=>!a.href.includes(\"securityId\")&&a.href.length>50).map(a=>({id:a.href.match(/job_detail\\/([^.]+)/)?.[1], title:a.innerText.trim().slice(0,40)})).filter(a=>a.id&&a.title)"}'
 ```
@@ -86,6 +88,7 @@ sleep 3
 **navigate 报错 Navigation failed**：等待 3 秒后重试一次；若仍失败则跳过该岗位。
 
 **按钮找不到（querySelector 返回 null）**：用以下方式查找所有可点击元素：
+
 ```bash
 ~/.catpaw/bin/catdesk browser-action '{"action":"evaluate","script":"[...document.querySelectorAll(\"button,a\")].filter(e=>e.innerText.includes(\"沟通\")||e.innerText.includes(\"投递\")).map(e=>({tag:e.tagName,text:e.innerText.trim(),cls:e.className}))"}'
 ```
@@ -95,6 +98,7 @@ sleep 3
 ## 跳过条件速查
 
 完整规则见 `references/skip-rules.md`，核心要点：
+
 - 薪资规则：上限≥25K时下限≥13K；上限<25K时下限≥15K；大厂子公司下限≥13K（不限上限）→ 否则跳过
 - 只写 Vue / 精通 Vue / 要求 Flutter / 要求 WebGL·Three.js·Canvas → 跳过
 - 人力资源服务许可证 / 劳务派遣 / IT外包 / 公司名模糊（含"某"字）→ 跳过

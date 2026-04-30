@@ -39,7 +39,7 @@
 ### 1.2 核心概念
 
 | 概念 | 说明 |
-|------|------|
+| --- | --- |
 | **Event Loop** | Node.js 处理异步操作的核心机制，由 libuv 库实现 |
 | **Phase（阶段）** | 事件循环分为多个阶段，每个阶段处理特定类型的回调 |
 | **Microtask（微任务）** | `process.nextTick` 和 `Promise.then` |
@@ -88,7 +88,7 @@ Node.js 事件循环按顺序执行以下六个阶段：
 
 ```javascript
 setTimeout(() => {
-  console.log('timer 回调');
+  console.log("timer 回调");
 }, 100);
 ```
 
@@ -103,11 +103,11 @@ setTimeout(() => {
     - 否则，阻塞等待新的 I/O 事件
 
 ```javascript
-const fs = require('fs');
+const fs = require("fs");
 
 // I/O 回调在 poll 阶段执行
-fs.readFile('file.txt', (err, data) => {
-  console.log('I/O 回调在 poll 阶段执行');
+fs.readFile("file.txt", (err, data) => {
+  console.log("I/O 回调在 poll 阶段执行");
 });
 ```
 
@@ -118,7 +118,7 @@ fs.readFile('file.txt', (err, data) => {
 
 ```javascript
 setImmediate(() => {
-  console.log('setImmediate 回调在 check 阶段执行');
+  console.log("setImmediate 回调在 check 阶段执行");
 });
 ```
 
@@ -129,30 +129,31 @@ setImmediate(() => {
 ### 3.1 微任务的执行时机
 
 **关键规则**：
+
 - `process.nextTick` 的优先级**高于** `Promise.then`
 - 微任务在每个**阶段完成后**、进入下一阶段前执行
 - 如果微任务队列不为空，会**清空整个队列**后才继续
 
 ```javascript
-console.log('1. 同步代码开始');
+console.log("1. 同步代码开始");
 
 setTimeout(() => {
-  console.log('2. setTimeout（timers 阶段）');
+  console.log("2. setTimeout（timers 阶段）");
 }, 0);
 
 setImmediate(() => {
-  console.log('3. setImmediate（check 阶段）');
+  console.log("3. setImmediate（check 阶段）");
 });
 
 Promise.resolve().then(() => {
-  console.log('4. Promise.then（微任务）');
+  console.log("4. Promise.then（微任务）");
 });
 
 process.nextTick(() => {
-  console.log('5. process.nextTick（微任务，优先级最高）');
+  console.log("5. process.nextTick（微任务，优先级最高）");
 });
 
-console.log('6. 同步代码结束');
+console.log("6. 同步代码结束");
 
 // 输出顺序：
 // 1. 同步代码开始
@@ -177,6 +178,7 @@ dangerous();
 ```
 
 **最佳实践**：
+
 - 优先使用 `setImmediate`，它会在 I/O 事件后执行，不会饿死事件循环
 - `process.nextTick` 仅用于需要立即执行的特定场景
 
@@ -188,17 +190,18 @@ dangerous();
 
 ```javascript
 setTimeout(() => {
-  console.log('setTimeout');
+  console.log("setTimeout");
 }, 0);
 
 setImmediate(() => {
-  console.log('setImmediate');
+  console.log("setImmediate");
 });
 ```
 
 **答案**：执行顺序**不确定**
 
 **原因**：
+
 - 如果代码在主模块中执行，两者都在 timers 阶段后进入事件循环
 - `setTimeout(fn, 0)` 实际最小延迟约为 1-4ms（取决于系统）
 - 如果事件循环启动耗时超过 1ms，`setTimeout` 先执行；否则 `setImmediate` 可能先执行
@@ -206,15 +209,15 @@ setImmediate(() => {
 **但在 I/O 回调中，顺序是确定的**：
 
 ```javascript
-const fs = require('fs');
+const fs = require("fs");
 
-fs.readFile('file.txt', () => {
+fs.readFile("file.txt", () => {
   setTimeout(() => {
-    console.log('setTimeout');  // 后执行
+    console.log("setTimeout"); // 后执行
   }, 0);
-  
+
   setImmediate(() => {
-    console.log('setImmediate'); // 先执行
+    console.log("setImmediate"); // 先执行
   });
 });
 ```
@@ -224,34 +227,35 @@ fs.readFile('file.txt', () => {
 ### 4.2 综合执行顺序题
 
 ```javascript
-console.log('1');
+console.log("1");
 
 setTimeout(() => {
-  console.log('2');
-  process.nextTick(() => console.log('3'));
-  Promise.resolve().then(() => console.log('4'));
+  console.log("2");
+  process.nextTick(() => console.log("3"));
+  Promise.resolve().then(() => console.log("4"));
 }, 0);
 
 process.nextTick(() => {
-  console.log('5');
-  process.nextTick(() => console.log('6'));
+  console.log("5");
+  process.nextTick(() => console.log("6"));
 });
 
 Promise.resolve().then(() => {
-  console.log('7');
-  process.nextTick(() => console.log('8'));
+  console.log("7");
+  process.nextTick(() => console.log("8"));
 });
 
 setImmediate(() => {
-  console.log('9');
+  console.log("9");
 });
 
-console.log('10');
+console.log("10");
 ```
 
 **答案**：`1 10 5 6 7 8 2 3 4 9`
 
 **解析**：
+
 1. 同步代码：`1`、`10`
 2. 第一轮微任务：`nextTick 队列 [5]` → 执行 5，新增 `nextTick 队列 [6]` → 执行 6
 3. 第一轮微任务：`Promise 队列 [7]` → 执行 7，新增 `nextTick 队列 [8]` → 执行 8（nextTick 优先级高）
@@ -263,7 +267,7 @@ console.log('10');
 ## 五、Node.js vs 浏览器事件循环
 
 | 特性 | 浏览器 | Node.js |
-|------|--------|---------|
+| --- | --- | --- |
 | **宏任务来源** | `setTimeout`、`setInterval`、I/O、UI 渲染 | `setTimeout`、`setInterval`、`setImmediate`、I/O、close 事件 |
 | **微任务** | `Promise.then`、`MutationObserver` | `process.nextTick`、`Promise.then` |
 | **微任务优先级** | `Promise.then` 唯一微任务 | `process.nextTick` > `Promise.then` |
@@ -322,17 +326,17 @@ setImmediate(() => {
 ### 6.2 在 I/O 操作后延迟执行
 
 ```javascript
-const fs = require('fs');
+const fs = require("fs");
 
-fs.readFile('config.json', (err, data) => {
+fs.readFile("config.json", (err, data) => {
   // I/O 完成后，优先执行 setImmediate
   setImmediate(() => {
-    console.log('I/O 完成后立即执行');
+    console.log("I/O 完成后立即执行");
   });
-  
+
   // 下一轮循环才执行
   setTimeout(() => {
-    console.log('下一轮循环执行');
+    console.log("下一轮循环执行");
   }, 0);
 });
 ```
@@ -342,10 +346,10 @@ fs.readFile('config.json', (err, data) => {
 ```javascript
 function processLargeArray(array) {
   const chunk = array.splice(0, 100);
-  
+
   // 处理这一批数据
   processChunk(chunk);
-  
+
   if (array.length > 0) {
     // 让出事件循环，处理其他 I/O
     setImmediate(() => processLargeArray(array));

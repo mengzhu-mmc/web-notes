@@ -11,21 +11,21 @@
 ```typescript
 class LRUCache {
   constructor(capacity: number) {}
-  get(key: number): number     // 未命中返回 -1，命中并更新为"最近使用"
-  put(key: number, value: number): void  // 插入/更新，超容量时淘汰最久未用的
+  get(key: number): number; // 未命中返回 -1，命中并更新为"最近使用"
+  put(key: number, value: number): void; // 插入/更新，超容量时淘汰最久未用的
 }
 
 // 示例（capacity = 2）
 const cache = new LRUCache(2);
-cache.put(1, 1);   // {1=1}
-cache.put(2, 2);   // {1=1, 2=2}
-cache.get(1);      // 返回 1，{2=2, 1=1}（1 变为最近使用）
-cache.put(3, 3);   // 淘汰 2，{1=1, 3=3}
-cache.get(2);      // 返回 -1（已淘汰）
-cache.put(4, 4);   // 淘汰 1，{3=3, 4=4}
-cache.get(1);      // 返回 -1
-cache.get(3);      // 返回 3
-cache.get(4);      // 返回 4
+cache.put(1, 1); // {1=1}
+cache.put(2, 2); // {1=1, 2=2}
+cache.get(1); // 返回 1，{2=2, 1=1}（1 变为最近使用）
+cache.put(3, 3); // 淘汰 2，{1=1, 3=3}
+cache.get(2); // 返回 -1（已淘汰）
+cache.put(4, 4); // 淘汰 1，{3=3, 4=4}
+cache.get(1); // 返回 -1
+cache.get(3); // 返回 3
+cache.get(4); // 返回 4
 ```
 
 **要求**：`get` 和 `put` 操作均为 **O(1)** 时间复杂度。
@@ -41,6 +41,7 @@ cache.get(4);      // 返回 4
 - `put`：超容量时删除最旧的 → 需要 O(1) 删除任意位置
 
 **经典方案**：`HashMap + 双向链表`
+
 - HashMap 提供 O(1) 查找
 - 双向链表维护顺序（头部 = 最近使用，尾部 = 最久未用）
 - 双向链表支持 O(1) 删除任意节点（已知节点指针的前提下）
@@ -48,6 +49,7 @@ cache.get(4);      // 返回 4
 ### JavaScript 的天然优势：Map
 
 ES6 的 `Map` 是**有序**的（按插入顺序迭代），可以直接利用这个特性模拟 LRU：
+
 - 命中时：delete + set，将 key 移到末尾（最近使用）
 - 淘汰时：`map.keys().next().value` 取出第一个 key（最久未用）
 
@@ -100,6 +102,7 @@ class LRUCache {
 ```
 
 **时间复杂度分析**：
+
 - `Map.has / get / delete / set`：均为 O(1) 平均
 - `Map.keys().next()`：O(1)（只取第一个迭代器）
 
@@ -190,32 +193,32 @@ function runTest() {
   const cache = new LRUCache(2);
   cache.put(1, 1);
   cache.put(2, 2);
-  console.assert(cache.get(1) === 1, 'get(1) should be 1');
+  console.assert(cache.get(1) === 1, "get(1) should be 1");
   cache.put(3, 3); // 淘汰 key 2
-  console.assert(cache.get(2) === -1, 'key 2 should be evicted');
-  console.assert(cache.get(3) === 3, 'get(3) should be 3');
+  console.assert(cache.get(2) === -1, "key 2 should be evicted");
+  console.assert(cache.get(3) === 3, "get(3) should be 3");
   cache.put(4, 4); // 淘汰 key 1
-  console.assert(cache.get(1) === -1, 'key 1 should be evicted');
-  console.assert(cache.get(3) === 3, 'get(3) should be 3');
-  console.assert(cache.get(4) === 4, 'get(4) should be 4');
+  console.assert(cache.get(1) === -1, "key 1 should be evicted");
+  console.assert(cache.get(3) === 3, "get(3) should be 3");
+  console.assert(cache.get(4) === 4, "get(4) should be 4");
 
   // 更新已有 key
   const cache2 = new LRUCache(2);
   cache2.put(1, 1);
   cache2.put(2, 2);
   cache2.put(1, 10); // 更新 key 1
-  console.assert(cache2.get(1) === 10, 'updated value should be 10');
+  console.assert(cache2.get(1) === 10, "updated value should be 10");
   cache2.put(3, 3); // 淘汰 key 2（1 最近被访问）
-  console.assert(cache2.get(2) === -1, 'key 2 should be evicted after update');
+  console.assert(cache2.get(2) === -1, "key 2 should be evicted after update");
 
   // capacity = 1
   const cache3 = new LRUCache(1);
   cache3.put(1, 1);
   cache3.put(2, 2); // 淘汰 1
-  console.assert(cache3.get(1) === -1, 'key 1 evicted');
-  console.assert(cache3.get(2) === 2, 'key 2 ok');
+  console.assert(cache3.get(1) === -1, "key 1 evicted");
+  console.assert(cache3.get(2) === 2, "key 2 ok");
 
-  console.log('All tests passed! ✅');
+  console.log("All tests passed! ✅");
 }
 
 runTest();
@@ -244,6 +247,7 @@ runTest();
 LFU 维护的是**访问频率**而非**访问时间**，淘汰频率最低的项（同频率中淘汰最旧的）。
 
 需要额外维护：
+
 - `keyMap`：key → {value, freq}
 - `freqMap`：freq → 该频率下的有序 key 集合（用 LinkedHashSet）
 - `minFreq`：当前最小频率

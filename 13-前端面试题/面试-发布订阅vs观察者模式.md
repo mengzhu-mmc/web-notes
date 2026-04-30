@@ -1,7 +1,6 @@
 # 发布-订阅模式 vs 观察者模式（源码级理解）
 
-> 来源：前端面试每日推送 2026-04-25（周六·TypeScript + 进阶）
-> 难度：⭐⭐⭐⭐
+> 来源：前端面试每日推送 2026-04-25（周六·TypeScript + 进阶）难度：⭐⭐⭐⭐
 
 ## 关联笔记
 
@@ -45,7 +44,7 @@ class Dep {
   }
 
   notify() {
-    this.subscribers.forEach(fn => fn());
+    this.subscribers.forEach((fn) => fn());
   }
 }
 
@@ -53,7 +52,7 @@ let activeEffect: EffectFn | null = null;
 
 function effect(fn: EffectFn) {
   activeEffect = fn;
-  fn();           // 执行时触发 getter → 自动收集依赖
+  fn(); // 执行时触发 getter → 自动收集依赖
   activeEffect = null;
 }
 
@@ -74,18 +73,18 @@ function trigger(target: object, key: string) {
 }
 
 // 使用：声明式响应式
-const state = reactive({ count: 0, name: 'hello' });
+const state = reactive({ count: 0, name: "hello" });
 function reactive<T extends object>(obj: T): T {
   return new Proxy(obj, {
     get(target, key) {
-      track(target, String(key));  // 读的时候收集依赖
+      track(target, String(key)); // 读的时候收集依赖
       return Reflect.get(target, key);
     },
     set(target, key, value) {
       Reflect.set(target, key, value);
       trigger(target, String(key)); // 写的时候触发更新
       return true;
-    }
+    },
   });
 }
 
@@ -113,7 +112,7 @@ class EventEmitter {
   }
 
   emit(event: string, ...args: any[]) {
-    this.events.get(event)?.forEach(fn => fn(...args));
+    this.events.get(event)?.forEach((fn) => fn(...args));
   }
 
   once(event: string, listener: (...args: any[]) => void) {
@@ -129,10 +128,10 @@ class EventEmitter {
 const bus = new EventEmitter();
 
 // 模块 A 发布
-bus.emit('user:login', { userId: 'u001', role: 'admin' });
+bus.emit("user:login", { userId: "u001", role: "admin" });
 
 // 模块 B 订阅
-const off = bus.on('user:login', (payload) => {
+const off = bus.on("user:login", (payload) => {
   console.log(`收到登录事件:`, payload);
   // 模块 B 可以更新自己的权限状态，完全不知道模块 A 的存在
 });

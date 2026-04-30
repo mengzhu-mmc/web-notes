@@ -19,9 +19,9 @@ function Counter() {
     setCount(count + 1);
 
     // ✅ 使用函数式更新
-    setCount(c => c + 1);
-    setCount(c => c + 1);
-    setCount(c => c + 1); // count 最终 +3
+    setCount((c) => c + 1);
+    setCount((c) => c + 1);
+    setCount((c) => c + 1); // count 最终 +3
   };
 }
 ```
@@ -53,11 +53,13 @@ useEffect(() => {
 ```jsx
 // ❌ 不需要 useCallback 的场景（没传给 memo 子组件）
 const handleClick = useCallback(() => {
-  console.log('clicked');
+  console.log("clicked");
 }, []);
 
 // ✅ 需要 useCallback：传给 memo 子组件
-const MemoChild = React.memo(({ onClick }) => <button onClick={onClick}>Click</button>);
+const MemoChild = React.memo(({ onClick }) => (
+  <button onClick={onClick}>Click</button>
+));
 
 function Parent() {
   const handleClick = useCallback(() => doSomething(), []);
@@ -70,13 +72,16 @@ function Parent() {
 ## 二、自定义 Hooks 实战
 
 ### useLocalStorage
+
 ```jsx
 function useLocalStorage(key, initialValue) {
   const [value, setValue] = useState(() => {
     try {
       const item = localStorage.getItem(key);
       return item ? JSON.parse(item) : initialValue;
-    } catch { return initialValue; }
+    } catch {
+      return initialValue;
+    }
   });
   useEffect(() => {
     localStorage.setItem(key, JSON.stringify(value));
@@ -86,6 +91,7 @@ function useLocalStorage(key, initialValue) {
 ```
 
 ### useDebounce
+
 ```jsx
 function useDebounce(value, delay = 300) {
   const [debouncedValue, setDebouncedValue] = useState(value);
@@ -98,6 +104,7 @@ function useDebounce(value, delay = 300) {
 ```
 
 ### useFetch
+
 ```jsx
 function useFetch(url) {
   const [data, setData] = useState(null);
@@ -108,9 +115,11 @@ function useFetch(url) {
     const controller = new AbortController();
     setLoading(true);
     fetch(url, { signal: controller.signal })
-      .then(res => res.json())
+      .then((res) => res.json())
       .then(setData)
-      .catch(err => { if (err.name !== 'AbortError') setError(err); })
+      .catch((err) => {
+        if (err.name !== "AbortError") setError(err);
+      })
       .finally(() => setLoading(false));
     return () => controller.abort();
   }, [url]);
@@ -120,15 +129,19 @@ function useFetch(url) {
 ```
 
 ### usePrevious
+
 ```jsx
 function usePrevious(value) {
   const ref = useRef();
-  useEffect(() => { ref.current = value; });
+  useEffect(() => {
+    ref.current = value;
+  });
   return ref.current;
 }
 ```
 
 ### useClickOutside
+
 ```jsx
 function useClickOutside(ref, handler) {
   useEffect(() => {
@@ -136,13 +149,14 @@ function useClickOutside(ref, handler) {
       if (!ref.current || ref.current.contains(e.target)) return;
       handler(e);
     };
-    document.addEventListener('mousedown', listener);
-    return () => document.removeEventListener('mousedown', listener);
+    document.addEventListener("mousedown", listener);
+    return () => document.removeEventListener("mousedown", listener);
   }, [ref, handler]);
 }
 ```
 
 ### useIntersectionObserver
+
 ```jsx
 function useIntersectionObserver(ref, options = {}) {
   const [isVisible, setIsVisible] = useState(false);
@@ -171,6 +185,7 @@ function useIntersectionObserver(ref, options = {}) {
 ## 四、面试手写题
 
 ### useUpdate（强制更新）
+
 ```jsx
 function useUpdate() {
   const [, setState] = useState({});
@@ -179,9 +194,12 @@ function useUpdate() {
 ```
 
 ### useMount / useUnmount
+
 ```jsx
 function useMount(fn) {
-  useEffect(() => { fn(); }, []);
+  useEffect(() => {
+    fn();
+  }, []);
 }
 function useUnmount(fn) {
   const fnRef = useRef(fn);

@@ -30,8 +30,8 @@ let b = 2;
 
 // const 对象属性可修改
 const obj = { x: 1 };
-obj.x = 2;    // ✅ 可以修改属性
-obj = {};     // ❌ 不能重新赋值
+obj.x = 2; // ✅ 可以修改属性
+obj = {}; // ❌ 不能重新赋值
 ```
 
 ---
@@ -41,18 +41,26 @@ obj = {};     // ❌ 不能重新赋值
 ```js
 // 1. this 指向不同
 const obj = {
-  name: 'obj',
+  name: "obj",
   // 普通函数：this 指向调用者
-  sayName: function() { console.log(this.name); },
+  sayName: function () {
+    console.log(this.name);
+  },
   // 箭头函数：this 继承外层（定义时的 this）
-  sayNameArrow: () => { console.log(this.name); } // this 是 window/undefined
+  sayNameArrow: () => {
+    console.log(this.name);
+  }, // this 是 window/undefined
 };
-obj.sayName();       // 'obj'
-obj.sayNameArrow();  // undefined
+obj.sayName(); // 'obj'
+obj.sayNameArrow(); // undefined
 
 // 2. 箭头函数没有 arguments 对象
-function fn() { console.log(arguments); } // Arguments 对象
-const arrow = () => { console.log(arguments); } // ReferenceError
+function fn() {
+  console.log(arguments);
+} // Arguments 对象
+const arrow = () => {
+  console.log(arguments);
+}; // ReferenceError
 
 // 3. 箭头函数不能作为构造函数
 const Foo = () => {};
@@ -77,22 +85,25 @@ const [a, b, ...rest] = [1, 2, 3, 4, 5];
 // a=1, b=2, rest=[3,4,5]
 
 // 对象解构（重命名 + 默认值）
-const { name: userName = '匿名', age = 18 } = { name: '张三' };
+const { name: userName = "匿名", age = 18 } = { name: "张三" };
 // userName='张三', age=18
 
 // 函数参数解构
-function greet({ name = '匿名', age = 0 } = {}) {
+function greet({ name = "匿名", age = 0 } = {}) {
   console.log(`${name}, ${age}岁`);
 }
-greet({ name: '李四', age: 25 }); // 李四, 25岁
+greet({ name: "李四", age: 25 }); // 李四, 25岁
 greet(); // 匿名, 0岁
 
 // 嵌套解构
-const { a: { b: deepValue } } = { a: { b: 42 } };
+const {
+  a: { b: deepValue },
+} = { a: { b: 42 } };
 // deepValue = 42
 
 // 交换变量
-let x = 1, y = 2;
+let x = 1,
+  y = 2;
 [x, y] = [y, x]; // x=2, y=1
 ```
 
@@ -152,9 +163,9 @@ const b = new Set([2, 3, 4]);
 // 并集
 const union = new Set([...a, ...b]); // {1,2,3,4}
 // 交集
-const intersection = new Set([...a].filter(x => b.has(x))); // {2,3}
+const intersection = new Set([...a].filter((x) => b.has(x))); // {2,3}
 // 差集
-const difference = new Set([...a].filter(x => !b.has(x))); // {1}
+const difference = new Set([...a].filter((x) => !b.has(x))); // {1}
 ```
 
 ### WeakMap / WeakSet
@@ -163,12 +174,12 @@ const difference = new Set([...a].filter(x => !b.has(x))); // {1}
 // WeakMap：key 必须是对象，弱引用（不阻止 GC）
 const weakMap = new WeakMap();
 let obj = {};
-weakMap.set(obj, 'data');
+weakMap.set(obj, "data");
 obj = null; // obj 被 GC 回收，weakMap 中的条目也自动删除
 
 // 典型用途：存储 DOM 节点的私有数据，避免内存泄漏
 const domData = new WeakMap();
-domData.set(document.getElementById('app'), { clicks: 0 });
+domData.set(document.getElementById("app"), { clicks: 0 });
 ```
 
 ---
@@ -186,16 +197,16 @@ domData.set(document.getElementById('app'), { clicks: 0 });
 
 ```js
 // CommonJS
-const { add } = require('./math');
+const { add } = require("./math");
 module.exports = { add };
 
 // ES Module
-import { add } from './math.js';
+import { add } from "./math.js";
 export { add };
 export default function main() {}
 
 // 动态导入（懒加载）
-const module = await import('./heavy-module.js');
+const module = await import("./heavy-module.js");
 ```
 
 **关键区别：输出值的拷贝 vs 引用**
@@ -206,7 +217,7 @@ let count = 0;
 module.exports = { count, increment: () => count++ };
 
 // main.js
-const { count, increment } = require('./math');
+const { count, increment } = require("./math");
 increment();
 console.log(count); // 0 ❗ 拷贝的是当时的值，不会更新
 
@@ -215,7 +226,7 @@ export let count = 0;
 export const increment = () => count++;
 
 // main.mjs
-import { count, increment } from './math.mjs';
+import { count, increment } from "./math.mjs";
 increment();
 console.log(count); // 1 ✅ 引用，会实时更新
 ```
@@ -226,9 +237,9 @@ console.log(count); // 1 ✅ 引用，会实时更新
 
 ```js
 // 可选链：安全访问深层属性
-const user = { profile: { address: { city: '北京' } } };
+const user = { profile: { address: { city: "北京" } } };
 const city = user?.profile?.address?.city; // '北京'
-const zip = user?.profile?.address?.zip;   // undefined（不报错）
+const zip = user?.profile?.address?.zip; // undefined（不报错）
 
 // 方法调用
 user?.getName?.(); // 如果 getName 不存在，返回 undefined
@@ -237,12 +248,12 @@ user?.getName?.(); // 如果 getName 不存在，返回 undefined
 arr?.[0]; // 如果 arr 是 null/undefined，返回 undefined
 
 // 空值合并：只有 null 和 undefined 才触发默认值
-const name = user.name ?? '匿名'; // 只有 null/undefined 才用 '匿名'
+const name = user.name ?? "匿名"; // 只有 null/undefined 才用 '匿名'
 const count = 0 ?? 10; // 0（不是 null/undefined，所以用 0）
 const count2 = 0 || 10; // 10（|| 会把 0、''、false 都当 falsy）
 
 // 结合使用
-const displayName = user?.profile?.name ?? '匿名用户';
+const displayName = user?.profile?.name ?? "匿名用户";
 ```
 
 ---
@@ -257,14 +268,14 @@ const handler = {
     return Reflect.get(target, key);
   },
   set(target, key, value) {
-    if (typeof value !== 'number') throw new TypeError('只能设置数字');
+    if (typeof value !== "number") throw new TypeError("只能设置数字");
     return Reflect.set(target, key, value);
-  }
+  },
 };
 
 const proxy = new Proxy({}, handler);
-proxy.age = 25;   // 正常
-proxy.age = 'abc'; // TypeError
+proxy.age = 25; // 正常
+proxy.age = "abc"; // TypeError
 
 // Vue3 响应式原理就是基于 Proxy
 // 相比 Object.defineProperty 的优势：
@@ -282,18 +293,18 @@ proxy.age = 'abc'; // TypeError
 用于支持**负索引**访问数组元素，比 `arr[arr.length - 1]` 更简洁：
 
 ```js
-const arr = [1, 2, 3, 4, 5]
+const arr = [1, 2, 3, 4, 5];
 
-arr.at(0)   // 1（正索引，同 arr[0]）
-arr.at(-1)  // 5（最后一个，等价于 arr[arr.length - 1]）
-arr.at(-2)  // 4（倒数第二个）
+arr.at(0); // 1（正索引，同 arr[0]）
+arr.at(-1); // 5（最后一个，等价于 arr[arr.length - 1]）
+arr.at(-2); // 4（倒数第二个）
 
 // 字符串同样支持
-'hello'.at(-1) // 'o'
+"hello".at(-1); // 'o'
 
 // 旧写法 vs 新写法
-const last = arr[arr.length - 1]  // 繁琐
-const last2 = arr.at(-1)          // ✅ 简洁
+const last = arr[arr.length - 1]; // 繁琐
+const last2 = arr.at(-1); // ✅ 简洁
 ```
 
 ### Object.hasOwn()（ES2022）
@@ -301,21 +312,21 @@ const last2 = arr.at(-1)          // ✅ 简洁
 更安全的 `hasOwnProperty` 替代，解决继承对象可能覆盖 `hasOwnProperty` 的问题：
 
 ```js
-const obj = { name: 'Alice', age: 25 }
+const obj = { name: "Alice", age: 25 };
 
 // 旧写法（有风险）
-obj.hasOwnProperty('name')  // true，但如果 obj 覆盖了该方法会出错
-Object.prototype.hasOwnProperty.call(obj, 'name')  // 安全但啰嗦
+obj.hasOwnProperty("name"); // true，但如果 obj 覆盖了该方法会出错
+Object.prototype.hasOwnProperty.call(obj, "name"); // 安全但啰嗦
 
 // ✅ 新写法：Object.hasOwn
-Object.hasOwn(obj, 'name')   // true
-Object.hasOwn(obj, 'toString')  // false（继承属性返回 false）
+Object.hasOwn(obj, "name"); // true
+Object.hasOwn(obj, "toString"); // false（继承属性返回 false）
 
 // 特别场景：null 原型对象（Object.create(null)）
-const noProto = Object.create(null)
-noProto.foo = 1
+const noProto = Object.create(null);
+noProto.foo = 1;
 // noProto.hasOwnProperty('foo') // ❌ TypeError: noProto.hasOwnProperty is not a function
-Object.hasOwn(noProto, 'foo')   // ✅ true
+Object.hasOwn(noProto, "foo"); // ✅ true
 ```
 
 ### Array.fromAsync()（ES2024 Stage 4）
@@ -325,19 +336,19 @@ Object.hasOwn(noProto, 'foo')   // ✅ true
 ```js
 // 基本用法：异步生成器 → 数组
 async function* generateNumbers() {
-  yield 1
-  yield 2
-  yield 3
+  yield 1;
+  yield 2;
+  yield 3;
 }
 
-const arr = await Array.fromAsync(generateNumbers()) // [1, 2, 3]
+const arr = await Array.fromAsync(generateNumbers()); // [1, 2, 3]
 
 // 配合映射函数
-const doubled = await Array.fromAsync(generateNumbers(), x => x * 2) // [2, 4, 6]
+const doubled = await Array.fromAsync(generateNumbers(), (x) => x * 2); // [2, 4, 6]
 
 // 处理 Promise 数组（类似 Promise.all，但逐个 await）
-const promises = [Promise.resolve(1), Promise.resolve(2), Promise.resolve(3)]
-const results = await Array.fromAsync(promises) // [1, 2, 3]
+const promises = [Promise.resolve(1), Promise.resolve(2), Promise.resolve(3)];
+const results = await Array.fromAsync(promises); // [1, 2, 3]
 ```
 
 ### Promise.withResolvers()（ES2024）
@@ -346,32 +357,32 @@ const results = await Array.fromAsync(promises) // [1, 2, 3]
 
 ```js
 // ❌ 旧写法：提取 resolve/reject 很繁琐
-let resolve, reject
+let resolve, reject;
 const promise = new Promise((res, rej) => {
-  resolve = res
-  reject = rej
-})
+  resolve = res;
+  reject = rej;
+});
 
 // ✅ 新写法：一行搞定
-const { promise, resolve, reject } = Promise.withResolvers()
+const { promise, resolve, reject } = Promise.withResolvers();
 
 // 实际应用：实现可中断的加载状态
 function createAbortableTask(fn) {
-  const { promise, resolve, reject } = Promise.withResolvers()
-  fn(resolve, reject)
+  const { promise, resolve, reject } = Promise.withResolvers();
+  fn(resolve, reject);
   return {
     result: promise,
-    cancel: () => reject(new Error('cancelled'))
-  }
+    cancel: () => reject(new Error("cancelled")),
+  };
 }
 
 const task = createAbortableTask((resolve) => {
-  setTimeout(() => resolve('done'), 3000)
-})
+  setTimeout(() => resolve("done"), 3000);
+});
 
 // 3 秒前取消
-task.cancel()
-task.result.catch(err => console.log(err.message)) // 'cancelled'
+task.cancel();
+task.result.catch((err) => console.log(err.message)); // 'cancelled'
 ```
 
 ### 顶层 await（Top-level await，ES2022）
@@ -380,16 +391,16 @@ task.result.catch(err => console.log(err.message)) // 'cancelled'
 
 ```js
 // config.mjs — 顶层 await 加载配置
-const config = await fetch('/api/config').then(r => r.json())
-export { config }
+const config = await fetch("/api/config").then((r) => r.json());
+export { config };
 
 // db.mjs — 等待数据库连接
-const db = await connectDatabase()
-export { db }
+const db = await connectDatabase();
+export { db };
 
 // main.mjs — 导入时自动等待上面的 await 完成
-import { config } from './config.mjs' // 等 fetch 完成后才执行
-import { db } from './db.mjs'        // 等 connectDatabase 完成后才执行
+import { config } from "./config.mjs"; // 等 fetch 完成后才执行
+import { db } from "./db.mjs"; // 等 connectDatabase 完成后才执行
 ```
 
 **注意事项**：
@@ -399,15 +410,15 @@ import { db } from './db.mjs'        // 等 connectDatabase 完成后才执行
 // 避免在顶层 await 耗时操作，以免影响应用启动速度
 
 // ✅ 适合的场景
-export const data = await loadStaticData()       // 一次性初始化
-export const wasm = await WebAssembly.compile(wasmBytes)  // WASM 编译
+export const data = await loadStaticData(); // 一次性初始化
+export const wasm = await WebAssembly.compile(wasmBytes); // WASM 编译
 
 // ❌ 不适合的场景
-export const result = await heavyComputation()  // 耗时计算，会拖慢整个模块加载
+export const result = await heavyComputation(); // 耗时计算，会拖慢整个模块加载
 ```
 
 | 特性 | 引入版本 | Chrome | Node.js | 备注 |
-|------|---------|--------|---------|------|
+| --- | --- | --- | --- | --- |
 | `Array.at()` | ES2022 | 92+ | 16.6+ | 字符串也支持 |
 | `Object.hasOwn()` | ES2022 | 93+ | 16.9+ | 替代 `hasOwnProperty` |
 | `Array.fromAsync()` | ES2024 | 121+ | 22+ | 仍需关注兼容性 |

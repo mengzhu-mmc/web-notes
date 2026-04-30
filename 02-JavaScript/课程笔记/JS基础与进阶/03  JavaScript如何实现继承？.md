@@ -176,20 +176,11 @@ console.log(o.d); <span class="hljs-comment">// o.c =&gt; o.__proto__.d =&gt; o.
   <span class="hljs-keyword">this</span>.name = name;
 }
 
-<span class="hljs-comment">// 需要复用、共享的方法定义在父类原型上</span>
-Parent.prototype.speak = function() {
-  console.log(<span class="hljs-string">"hello"</span>);
-};
+<span class="hljs-comment">// 需要复用、共享的方法定义在父类原型上</span> Parent.prototype.speak = function() { console.log(<span class="hljs-string">"hello"</span>); };
 
-<span class="hljs-function">function <span class="hljs-title">Child</span><span class="hljs-params">(name)</span> </span>{
-  Parent.call(<span class="hljs-keyword">this</span>, name);
-}
+<span class="hljs-function">function <span class="hljs-title">Child</span><span class="hljs-params">(name)</span> </span>{ Parent.call(<span class="hljs-keyword">this</span>, name); }
 
-<span class="hljs-comment">// 继承方法</span>
-Child.prototype = <span class="hljs-keyword">new</span> Parent();
-</code></pre>
-
-
+<span class="hljs-comment">// 继承方法</span> Child.prototype = <span class="hljs-keyword">new</span> Parent(); </code></pre>
 
 <p data-nodeid="1833">组合继承模式通过将共享属性定义在父类原型上、将私有属性通过构造函数赋值的方式，实现了按需共享对象和方法，是 JavaScript 中最常用的继承模式。</p>
 <p data-nodeid="1834">虽然在继承的实现方式上有很多种，但实际上都离不开原型对象和原型链的内容，因此掌握<code data-backticks="1" data-nodeid="2131">__proto__</code>和<code data-backticks="1" data-nodeid="2133">prototype</code>、对象的继承等这些知识，是我们实现各种继承方式的前提。</p>
@@ -215,84 +206,105 @@ Child.prototype = <span class="hljs-keyword">new</span> Parent();
 ### 精选评论
 
 ##### Better：
+
 > 老师讲的好棒👍🏻1. 函数是一种特殊的对象，在对象内部属性拥有仅供 JavaScript引擎读取的 Call 属性的对象称为函数，使用 typeof 检测时会被识别为 function 。2. proto 可以称作指针指向 prototype ，后者实质上也是对象。3. 可以将 proto 比作链，prototype 比作节点，以 null 为顶点链接起来形成原型链，当访问标识符时，实例没有则会去原型链上查找，找到则返回结果，直到顶端 null 没找到则返回 undefined。
 
- ###### &nbsp;&nbsp;&nbsp; 编辑回复：
+###### &nbsp;&nbsp;&nbsp; 编辑回复：
+
 > &nbsp;&nbsp;&nbsp; 你也好棒！
 
-##### **2951：
-> 1、Function instanceof Object === true;2、只有函数才有prototype 只有对象才有__proto__;3、一个对象的__proto__指向了另一个对象， 另一个对象的__proto__又指向了其他对象，举例let a = {name : "a"}let b = {age: 12}let c={}c.__proto__ = bb.__proto__ = a此时 c继承了a 和 b b继承了 a，同时他们的继承关系组成了一条原型链
+##### \*\*2951：
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+> 1、Function instanceof Object === true;2、只有函数才有prototype 只有对象才有**proto**;3、一个对象的**proto**指向了另一个对象， 另一个对象的**proto**又指向了其他对象，举例let a = {name : "a"}let b = {age: 12}let c={}c.**proto** = bb.**proto** = a此时 c继承了a 和 b b继承了 a，同时他们的继承关系组成了一条原型链
+
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 没毛病！
 
-##### *聪：
-> 对于构造函数，原型对象等概念不清晰的同学可以看看我的CSDN上的博客（看完一定懂）：《帮你彻底搞懂JS中的prototype、__proto__与constructor（图解）》，没错，原创：码飞_CC，就是我啦~~
+##### \*聪：
 
-##### **雄：
-> 被删老师你好，我对于”函数的 `prototype` 属性指向它的原型对象“这句话有不同的看法；在此之前你说每个对象的 `__proto__` 指向它的原型对象，我是比较赞成的，所以对于函数，它的原型对象也应该是由 `__proto__` 指向的。那么函数的 `prototype` 要怎么理解的，它应该指向函数的实例对象的原型对象；对于一个函数，它的原型对象应该是 fn.__proto__ = Function.prototype , 也就是对于内置的构造函数 Function 的 prototype 指向它的实例对象 fn 的原型对象；以上是我结合老师讲解后，觉得有一丢丢矛盾的地方，进行了一点点自己的理解，不知道是否有偏差，希望老师能点评一下，万分感谢
+> 对于构造函数，原型对象等概念不清晰的同学可以看看我的CSDN上的博客（看完一定懂）：《帮你彻底搞懂JS中的prototype、**proto**与constructor（图解）》，没错，原创：码飞\_CC，就是我啦~~
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
-> &nbsp;&nbsp;&nbsp; 文中应该没有说 prototype 属性指向它的原型对象？prototype 属性可以理解为就是函数的原型对象。 Function.prototype 在实例化之前就存在了，而 fn.__proto__ = Function.prototype 是在实例化过程中，将实例的 __proto__ 属性指向 Function.prototype 从而构成原型链。函数本身、以及函数的实例，这两者需要区分清楚~
-因此，你说的“对于内置的构造函数 Function 的 prototype 指向它的实例对象 fn 的原型对象”，个人认为这样可能更加准确：“fn 这个实例，它的 __proto__ 指向它的构造函数的原型对象，即 Function.prototype”。
+##### \*\*雄：
 
-##### **怿：
-> Person.__proto__ === lily.__proto__ ?
+> 被删老师你好，我对于”函数的 `prototype` 属性指向它的原型对象“这句话有不同的看法；在此之前你说每个对象的 `__proto__` 指向它的原型对象，我是比较赞成的，所以对于函数，它的原型对象也应该是由 `__proto__` 指向的。那么函数的 `prototype` 要怎么理解的，它应该指向函数的实例对象的原型对象；对于一个函数，它的原型对象应该是 fn.**proto** = Function.prototype , 也就是对于内置的构造函数 Function 的 prototype 指向它的实例对象 fn 的原型对象；以上是我结合老师讲解后，觉得有一丢丢矛盾的地方，进行了一点点自己的理解，不知道是否有偏差，希望老师能点评一下，万分感谢
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
-> &nbsp;&nbsp;&nbsp; lily.__proto__ === Person.prototype；
-Person.prototype.__proto__ === Object.prototype；
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
 
-##### *聪：
-> 1. JavaScript中的函数也是一种对象。除了七种基本类型值，其他的所有都是对象，这就是JS中所谓的万物皆对象。2.__ptoto__属性是对象独有的，prototype属性是函数所独有的，因为函数也是一种对象，所以函数既有__proto__属性，也具有prototype属性，这点需要细细品味！3.对象的继承是依靠原型链来实现的，通过原型链，我们才可以使用其他对象上的属性或方法。
+> &nbsp;&nbsp;&nbsp; 文中应该没有说 prototype 属性指向它的原型对象？prototype 属性可以理解为就是函数的原型对象。 Function.prototype 在实例化之前就存在了，而 fn.**proto** = Function.prototype 是在实例化过程中，将实例的 **proto** 属性指向 Function.prototype 从而构成原型链。函数本身、以及函数的实例，这两者需要区分清楚~ 因此，你说的“对于内置的构造函数 Function 的 prototype 指向它的实例对象 fn 的原型对象”，个人认为这样可能更加准确：“fn 这个实例，它的 **proto** 指向它的构造函数的原型对象，即 Function.prototype”。
 
-##### **远：
-> 其实 __proto__ 属性是 chrome 自己搞出来的，没有被标准化，并且最新的 chrome 浏览器已经弃用这个属性了，改为 prototype 表示私有属性。标准中有专门用来访问对象原型的方法啊，就是 Object.getPrototypeOf()，标准提供了 Get/SetPrototypeOf 这两个方法用来操作对象的原型，应该避免使用 __proto__ 属性。继承一个对象的话，也是推荐 Object.create 方法，避免使用 __proto__ 属性。
+##### \*\*怿：
 
-##### *山：
+> Person.**proto** === lily.**proto** ?
+
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
+> &nbsp;&nbsp;&nbsp; lily.**proto** === Person.prototype；Person.prototype.**proto** === Object.prototype；
+
+##### \*聪：
+
+> 1. JavaScript中的函数也是一种对象。除了七种基本类型值，其他的所有都是对象，这就是JS中所谓的万物皆对象。2.**ptoto**属性是对象独有的，prototype属性是函数所独有的，因为函数也是一种对象，所以函数既有**proto**属性，也具有prototype属性，这点需要细细品味！3.对象的继承是依靠原型链来实现的，通过原型链，我们才可以使用其他对象上的属性或方法。
+
+##### \*\*远：
+
+> 其实 **proto** 属性是 chrome 自己搞出来的，没有被标准化，并且最新的 chrome 浏览器已经弃用这个属性了，改为 prototype 表示私有属性。标准中有专门用来访问对象原型的方法啊，就是 Object.getPrototypeOf()，标准提供了 Get/SetPrototypeOf 这两个方法用来操作对象的原型，应该避免使用 **proto** 属性。继承一个对象的话，也是推荐 Object.create 方法，避免使用 **proto** 属性。
+
+##### \*山：
+
 > 当原型链过长时，可以选择进行分解，来避免可能带来的性能问题，请问怎么分解？
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 避免使用过长的原型链就可以，比如不使用过深的继承关系
 
 ##### Kerita：
-> 请问 Person.__proto__ 是什么东西？
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
-> &nbsp;&nbsp;&nbsp; Person.prototype.__proto__ === Object.prototype；
-其实可以简单地去控制台打印看看的
+> 请问 Person.**proto** 是什么东西？
 
-##### **6082：
-> 1.每一个构造函数都有一个prototype属性，指向函数的原型对象。并且当创建了一个构造函数后，其原型对象就会默认获得一个constructor属性，该属性解决了对象是由哪个构造函数创造出来的问题，即对象识别；2.每一个原型对象都有一个默认的constructor属性指向构造函数。除了constructor属性，还有__proto__指针；3.每一个对象都有一个__proto__属性，指向原型对象，也叫指针；4.构造函数的原型的原型是由Object生成的。即Foo.prototype.__proto__.constructor===Object 或者等价于Foo.prototype.__proto__===Object.prototype；5.原型链的终点是null,null不再有__proto__指针了。
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
+> &nbsp;&nbsp;&nbsp; Person.prototype.**proto** === Object.prototype；其实可以简单地去控制台打印看看的
+
+##### \*\*6082：
+
+> 1.每一个构造函数都有一个prototype属性，指向函数的原型对象。并且当创建了一个构造函数后，其原型对象就会默认获得一个constructor属性，该属性解决了对象是由哪个构造函数创造出来的问题，即对象识别；2.每一个原型对象都有一个默认的constructor属性指向构造函数。除了constructor属性，还有**proto**指针；3.每一个对象都有一个**proto**属性，指向原型对象，也叫指针；4.构造函数的原型的原型是由Object生成的。即Foo.prototype.**proto**.constructor===Object 或者等价于Foo.prototype.**proto**===Object.prototype；5.原型链的终点是null,null不再有**proto**指针了。
+
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
 > &nbsp;&nbsp;&nbsp; 妙呀
 
-##### **玉：
+##### \*\*玉：
+
 > 1 都是对象，函数是一个不具体的对象，而对象是一个具体的对象，类似树与柳树的关系2 一个在函数上，一个在对象上3 继承依赖原型链，通过原型链来实现继承
 
-##### **敏：
-> 1.javascript中除了基础类型外，都是对象，函数是特殊的对象2.所有对象都有__proto__属性，指向它的构造函数的原型对象，每个函数都有个prototype属性，即原型对象3.原型链某种程度上就可以看做继承的表现
+##### \*\*敏：
 
-##### **茂：
-> 你好，学了以后收货很多。现在还有两点疑问详情见下。1.你说只有函数才有prototype 那object. prototype 是咋回事？2.你打印的Lili的实例的那张图，我看到里面是有两个__proto__是怎么看出来__proto__等于prototype 的
+> 1.javascript中除了基础类型外，都是对象，函数是特殊的对象2.所有对象都有**proto**属性，指向它的构造函数的原型对象，每个函数都有个prototype属性，即原型对象3.原型链某种程度上就可以看做继承的表现
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
-> &nbsp;&nbsp;&nbsp; 1. 这里 Object.prototype 指 Object 的原型对象，并不是指 Object 的属性噢
-2. 可以在控制台打印判断下噢，lily.__proto__ === Person.prototype
+##### \*\*茂：
 
-##### *忠：
-> 求教，__proto__ 这个属性好像不是标准里面的吧？
+> 你好，学了以后收货很多。现在还有两点疑问详情见下。1.你说只有函数才有prototype 那object. prototype 是咋回事？2.你打印的Lili的实例的那张图，我看到里面是有两个**proto**是怎么看出来**proto**等于prototype 的
 
- ###### &nbsp;&nbsp;&nbsp; 讲师回复：
-> &nbsp;&nbsp;&nbsp; 实际上，没有官方的方法用于直接访问一个对象的原型对象。在 JavaScript 语言标准中用 prototype 表示，然而大多数现代浏览器还是提供了 __proto__ 的属性来包含对象的原型
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
+> &nbsp;&nbsp;&nbsp; 1. 这里 Object.prototype 指 Object 的原型对象，并不是指 Object 的属性噢 2. 可以在控制台打印判断下噢，lily.**proto** === Person.prototype
+
+##### \*忠：
+
+> 求教，**proto** 这个属性好像不是标准里面的吧？
+
+###### &nbsp;&nbsp;&nbsp; 讲师回复：
+
+> &nbsp;&nbsp;&nbsp; 实际上，没有官方的方法用于直接访问一个对象的原型对象。在 JavaScript 语言标准中用 prototype 表示，然而大多数现代浏览器还是提供了 **proto** 的属性来包含对象的原型
 
 ##### Diamonds：
+
 > 课程多久一更啊 老师
 
- ###### &nbsp;&nbsp;&nbsp; 编辑回复：
+###### &nbsp;&nbsp;&nbsp; 编辑回复：
+
 > &nbsp;&nbsp;&nbsp; 一周两更~，每周一、三更新一节哦
 
 ##### Change：
-> 催更！哈哈
 
+> 催更！哈哈

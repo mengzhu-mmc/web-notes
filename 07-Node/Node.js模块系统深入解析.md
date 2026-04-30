@@ -23,8 +23,8 @@ module.exports = { add, subtract };
 exports.add = (a, b) => a + b;
 
 // 导入
-const { add } = require('./math');
-const fs = require('fs'); // 内置模块
+const { add } = require("./math");
+const fs = require("fs"); // 内置模块
 ```
 
 ### 1.2 require 的执行流程
@@ -57,7 +57,7 @@ const fs = require('fs'); // 内置模块
 Node.js 在执行每个模块文件前，会将代码包裹在一个函数中：
 
 ```javascript
-(function(exports, require, module, __filename, __dirname) {
+(function (exports, require, module, __filename, __dirname) {
   // 你的模块代码在这里执行
   const x = 1;
   module.exports = x;
@@ -70,14 +70,14 @@ Node.js 在执行每个模块文件前，会将代码包裹在一个函数中：
 
 ```javascript
 // ✅ 正确：exports 是 module.exports 的引用，可以添加属性
-exports.name = 'Alice';
+exports.name = "Alice";
 exports.age = 18;
 
 // ✅ 正确：直接替换 module.exports
-module.exports = { name: 'Alice', age: 18 };
+module.exports = { name: "Alice", age: 18 };
 
 // ❌ 错误：重新赋值 exports 会断开与 module.exports 的引用
-exports = { name: 'Alice' }; // 这行代码无效！
+exports = { name: "Alice" }; // 这行代码无效！
 ```
 
 **本质原因**：`exports` 是 `module.exports` 的引用（指向同一个对象）。对 `exports` 添加属性，等同于对 `module.exports` 添加属性。但如果对 `exports` 重新赋值，就切断了这个引用，`module.exports` 仍然是原来的空对象。
@@ -99,18 +99,18 @@ return module.exports;
 
 ```javascript
 // a.js
-const b = require('./b');
-console.log('a.js: b.done =', b.done);
+const b = require("./b");
+console.log("a.js: b.done =", b.done);
 exports.done = true;
 
 // b.js
-const a = require('./a');
-console.log('b.js: a.done =', a.done);
+const a = require("./a");
+console.log("b.js: a.done =", a.done);
 exports.done = true;
 
 // main.js
-const a = require('./a');
-const b = require('./b');
+const a = require("./a");
+const b = require("./b");
 ```
 
 **执行过程分析**：
@@ -127,6 +127,7 @@ const b = require('./b');
 ```
 
 **输出结果**：
+
 ```
 b.js: a.done = undefined  ← 拿到的是半成品
 a.js: b.done = true
@@ -143,12 +144,14 @@ a.js: b.done = true
 ```javascript
 // 导出
 export const add = (a, b) => a + b;
-export default function subtract(a, b) { return a - b; }
+export default function subtract(a, b) {
+  return a - b;
+}
 
 // 导入
-import { add } from './math.js'; // 必须带扩展名
-import subtract from './math.js';
-import * as math from './math.js'; // 命名空间导入
+import { add } from "./math.js"; // 必须带扩展名
+import subtract from "./math.js";
+import * as math from "./math.js"; // 命名空间导入
 ```
 
 ### 3.2 ESM 的三个核心特性
@@ -160,12 +163,12 @@ import * as math from './math.js'; // 命名空间导入
 ```javascript
 // ❌ 报错：import 不能在运行时动态执行
 if (condition) {
-  import { add } from './math.js'; // SyntaxError
+  import { add } from "./math.js"; // SyntaxError
 }
 
 // ✅ 动态导入用 import()（返回 Promise）
 if (condition) {
-  const { add } = await import('./math.js');
+  const { add } = await import("./math.js");
 }
 ```
 
@@ -178,10 +181,12 @@ ESM 导出的是值的"引用"，不是值的拷贝：
 ```javascript
 // counter.js
 export let count = 0;
-export function increment() { count++; }
+export function increment() {
+  count++;
+}
 
 // main.js
-import { count, increment } from './counter.js';
+import { count, increment } from "./counter.js";
 console.log(count); // 0
 increment();
 console.log(count); // 1 ← 值更新了！
@@ -193,13 +198,13 @@ CommonJS 导出的是值的拷贝，修改原始值不会影响已导入的变�
 
 ESM 在浏览器中是异步加载的（`<script type="module">` 默认 defer），不会阻塞 HTML 解析。
 
-### 3.3 ESM 中没有 __dirname 和 __filename
+### 3.3 ESM 中没有 **dirname 和 **filename
 
 因为 ESM 不使用模块包装函数，所以没有这两个变量。替代方案：
 
 ```javascript
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+import { fileURLToPath } from "url";
+import { dirname } from "path";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -210,7 +215,7 @@ const __dirname = dirname(__filename);
 ## 四、CJS vs ESM 核心对比
 
 | 特性 | CommonJS (CJS) | ES Modules (ESM) |
-|------|---------------|-----------------|
+| --- | --- | --- |
 | 语法 | `require()` / `module.exports` | `import` / `export` |
 | 加载时机 | 运行时（动态） | 编译时（静态） |
 | 加载方式 | 同步 | 异步（浏览器）/ 同步（Node.js） |
@@ -234,7 +239,7 @@ console.log(require.cache);
 // { '/path/to/module.js': Module { id, filename, loaded, exports, ... } }
 
 // 清除缓存（慎用，可能导致内存泄漏）
-delete require.cache[require.resolve('./module')];
+delete require.cache[require.resolve("./module")];
 ```
 
 **缓存的意义**：同一个模块无论被 `require` 多少次，只执行一次，后续直接返回缓存的 `module.exports`。这保证了模块的单例性。

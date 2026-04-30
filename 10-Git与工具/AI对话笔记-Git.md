@@ -9,6 +9,7 @@
 ## GitHub 推送冲突解决全流程
 
 ### 背景场景
+
 推送时遇到冲突（Comparing changes）或 `master had recent pushes X minutes ago` 提示。
 
 ---
