@@ -4,7 +4,9 @@
   "description": "> 个人前端学习笔记，覆盖 HTML/CSS → JS → 框架 → 工程化 → 算法 → 面试手写全链路。",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare": "husky install",
+    "format": "prettier --write **/*.json"
   },
   "repository": {
     "type": "git",
@@ -19,6 +21,14 @@
   },
   "homepage": "https://github.com/mengzhu-mmc/web-notes#readme",
   "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
     "prettier": "^3.8.3"
+  },
+  "lint-staged": {
+    "**/*": {
+      "md": "prettier --write",
+      "{js,ts,json}": "prettier --write"
+    }
   }
 }
