@@ -1,1 +1,11 @@
-".obsidian/workspace.json"  ".obsidian/workspace-mobile.json"  ".trash/" 
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/graph.json
+.trash/
+
+# 忽略本地简历 PDF 避免隐私泄露和仓库膨胀
+*.pdf
+
+# 依赖与临时文件
+node_modules/
+.DS_Store
