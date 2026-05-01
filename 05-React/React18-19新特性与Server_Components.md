@@ -169,7 +169,7 @@ import { updateName } from './actions';
 
 function EditForm({ userId }) {
   const [state, formAction, isPending] = useActionState(
-    async (prevState: any, formData: FormData) => {
+    async (prevState: State, formData: FormData) => {
       const name = formData.get('name') as string;
       if (name.length < 2) return { error: '名字至少2个字符' };
 
