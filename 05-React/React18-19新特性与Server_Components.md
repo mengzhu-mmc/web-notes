@@ -25,7 +25,7 @@
 
 ### 基本用法
 
-```jsx
+```tsxx
 import { use, Suspense } from "react";
 
 // 1. 读取 Promise（配合 Suspense 使用）
@@ -55,7 +55,7 @@ function App() {
 
 ### 条件使用（突破 Hooks 规则）
 
-```jsx
+```tsxx
 function UserProfile({ userId, showDetails }) {
   // ✅ use() 可以放在 if 里！普通 Hook 不行
   if (showDetails) {
@@ -68,7 +68,7 @@ function UserProfile({ userId, showDetails }) {
 
 ### 读取 Context
 
-```jsx
+```tsxx
 import { use, createContext } from "react";
 
 const ThemeContext = createContext("light");
@@ -83,7 +83,7 @@ function Button() {
 
 ### `use()` vs `useEffect` 数据获取对比
 
-```jsx
+```tsxx
 // ❌ 旧方式：useEffect + state 管理 loading/error
 function OldFetch({ url }) {
   const [data, setData] = useState(null);
@@ -125,7 +125,7 @@ function NewFetch({ dataPromise }) {
 
 ### 基本用法（Next.js App Router）
 
-```jsx
+```tsxx
 // app/actions.ts — 服务端函数（'use server' 指令）
 'use server';
 
@@ -139,7 +139,7 @@ export async function updateUserName(userId: string, name: string) {
 }
 ```
 
-```jsx
+```tsxx
 // 客户端组件中直接使用 Server Action
 'use client';
 import { updateUserName } from './actions';
@@ -162,7 +162,7 @@ function ProfileForm({ userId }) {
 
 ### 与 `useActionState` 配合（处理返回值）
 
-```jsx
+```tsxx
 'use client';
 import { useActionState } from 'react';
 import { updateName } from './actions';
@@ -200,7 +200,7 @@ function EditForm({ userId }) {
 
 ### 经典场景：点赞按钮
 
-```jsx
+```tsxx
 import { useOptimistic, useState } from "react";
 
 function LikeButton({ postId, initialLikes }) {
@@ -231,7 +231,7 @@ function LikeButton({ postId, initialLikes }) {
 
 ### 经典场景：TODO 列表乐观添加
 
-```jsx
+```tsxx
 import { useOptimistic, useState, useTransition } from 'react';
 
 function TodoList() {
@@ -295,7 +295,7 @@ action 失败           → optimisticState 自动回滚到 actualState
 
 > 获取**祖先 `<form>`** 的提交状态，无需 prop drilling。
 
-```jsx
+```tsxx
 import { useFormStatus } from 'react-dom'; // 注意：从 react-dom 导入！
 
 // 提交按钮组件：自动感知父 form 的 pending 状态
@@ -335,7 +335,7 @@ function ContactForm() {
 
 ### ⚠️ 常见错误
 
-```jsx
+```tsxx
 // ❌ 错误：在 form 本身的组件里用 useFormStatus，获取不到
 function MyForm() {
   const { pending } = useFormStatus(); // ❌ 这里是 form 的同层，不是子组件
@@ -358,7 +358,7 @@ function MyForm() {
 
 ### 5.1 ref 直接作为 prop（告别 forwardRef）
 
-```jsx
+```tsxx
 // React 19 之前：必须用 forwardRef
 const OldInput = forwardRef<HTMLInputElement, Props>((props, ref) => (
   <input ref={ref} {...props} />
@@ -376,7 +376,7 @@ const inputRef = useRef<HTMLInputElement>(null);
 
 ### 5.2 `<Context>` 直接作为 Provider
 
-```jsx
+```tsxx
 const ThemeContext = createContext('light');
 
 // 之前：必须用 ThemeContext.Provider
@@ -392,7 +392,7 @@ const ThemeContext = createContext('light');
 
 ### 5.3 文档 Metadata 原生支持
 
-```jsx
+```tsxx
 // 无需 react-helmet，直接在组件中写 title/meta
 function BlogPost({ post }) {
   return (
@@ -410,7 +410,7 @@ function BlogPost({ post }) {
 
 ### 5.4 资源预加载 API
 
-```jsx
+```tsxx
 import { preload, preloadModule, prefetchDNS, preinit } from "react-dom";
 
 function App() {
@@ -503,7 +503,7 @@ React Actions 是轻量级的**局部状态管理**，配合 `useActionState` + 
 
 React 18 最重要的改变：渲染可以**被中断**。
 
-```jsx
+```tsxx
 // createRoot 替代 render（开启并发特性）
 import { createRoot } from "react-dom/client";
 const root = createRoot(document.getElementById("root"));
@@ -517,7 +517,7 @@ root.render(<App />);
 
 React 17 只在事件处理器中批处理，React 18 **所有场景**都自动批处理：
 
-```jsx
+```tsxx
 // React 18：setTimeout 里也会批处理（只触发一次渲染）
 setTimeout(() => {
   setCount((c) => c + 1); // 不会立即渲染
@@ -528,7 +528,7 @@ setTimeout(() => {
 
 如果需要立即渲染，用 `flushSync`：
 
-```jsx
+```tsxx
 import { flushSync } from "react-dom";
 flushSync(() => setCount((c) => c + 1)); // 立即渲染
 ```
@@ -537,7 +537,7 @@ flushSync(() => setCount((c) => c + 1)); // 立即渲染
 
 标记**非紧急**更新，让紧急更新（输入、点击）优先：
 
-```jsx
+```tsxx
 import { useTransition } from "react";
 
 function SearchPage() {
@@ -565,7 +565,7 @@ function SearchPage() {
 
 延迟更新某个值，类似 transition 但更简单：
 
-```jsx
+```tsxx
 function SearchResults({ query }) {
   const deferredQuery = useDeferredValue(query);
   return <HeavyList query={deferredQuery} />;
@@ -576,7 +576,7 @@ function SearchResults({ query }) {
 
 支持**服务端渲染流式传输** + **数据获取**：
 
-```jsx
+```tsxx
 <Suspense fallback={<Skeleton />}>
   <Comments />
 </Suspense>
@@ -586,7 +586,7 @@ function SearchResults({ query }) {
 
 生成 SSR 安全的唯一 ID：
 
-```jsx
+```tsxx
 function EmailField() {
   const id = useId();
   return (
@@ -614,7 +614,7 @@ function EmailField() {
 
 **告别手动 useMemo/useCallback/React.memo！**
 
-```jsx
+```tsxx
 // React 19：直接写，编译器自动优化
 function TodoList({ todos, filter }) {
   const filtered = todos.filter((t) => t.status === filter);
@@ -624,7 +624,7 @@ function TodoList({ todos, filter }) {
 
 ### 2. Actions（表单简化）
 
-```jsx
+```tsxx
 function ChangeName() {
   const [error, submitAction, isPending] = useActionState(
     async (prev, formData) => {
@@ -650,7 +650,7 @@ function ChangeName() {
 
 在组件中直接读取 Promise 和 Context：
 
-```jsx
+```tsxx
 function Comments({ commentsPromise }) {
   const comments = use(commentsPromise);
   return comments.map((c) => <Comment key={c.id} comment={c} />);
@@ -661,7 +661,7 @@ function Comments({ commentsPromise }) {
 
 组件在服务端执行，不发送 JS 到客户端：
 
-```jsx
+```tsxx
 // server component（默认）
 async function BlogPost({ id }) {
   const post = await db.posts.find(id);

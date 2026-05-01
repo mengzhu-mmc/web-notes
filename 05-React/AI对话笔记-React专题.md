@@ -39,7 +39,7 @@
 
 ### 时间切片核心逻辑
 
-```js
+```tsx
 // packages/scheduler/src/Scheduler.js
 function shouldYieldToHost() {
   const timeElapsed = getCurrentTime() - startTime;
@@ -60,7 +60,7 @@ function workLoopConcurrent() {
 
 ### Fiber 节点核心字段
 
-```js
+```tsx
 {
   type: 'div' | App | () => {},  // 节点类型
   props: {},                      // 属性
@@ -105,7 +105,7 @@ function workLoopConcurrent() {
 
 ### 经典场景：定时器永远打印旧值
 
-```js
+```tsx
 function Demo() {
   const [count, setCount] = useState(0);
 
@@ -123,7 +123,7 @@ function Demo() {
 
 **1. 正确写依赖（最简单）**
 
-```js
+```tsx
 useEffect(() => {
   const id = setInterval(() => {
     console.log(count);
@@ -134,13 +134,13 @@ useEffect(() => {
 
 **2. 函数式更新（不需要最新值时）**
 
-```js
+```tsx
 setCount((prev) => prev + 1); // 不依赖外部 count
 ```
 
 **3. useRef 存最新引用（最通用）**
 
-```js
+```tsx
 const countRef = useRef(count);
 countRef.current = count; // 每次渲染同步最新值
 
@@ -153,7 +153,7 @@ useEffect(() => {
 
 **4. useEvent（React 18+）**
 
-```js
+```tsx
 const onTick = useEvent(() => {
   console.log(count); // 永远最新
 });
@@ -177,7 +177,7 @@ const onTick = useEvent(() => {
 
 **1. 函数式更新（最推荐）**
 
-```js
+```tsx
 // class 组件
 this.setState((prev) => ({ count: prev.count + 1 }));
 this.setState((prev) => ({ count: prev.count + 1 }));
@@ -192,7 +192,7 @@ setCount((prev) => prev + 1);
 
 **2. flushSync（React 18+，强制同步更新）**
 
-```js
+```tsx
 import { flushSync } from "react-dom";
 
 flushSync(() => {
@@ -209,7 +209,7 @@ flushSync(() => {
 
 **3. setTimeout/宏任务**
 
-```js
+```tsx
 setTimeout(() => {
   this.setState({ count: this.state.count + 1 });
 }, 0);
@@ -223,7 +223,7 @@ setTimeout(() => {
 
 **4. 回调嵌套（串行异步，触发 3 次渲染）**
 
-```js
+```tsx
 this.setState({ count: this.state.count + 1 }, () => {
   this.setState({ count: this.state.count + 1 }, () => {
     this.setState({ count: this.state.count + 1 });
@@ -269,7 +269,7 @@ this.setState({ count: this.state.count + 1 }, () => {
 
 ### 完整实现代码
 
-```jsx
+```tsxx
 import React, { createContext, useContext, useReducer } from "react";
 
 // 1. 创建 Context
@@ -345,7 +345,7 @@ export function useStore() {
 
 ### useMemo(fn, []) 的效果
 
-```jsx
+```tsxx
 const expensiveValue = useMemo(() => {
   console.log("计算 expensiveValue"); // 仅首次渲染打印
   return count * 1000;
@@ -356,7 +356,7 @@ const expensiveValue = useMemo(() => {
 
 ### useCallback(fn, []) 的效果
 
-```jsx
+```tsxx
 const handleClick = useCallback(() => {
   console.log("count:", count); // 注意：捕获的是首次的 count（0），后续不会更新
 }, []);

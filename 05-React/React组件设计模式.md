@@ -291,7 +291,7 @@ function UserList() {
 
 典型案例：HTML 的 `<select>` 和 `<option>` 就是天然的复合组件。
 
-```jsx
+```tsxx
 // 使用者视角：灵活组合，语义清晰
 <Tabs defaultValue="tab1">
   <Tabs.List>

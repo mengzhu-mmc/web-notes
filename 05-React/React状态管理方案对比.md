@@ -16,7 +16,7 @@ React 本身通过 `useState` 和 `useReducer` 提供了组件级别的状态管
 
 这是 React 官方提供的轻量级状态管理组合，不需要引入任何第三方库。
 
-```jsx
+```tsxx
 // 定义 Context 和 Reducer
 const TodoContext = createContext(null);
 const TodoDispatchContext = createContext(null);
@@ -77,7 +77,7 @@ Redux 的设计围绕三个核心原则展开：单一数据源（整个应用�
 
 现代 Redux 开发推荐使用 Redux Toolkit，它大幅简化了样板代码：
 
-```js
+```tsx
 import { createSlice, configureStore } from "@reduxjs/toolkit";
 
 // 创建 Slice（集成了 action + reducer）
@@ -115,7 +115,7 @@ const store = configureStore({
 
 Redux 中间件是面试重点。中间件本质上是对 `dispatch` 方法的增强，采用洋葱模型（类似 Koa）：
 
-```js
+```tsx
 // 中间件签名：store => next => action => result
 const loggerMiddleware = (store) => (next) => (action) => {
   console.log("dispatching:", action.type);
@@ -132,7 +132,7 @@ const loggerMiddleware = (store) => (next) => (action) => {
 
 RTK Query 是 Redux Toolkit 内置的数据请求和缓存方案，类似于 React Query 但与 Redux 深度集成：
 
-```js
+```tsx
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 const apiSlice = createApi({
@@ -166,7 +166,7 @@ Zustand 是近年来增长最快的 React 状态管理库，以极简的 API 和
 
 ### 核心用法
 
-```js
+```tsx
 import { create } from "zustand";
 
 // 创建 store，不需要 Provider
@@ -201,7 +201,7 @@ function Counter() {
 
 Zustand 的核心实现非常精巧，大约只有 40 行代码。它基于发布-订阅模式，内部维护一个 state 对象和一个 listeners 集合。`set` 方法更新 state 并通知所有 listener，每个 `useStore(selector)` 调用会注册一个 listener，在 listener 回调中通过 `Object.is` 比较 selector 的返回值是否变化来决定是否触发组件重渲染。
 
-```js
+```tsx
 // 简化版核心实现
 function createStore(createState) {
   let state;
@@ -231,7 +231,7 @@ function createStore(createState) {
 
 Zustand 通过函数组合的方式支持中间件，常用的有 `persist`（持久化）、`devtools`（Redux DevTools 集成）、`immer`（不可变更新）：
 
-```js
+```tsx
 import { create } from "zustand";
 import { persist, devtools } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
@@ -266,7 +266,7 @@ MobX 有三个核心角色：
 - **Computed**：由 observable 派生的计算值，自动缓存，依赖不变不重算
 - **Action**：修改 observable 的函数，推荐在 strict mode 下强制要求所有状态变更必须在 action 内发生
 
-```js
+```tsx
 import { makeAutoObservable, runInAction } from "mobx";
 import { observer } from "mobx-react-lite";
 
@@ -371,7 +371,7 @@ Jotai 受 Recoil 启发，采用自底向上的原子化（atomic）模型，每
 
 ### 核心概念
 
-```js
+```tsx
 import { atom, useAtom, useAtomValue, useSetAtom } from "jotai";
 
 // 基础 atom
@@ -422,23 +422,23 @@ function Counter() {
 
 ### 一张表看清所有方案
 
-| 维度 | Context + useReducer | Redux (RTK) | Zustand | MobX | Jotai |
-| --- | --- | --- | --- | --- | --- |
-| **设计模式** | 依赖注入 | Flux 单向数据流 | 发布订阅 | 响应式（观察者） | 原子化 |
-| **数据结构** | 树形 Context | 单一 Store 树 | 单一 Store | 可观察对象/类 | 分散原子图 |
-| **状态可变性** | 不可变 | 不可变（Immer） | 不可变（Immer 可选） | **可变**（直接修改） | 不可变 |
-| **更新方式** | dispatch action | dispatch action | 直接调用函数 | 直接修改属性 | set atom |
-| **精确订阅** | ❌ 无 selector | ✅ useSelector | ✅ selector | ✅ observer 自动追踪 | ✅ 原子级订阅 |
-| **样板代码** | 少 | 中（RTK 已优化） | **极少** | 少 | 少 |
-| **学习曲线** | 低 | 高 | **最低** | 中（OOP 思维） | 中 |
-| **需要 Provider** | ✅ 必须 | ✅ 必须 | ❌ 不需要 | 可选 | ❌ 不需要 |
-| **DevTools 支持** | ❌ | ✅ 一流 | ✅（中间件） | ✅ MobX DevTools | ✅ jotai-devtools |
-| **异步处理** | 手动 | thunk / saga | 直接 async | runInAction | async atom |
-| **服务端状态** | ❌ | ✅ RTK Query | 配合 TanStack Query | 配合 TanStack Query | 配合 TanStack Query |
-| **包体积** | 0（内置） | ~40KB | **~1KB** | ~16KB | ~3KB |
-| **npm 周下载量** | — | ~8M（redux） | ~4M | ~1.5M | ~700K |
-| **适合规模** | 小型 | 中大型 | 小~中型 | 中型（复杂模型） | 中型（复杂依赖） |
-| **典型使用方** | 小应用/组件库 | 企业级应用 | 个人/中小项目 | ERP/编辑器类 | 原子化 UI 状态 |
+| 维度              | Context + useReducer | Redux (RTK)      | Zustand              | MobX                 | Jotai               |
+| ----------------- | -------------------- | ---------------- | -------------------- | -------------------- | ------------------- |
+| **设计模式**      | 依赖注入             | Flux 单向数据流  | 发布订阅             | 响应式（观察者）     | 原子化              |
+| **数据结构**      | 树形 Context         | 单一 Store 树    | 单一 Store           | 可观察对象/类        | 分散原子图          |
+| **状态可变性**    | 不可变               | 不可变（Immer）  | 不可变（Immer 可选） | **可变**（直接修改） | 不可变              |
+| **更新方式**      | dispatch action      | dispatch action  | 直接调用函数         | 直接修改属性         | set atom            |
+| **精确订阅**      | ❌ 无 selector       | ✅ useSelector   | ✅ selector          | ✅ observer 自动追踪 | ✅ 原子级订阅       |
+| **样板代码**      | 少                   | 中（RTK 已优化） | **极少**             | 少                   | 少                  |
+| **学习曲线**      | 低                   | 高               | **最低**             | 中（OOP 思维）       | 中                  |
+| **需要 Provider** | ✅ 必须              | ✅ 必须          | ❌ 不需要            | 可选                 | ❌ 不需要           |
+| **DevTools 支持** | ❌                   | ✅ 一流          | ✅（中间件）         | ✅ MobX DevTools     | ✅ jotai-devtools   |
+| **异步处理**      | 手动                 | thunk / saga     | 直接 async           | runInAction          | async atom          |
+| **服务端状态**    | ❌                   | ✅ RTK Query     | 配合 TanStack Query  | 配合 TanStack Query  | 配合 TanStack Query |
+| **包体积**        | 0（内置）            | ~40KB            | **~1KB**             | ~16KB                | ~3KB                |
+| **npm 周下载量**  | —                    | ~8M（redux）     | ~4M                  | ~1.5M                | ~700K               |
+| **适合规模**      | 小型                 | 中大型           | 小~中型              | 中型（复杂模型）     | 中型（复杂依赖）    |
+| **典型使用方**    | 小应用/组件库        | 企业级应用       | 个人/中小项目        | ERP/编辑器类         | 原子化 UI 状态      |
 
 ### 选型决策树
 

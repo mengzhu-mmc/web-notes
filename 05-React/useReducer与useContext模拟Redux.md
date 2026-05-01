@@ -110,7 +110,7 @@ export default counterSlice.reducer;
 
 原生 `useReducer` 的 `dispatch` 只接受普通对象，支持异步需要封装 `enhancedDispatch`：
 
-```jsx
+```tsxx
 export function StoreProvider({ children }) {
   const [state, dispatch] = useReducer(rootReducer, initialState);
 
@@ -148,7 +148,7 @@ dispatch(fetchTodos()); // 传入函数，enhancedDispatch 会执行它
 
 ## 进阶：状态持久化（localStorage）
 
-```jsx
+```tsxx
 // 初始化时从 localStorage 读取
 const savedState = localStorage.getItem("appState");
 const initialStateWithPersist = savedState
@@ -175,7 +175,7 @@ export function StoreProvider({ children }) {
 
 当状态复杂时，可以拆分成多个 reducer，再合并：
 
-```js
+```tsx
 // 各模块 reducer
 function todosReducer(state = [], action) {
   switch (action.type) {

@@ -16,7 +16,7 @@ React 在大多数场景下已经足够快。优化前先**测量**，用 React 
 
 ### 什么时候该用
 
-```jsx
+```tsxx
 // ✅ 场景1：纯展示组件 + 父组件频繁更新
 const UserCard = React.memo(function UserCard({ user }) {
   return (
@@ -45,7 +45,7 @@ function Dashboard() {
 }
 ```
 
-```jsx
+```tsxx
 // ✅ 场景2：列表中的每一项
 const ListItem = React.memo(function ListItem({ item, onToggle }) {
   console.log("ListItem render:", item.id);
@@ -81,7 +81,7 @@ function TodoList({ todos }) {
 
 ### 什么时候不该用
 
-```jsx
+```tsxx
 // ❌ 场景1：props 是内联对象/数组，每次父渲染都是新引用
 // memo 毫无用处，还增加了比较开销
 function Parent() {
@@ -102,7 +102,7 @@ const Counter = React.memo(({ count }) => <div>{count}</div>);
 
 ### 自定义比较函数
 
-```jsx
+```tsxx
 // 当 props 是复杂对象时，可以自定义比较逻辑
 const UserProfile = React.memo(
   function UserProfile({ user, settings }) {
@@ -128,7 +128,7 @@ const UserProfile = React.memo(
 
 ### 什么时候该用
 
-```jsx
+```tsxx
 // ✅ 场景1：昂贵的计算（数组排序/过滤、复杂算法）
 function DataTable({ rows, sortKey, filterText }) {
   const processedData = useMemo(() => {
@@ -148,7 +148,7 @@ function DataTable({ rows, sortKey, filterText }) {
 }
 ```
 
-```jsx
+```tsxx
 // ✅ 场景2：稳定引用类型给 memo 子组件
 function Parent({ userId }) {
   // ❌ 每次渲染都是新对象，导致 MemoChild 每次都重渲染
@@ -161,7 +161,7 @@ function Parent({ userId }) {
 }
 ```
 
-```jsx
+```tsxx
 // ✅ 场景3：作为其他 Hook 的依赖（避免无限循环）
 function SearchComponent({ query }) {
   // 没有 useMemo：options 每次渲染都是新对象
@@ -185,7 +185,7 @@ function SearchComponent({ query }) {
 
 ### 什么时候不该用
 
-```jsx
+```tsxx
 // ❌ 场景1：计算本身很简单
 // 加法运算比 useMemo 的 hook 调用开销还小
 const total = useMemo(() => a + b, [a, b]); // ❌ 多此一举
@@ -204,7 +204,7 @@ const doubled = count * 2; // ✅ 直接算
 
 ### 如何判断计算是否"昂贵"
 
-```jsx
+```tsxx
 // 用 console.time 测量
 console.time("filter");
 const result = largeArray.filter((item) => item.active);
@@ -220,7 +220,7 @@ console.timeEnd("filter");
 
 ### 什么时候该用
 
-```jsx
+```tsxx
 // ✅ 场景1：传给 memo 子组件的回调函数（必须配合 memo 才有意义！）
 const ExpensiveList = React.memo(function ExpensiveList({
   items,
@@ -251,7 +251,7 @@ function Parent({ items }) {
 }
 ```
 
-```jsx
+```tsxx
 // ✅ 场景2：作为 useEffect 依赖（避免无限触发）
 function Component({ onDataLoad }) {
   // 如果 onDataLoad 不稳定，每次渲染都触发 effect
@@ -270,7 +270,7 @@ function Parent() {
 }
 ```
 
-```jsx
+```tsxx
 // ✅ 场景3：自定义 Hook 中导出的函数
 function useCounter() {
   const [count, setCount] = useState(0);
@@ -286,7 +286,7 @@ function useCounter() {
 
 ### 什么时候不该用
 
-```jsx
+```tsxx
 // ❌ 最常见的误用：组件内部使用的函数，不传给子组件
 function Component() {
   // 没意义！这个函数不影响任何子组件
@@ -304,7 +304,7 @@ function Component() {
 }
 ```
 
-```jsx
+```tsxx
 // ❌ 没有配合 memo 使用
 function Parent() {
   // 用了 useCallback，但 Child 没有 memo
@@ -315,7 +315,7 @@ function Parent() {
 
 ### useCallback 和 useMemo 的关系
 
-```jsx
+```tsxx
 // useCallback(fn, deps) 等价于 useMemo(() => fn, deps)
 const memoizedCallback = useCallback(fn, [a, b]);
 const memoizedCallback2 = useMemo(() => fn, [a, b]); // 等价
@@ -327,7 +327,7 @@ const memoizedCallback2 = useMemo(() => fn, [a, b]); // 等价
 
 ### 什么时候该用
 
-```jsx
+```tsxx
 import { useTransition, startTransition } from "react";
 
 // ✅ 场景1：搜索/过滤大列表
@@ -360,7 +360,7 @@ function SearchPage({ allItems }) {
 }
 ```
 
-```jsx
+```tsxx
 // ✅ 场景2：Tab 切换 + 重量级内容
 function TabContainer() {
   const [activeTab, setActiveTab] = useState("overview");
@@ -393,7 +393,7 @@ function TabContainer() {
 
 ### 什么时候不该用
 
-```jsx
+```tsxx
 // ❌ 受控输入框本身（输入框必须紧急更新）
 startTransition(() => {
   setInputValue(e.target.value); // ❌ 输入框会卡顿！
@@ -412,7 +412,7 @@ startTransition(() => {
 
 ### `useTransition` vs `useDeferredValue` 选哪个？
 
-```jsx
+```tsxx
 // useTransition：当你能控制状态更新时
 function Parent() {
   const [query, setQuery] = useState("");
@@ -443,7 +443,7 @@ function SearchResults({ query }) {
 
 ### 案例：高性能数据表格
 
-```jsx
+```tsxx
 type Row = { id: number; name: string; age: number; score: number };
 
 function DataTable({ data }: { data: Row[] }) {
@@ -619,7 +619,7 @@ React 性能问题的根本原因：**不必要的重新渲染**。
 
 ## 二、React.memo —— 避免子组件不必要渲染
 
-```jsx
+```tsxx
 // 问题：父组件更新时，子组件即使 props 没变也会重新渲染
 function Parent() {
   const [count, setCount] = useState(0);
@@ -653,7 +653,7 @@ const Child2 = React.memo(
 
 ## 三、useMemo —— 缓存计算结果
 
-```jsx
+```tsxx
 // 问题：每次渲染都重新计算昂贵的值
 function Component({ list, filter }) {
   // ❌ 每次渲染都执行，即使 list 和 filter 没变
@@ -694,7 +694,7 @@ function Parent() {
 
 ## 四、useCallback —— 缓存函数引用
 
-```jsx
+```tsxx
 // 问题：每次渲染都创建新函数，导致子组件不必要渲染
 function Parent() {
   const [count, setCount] = useState(0);
@@ -725,7 +725,7 @@ function Parent() {
 
 ## 五、何时不需要 useMemo/useCallback
 
-```jsx
+```tsxx
 // ❌ 过度优化：简单计算不需要 useMemo
 const double = useMemo(() => count * 2, [count]); // 没必要
 
@@ -744,7 +744,7 @@ const handleClick = useCallback(() => {
 
 ## 六、代码分割与懒加载
 
-```jsx
+```tsxx
 import React, { Suspense, lazy } from "react";
 
 // 路由级别懒加载
@@ -786,7 +786,7 @@ function Page() {
 
 当列表数据量很大（>1000 条）时，只渲染可视区域内的元素。
 
-```jsx
+```tsxx
 // 使用 react-window（推荐）
 import { FixedSizeList } from "react-window";
 
@@ -846,7 +846,7 @@ function SimpleVirtualList({ items, itemHeight = 50, containerHeight = 500 }) {
 
 ### 避免在渲染中创建对象/数组
 
-```jsx
+```tsxx
 // ❌ 每次渲染都创建新数组
 <Component style={{ color: 'red' }} />
 <Component items={[1, 2, 3]} />
@@ -860,7 +860,7 @@ const ITEMS = [1, 2, 3];
 
 ### 合理使用 key
 
-```jsx
+```tsxx
 // ❌ 用 index 作为 key（列表重排时性能差）
 {
   list.map((item, index) => <Item key={index} {...item} />);
@@ -878,7 +878,7 @@ const ITEMS = [1, 2, 3];
 
 ### 状态下移（State Colocation）
 
-```jsx
+```tsxx
 // ❌ 状态放在父组件，导致整个父组件重新渲染
 function Parent() {
   const [inputValue, setInputValue] = useState("");
@@ -915,7 +915,7 @@ function Parent() {
 
 将稳定的子节点通过 `children` 传入，可以避免它们随父组件状态变化而重新渲染。
 
-```jsx
+```tsxx
 // ❌ ScrollTracker 内部的 HeavyComponent 会随 scroll 变化重新渲染
 function ScrollTracker() {
   const [scroll, setScroll] = useState(0);
@@ -946,7 +946,7 @@ function ScrollTracker({ children }) {
 
 ### 路由预加载（悬停时提前加载）
 
-```jsx
+```tsxx
 // 鼠标悬停时就开始加载，点击时已经加载完毕
 const importSettings = () => import("./pages/Settings");
 const Settings = lazy(importSettings);
@@ -958,7 +958,7 @@ const Settings = lazy(importSettings);
 
 ### 使用 @tanstack/react-virtual 虚拟滚动
 
-```jsx
+```tsxx
 import { useVirtualizer } from "@tanstack/react-virtual";
 
 function VirtualList({ items }) {

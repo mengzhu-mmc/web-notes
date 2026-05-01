@@ -16,7 +16,7 @@
 
 虚拟 DOM 是用 JavaScript 对象来描述真实 DOM 结构的一种抽象。
 
-```jsx
+```tsxx
 // JSX
 <div className="container">
   <h1>Hello</h1>
@@ -64,7 +64,7 @@ React 的 diff 算法基于三个假设（启发式算法，O(n) 复杂度）：
 
 ### 同类型元素的比较
 
-```jsx
+```tsxx
 // 更新前
 <div className="before" title="stuff" />
 // 更新后
@@ -74,7 +74,7 @@ React 的 diff 算法基于三个假设（启发式算法，O(n) 复杂度）：
 
 ### 不同类型元素
 
-```jsx
+```tsxx
 // 更新前
 <div><Counter /></div>
 // 更新后
@@ -84,7 +84,7 @@ React 的 diff 算法基于三个假设（启发式算法，O(n) 复杂度）：
 
 ### 列表 diff 与 key
 
-```jsx
+```tsxx
 // 没有 key 时，React 按位置比较
 // 更新前：[A, B, C]
 // 更新后：[B, C, A]（A 移到末尾）
@@ -171,7 +171,7 @@ React 18 引入了并发模式，不同更新有不同优先级：
 5. 空闲（Idle）：如离屏渲染
 ```
 
-```jsx
+```tsxx
 // React 18 并发特性
 import { startTransition, useTransition, useDeferredValue } from "react";
 
@@ -238,7 +238,7 @@ function completeUnitOfWork(unitOfWork) {
 
 ## 五、Fiber 节点核心字段
 
-```js
+```tsx
 {
   type,         // 节点类型（'div' | App | () => {}）
   props,        // 当前属性
@@ -269,7 +269,7 @@ React 时间切片底层用的是 **MessageChannel**，不是 `requestIdleCallba
 | 兼容性     | Safari 不支持                                    | 全面支持                       |
 | 优先级控制 | React 无法自定义优先级                           | 可配合 Scheduler 精确调度      |
 
-```js
+```tsx
 // React 借用 MessageChannel 产生"干净的宏任务"
 const channel = new MessageChannel();
 // port1 发消息，port2 收消息（自己给自己发）

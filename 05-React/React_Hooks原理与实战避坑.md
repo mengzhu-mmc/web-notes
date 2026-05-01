@@ -8,7 +8,7 @@
 
 ### 1. useState 的闭包陷阱
 
-```jsx
+```tsxx
 function Counter() {
   const [count, setCount] = useState(0);
 
@@ -28,7 +28,7 @@ function Counter() {
 
 ### 2. useEffect 依赖陷阱
 
-```jsx
+```tsxx
 // ❌ 缺少依赖，拿到的永远是初始值
 useEffect(() => {
   const timer = setInterval(() => {
@@ -50,7 +50,7 @@ useEffect(() => {
 
 ### 3. useCallback 的正确使用时机
 
-```jsx
+```tsxx
 // ❌ 不需要 useCallback 的场景（没传给 memo 子组件）
 const handleClick = useCallback(() => {
   console.log("clicked");
@@ -73,7 +73,7 @@ function Parent() {
 
 ### useLocalStorage
 
-```jsx
+```tsxx
 function useLocalStorage(key, initialValue) {
   const [value, setValue] = useState(() => {
     try {
@@ -92,7 +92,7 @@ function useLocalStorage(key, initialValue) {
 
 ### useDebounce
 
-```jsx
+```tsxx
 function useDebounce(value, delay = 300) {
   const [debouncedValue, setDebouncedValue] = useState(value);
   useEffect(() => {
@@ -105,7 +105,7 @@ function useDebounce(value, delay = 300) {
 
 ### useFetch
 
-```jsx
+```tsxx
 function useFetch(url) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -130,7 +130,7 @@ function useFetch(url) {
 
 ### usePrevious
 
-```jsx
+```tsxx
 function usePrevious(value) {
   const ref = useRef();
   useEffect(() => {
@@ -142,7 +142,7 @@ function usePrevious(value) {
 
 ### useClickOutside
 
-```jsx
+```tsxx
 function useClickOutside(ref, handler) {
   useEffect(() => {
     const listener = (e) => {
@@ -157,7 +157,7 @@ function useClickOutside(ref, handler) {
 
 ### useIntersectionObserver
 
-```jsx
+```tsxx
 function useIntersectionObserver(ref, options = {}) {
   const [isVisible, setIsVisible] = useState(false);
   useEffect(() => {
@@ -186,7 +186,7 @@ function useIntersectionObserver(ref, options = {}) {
 
 ### useUpdate（强制更新）
 
-```jsx
+```tsxx
 function useUpdate() {
   const [, setState] = useState({});
   return useCallback(() => setState({}), []);
@@ -195,7 +195,7 @@ function useUpdate() {
 
 ### useMount / useUnmount
 
-```jsx
+```tsxx
 function useMount(fn) {
   useEffect(() => {
     fn();
@@ -396,7 +396,7 @@ render() {
 
 传空数组 `[]` 作为依赖时，仅在**首次渲染时执行一次**，之后永远复用缓存值。这本身是合法的，但如果内部依赖了 state，会形成闭包陷阱：
 
-```js
+```tsx
 const [count, setCount] = useState(0);
 
 // useMemo 空依赖：只计算一次，count 变化后 expensiveValue 仍为旧值
@@ -418,7 +418,7 @@ const handleClick = useCallback(() => {
 
 ## useState 连续三次 setState 四种方案对比
 
-```js
+```tsx
 // 问题：连续三次调用，如何让每次都生效（值不丢）？
 
 // 方案1：函数式更新（推荐）

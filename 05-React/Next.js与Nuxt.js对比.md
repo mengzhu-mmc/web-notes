@@ -6,13 +6,13 @@
 
 ## 一、框架定位
 
-| 对比项 | Next.js | Nuxt.js |
-| --- | --- | --- |
-| 基础框架 | React | Vue 3 |
-| 维护团队 | Vercel | Nuxt 团队（社区驱动） |
-| 设计理念 | 灵活、显式、底层 | 开箱即用、约定优于配置 |
-| 路由方案 | 文件系统路由（App Router） | 文件系统路由（基于 vue-router） |
-| 服务端引擎 | Next.js 内置（Edge Runtime / Node.js） | Nitro（轻量跨平台） |
+| 对比项     | Next.js                                | Nuxt.js                         |
+| ---------- | -------------------------------------- | ------------------------------- |
+| 基础框架   | React                                  | Vue 3                           |
+| 维护团队   | Vercel                                 | Nuxt 团队（社区驱动）           |
+| 设计理念   | 灵活、显式、底层                       | 开箱即用、约定优于配置          |
+| 路由方案   | 文件系统路由（App Router）             | 文件系统路由（基于 vue-router） |
+| 服务端引擎 | Next.js 内置（Edge Runtime / Node.js） | Nitro（轻量跨平台）             |
 
 **选择原则**：React 技术栈选 Next.js，Vue 技术栈选 Nuxt.js。两者功能高度对称，理念各有侧重。
 
@@ -55,11 +55,11 @@ Nuxt 3 支持自动导入：`components/`、`composables/` 目录下的文件无
 
 两者都支持以下渲染模式：
 
-| 模式 | 说明 | 适合场景 |
-| --- | --- | --- |
-| **SSR** 服务端渲染 | 每次请求在服务器渲染 | 实时数据、个性化内容 |
-| **SSG** 静态生成 | 构建时预渲染为 HTML | 博客、文档、营销页 |
-| **CSR** 客户端渲染 | 纯 SPA | 后台管理系统 |
+| 模式                 | 说明                    | 适合场景                     |
+| -------------------- | ----------------------- | ---------------------------- |
+| **SSR** 服务端渲染   | 每次请求在服务器渲染    | 实时数据、个性化内容         |
+| **SSG** 静态生成     | 构建时预渲染为 HTML     | 博客、文档、营销页           |
+| **CSR** 客户端渲染   | 纯 SPA                  | 后台管理系统                 |
 | **ISR** 增量静态再生 | SSG + 定时/按需重新生成 | 商品列表等频繁但不实时的场景 |
 
 ---
@@ -144,12 +144,12 @@ function LikeButton({ id }: { id: number }) {
 
 ## 六、部署对比
 
-|  | Next.js | Nuxt.js |
-| --- | --- | --- |
-| 最优平台 | **Vercel**（原生支持，自动优化） | 任意平台（Nitro 跨平台） |
-| 自托管 | Node.js 服务 / Docker | Node.js / Bun / Deno / Cloudflare Workers |
-| 静态导出 | `next export`（部分限制） | `nuxt generate`（全静态） |
-| Edge 计算 | ✅ Edge Runtime | ✅ Cloudflare Workers（Nitro） |
+|           | Next.js                          | Nuxt.js                                   |
+| --------- | -------------------------------- | ----------------------------------------- |
+| 最优平台  | **Vercel**（原生支持，自动优化） | 任意平台（Nitro 跨平台）                  |
+| 自托管    | Node.js 服务 / Docker            | Node.js / Bun / Deno / Cloudflare Workers |
+| 静态导出  | `next export`（部分限制）        | `nuxt generate`（全静态）                 |
+| Edge 计算 | ✅ Edge Runtime                  | ✅ Cloudflare Workers（Nitro）            |
 
 ---
 

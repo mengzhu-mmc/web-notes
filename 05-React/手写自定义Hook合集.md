@@ -25,7 +25,7 @@
 
 适合：按钮点击、搜索触发等，**不需要**与输入框 `value` 直接绑定。
 
-```jsx
+```tsxx
 import { useState, useRef, useCallback, useEffect } from "react";
 
 /**
@@ -72,7 +72,7 @@ function SearchButton() {
 
 适合：搜索框输入，**输入框 `value` 用原始值**（响应流畅），**接口请求用 `debouncedVal`**（防止频繁请求）。
 
-```jsx
+```tsxx
 import { useState, useEffect } from "react";
 
 /**
@@ -118,7 +118,7 @@ function SearchInput() {
 
 ### 3. useDebounce —— 防抖函数（通用版）
 
-```jsx
+```tsxx
 import { useRef, useCallback } from "react";
 
 /**
@@ -152,7 +152,7 @@ function Component() {
 
 ## 二、节流 Hook
 
-```jsx
+```tsxx
 import { useRef, useCallback } from "react";
 
 /**
@@ -193,7 +193,7 @@ function ScrollComponent() {
 
 ## 三、usePrevious —— 获取上一次的值
 
-```jsx
+```tsxx
 import { useRef, useEffect } from "react";
 
 /**
@@ -232,7 +232,7 @@ function Counter() {
 
 解决闭包陷阱的通用方案，在 `useEffect` / 定时器 / 事件回调中获取最新 state。
 
-```jsx
+```tsxx
 import { useRef, useEffect } from "react";
 
 /**
@@ -266,7 +266,7 @@ function Timer() {
 
 ## 五、useLocalStorage —— 持久化状态
 
-```jsx
+```tsxx
 import { useState, useCallback } from "react";
 
 /**
@@ -321,7 +321,7 @@ function ThemeToggle() {
 
 ## 六、useEventListener —— 事件监听
 
-```jsx
+```tsxx
 import { useEffect, useRef } from "react";
 
 /**
@@ -362,7 +362,7 @@ function KeyboardShortcut() {
 
 ## 七、useInterval / useTimeout —— 定时器
 
-```jsx
+```tsxx
 import { useEffect, useRef } from "react";
 
 /**
@@ -416,7 +416,7 @@ function StopwatchDemo() {
 
 ## 八、useFetch —— 数据请求
 
-```jsx
+```tsxx
 import { useState, useEffect, useRef } from "react";
 
 /**
@@ -475,7 +475,7 @@ function UserProfile({ userId }) {
 
 ## 九、useIntersectionObserver —— 懒加载 / 无限滚动
 
-```jsx
+```tsxx
 import { useState, useEffect, useRef } from "react";
 
 /**
