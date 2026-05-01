@@ -228,6 +228,18 @@ a,
 > 难道每次写 1px 都要用 JS 去动态获取 `window.devicePixelRatio` 然后计算缩放比例吗？
 > **完全不需要！纯 CSS 就能搞定。** 如上方的代码所示，我们利用了 CSS 专属的媒体查询特征值 `-webkit-min-device-pixel-ratio`，让浏览器在解析 CSS 时，**根据设备自身的 DPR 硬件属性，自动去匹配应该应用哪一层缩放 (`scaleY(0.5)` 还是 `scaleY(0.333)`)**。这既解耦了 JS，又保证了渲染性能，是当前业界最成熟的纯 CSS 1px 解决方案。
 
+> **工程化终极杀招：真实业务中如何避免手动写这么长的代码？**
+> 在现代前端工程（Vue/React + Vite/Webpack）中，我们绝不会每次都手写这一大串伪元素和媒体查询，而是通过**工程化方案**将其封装：
+>
+> **方案 1：Sass/Less Mixin (预处理器宏)**
+> 我们会在全局 `variables.scss` 中封装一个 `@mixin hairline($direction, $color)`，业务代码里只需要一行 `@include hairline(bottom, #ccc);` 即可自动展开上述所有代码。
+>
+> **方案 2：PostCSS 插件自动化**
+> 借助如 `postcss-write-svg` 或 `postcss-hairline` 等插件。在 CSS 里只要写标准的 `border: 1px solid #ccc;`，PostCSS 会在编译阶段拦截到这个属性，**自动将其编译转换为兼容 DPR 的伪元素代码或 SVG 背景代码**。这对开发者来说是完全无感的（这也是大厂目前的主流实践）。
+>
+> **方案 3：UI 组件库内置**
+> 像 Vant (Vue) 或 Ant Design Mobile (React) 这样的移动端组件库，自带了如 `van-hairline--bottom` 的全局内置类名。你只需要给需要的容器挂上这个 `class` 即可。
+
 ### 6.4 透明度动画引发的诡异黑块（闪黑）
 
 **痛点场景**：实现一个页面过场的渐显动画或 Modal 的淡入淡出，你使用了 `opacity: 0` 过渡到 `opacity: 1`。
