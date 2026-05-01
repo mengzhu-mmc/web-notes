@@ -189,32 +189,44 @@ a,
 这样，我们就成功在高分屏上，点亮了最细的那唯一一排发光点，实现了真正的发丝边框。
 
 ```css
-/* 以底部 1px 细线为例 */
+/* 以底部 1px 细线为例（利用媒体查询纯 CSS 动态分发） */
 .hairline-bottom {
   position: relative;
 }
 
+/* 1. 基础样式（应对 PC 和 DPR=1 的老旧手机） */
 .hairline-bottom::after {
   content: "";
   position: absolute;
   left: 0;
   bottom: 0;
   width: 100%;
-  height: 1px;
+  height: 1px; /* 逻辑像素 1px */
   background-color: #ccc;
-
-  /* 核心杀招：利用 Y 轴缩放 0.5 倍 */
-  transform: scaleY(0.5);
   transform-origin: 50% 100%;
+  /* DPR=1 时，无需缩放，刚好就是 1 个物理发光点 */
 }
 
-/* 如果是 Retina 3x 屏幕，可以通过媒体查询继续缩放 */
+/* 2. DPR=2 的屏幕（大部分现代手机 / iPhone 基础版） */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 2dppx) {
+  .hairline-bottom::after {
+    /* 强行压扁一半，1px * 0.5 * 2倍映射 = 1 物理像素 */
+    transform: scaleY(0.5);
+  }
+}
+
+/* 3. DPR=3 的超高清屏幕（iPhone Pro Max 等） */
 @media (-webkit-min-device-pixel-ratio: 3), (min-resolution: 3dppx) {
   .hairline-bottom::after {
-    transform: scaleY(0.33);
+    /* 强行压扁到三分之一，1px * 0.333 * 3倍映射 ≈ 1 物理像素 */
+    transform: scaleY(0.333);
   }
 }
 ```
+
+> **高阶追问与解答**：
+> 难道每次写 1px 都要用 JS 去动态获取 `window.devicePixelRatio` 然后计算缩放比例吗？
+> **完全不需要！纯 CSS 就能搞定。** 如上方的代码所示，我们利用了 CSS 专属的媒体查询特征值 `-webkit-min-device-pixel-ratio`，让浏览器在解析 CSS 时，**根据设备自身的 DPR 硬件属性，自动去匹配应该应用哪一层缩放 (`scaleY(0.5)` 还是 `scaleY(0.333)`)**。这既解耦了 JS，又保证了渲染性能，是当前业界最成熟的纯 CSS 1px 解决方案。
 
 ### 6.4 透明度动画引发的诡异黑块（闪黑）
 
