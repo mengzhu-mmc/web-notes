@@ -12,6 +12,8 @@
   - 核心场景：`z-index` 为什么不生效？元素的渲染层级关系。
 - [x] **重绘与回流（Repaint & Reflow）**
   - 核心场景：性能优化、GPU 硬件加速（`transform`、`opacity`、`will-change`）。
+- [x] **渲染层干预与懒加载机制**
+  - 核心场景：虚拟滚动原理，`content-visibility` 与 `contain` 隔离边界。
 - [x] **包含块（Containing Block）**
   - 核心场景：`absolute` 和 `fixed` 到底相对于谁定位？
 - [x] **选择器优先级与样式层叠机制**
