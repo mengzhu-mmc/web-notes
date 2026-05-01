@@ -44,6 +44,7 @@
 - [x] **CSS 新特性 (2023-2026)**
   - CSS 交互特性（`popover`, `dialog-closedBy`, 滚动驱动动画等）
   - 新单位（如 `lh`）
+  - **[👉 现代 CSS 冷门实用 API 与魔法属性](./04-前沿特性与工程化/现代CSS冷门实用API与魔法属性.md)**
 - [x] **CSS 工程化**
   - 预处理器（Sass/Less）、PostCSS
   - CSS Modules, CSS-in-JS, Tailwind 核心思想
