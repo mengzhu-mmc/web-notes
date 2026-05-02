@@ -1,5 +1,5 @@
-import type { Language } from '../types'
-import { addLineNumbers } from './lineNumbers'
+import type { Language } from "../types";
+import { addLineNumbers } from "./lineNumbers";
 
 /**
  * 构建系统提示词，要求 AI 以结构化 Markdown 格式输出审查结果
@@ -32,7 +32,7 @@ export function buildSystemPrompt(): string {
 > 评分依据：（简要说明扣分原因和亮点）
 
 ---
-请保持回复简洁专业，避免不必要的废话。`
+请保持回复简洁专业，避免不必要的废话。`;
 }
 
 /**
@@ -42,10 +42,10 @@ export function buildSystemPrompt(): string {
  * @returns 用户消息字符串
  */
 export function buildUserMessage(code: string, language: Language): string {
-  const numberedCode = addLineNumbers(code)
+  const numberedCode = addLineNumbers(code);
   return `请审查以下 ${language} 代码：
 
 \`\`\`${language}
 ${numberedCode}
-\`\`\``
+\`\`\``;
 }

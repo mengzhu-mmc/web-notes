@@ -1,12 +1,12 @@
-import React from 'react'
-import ReactMarkdown from 'react-markdown'
-import rehypeHighlight from 'rehype-highlight'
+import React from "react";
+import ReactMarkdown from "react-markdown";
+import rehypeHighlight from "rehype-highlight";
 
 interface ReviewOutputProps {
   /** 审查结果内容（Markdown 格式） */
-  content: string
+  content: string;
   /** 是否处于加载/流式传输中 */
-  loading: boolean
+  loading: boolean;
 }
 
 /**
@@ -14,24 +14,24 @@ interface ReviewOutputProps {
  * loading=true 且无内容时显示骨架占位，有内容时同步渲染（流式效果）
  */
 const ReviewOutput: React.FC<ReviewOutputProps> = ({ content, loading }) => {
-  const showSkeleton = loading && content.length === 0
+  const showSkeleton = loading && content.length === 0;
 
   return (
     <div
       style={{
         flex: 1,
-        overflowY: 'auto',
-        padding: '16px 20px',
-        background: '#0f172a',
+        overflowY: "auto",
+        padding: "16px 20px",
+        background: "#0f172a",
         borderRadius: 8,
-        border: '1px solid #1e293b',
+        border: "1px solid #1e293b",
         minHeight: 0,
       }}
     >
       {showSkeleton ? (
         // 骨架占位：模拟三行内容加载中的效果
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <div style={{ color: '#64748b', fontSize: 14, marginBottom: 8 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <div style={{ color: "#64748b", fontSize: 14, marginBottom: 8 }}>
             ⏳ 正在分析中...
           </div>
           {[80, 60, 90, 50].map((width, i) => (
@@ -40,9 +40,9 @@ const ReviewOutput: React.FC<ReviewOutputProps> = ({ content, loading }) => {
               style={{
                 height: 14,
                 borderRadius: 4,
-                background: '#1e293b',
+                background: "#1e293b",
                 width: `${width}%`,
-                animation: 'pulse 1.5s ease-in-out infinite',
+                animation: "pulse 1.5s ease-in-out infinite",
               }}
             />
           ))}
@@ -58,7 +58,7 @@ const ReviewOutput: React.FC<ReviewOutputProps> = ({ content, loading }) => {
         <div
           className="markdown-body"
           style={{
-            color: '#e2e8f0',
+            color: "#e2e8f0",
             fontSize: 14,
             lineHeight: 1.7,
           }}
@@ -71,11 +71,11 @@ const ReviewOutput: React.FC<ReviewOutputProps> = ({ content, loading }) => {
                 <pre
                   {...props}
                   style={{
-                    background: '#1e293b',
+                    background: "#1e293b",
                     borderRadius: 6,
-                    padding: '12px 16px',
-                    overflowX: 'auto',
-                    margin: '12px 0',
+                    padding: "12px 16px",
+                    overflowX: "auto",
+                    margin: "12px 0",
                     fontSize: 13,
                   }}
                 >
@@ -84,7 +84,7 @@ const ReviewOutput: React.FC<ReviewOutputProps> = ({ content, loading }) => {
               ),
               // 行内代码样式
               code: ({ children, className, ...props }) => {
-                const isBlock = className?.startsWith('language-')
+                const isBlock = className?.startsWith("language-");
                 return isBlock ? (
                   <code className={className} {...props}>
                     {children}
@@ -92,28 +92,28 @@ const ReviewOutput: React.FC<ReviewOutputProps> = ({ content, loading }) => {
                 ) : (
                   <code
                     style={{
-                      background: '#1e293b',
-                      padding: '2px 6px',
+                      background: "#1e293b",
+                      padding: "2px 6px",
                       borderRadius: 4,
                       fontSize: 13,
-                      color: '#93c5fd',
+                      color: "#93c5fd",
                     }}
                     {...props}
                   >
                     {children}
                   </code>
-                )
+                );
               },
               // 标题样式
               h2: ({ children, ...props }) => (
                 <h2
                   {...props}
                   style={{
-                    color: '#f1f5f9',
+                    color: "#f1f5f9",
                     fontSize: 16,
                     fontWeight: 600,
-                    margin: '20px 0 10px',
-                    borderBottom: '1px solid #1e293b',
+                    margin: "20px 0 10px",
+                    borderBottom: "1px solid #1e293b",
                     paddingBottom: 6,
                   }}
                 >
@@ -128,13 +128,13 @@ const ReviewOutput: React.FC<ReviewOutputProps> = ({ content, loading }) => {
           {loading && (
             <span
               style={{
-                display: 'inline-block',
+                display: "inline-block",
                 width: 2,
                 height: 16,
-                background: '#60a5fa',
+                background: "#60a5fa",
                 marginLeft: 2,
-                verticalAlign: 'text-bottom',
-                animation: 'blink 1s step-end infinite',
+                verticalAlign: "text-bottom",
+                animation: "blink 1s step-end infinite",
               }}
             />
           )}
@@ -149,12 +149,12 @@ const ReviewOutput: React.FC<ReviewOutputProps> = ({ content, loading }) => {
         // 空状态提示
         <div
           style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            height: '100%',
-            color: '#475569',
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            height: "100%",
+            color: "#475569",
             gap: 12,
           }}
         >
@@ -163,7 +163,7 @@ const ReviewOutput: React.FC<ReviewOutputProps> = ({ content, loading }) => {
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default ReviewOutput
+export default ReviewOutput;

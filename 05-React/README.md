@@ -78,3 +78,8 @@
 - [[09-网络与浏览器/浏览器原理/浏览器渲染和回流(重排)、重绘|浏览器渲染 & 回流 & 重绘]] — 理解虚拟 DOM 为什么能减少回流
 - [[03-TypeScript/TypeScript与React实战|TypeScript 与 React 实战]]
 - [[05-React/React原理精读：写给中级前端的核心心智模型|React 原理精读：写给中级前端的核心心智模型]]
+
+## React 19 / 并发渲染 / RSC 重点补充
+
+- [[React19_API与心智模型]] — `useActionState`、`useOptimistic`、`use`、资源加载 API、Compiler 心智模型。
+- [[React并发渲染与Server_Components心智模型]] — 并发渲染调度、Suspense 边界、Server/Client Components 边界设计。

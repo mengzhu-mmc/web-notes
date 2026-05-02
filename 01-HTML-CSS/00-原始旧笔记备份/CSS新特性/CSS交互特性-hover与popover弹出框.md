@@ -1,28 +1,6 @@
-# HTML interestfor 属性 — 纯 HTML hover popover
+# CSS交互特性-hover与popover弹出框
 
-> 来源：张鑫旭博客 2026-03-04
+> 本文内容已完成去重合并，后续维护请以 [[01-HTML-CSS/04-前沿特性与工程化/2024-2026新特性/CSS交互特性-hover与popover弹出框.md]] 为准。
 
-## 是什么
-
-`interestfor` 属性可以实现**纯 HTML + CSS 的 hover popover 效果**，无需任何 JavaScript。
-
-## 基本用法
-
-```html
-<button interestfor="myPopover">Hover me</button>
-<div id="myPopover" popover>悬浮内容</div>
-```
-
-鼠标悬浮 button 时，对应的 popover 自动展示。
-
-## 意义
-
-继 Popover API 支持点击交互后，现在 hover 交互也可以纯 HTML/CSS 实现，大幅减少 JS 交互代码。
-
-## 关联知识
-
-- `popover` 属性 / Popover API
-- `popovertarget` 属性（点击触发）
-- `interestfor` 属性（hover 触发）
-
-#HTML #popover #interestfor #原生API
+- 合并目标：`01-HTML-CSS/04-前沿特性与工程化/2024-2026新特性/CSS交互特性-hover与popover弹出框.md`
+- 处理原因：该文件与结构化目录下的同名/同主题笔记内容重复，保留轻量索引以避免知识点双线维护。

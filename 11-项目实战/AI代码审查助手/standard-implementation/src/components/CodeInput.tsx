@@ -1,14 +1,14 @@
-import React from 'react'
-import Editor from '@monaco-editor/react'
-import type { Language } from '../types'
+import React from "react";
+import Editor from "@monaco-editor/react";
+import type { Language } from "../types";
 
 interface CodeInputProps {
   /** 编辑器当前内容 */
-  value: string
+  value: string;
   /** 内容变更回调 */
-  onChange: (value: string) => void
+  onChange: (value: string) => void;
   /** 当前编程语言（影响语法高亮） */
-  language: Language
+  language: Language;
 }
 
 /**
@@ -20,9 +20,9 @@ const CodeInput: React.FC<CodeInputProps> = React.memo(
       <div
         style={{
           flex: 1,
-          border: '1px solid #334155',
+          border: "1px solid #334155",
           borderRadius: 8,
-          overflow: 'hidden',
+          overflow: "hidden",
           minHeight: 0,
         }}
       >
@@ -31,24 +31,24 @@ const CodeInput: React.FC<CodeInputProps> = React.memo(
           language={language}
           value={value}
           theme="vs-dark"
-          onChange={(val) => onChange(val ?? '')}
+          onChange={(val) => onChange(val ?? "")}
           options={{
             fontSize: 14,
             minimap: { enabled: false },
-            wordWrap: 'on',
+            wordWrap: "on",
             scrollBeyondLastLine: false,
             tabSize: 2,
-            lineNumbers: 'on',
-            renderLineHighlight: 'all',
+            lineNumbers: "on",
+            renderLineHighlight: "all",
             automaticLayout: true,
             padding: { top: 12, bottom: 12 },
           }}
         />
       </div>
-    )
-  }
-)
+    );
+  },
+);
 
-CodeInput.displayName = 'CodeInput'
+CodeInput.displayName = "CodeInput";
 
-export default CodeInput
+export default CodeInput;
