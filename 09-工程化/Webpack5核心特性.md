@@ -397,18 +397,18 @@ module.exports = {
 
 ### 6.1 完整对比
 
-| 特性 | Webpack 4 | Webpack 5 |
-| --- | --- | --- |
-| Node.js polyfill | 自动注入（crypto, path 等） | **移除**，需手动配置 |
-| 持久化缓存 | 需要第三方插件 | **内置** filesystem cache |
-| Asset Modules | file/url/raw-loader | **内置**四种资源类型 |
-| Module Federation | 无 | **新增** |
-| Tree Shaking | 模块级 | **增强**（嵌套、CJS） |
-| 代码分割 | 同 | 更智能的 splitChunks 默认配置 |
-| 模块 ID | 数字递增 | **确定性** ID（contenthash） |
-| Chunk ID | 数字递增 | **确定性** ID |
-| Top Level Await | 不支持 | **支持**（实验性） |
-| 运行时优化 | 同 | 更小的运行时代码 |
+| 特性              | Webpack 4                   | Webpack 5                     |
+| ----------------- | --------------------------- | ----------------------------- |
+| Node.js polyfill  | 自动注入（crypto, path 等） | **移除**，需手动配置          |
+| 持久化缓存        | 需要第三方插件              | **内置** filesystem cache     |
+| Asset Modules     | file/url/raw-loader         | **内置**四种资源类型          |
+| Module Federation | 无                          | **新增**                      |
+| Tree Shaking      | 模块级                      | **增强**（嵌套、CJS）         |
+| 代码分割          | 同                          | 更智能的 splitChunks 默认配置 |
+| 模块 ID           | 数字递增                    | **确定性** ID（contenthash）  |
+| Chunk ID          | 数字递增                    | **确定性** ID                 |
+| Top Level Await   | 不支持                      | **支持**（实验性）            |
+| 运行时优化        | 同                          | 更小的运行时代码              |
 
 ### 6.2 Node.js Polyfill 移除（重要迁移点）
 
@@ -810,7 +810,7 @@ module.exports = {
 5. 输出（emit）：将 Chunk 写入文件系统
 ```
 
-参考 → [[10-工程化/[4424] 10  流程分解：Webpack 的完整构建流程]]
+参考 → [[09-工程化/[4424] 10  流程分解：Webpack 的完整构建流程]]
 
 ### Q2：Loader 和 Plugin 的区别？
 
@@ -827,7 +827,7 @@ module.exports = {
 5. 用新模块替换旧模块，触发 module.hot.accept 回调
 ```
 
-参考 → [[10-工程化/[4416] 02  界面调试：热更新技术如何开着飞机修引擎？]]
+参考 → [[09-工程化/[4416] 02  界面调试：热更新技术如何开着飞机修引擎？]]
 
 ### Q4：SplitChunks 怎么配？
 
@@ -841,14 +841,14 @@ module.exports = {
 
 ### Q5：如何优化 Webpack 构建速度？
 
-| 方案 | 原理 | 效果 |
-| --- | --- | --- |
-| 持久化缓存 | `cache: { type: 'filesystem' }` | 二次构建提速 60-90% |
-| 多线程 | `thread-loader` / SWC | 利用多核并行编译 |
-| 缩小构建范围 | `exclude: /node_modules/`、精确 `resolve` | 减少文件搜索和转译 |
-| DLL | 预编译不变的依赖 | 减少重复编译 |
-| SourceMap 策略 | 开发用 `eval-cheap-module-source-map` | 速度与调试的平衡 |
-| esbuild-loader | 替代 babel-loader + terser | Go 编译速度优势 |
+| 方案           | 原理                                      | 效果                |
+| -------------- | ----------------------------------------- | ------------------- |
+| 持久化缓存     | `cache: { type: 'filesystem' }`           | 二次构建提速 60-90% |
+| 多线程         | `thread-loader` / SWC                     | 利用多核并行编译    |
+| 缩小构建范围   | `exclude: /node_modules/`、精确 `resolve` | 减少文件搜索和转译  |
+| DLL            | 预编译不变的依赖                          | 减少重复编译        |
+| SourceMap 策略 | 开发用 `eval-cheap-module-source-map`     | 速度与调试的平衡    |
+| esbuild-loader | 替代 babel-loader + terser                | Go 编译速度优势     |
 
 ### Q6：Module Federation 的应用场景？
 

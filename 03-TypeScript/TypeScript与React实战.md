@@ -5,7 +5,7 @@
 - [[03-TypeScript/TypeScript基础到进阶]]
 - [[03-TypeScript/[3182] 第11讲：为什么说 JavaScript 不适合大型项目？]]
 - [[03-TypeScript/README]]
-- [[05-框架-React/]]
+- [[05-React/]]
 
 ---
 

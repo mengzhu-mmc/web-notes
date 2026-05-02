@@ -6,7 +6,7 @@
 
 - [[02-JavaScript/README|← JavaScript]]
 - [[05-React/README|← React]]
-- [[10-工程化/README|← 工程化]]
+- [[09-工程化/README|← 工程化]]
 
 ---
 
@@ -59,13 +59,13 @@ TypeScript
 
 ## 🎯 面试重点
 
-| 主题 | 关键点 | 笔记链接 |
-| --- | --- | --- |
-| type vs interface | 声明合并、联合类型、映射类型 | [[TypeScript基础到进阶#三、Interface vs Type]] |
-| 泛型 | 约束、条件类型、infer、协变逆变 | [[TypeScript基础到进阶#四、泛型（Generics）深入]] |
-| 工具类型手写 | Partial、Pick、Omit、ReturnType | [[TypeScript基础到进阶#五、工具类型详解]] |
-| React + TS | Props、Hooks、事件、Context | [[TypeScript与React实战]] |
-| tsconfig | strict、isolatedModules、paths | [[TypeScript基础到进阶#九、tsconfig 常用配置]] |
+| 主题              | 关键点                          | 笔记链接                                          |
+| ----------------- | ------------------------------- | ------------------------------------------------- |
+| type vs interface | 声明合并、联合类型、映射类型    | [[TypeScript基础到进阶#三、Interface vs Type]]    |
+| 泛型              | 约束、条件类型、infer、协变逆变 | [[TypeScript基础到进阶#四、泛型（Generics）深入]] |
+| 工具类型手写      | Partial、Pick、Omit、ReturnType | [[TypeScript基础到进阶#五、工具类型详解]]         |
+| React + TS        | Props、Hooks、事件、Context     | [[TypeScript与React实战]]                         |
+| tsconfig          | strict、isolatedModules、paths  | [[TypeScript基础到进阶#九、tsconfig 常用配置]]    |
 
 ---
 
@@ -81,5 +81,5 @@ TypeScript
 - [[01-HTML-CSS/README|HTML & CSS]]
 - [[02-JavaScript/README|JavaScript]]
 - [[05-React/README|React]]
-- [[10-工程化/README|工程化]]
+- [[09-工程化/README|工程化]]
 - [[03-TypeScript/TypeScript内置工具类型全解|TypeScript 内置工具类型全解]]
