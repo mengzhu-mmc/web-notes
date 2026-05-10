@@ -63,7 +63,68 @@ function Counter() {
 
 ---
 
-## 四、 如何优雅地逃出闭包陷阱？
+## 四、 灵魂拷问：谁抓住了闭包不放？
+
+一个关键点：**闭包（Closure） ≠ 闭包陷阱（Stale Closure Trap）**。
+闭包的产生只需要**函数嵌套 + 访问外部变量**。而闭包会不会变成“过期陷阱”，取决于**是谁在一直拽着这个旧函数不让它死**。我们分三种情况彻底扒开来看：
+
+### 1. 正常的点击事件：没有陷阱，但有闭包
+
+```tsx
+function Counter() {
+  const [count, setCount] = useState(0);
+
+  // 1. 闭包在这里已经形成了！它抱走了当前的 count 快照
+  const handleClick = () => console.log(count);
+
+  // 2. 谁引用了它？React 底层的虚拟 DOM 树（Fiber 节点）
+  return <button onClick={handleClick}>点击</button>;
+}
+```
+
+**为什么这里没有发生“陷阱”？**
+每次点击 `setCount` 触发重新渲染时，React 都会生成一个全新的 `handleClick`（抱着最新的快照），并把虚拟 DOM 上的 `onClick` **替换成这个新函数**。
+旧的 `handleClick` 失去了引用，就像断了线的风筝，立刻被 GC 清理掉了。所以每次点击拿到的都是最新值。
+
+### 2. 扔进空的 useEffect：生来即死
+
+```tsx
+useEffect(() => {
+  // 仅仅是定义了它，没有定时器，没有 window.addEventListener
+  const handleClick = () => console.log(count);
+}, []);
+```
+
+**谁引用了它？没有任何人！**
+如果一个闭包被创建出来，既没丢给 `window`，也没丢给定时器，也没丢给 React 元素，那么在 `useEffect` 执行完的那一瞬间，`handleClick` 就成了没用的垃圾，**立刻就被销毁了**。根本没机会触发“陷阱”。
+
+### 3. useCallback 陷阱：框架本身的“好心办坏事”
+
+既没有 `window` 监听，也没有 `setTimeout`，到底是谁导致了闭包陷阱？
+
+```tsx
+const handleClick = useCallback(() => {
+  console.log(count); // 永远只能打印出 0
+}, []); // 依赖为空
+
+return <button onClick={handleClick}>点击</button>;
+```
+
+**谁引用了它？React 自己的 Hooks 存储系统（Fiber 节点的 memoizedState 链表）**。
+
+1. **第 1 次渲染**：React 看到 `useCallback`，不仅让它形成了闭包，而且 **偷偷把它塞进了自己的底层保险箱里缓存了起来**。
+2. **第 2 次渲染**：组件重新执行，`count` 变成 1。但是 React 检查依赖数组 `[]` 发现没变，于是**转身从保险箱里把第 1 次存进去的旧函数掏出来**，继续交给 button。
+3. **真相大白**：是 **React 框架本身**充当了那个“抓住旧函数不放手”的角色，导致 GC 无法回收第一次的快照！
+
+**总结：是谁在拽着闭包？**
+
+- 如果是 `window.addEventListener`，是 **浏览器全局对象** 在拽着。
+- 如果是 `setTimeout`，是 **浏览器的定时器模块** 在拽着。
+- 如果是 `useCallback([], ...)`，则是 **React 自身的底层缓存数据结构** 在死死拽着它！
+
+---
+
+## 五、 如何优雅地逃出闭包陷阱？
 
 ### 解法 1：老老实实写依赖 (Dependencies)
 
