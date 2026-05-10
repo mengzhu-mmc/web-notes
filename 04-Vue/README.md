@@ -1,10 +1,34 @@
-# 04 · Vue
+# 04 · Vue 知识体系与高频面经指南 (README)
 
-> [[README|← 返回知识库首页]]
+> 返回知识库首页请点击上层目录。最新版 Vue 笔记索引，专注于 Vue 3 的心智模型、Composition API 以及高频面试题。
 
 快速索引 Vue 面试高频考点，每条附核心答题要点，适合考前快速回顾。
 
 ---
+
+## 体系化索引路线指南
+
+### 1. 核心机制与原理 (重点考察)
+
+- [响应式原理深入 (预留)](#响应式原理) — Vue2 defineProperty vs Vue3 Proxy
+- [Diff 算法详解 (预留)](#diff-算法) — 双端比较 vs 递增子序列(LIS)
+- [生命周期与执行流](#生命周期)
+
+### 2. 生态与工具链
+
+- [Vue Router 导航与模式](#-vue-router)
+- [Pinia 状态管理最佳实践](#-piniavue3-状态管理) — Pinia 与 Vuex 的核心区别
+- [Vue 性能优化核心策略](#6-性能优化要点) — v-memo、shallowRef、defineAsyncComponent
+
+### 3. 语法特性与新规范
+
+- [Composition API 最佳实践](#-vue-3-composition-api-最佳实践清单) — ref vs reactive, watchEffect
+- [Vue 3.4+ 颠覆级新特性 (defineModel)](#-vue-34-新特性)
+- [组件通信完全指南](#-组件通信)
+
+---
+
+## 面试与知识图谱速记
 
 ## 🔥 响应式原理
 

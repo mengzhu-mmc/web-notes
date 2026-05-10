@@ -1,25 +1,31 @@
 # 03 · TypeScript 知识地图
 
-> [[README|← 返回知识库首页]]
+> 返回知识库首页请点击上层目录。最新版 TS 笔记已修复双链失效问题。
 
 ## 关联笔记
 
-- [[02-JavaScript/README|← JavaScript]]
-- [[05-React/README|← React]]
-- [[09-工程化/README|← 工程化]]
+- [JavaScript 目录](../02-JavaScript/README.md)
+- [React 目录](../05-React/README.md)
+- [工程化 目录](../09-工程化/README.md)
 
 ---
 
 ## 📚 笔记索引
 
-### 基础与进阶
+### 基础与进阶（重点梳理）
 
-- [[03-TypeScript/TypeScript基础到进阶]] — 类型系统、泛型、工具类型、类型体操、tsconfig 全覆盖
-- [[03-TypeScript/[3182] 第11讲：为什么说 JavaScript 不适合大型项目？]] — JS 的痛点与 TS 的解决方案
+- [TypeScript 基础到进阶 - 标准答案索引](./TypeScript基础到进阶%20-%20标准答案索引.md) — 涵盖类型系统、泛型、基础用法
+- [TypeScript 基础到进阶 - 深挖专题索引](./TypeScript基础到进阶%20-%20深挖专题索引.md) — 工具类型、类型体操、tsconfig 全覆盖
 
 ### 框架实战
 
-- [[03-TypeScript/TypeScript与React实战]] — Props 类型、Hooks 标注、泛型组件、Context、事件类型
+- [TypeScript 与 React 实战](./TypeScript与React实战.md) — Props 类型、Hooks 标注、泛型组件、Context、事件类型
+
+### 工具库与内置能力
+
+- [TypeScript 内置工具类型全解](./TypeScript内置工具类型全解.md)
+- [TypeScript 进阶特性](./TypeScript进阶特性.md)
+- [TypeScript 高频面试题](./TypeScript高频面试题.md)
 
 ---
 
@@ -54,32 +60,3 @@ TypeScript
     ├── Context 类型安全
     └── 常见类型报错排查
 ```
-
----
-
-## 🎯 面试重点
-
-| 主题              | 关键点                          | 笔记链接                                          |
-| ----------------- | ------------------------------- | ------------------------------------------------- |
-| type vs interface | 声明合并、联合类型、映射类型    | [[TypeScript基础到进阶#三、Interface vs Type]]    |
-| 泛型              | 约束、条件类型、infer、协变逆变 | [[TypeScript基础到进阶#四、泛型（Generics）深入]] |
-| 工具类型手写      | Partial、Pick、Omit、ReturnType | [[TypeScript基础到进阶#五、工具类型详解]]         |
-| React + TS        | Props、Hooks、事件、Context     | [[TypeScript与React实战]]                         |
-| tsconfig          | strict、isolatedModules、paths  | [[TypeScript基础到进阶#九、tsconfig 常用配置]]    |
-
----
-
-## 📚 本模块文档（双链索引）
-
-- [[TypeScript基础到进阶]]
-- [[TypeScript进阶特性]]
-- [[TypeScript高频面试题]]
-- [[TypeScript与React实战]]
-
-## 🔗 相关模块
-
-- [[01-HTML-CSS/README|HTML & CSS]]
-- [[02-JavaScript/README|JavaScript]]
-- [[05-React/README|React]]
-- [[09-工程化/README|工程化]]
-- [[03-TypeScript/TypeScript内置工具类型全解|TypeScript 内置工具类型全解]]
