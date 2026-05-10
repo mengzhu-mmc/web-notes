@@ -356,6 +356,8 @@ function MyForm() {
 
 ## 五、其他 React 19 重要更新
 
+> Updated: 2026-05-10 based on official docs (React 19 Release / Next.js 15)
+
 ### 5.1 ref 直接作为 prop（告别 forwardRef）
 
 ```tsxxx
@@ -426,6 +428,28 @@ function App() {
   return <div>...</div>;
 }
 ```
+
+### 5.5 `after()` API（Next.js 15+ 实验性特性）
+
+在 Server Components 或 Server Actions 中，有时我们需要在响应返回给用户后，继续执行一些后台任务（如日志记录、数据分析、缓存清理）。Next.js 15 引入了 `after()` 函数，专门解决这个痛点，允许将耗时任务推迟到响应流关闭后执行。
+
+```tsx
+import { after } from "next/server";
+
+export default function Page() {
+  // 1. 响应会立即返回给客户端
+  after(() => {
+    // 2. 响应发送完毕后，服务端后台悄悄执行
+    console.log("User visited the page at", new Date());
+    logAnalytics();
+  });
+
+  return <div>Welcome to the Page</div>;
+}
+```
+
+**对比传统方案：**
+传统方案可能需要触发额外的 API 路由请求或依靠微服务/队列，而 `after()` 原生集成在服务端渲染链路的生命周期中。
 
 ---
 
