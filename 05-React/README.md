@@ -1,85 +1,61 @@
-# 05 · React 知识地图（MOC）
+# 05 · React 知识体系与源码深度解析索引 (README)
 
-> [[README|← 返回知识库首页]] | 这是 React 目录的索引页，所有 React 笔记都从这里链接。
-
-## 学习路径：基础 → 进阶 → 实战
-
-### 🟢 基础篇
-
-1. [[[4849] 开篇词  这一次，真正吃透 React 知识链路与底层逻辑]]
-2. [[[4850] 01  JSX 代码是如何"摇身一变"成为 DOM 的？]]
-3. [[生命周期]] — React 组件生命周期总结
-4. [[[4851] 02  为什么 React 16 要更改组件的生命周期？（上）]]
-5. [[[4852] 03  为什么 React 16 要更改组件的生命周期？（下）]]
-6. [[[4853] 04  数据是如何在 React 组件之间流动的？（上）]]
-7. [[[4854] 05  数据是如何在 React 组件之间流动的？（下）]]
-
-### 🟡 Hooks 篇
-
-8. [[[4855] 06  React-Hook 设计动机与工作模式（上）]]
-9. [[[4856] 07  React-Hook 设计动机与工作模式（下）]]
-10. [[[4857] 08  深入 React-Hook 工作机制："原则"的背后，是"原理"]]
-11. [[Hooks深入实战]] — ⭐ 闭包陷阱、自定义 Hook、面试手写
-
-### 🔴 原理篇
-
-12. [[[4858] 09  真正理解虚拟 DOM：React 选它，真的是为了性能吗？]]
-13. [[[4859] 10  React 中的"栈调和"（Stack Reconciler）过程是怎样的？]]
-14. [[[4860] 11  etState 到底是同步的，还是异步的？]]
-15. [[[4861] 12  如何理解 Fiber 架构的迭代动机与设计思想]]
-16. [[[4862] 13  ReactDOM.render 是如何串联渲染链路的？（上）]]
-17. [[[5367] 14  ReactDOM.render 是如何串联渲染链路的？（中）]]
-18. [[[5368] 15  ReactDOM.render 是如何串联渲染链路的？（下）]]
-19. [[[4863] 16  剖析 Fiber 架构下 Concurrent 模式的实现原理]]
-
-### 🟣 生态篇
-
-20. [[[4864] 17  特别的事件系统：React 事件与 DOM 事件有何不同？]]
-21. [[[4865] 18  揭秘 Redux 设计思想与工作原理（上）]]
-22. [[[4866] 19  揭秘 Redux 设计思想与工作原理（下）]]
-23. [[[4867] 20  从 Redux 中间件实现原理切入，理解"面向切面编程"]]
-24. [[[5894] 21  从 React-Router 切入，系统学习前端路由解决方案]]
-
-### ⚡ 进阶篇（新增）
-
-25. [[React18-19新特性]] — ⭐ 并发渲染、自动批处理、Server Components
-26. [[react-19-new-features]] — ⭐ React 19 深度：use() / Server Actions / useOptimistic / useFormStatus
-27. [[React性能优化深入]] — ⭐ 渲染优化、虚拟滚动、代码分割
-28. [[react-performance-optimization]] — ⭐ memo / useMemo / useCallback / startTransition 正确使用场景
-29. [[[4868] 22  思路拓展：如何打造高性能的 React 应用？]]
-30. [[[4869] 23  跟 React 学设计模式：掌握编程"套路"，打造高质量应用]]
+> 这里是 React 知识库的中央索引页，所有 React 笔记和深度原理解析均在此归类。最新版已按照 **"原理/机制驱动"** 的工程化架构进行了重新梳理，所有超链接均已修复为直接指向当前目录下的实体 Markdown 文件。
 
 ---
 
-## 独立笔记（精华）
+## 一、核心机制与底层渲染深度解析
 
-- [[React18-19新特性]]
-- [[react-19-new-features]] — React 19 新特性深度指南（use / Server Actions / useOptimistic / useFormStatus）
-- [[React-Fiber与虚拟DOM]]
-- [[React SSR实现原理]]
-- [[React合成事件机制]]
-- [[React性能优化深入]]
-- [[react-performance-optimization]] — 性能优化实战（正确使用场景）
-- [[React状态管理方案对比]]
-- [[React组件单根元素原因]]
-- [[React自定义Hook与组件区别]]
-- [[React路由模式详解]]
-- [[React闭包陷阱详解]]
-- [[Hooks深入实战]]
-- [[Next.js与Nuxt.js对比]]
-- [[useReducer与useContext模拟Redux]]
+理解 React 不是学习 API，而是理解其如何管理状态、构建视图并与浏览器交互的。
+
+1. **Fiber 架构与并发渲染核心**
+   - [React_Fiber 与 Concurrent Mode 详解](./React_Fiber与Concurrent_Mode详解.md)
+   - [React 18-19 新特性与 Server Components](./React18-19新特性与Server_Components.md) _(已合并 React 19 API 与 RSC 心智模型)_
+
+2. **状态更新与闭包机制 (重点难点)**
+   - [React 闭包陷阱与底层执行机制解析](./React闭包陷阱与底层执行机制解析.md) ⭐ _重点剖析执行上下文与 GC 引用链_
+
+3. **事件系统与虚拟 DOM**
+   - [React 合成事件机制](./React合成事件机制.md)
+   - [React 组件为什么只能有一个根元素](./React组件单根元素原因.md)
 
 ---
 
-## 跨目录关联
+## 二、Hooks 深度实战与第三方库解析
 
-- [[02-JavaScript/异步编程与EventLoop|EventLoop]] — 理解 React 批处理需要先懂 Event Loop
-- [[08-网络与浏览器/跨域与安全/前端安全|前端安全]] — React 的 XSS 防护（JSX 自动转义）
-- [[08-网络与浏览器/浏览器原理/浏览器渲染和回流(重排)、重绘|浏览器渲染 & 回流 & 重绘]] — 理解虚拟 DOM 为什么能减少回流
-- [[03-TypeScript/TypeScript与React实战|TypeScript 与 React 实战]]
-- [[05-React/React原理精读：写给中级前端的核心心智模型|React 原理精读：写给中级前端的核心心智模型]]
+1. **原生 Hooks 实战避坑**
+   - [React Hooks 原理与实战避坑](./React_Hooks原理与实战避坑.md)
+   - [React 自定义 Hook 与组件的区别](./React自定义Hook与组件区别.md)
 
-## React 19 / 并发渲染 / RSC 重点补充
+2. **`ahooks` 源码级学习指南 (硬核源码剖析)**
+   - [01 网络请求与闭包对抗 (useRequest, useLatest, useMemoizedFn)](./ahooks源码解析/01_网络请求与闭包对抗.md)
+   - [02 生命周期与状态增强 (useMount, useUpdateEffect, useSetState)](./ahooks源码解析/02_生命周期与状态增强.md)
+   - [03 DOM 与通信进阶 (useEventListener, useInViewport, useEventEmitter)](./ahooks源码解析/03_DOM与通信进阶.md)
+   - [手写自定义 Hook 合集](./手写自定义Hook合集.md)
 
-- [[React19_API与心智模型]] — `useActionState`、`useOptimistic`、`use`、资源加载 API、Compiler 心智模型。
-- [[React并发渲染与Server_Components心智模型]] — 并发渲染调度、Suspense 边界、Server/Client Components 边界设计。
+---
+
+## 三、架构、生态与性能优化
+
+1. **性能优化**
+   - [React 性能优化指南](./React性能优化指南.md) ⭐ _已重构合并的性能优化终极指南_
+
+2. **状态管理**
+   - [React 状态管理方案对比](./React状态管理方案对比.md)
+   - [useReducer 与 useContext 模拟 Redux](./useReducer与useContext模拟Redux.md)
+
+3. **路由与服务端渲染 (SSR)**
+   - [React 路由模式详解](./React路由模式详解.md)
+   - [React SSR 实现原理](./React%20SSR实现原理.md)
+   - [Next.js 与 Nuxt.js 架构对比](./Next.js与Nuxt.js对比.md)
+
+4. **架构设计**
+   - [React 组件设计模式](./React组件设计模式.md)
+
+---
+
+## 四、杂项与前沿追踪
+
+- [AI 对话笔记 - React 专题](./AI对话笔记-React专题.md)
+- [AI 对话笔记 - 综合前沿追踪](./AI对话笔记-综合.md)
+- [SolidJS 2 Beta 新特性探索](./SolidJS2-Beta新特性.md)
