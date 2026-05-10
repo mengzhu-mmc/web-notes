@@ -21,7 +21,7 @@
 
 ## 二、代码对比
 
-```javascript
+```tsxx
 // ✅ 自定义 Hook：只管逻辑，不返回 JSX
 function useCounter(initialValue = 0) {
   const [count, setCount] = useState(initialValue);
@@ -50,7 +50,7 @@ function CounterDisplay() {
 
 自定义 Hook 复用的是"状态逻辑"（Stateful Logic），而不是"状态本身"（State）。每次调用同一个 Hook，React 都会为该次调用创建一份全新的、独立的 State：
 
-```javascript
+```tsxx
 function CounterA() {
   const { count, increment } = useCounter(); // 独立的状态，初始值 0
   return <button onClick={increment}>A: {count}</button>;
@@ -73,7 +73,7 @@ function CounterB() {
 
 ### 方案一：React Context + 自定义 Hook
 
-```javascript
+```tsxx
 // 1. 创建 Context
 const CounterContext = createContext(null);
 
@@ -120,7 +120,7 @@ function CounterB() {
 
 ### 方案二：状态管理库（Zustand 示例）
 
-```javascript
+```tsxx
 import { create } from "zustand";
 
 // 创建 store（全局单例）
@@ -144,7 +144,7 @@ function CounterB() {
 
 ### 方案三：状态提升（Lifting State Up）
 
-```javascript
+```tsxx
 // 将状态提升到共同父组件
 function Parent() {
   const [count, setCount] = useState(0);
@@ -164,7 +164,7 @@ function Parent() {
 
 React 通过 `use` 前缀来识别 Hook，这不只是约定，而是有实际意义：
 
-```javascript
+```tsxx
 // ✅ React 认为这是 Hook，会检查 Hook 规则
 function useData() {
   const [data, setData] = useState(null);
@@ -193,7 +193,7 @@ function getData() {
 - 需要将复杂的 `useEffect` 逻辑抽离出来
 - 封装第三方库的使用方式
 
-```javascript
+```tsxx
 // 典型自定义 Hook：数据获取
 function useFetch(url) {
   const [data, setData] = useState(null);
@@ -246,7 +246,7 @@ function UserProfile({ userId }) {
 
 ### 误区一：把返回 JSX 的函数当 Hook 用
 
-```javascript
+```tsxx
 // ❌ 错误：这是组件，不是 Hook，不应该用 use 前缀
 function useUserCard(user) {
   return <div className="card">{user.name}</div>; // 返回 JSX
@@ -260,7 +260,7 @@ function UserCard({ user }) {
 
 ### 误区二：在 Hook 内部直接渲染
 
-```javascript
+```tsxx
 // ❌ 错误：Hook 不应该有副作用地渲染 UI
 function useModal() {
   const [open, setOpen] = useState(false);

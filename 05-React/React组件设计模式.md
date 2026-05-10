@@ -19,7 +19,7 @@ React 历史上出现了三种主流逻辑复用方案，演进路径为：Mixin
 
 高阶组件是一个**函数**，接收一个组件作为参数，返回一个新的增强组件。本质是**装饰器模式**在 React 中的应用。
 
-```javascript
+```tsxx
 // HOC 基本结构
 function withXxx(WrappedComponent) {
   return function EnhancedComponent(props) {
@@ -31,7 +31,7 @@ function withXxx(WrappedComponent) {
 
 ### 实战示例：权限控制 HOC
 
-```javascript
+```tsxx
 // withAuth.jsx
 function withAuth(WrappedComponent) {
   return function AuthComponent(props) {
@@ -51,7 +51,7 @@ const ProtectedDashboard = withAuth(Dashboard);
 
 ### 实战示例：数据加载 HOC
 
-```javascript
+```tsxx
 // withLoading.jsx
 function withLoading(WrappedComponent) {
   return function LoadingComponent({ isLoading, ...rest }) {
@@ -85,7 +85,7 @@ function withLogger(WrappedComponent) {
 
 **1. 透传 props（必须）**
 
-```javascript
+```tsxx
 // ❌ 错误：丢失了原始 props
 function withBad(WrappedComponent) {
   return function (props) {
@@ -103,7 +103,7 @@ function withGood(WrappedComponent) {
 
 **2. 设置 displayName（调试用）**
 
-```javascript
+```tsxx
 function withAuth(WrappedComponent) {
   function AuthComponent(props) {
     /* ... */
@@ -116,7 +116,7 @@ function withAuth(WrappedComponent) {
 
 **3. 不要在 render 中创建 HOC**
 
-```javascript
+```tsxx
 // ❌ 错误：每次渲染都创建新组件，导致子树完全重新挂载
 function Parent() {
   const EnhancedChild = withAuth(Child); // 每次渲染都是新组件！
@@ -134,7 +134,7 @@ function Parent() {
 
 HOC 包裹后，ref 指向的是外层包装组件，而非原始组件。需要用 `React.forwardRef` 解决：
 
-```javascript
+```tsxx
 function withAuth(WrappedComponent) {
   const AuthComponent = React.forwardRef((props, ref) => {
     const { isLoggedIn } = useAuth();
@@ -160,7 +160,7 @@ function withAuth(WrappedComponent) {
 
 Render Props 是一种通过 **prop 传递函数** 来共享代码的技术。组件接收一个函数类型的 prop，调用该函数来决定渲染什么内容。
 
-```javascript
+```tsxx
 // Render Props 基本结构
 <DataProvider render={(data) => <Child data={data} />} />
 
@@ -172,7 +172,7 @@ Render Props 是一种通过 **prop 传递函数** 来共享代码的技术。�
 
 ### 实战示例：鼠标位置追踪
 
-```javascript
+```tsxx
 // MouseTracker.jsx
 class MouseTracker extends React.Component {
   state = { x: 0, y: 0 };
@@ -207,7 +207,7 @@ function App() {
 
 ### children as function（更优雅的写法）
 
-```javascript
+```tsxx
 // Toggle.jsx - 控制显示/隐藏的逻辑组件
 function Toggle({ children }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -237,7 +237,7 @@ function App() {
 
 ### 实战示例：数据获取组件
 
-```javascript
+```tsxx
 // DataFetcher.jsx
 function DataFetcher({ url, children }) {
   const [state, setState] = useState({
@@ -291,7 +291,7 @@ function UserList() {
 
 典型案例：HTML 的 `<select>` 和 `<option>` 就是天然的复合组件。
 
-```tsxx
+```tsxxx
 // 使用者视角：灵活组合，语义清晰
 <Tabs defaultValue="tab1">
   <Tabs.List>
@@ -305,7 +305,7 @@ function UserList() {
 
 ### 实战示例：Tabs 组件
 
-```javascript
+```tsxx
 // Tabs.jsx
 const TabsContext = createContext(null);
 
@@ -359,7 +359,7 @@ export default Tabs;
 
 ### 实战示例：Accordion 手风琴
 
-```javascript
+```tsxx
 const AccordionContext = createContext(null);
 
 function Accordion({ children, allowMultiple = false }) {
@@ -426,7 +426,7 @@ Accordion.Item = AccordionItem;
 
 ### 自定义 Hook 替代 HOC 和 Render Props
 
-```javascript
+```tsxx
 // ❌ 旧方式：HOC
 const EnhancedComponent = withMousePosition(MyComponent);
 

@@ -8,7 +8,7 @@
 
 ### 1. useState 的闭包陷阱
 
-```tsxx
+```tsxxx
 function Counter() {
   const [count, setCount] = useState(0);
 
@@ -28,7 +28,7 @@ function Counter() {
 
 ### 2. useEffect 依赖陷阱
 
-```tsxx
+```tsxxx
 // ❌ 缺少依赖，拿到的永远是初始值
 useEffect(() => {
   const timer = setInterval(() => {
@@ -50,7 +50,7 @@ useEffect(() => {
 
 ### 3. useCallback 的正确使用时机
 
-```tsxx
+```tsxxx
 // ❌ 不需要 useCallback 的场景（没传给 memo 子组件）
 const handleClick = useCallback(() => {
   console.log("clicked");
@@ -73,7 +73,7 @@ function Parent() {
 
 ### useLocalStorage
 
-```tsxx
+```tsxxx
 function useLocalStorage(key, initialValue) {
   const [value, setValue] = useState(() => {
     try {
@@ -92,7 +92,7 @@ function useLocalStorage(key, initialValue) {
 
 ### useDebounce
 
-```tsxx
+```tsxxx
 function useDebounce(value, delay = 300) {
   const [debouncedValue, setDebouncedValue] = useState(value);
   useEffect(() => {
@@ -105,7 +105,7 @@ function useDebounce(value, delay = 300) {
 
 ### useFetch
 
-```tsxx
+```tsxxx
 function useFetch(url) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -130,7 +130,7 @@ function useFetch(url) {
 
 ### usePrevious
 
-```tsxx
+```tsxxx
 function usePrevious(value) {
   const ref = useRef();
   useEffect(() => {
@@ -142,7 +142,7 @@ function usePrevious(value) {
 
 ### useClickOutside
 
-```tsxx
+```tsxxx
 function useClickOutside(ref, handler) {
   useEffect(() => {
     const listener = (e) => {
@@ -157,7 +157,7 @@ function useClickOutside(ref, handler) {
 
 ### useIntersectionObserver
 
-```tsxx
+```tsxxx
 function useIntersectionObserver(ref, options = {}) {
   const [isVisible, setIsVisible] = useState(false);
   useEffect(() => {
@@ -186,7 +186,7 @@ function useIntersectionObserver(ref, options = {}) {
 
 ### useUpdate（强制更新）
 
-```tsxx
+```tsxxx
 function useUpdate() {
   const [, setState] = useState({});
   return useCallback(() => setState({}), []);
@@ -195,7 +195,7 @@ function useUpdate() {
 
 ### useMount / useUnmount
 
-```tsxx
+```tsxxx
 function useMount(fn) {
   useEffect(() => {
     fn();
@@ -218,7 +218,7 @@ function useUnmount(fn) {
 
 ### setState(value) 的问题
 
-```javascript
+```tsxx
 function Counter() {
   const [count, setCount] = useState(0);
 
@@ -236,7 +236,7 @@ function Counter() {
 
 ### setState(fn) 的正确写法
 
-```javascript
+```tsxx
 const handleClick = () => {
   setCount((c) => c + 1); // c = 0，返回 1
   setCount((c) => c + 1); // c = 1，返回 2
@@ -251,7 +251,7 @@ const handleClick = () => {
 
 每次渲染，组件函数重新执行，创建新的 `handleClick` 函数，捕获当次渲染的 `count` 值。旧函数仍然持有旧的 `count` 值：
 
-```javascript
+```tsxx
 // === 第1次渲染 ===
 // const count = 0; handleClick_v1 捕获 count=0
 
@@ -263,7 +263,7 @@ const handleClick = () => {
 
 ### 场景一：异步操作中的陷阱
 
-```javascript
+```tsxx
 function Counter() {
   const [count, setCount] = useState(0);
 
@@ -282,7 +282,7 @@ function Counter() {
 
 ### 场景二：useEffect 依赖陷阱
 
-```javascript
+```tsxx
 function Timer() {
   const [count, setCount] = useState(0);
 
@@ -302,7 +302,7 @@ function Timer() {
 
 ### 正确写法
 
-```javascript
+```tsxx
 function Timer() {
   const [count, setCount] = useState(0);
 
@@ -319,7 +319,7 @@ function Timer() {
 
 ## React 内部处理机制
 
-```javascript
+```tsxx
 // React 内部维护状态队列
 class ReactState {
   constructor() {
@@ -354,7 +354,7 @@ class ReactState {
 
 类组件的 `this.setState` 同样支持函数式更新，接收 `(prevState, props)` 两个参数：
 
-```javascript
+```tsxx
 // 函数式写法
 this.setState((prevState, props) => ({
   count: prevState.count + 1,
@@ -373,7 +373,7 @@ this.setState(
 
 ## render 中的异步判断陷阱
 
-```javascript
+```tsxx
 render() {
   return isZhenguoLogin() ? this.renderList() : this.renderLoginView();
 }
@@ -396,7 +396,7 @@ render() {
 
 传空数组 `[]` 作为依赖时，仅在**首次渲染时执行一次**，之后永远复用缓存值。这本身是合法的，但如果内部依赖了 state，会形成闭包陷阱：
 
-```tsx
+```tsxx
 const [count, setCount] = useState(0);
 
 // useMemo 空依赖：只计算一次，count 变化后 expensiveValue 仍为旧值
@@ -418,7 +418,7 @@ const handleClick = useCallback(() => {
 
 ## useState 连续三次 setState 四种方案对比
 
-```tsx
+```tsxx
 // 问题：连续三次调用，如何让每次都生效（值不丢）？
 
 // 方案1：函数式更新（推荐）

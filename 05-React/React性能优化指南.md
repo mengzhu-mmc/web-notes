@@ -16,7 +16,7 @@ React 在大多数场景下已经足够快。优化前先**测量**，用 React 
 
 ### 什么时候该用
 
-```tsxx
+```tsxxx
 // ✅ 场景1：纯展示组件 + 父组件频繁更新
 const UserCard = React.memo(function UserCard({ user }) {
   return (
@@ -45,7 +45,7 @@ function Dashboard() {
 }
 ```
 
-```tsxx
+```tsxxx
 // ✅ 场景2：列表中的每一项
 const ListItem = React.memo(function ListItem({ item, onToggle }) {
   console.log("ListItem render:", item.id);
@@ -81,7 +81,7 @@ function TodoList({ todos }) {
 
 ### 什么时候不该用
 
-```tsxx
+```tsxxx
 // ❌ 场景1：props 是内联对象/数组，每次父渲染都是新引用
 // memo 毫无用处，还增加了比较开销
 function Parent() {
@@ -102,7 +102,7 @@ const Counter = React.memo(({ count }) => <div>{count}</div>);
 
 ### 自定义比较函数
 
-```tsxx
+```tsxxx
 // 当 props 是复杂对象时，可以自定义比较逻辑
 const UserProfile = React.memo(
   function UserProfile({ user, settings }) {
@@ -128,7 +128,7 @@ const UserProfile = React.memo(
 
 ### 什么时候该用
 
-```tsxx
+```tsxxx
 // ✅ 场景1：昂贵的计算（数组排序/过滤、复杂算法）
 function DataTable({ rows, sortKey, filterText }) {
   const processedData = useMemo(() => {
@@ -148,7 +148,7 @@ function DataTable({ rows, sortKey, filterText }) {
 }
 ```
 
-```tsxx
+```tsxxx
 // ✅ 场景2：稳定引用类型给 memo 子组件
 function Parent({ userId }) {
   // ❌ 每次渲染都是新对象，导致 MemoChild 每次都重渲染
@@ -161,7 +161,7 @@ function Parent({ userId }) {
 }
 ```
 
-```tsxx
+```tsxxx
 // ✅ 场景3：作为其他 Hook 的依赖（避免无限循环）
 function SearchComponent({ query }) {
   // 没有 useMemo：options 每次渲染都是新对象
@@ -185,7 +185,7 @@ function SearchComponent({ query }) {
 
 ### 什么时候不该用
 
-```tsxx
+```tsxxx
 // ❌ 场景1：计算本身很简单
 // 加法运算比 useMemo 的 hook 调用开销还小
 const total = useMemo(() => a + b, [a, b]); // ❌ 多此一举
@@ -204,7 +204,7 @@ const doubled = count * 2; // ✅ 直接算
 
 ### 如何判断计算是否"昂贵"
 
-```tsxx
+```tsxxx
 // 用 console.time 测量
 console.time("filter");
 const result = largeArray.filter((item) => item.active);
@@ -220,7 +220,7 @@ console.timeEnd("filter");
 
 ### 什么时候该用
 
-```tsxx
+```tsxxx
 // ✅ 场景1：传给 memo 子组件的回调函数（必须配合 memo 才有意义！）
 const ExpensiveList = React.memo(function ExpensiveList({
   items,
@@ -251,7 +251,7 @@ function Parent({ items }) {
 }
 ```
 
-```tsxx
+```tsxxx
 // ✅ 场景2：作为 useEffect 依赖（避免无限触发）
 function Component({ onDataLoad }) {
   // 如果 onDataLoad 不稳定，每次渲染都触发 effect
@@ -270,7 +270,7 @@ function Parent() {
 }
 ```
 
-```tsxx
+```tsxxx
 // ✅ 场景3：自定义 Hook 中导出的函数
 function useCounter() {
   const [count, setCount] = useState(0);
@@ -286,7 +286,7 @@ function useCounter() {
 
 ### 什么时候不该用
 
-```tsxx
+```tsxxx
 // ❌ 最常见的误用：组件内部使用的函数，不传给子组件
 function Component() {
   // 没意义！这个函数不影响任何子组件
@@ -304,7 +304,7 @@ function Component() {
 }
 ```
 
-```tsxx
+```tsxxx
 // ❌ 没有配合 memo 使用
 function Parent() {
   // 用了 useCallback，但 Child 没有 memo
@@ -315,7 +315,7 @@ function Parent() {
 
 ### useCallback 和 useMemo 的关系
 
-```tsxx
+```tsxxx
 // useCallback(fn, deps) 等价于 useMemo(() => fn, deps)
 const memoizedCallback = useCallback(fn, [a, b]);
 const memoizedCallback2 = useMemo(() => fn, [a, b]); // 等价
@@ -327,7 +327,7 @@ const memoizedCallback2 = useMemo(() => fn, [a, b]); // 等价
 
 ### 什么时候该用
 
-```tsxx
+```tsxxx
 import { useTransition, startTransition } from "react";
 
 // ✅ 场景1：搜索/过滤大列表
@@ -360,7 +360,7 @@ function SearchPage({ allItems }) {
 }
 ```
 
-```tsxx
+```tsxxx
 // ✅ 场景2：Tab 切换 + 重量级内容
 function TabContainer() {
   const [activeTab, setActiveTab] = useState("overview");
@@ -393,7 +393,7 @@ function TabContainer() {
 
 ### 什么时候不该用
 
-```tsxx
+```tsxxx
 // ❌ 受控输入框本身（输入框必须紧急更新）
 startTransition(() => {
   setInputValue(e.target.value); // ❌ 输入框会卡顿！
@@ -412,7 +412,7 @@ startTransition(() => {
 
 ### `useTransition` vs `useDeferredValue` 选哪个？
 
-```tsxx
+```tsxxx
 // useTransition：当你能控制状态更新时
 function Parent() {
   const [query, setQuery] = useState("");
@@ -443,7 +443,7 @@ function SearchResults({ query }) {
 
 ### 案例：高性能数据表格
 
-```tsxx
+```tsxxx
 type Row = { id: number; name: string; age: number; score: number };
 
 function DataTable({ data }: { data: Row[] }) {
@@ -619,7 +619,7 @@ React 性能问题的根本原因：**不必要的重新渲染**。
 
 ## 二、React.memo —— 避免子组件不必要渲染
 
-```tsxx
+```tsxxx
 // 问题：父组件更新时，子组件即使 props 没变也会重新渲染
 function Parent() {
   const [count, setCount] = useState(0);
@@ -653,7 +653,7 @@ const Child2 = React.memo(
 
 ## 三、useMemo —— 缓存计算结果
 
-```tsxx
+```tsxxx
 // 问题：每次渲染都重新计算昂贵的值
 function Component({ list, filter }) {
   // ❌ 每次渲染都执行，即使 list 和 filter 没变
@@ -694,7 +694,7 @@ function Parent() {
 
 ## 四、useCallback —— 缓存函数引用
 
-```tsxx
+```tsxxx
 // 问题：每次渲染都创建新函数，导致子组件不必要渲染
 function Parent() {
   const [count, setCount] = useState(0);
@@ -725,7 +725,7 @@ function Parent() {
 
 ## 五、何时不需要 useMemo/useCallback
 
-```tsxx
+```tsxxx
 // ❌ 过度优化：简单计算不需要 useMemo
 const double = useMemo(() => count * 2, [count]); // 没必要
 
@@ -744,7 +744,7 @@ const handleClick = useCallback(() => {
 
 ## 六、代码分割与懒加载
 
-```tsxx
+```tsxxx
 import React, { Suspense, lazy } from "react";
 
 // 路由级别懒加载
@@ -786,7 +786,7 @@ function Page() {
 
 当列表数据量很大（>1000 条）时，只渲染可视区域内的元素。
 
-```tsxx
+```tsxxx
 // 使用 react-window（推荐）
 import { FixedSizeList } from "react-window";
 
@@ -846,7 +846,7 @@ function SimpleVirtualList({ items, itemHeight = 50, containerHeight = 500 }) {
 
 ### 避免在渲染中创建对象/数组
 
-```tsxx
+```tsxxx
 // ❌ 每次渲染都创建新数组
 <Component style={{ color: 'red' }} />
 <Component items={[1, 2, 3]} />
@@ -860,7 +860,7 @@ const ITEMS = [1, 2, 3];
 
 ### 合理使用 key
 
-```tsxx
+```tsxxx
 // ❌ 用 index 作为 key（列表重排时性能差）
 {
   list.map((item, index) => <Item key={index} {...item} />);
@@ -878,7 +878,7 @@ const ITEMS = [1, 2, 3];
 
 ### 状态下移（State Colocation）
 
-```tsxx
+```tsxxx
 // ❌ 状态放在父组件，导致整个父组件重新渲染
 function Parent() {
   const [inputValue, setInputValue] = useState("");
@@ -915,7 +915,7 @@ function Parent() {
 
 将稳定的子节点通过 `children` 传入，可以避免它们随父组件状态变化而重新渲染。
 
-```tsxx
+```tsxxx
 // ❌ ScrollTracker 内部的 HeavyComponent 会随 scroll 变化重新渲染
 function ScrollTracker() {
   const [scroll, setScroll] = useState(0);
@@ -946,7 +946,7 @@ function ScrollTracker({ children }) {
 
 ### 路由预加载（悬停时提前加载）
 
-```tsxx
+```tsxxx
 // 鼠标悬停时就开始加载，点击时已经加载完毕
 const importSettings = () => import("./pages/Settings");
 const Settings = lazy(importSettings);
@@ -958,7 +958,7 @@ const Settings = lazy(importSettings);
 
 ### 使用 @tanstack/react-virtual 虚拟滚动
 
-```tsxx
+```tsxxx
 import { useVirtualizer } from "@tanstack/react-virtual";
 
 function VirtualList({ items }) {
@@ -990,3 +990,231 @@ function VirtualList({ items }) {
   );
 }
 ```
+
+---
+
+# React性能优化指南 - 一页速记.md
+
+# React性能优化指南 - 一页速记
+
+> 来源：[[React性能优化指南]]。本页用于高频复习，完整细节回到原文。
+
+## 必背主线
+
+- React 性能优化先定位：Profiler、why-did-you-render、用户指标
+- 减少无效渲染：memo/useMemo/useCallback/状态下沉或拆分
+- 列表与大数据：虚拟列表、分页、懒加载、稳定 key
+- 并发能力：startTransition/useDeferredValue 区分紧急与非紧急更新
+- 架构层面：组件边界、服务端渲染、缓存、RSC/Next App Router
+
+## 面试表达公式
+
+1. **一句话定义**：先说明它解决什么问题。
+2. **核心机制**：用流程或阶段说明底层原理。
+3. **工程落地**：结合项目讲方案、指标、收益。
+4. **边界风险**：补充兼容性、性能、维护成本或安全风险。
+
+## 快速自测
+
+- [ ] 我能 1 分钟讲清核心概念。
+- [ ] 我能画出关键流程。
+- [ ] 我能说出至少 2 个项目实践。
+- [ ] 我能回答常见追问和边界情况。
+
+## 复习入口
+
+- 标准答案：[[React性能优化指南 - 标准答案索引]]
+- 深挖专题：[[React性能优化指南 - 深挖专题索引]]
+- 原文：[[React性能优化指南]]
+
+---
+
+# React性能优化指南 - 标准答案索引.md
+
+# React性能优化指南 - 标准答案索引
+
+> 来源：[[React性能优化指南]]。本页沉淀可直接用于面试表达的答案。
+
+## 回答结构
+
+- **结论**：先直接回答核心问题。
+- **原理**：解释关键机制，不只背定义。
+- **实践**：结合项目落地、指标或复杂度说明。
+- **追问**：主动暴露可深入的方向。
+
+## 高频标准答案
+
+### Q1：React 中 memo 什么时候有用？
+
+memo 适合 props 稳定且组件渲染成本较高的场景。它不是默认优化手段，如果 props 每次都是新对象或新函数，或者组件本身很轻，memo 反而可能增加比较成本。
+
+**关键词**：memo、props 稳定、浅比较
+
+**追问方向**：原理细节、边界条件、项目落地、性能/安全/复杂度影响。
+
+### Q2：useMemo 和 useCallback 怎么选？
+
+useMemo 缓存计算结果，useCallback 缓存函数引用。它们主要用于避免昂贵计算重复执行，或配合 memo 稳定子组件 props。不要为了“看起来优化”滥用。
+
+**关键词**：useMemo、useCallback、引用稳定
+
+**追问方向**：原理细节、边界条件、项目落地、性能/安全/复杂度影响。
+
+### Q3：startTransition 解决什么问题？
+
+startTransition 用来标记非紧急更新，让 React 优先响应输入、点击等紧急交互，再处理列表过滤、搜索结果渲染等可延后的更新，从而改善交互流畅度。
+
+**关键词**：React 18、transition、并发渲染
+
+**追问方向**：原理细节、边界条件、项目落地、性能/安全/复杂度影响。
+
+### Q4：React 如何定位性能问题？
+
+先用 React DevTools Profiler 看哪些组件频繁渲染、渲染耗时和提交次数，再结合 Performance 看主线程长任务。定位后判断是状态设计、props 引用、列表渲染、计算过重还是副作用导致。
+
+**关键词**：Profiler、commit、render、Performance
+
+**追问方向**：原理细节、边界条件、项目落地、性能/安全/复杂度影响。
+
+### Q5：为什么不建议无脑使用 useCallback？
+
+useCallback 本身也有依赖比较和闭包维护成本。如果函数没有传给 memo 子组件，或不是依赖稳定性的 Hook 参数，缓存它通常没有收益。优化要基于测量，而不是机械添加。
+
+**关键词**：useCallback、闭包、依赖数组、优化成本
+
+**追问方向**：原理细节、边界条件、项目落地、性能/安全/复杂度影响。
+
+### Q6：React 列表性能怎么优化？
+
+列表优化包括稳定 key、减少 item 组件渲染成本、分页或虚拟列表、懒加载图片、避免在 render 中创建大量新对象，以及把列表项状态局部化。数据量很大时优先虚拟列表。
+
+**关键词**：key、虚拟列表、局部状态
+
+**追问方向**：原理细节、边界条件、项目落地、性能/安全/复杂度影响。
+
+### Q7：Context 为什么可能导致性能问题？
+
+Context value 变化会让消费该 Context 的组件重新渲染。如果把频繁变化的大对象放进 Context，影响范围会很大。优化方式是拆分 Context、稳定 value、选择性订阅或使用状态管理库。
+
+**关键词**：Context、value、选择性订阅
+
+**追问方向**：原理细节、边界条件、项目落地、性能/安全/复杂度影响。
+
+### Q8：状态应该放在哪里？
+
+状态应放在真正需要它的最小公共父级，避免过度提升导致大范围重渲染。局部交互状态优先放组件内部，跨页面或跨模块共享状态再考虑全局状态管理。
+
+**关键词**：状态提升、局部状态、全局状态
+
+**追问方向**：原理细节、边界条件、项目落地、性能/安全/复杂度影响。
+
+### Q9：useDeferredValue 和 startTransition 区别？
+
+startTransition 是把某次状态更新标记为非紧急；useDeferredValue 是让某个值的更新延后，常用于输入值和搜索结果渲染解耦。前者控制更新，后者控制值的消费节奏。
+
+**关键词**：useDeferredValue、startTransition、非紧急更新
+
+**追问方向**：原理细节、边界条件、项目落地、性能/安全/复杂度影响。
+
+### Q10：React 中 key 为什么重要？
+
+key 帮助 React 在 diff 时识别节点身份。稳定 key 可以复用组件实例和状态；使用 index 作为 key 在插入、删除、排序时可能导致状态错乱和不必要渲染。
+
+**关键词**：key、diff、状态复用
+
+**追问方向**：原理细节、边界条件、项目落地、性能/安全/复杂度影响。
+
+### Q11：React 组件拆分如何影响性能？
+
+合理拆分可以缩小状态变化影响范围，让不相关组件避免重渲染。但过度拆分会增加组件层级和理解成本。性能优化中更重要的是状态边界、memo 边界和数据流稳定。
+
+**关键词**：组件拆分、状态边界、memo 边界
+
+**追问方向**：原理细节、边界条件、项目落地、性能/安全/复杂度影响。
+
+### Q12：React 性能优化如何和业务指标关联？
+
+不要只看组件渲染次数，要关联首屏、交互延迟、输入响应、列表滚动 FPS、接口耗时和业务转化。优化前后用 Profiler、RUM 和埋点证明收益。
+
+**关键词**：业务指标、RUM、INP、FPS
+
+**追问方向**：原理细节、边界条件、项目落地、性能/安全/复杂度影响。
+
+## 复习建议
+
+- 第一轮：只看问题，口述 30～60 秒答案。
+- 第二轮：对照关键词补齐遗漏点。
+- 第三轮：为每个主题补充一个自己的项目案例。
+
+---
+
+# React性能优化指南 - 深挖专题索引.md
+
+# React性能优化指南 - 深挖专题索引
+
+> 来源：[[React性能优化指南]]。本页用于把长文拆成可逐步扩展的专题，不承载高频速记。
+
+## 深挖原则
+
+1. 一个专题只解决一个问题，避免再次变成长文。
+2. 每个专题包含：背景、核心机制、源码/规范线索、工程实践、常见误区。
+3. 与面试标准答案分离，深挖内容服务理解，不要求全部背诵。
+
+## 可拆专题候选
+
+- [[#React 性能优化实战|React 性能优化实战]]
+  - [[#核心原则：不要过早优化|核心原则：不要过早优化]]
+  - [[#一、React.memo — 跳过子组件重渲染|一、React.memo — 跳过子组件重渲染]]
+    - [[#什么时候该用|什么时候该用]]
+    - [[#什么时候不该用|什么时候不该用]]
+    - [[#自定义比较函数|自定义比较函数]]
+  - [[#二、useMemo — 缓存计算结果|二、useMemo — 缓存计算结果]]
+    - [[#什么时候该用|什么时候该用]]
+    - [[#什么时候不该用|什么时候不该用]]
+    - [[#如何判断计算是否"昂贵"|如何判断计算是否"昂贵"]]
+  - [[#三、useCallback — 缓存函数引用|三、useCallback — 缓存函数引用]]
+    - [[#什么时候该用|什么时候该用]]
+    - [[#什么时候不该用|什么时候不该用]]
+    - [[#useCallback 和 useMemo 的关系|useCallback 和 useMemo 的关系]]
+  - [[#四、startTransition — 区分紧急/非紧急更新|四、startTransition — 区分紧急/非紧急更新]]
+    - [[#什么时候该用|什么时候该用]]
+    - [[#什么时候不该用|什么时候不该用]]
+    - [[#`useTransition` vs `useDeferredValue` 选哪个？|`useTransition` vs `useDeferredValue` 选哪个？]]
+  - [[#五、组合优化 — 实战案例|五、组合优化 — 实战案例]]
+    - [[#案例：高性能数据表格|案例：高性能数据表格]]
+  - [[#六、性能优化决策树|六、性能优化决策树]]
+  - [[#七、与 Vue 3 性能优化对比|七、与 Vue 3 性能优化对比]]
+  - [[#八、面试高频问题|八、面试高频问题]]
+    - [[#Q1：useMemo 和 useCallback 的区别？|Q1：useMemo 和 useCallback 的区别？]]
+    - [[#Q2：什么情况下 React.memo 会失效？|Q2：什么情况下 React.memo 会失效？]]
+    - [[#Q3：startTransition 的原理？|Q3：startTransition 的原理？]]
+    - [[#Q4：过度使用 useMemo/useCallback 的危害？|Q4：过度使用 useMemo/useCallback 的危害？]]
+- [[#React 性能优化深入|React 性能优化深入]]
+  - [[#面试高频考点|面试高频考点]]
+  - [[#一、性能优化总览|一、性能优化总览]]
+  - [[#二、React.memo —— 避免子组件不必要渲染|二、React.memo —— 避免子组件不必要渲染]]
+  - [[#三、useMemo —— 缓存计算结果|三、useMemo —— 缓存计算结果]]
+  - [[#四、useCallback —— 缓存函数引用|四、useCallback —— 缓存函数引用]]
+  - [[#五、何时不需要 useMemo/useCallback|五、何时不需要 useMemo/useCallback]]
+  - [[#六、代码分割与懒加载|六、代码分割与懒加载]]
+  - [[#七、虚拟列表|七、虚拟列表]]
+  - [[#八、其他优化技巧|八、其他优化技巧]]
+    - [[#避免在渲染中创建对象/数组|避免在渲染中创建对象/数组]]
+    - [[#合理使用 key|合理使用 key]]
+    - [[#状态下移（State Colocation）|状态下移（State Colocation）]]
+    - [[#Children as Props（内容提升）|Children as Props（内容提升）]]
+    - [[#路由预加载（悬停时提前加载）|路由预加载（悬停时提前加载）]]
+    - [[#使用 @tanstack/react-virtual 虚拟滚动|使用 @tanstack/react-virtual 虚拟滚动]]
+
+## 专题沉淀区
+
+- [ ] 专题 1：待补充。
+- [ ] 专题 2：待补充。
+- [ ] 专题 3：待补充。
+
+## 推荐优先深挖
+
+- [ ] 从源码或规范角度解释核心机制。
+- [ ] 整理一张流程图或时序图。
+- [ ] 补充项目中的排查案例。
+- [ ] 对比同类方案的取舍。

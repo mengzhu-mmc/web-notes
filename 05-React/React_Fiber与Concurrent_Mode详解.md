@@ -16,7 +16,7 @@
 
 虚拟 DOM 是用 JavaScript 对象来描述真实 DOM 结构的一种抽象。
 
-```tsxx
+```tsxxx
 // JSX
 <div className="container">
   <h1>Hello</h1>
@@ -64,7 +64,7 @@ React 的 diff 算法基于三个假设（启发式算法，O(n) 复杂度）：
 
 ### 同类型元素的比较
 
-```tsxx
+```tsxxx
 // 更新前
 <div className="before" title="stuff" />
 // 更新后
@@ -74,7 +74,7 @@ React 的 diff 算法基于三个假设（启发式算法，O(n) 复杂度）：
 
 ### 不同类型元素
 
-```tsxx
+```tsxxx
 // 更新前
 <div><Counter /></div>
 // 更新后
@@ -84,7 +84,7 @@ React 的 diff 算法基于三个假设（启发式算法，O(n) 复杂度）：
 
 ### 列表 diff 与 key
 
-```tsxx
+```tsxxx
 // 没有 key 时，React 按位置比较
 // 更新前：[A, B, C]
 // 更新后：[B, C, A]（A 移到末尾）
@@ -171,7 +171,7 @@ React 18 引入了并发模式，不同更新有不同优先级：
 5. 空闲（Idle）：如离屏渲染
 ```
 
-```tsxx
+```tsxxx
 // React 18 并发特性
 import { startTransition, useTransition, useDeferredValue } from "react";
 
@@ -196,7 +196,7 @@ const deferredQuery = useDeferredValue(query);
 
 React 构建 workInProgress 树采用**深度优先遍历（DFS）**，遵循 `child → sibling → return` 的顺序。
 
-```javascript
+```tsxx
 function performUnitOfWork(unitOfWork) {
   // 1. beginWork：处理当前节点，创建子 Fiber
   let next = beginWork(current, unitOfWork, renderLanes);
@@ -238,7 +238,7 @@ function completeUnitOfWork(unitOfWork) {
 
 ## 五、Fiber 节点核心字段
 
-```tsx
+```tsxx
 {
   type,         // 节点类型（'div' | App | () => {}）
   props,        // 当前属性
@@ -269,7 +269,7 @@ React 时间切片底层用的是 **MessageChannel**，不是 `requestIdleCallba
 | 兼容性     | Safari 不支持                                    | 全面支持                       |
 | 优先级控制 | React 无法自定义优先级                           | 可配合 Scheduler 精确调度      |
 
-```tsx
+```tsxx
 // React 借用 MessageChannel 产生"干净的宏任务"
 const channel = new MessageChannel();
 // port1 发消息，port2 收消息（自己给自己发）
@@ -367,7 +367,7 @@ Renderer（渲染器）：Commit 阶段（不可中断）
 
 ### 1.2 开启并发模式
 
-```javascript
+```tsxx
 // React 17（旧版，同步模式）
 ReactDOM.render(<App />, document.getElementById("root"));
 
@@ -388,7 +388,7 @@ root.render(<App />);
 
 ### 2.2 基本用法
 
-```javascript
+```tsxx
 import { useState, useTransition } from "react";
 
 function SearchPage() {
@@ -434,7 +434,7 @@ SyncLane（同步）> InputContinuousLane（连续输入）> DefaultLane（默�
 
 ### 3.1 基本用法
 
-```javascript
+```tsxx
 import { useState, useDeferredValue } from "react";
 
 function SearchPage() {
@@ -470,7 +470,7 @@ function SearchPage() {
 
 ### 4.1 基本用法（代码分割）
 
-```javascript
+```tsxx
 import { Suspense, lazy } from "react";
 
 const HeavyComponent = lazy(() => import("./HeavyComponent"));
@@ -488,7 +488,7 @@ function App() {
 
 Suspense 的核心机制是**抛出 Promise**：
 
-```javascript
+```tsxx
 // 简化版原理
 function fetchData(url) {
   let status = "pending";
@@ -526,7 +526,7 @@ function fetchData(url) {
 
 React 18 引入了 `use` Hook，可以在组件内直接 await Promise：
 
-```javascript
+```tsxx
 import { use, Suspense } from "react";
 
 // 在组件外创建 Promise（不能在组件内创建，否则每次渲染都是新 Promise）
@@ -548,7 +548,7 @@ function App() {
 
 ### 4.4 Suspense + 错误边界
 
-```javascript
+```tsxx
 class ErrorBoundary extends React.Component {
   state = { hasError: false, error: null };
 
@@ -581,7 +581,7 @@ function App() {
 
 ### 场景：搜索 + 分页 + 懒加载
 
-```javascript
+```tsxx
 import { useState, useTransition, Suspense, lazy } from "react";
 
 const ResultDetail = lazy(() => import("./ResultDetail"));
@@ -632,7 +632,7 @@ function SearchApp() {
 
 并发模式下，React 可能多次调用渲染函数（包括 render 阶段的生命周期和函数组件体）。副作用必须放在 `useEffect` 中，不能放在渲染函数里：
 
-```javascript
+```tsxx
 // ❌ 危险：渲染函数中的副作用可能执行多次
 function Component() {
   console.log("渲染了"); // 可能打印多次
@@ -718,7 +718,7 @@ React 17 的同步渲染模型中，一旦开始渲染就无法中断，大型�
 
 借助于浏览器的 `requestIdleCallback` API（实际上 React 自己用 MessageChannel 模拟实现了类似的功能），我们可以这样理解 Fiber 的工作循环：
 
-```javascript
+```tsxx
 let nextUnitOfWork = null; // 记录下一个要执行的 Fiber 节点任务
 
 function workLoop(deadline) {
@@ -786,7 +786,7 @@ React 官方文档极其严厉地警告：**不要在循环、条件判断或嵌
 
 如果你的代码是这样写的：
 
-```javascript
+```tsxx
 if (isAdult) {
   const [car, setCar] = useState("BMW"); // 这是第二顺位的 Hook
 }

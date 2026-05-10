@@ -58,7 +58,7 @@
 
 ### MessageChannel 在 React 中的用法
 
-```tsx
+```tsxx
 // React 不是为了通信，只是借用来产生"干净的宏任务"
 const channel = new MessageChannel();
 // port1 发消息，port2 收消息，自己和自己通信
@@ -67,7 +67,7 @@ const channel = new MessageChannel();
 
 ### Fiber 节点结构
 
-```tsx
+```tsxx
 {
   type,         // 节点类型
   props,        // 属性
@@ -105,7 +105,7 @@ const channel = new MessageChannel();
 
 ### 源码佐证
 
-```tsx
+```tsxx
 // packages/scheduler/src/SchedulerFeatureFlags.js
 export const frameYieldMs = 5; // 5ms 时间片
 
@@ -147,7 +147,7 @@ export function createWorkInProgress(current, pendingProps) {
 - 只在组件挂载时执行一次，之后永远返回缓存值
 - 注意：这会导致闭包陷阱（缓存的函数捕获了初始state）
 
-```tsx
+```tsxx
 // useMemo 空依赖：只计算一次
 const value = useMemo(() => expensiveCalc(a, b), []);
 
@@ -163,7 +163,7 @@ const fn = useCallback(() => {
 
 ### 核心模式
 
-```tsx
+```tsxx
 // 1. 创建 Context
 const StoreContext = createContext(null);
 
@@ -206,7 +206,7 @@ function Counter() {
 
 1. **代码分割/懒加载**
 
-```tsx
+```tsxx
 const LazyComp = React.lazy(() => import("./LazyComp"));
 <Suspense fallback={<Loading />}>
   <LazyComp />
@@ -232,7 +232,7 @@ const LazyComp = React.lazy(() => import("./LazyComp"));
 
 ### 经典场景
 
-```tsx
+```tsxx
 function Demo() {
   const [count, setCount] = useState(0);
   useEffect(() => {
@@ -245,7 +245,7 @@ function Demo() {
 
 ### 4种解决方案
 
-```tsx
+```tsxx
 // 1. 补全依赖
 useEffect(() => { ... }, [count]);
 
@@ -267,7 +267,7 @@ const onTick = useEvent(() => { console.log(count); });
 
 ### 方案对比
 
-```tsx
+```tsxx
 // 1. 函数式更新（推荐）- 只渲染1次，3次值都生效
 setCount((prev) => prev + 1);
 setCount((prev) => prev + 1);
@@ -294,7 +294,7 @@ setTimeout(() => setState(val3), 0);
 
 ## React 路由监听
 
-```tsx
+```tsxx
 // React Router v6
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -310,7 +310,7 @@ function App() {
 
 ## React Router 动态路由与懒加载
 
-```tsx
+```tsxx
 // 动态路由
 <Route path="/user/:id" element={<UserDetail />} />;
 

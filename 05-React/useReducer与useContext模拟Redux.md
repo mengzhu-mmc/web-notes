@@ -8,7 +8,7 @@
 
 ### 1. 创建 Reducer
 
-```javascript
+```tsxx
 // store/reducer.js
 export const initialState = { user: null, count: 0, todos: [] };
 
@@ -38,7 +38,7 @@ export const reducer = (state, action) => {
 
 ### 2. 创建 Context 和 Provider
 
-```javascript
+```tsxx
 // store/StoreProvider.jsx
 const StateContext = createContext();
 const DispatchContext = createContext();
@@ -63,7 +63,7 @@ export const useDispatch = () => useContext(DispatchContext);
 
 ### 3. 组件中使用
 
-```javascript
+```tsxx
 function Counter() {
   const { count } = useStore();
   const dispatch = useDispatch();
@@ -88,7 +88,7 @@ Redux Toolkit 和 React Redux 是不同层面的东西：React Redux 是 React �
 
 `createSlice` 将 action types、action creators、reducer 合并在一个文件中，自动生成 action creators。内置 Immer，可以直接"修改"状态（实际是不可变更新）。`configureStore` 自动包含 Redux DevTools 和中间件。
 
-```javascript
+```tsxx
 const counterSlice = createSlice({
   name: "counter",
   initialState: { count: 0 },
@@ -110,7 +110,7 @@ export default counterSlice.reducer;
 
 原生 `useReducer` 的 `dispatch` 只接受普通对象，支持异步需要封装 `enhancedDispatch`：
 
-```tsxx
+```tsxxx
 export function StoreProvider({ children }) {
   const [state, dispatch] = useReducer(rootReducer, initialState);
 
@@ -148,7 +148,7 @@ dispatch(fetchTodos()); // 传入函数，enhancedDispatch 会执行它
 
 ## 进阶：状态持久化（localStorage）
 
-```tsxx
+```tsxxx
 // 初始化时从 localStorage 读取
 const savedState = localStorage.getItem("appState");
 const initialStateWithPersist = savedState
@@ -175,7 +175,7 @@ export function StoreProvider({ children }) {
 
 当状态复杂时，可以拆分成多个 reducer，再合并：
 
-```tsx
+```tsxx
 // 各模块 reducer
 function todosReducer(state = [], action) {
   switch (action.type) {

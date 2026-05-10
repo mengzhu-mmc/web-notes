@@ -25,7 +25,7 @@
 
 ### 基本用法
 
-```tsxx
+```tsxxx
 import { use, Suspense } from "react";
 
 // 1. 读取 Promise（配合 Suspense 使用）
@@ -55,7 +55,7 @@ function App() {
 
 ### 条件使用（突破 Hooks 规则）
 
-```tsxx
+```tsxxx
 function UserProfile({ userId, showDetails }) {
   // ✅ use() 可以放在 if 里！普通 Hook 不行
   if (showDetails) {
@@ -68,7 +68,7 @@ function UserProfile({ userId, showDetails }) {
 
 ### 读取 Context
 
-```tsxx
+```tsxxx
 import { use, createContext } from "react";
 
 const ThemeContext = createContext("light");
@@ -83,7 +83,7 @@ function Button() {
 
 ### `use()` vs `useEffect` 数据获取对比
 
-```tsxx
+```tsxxx
 // ❌ 旧方式：useEffect + state 管理 loading/error
 function OldFetch({ url }) {
   const [data, setData] = useState(null);
@@ -125,7 +125,7 @@ function NewFetch({ dataPromise }) {
 
 ### 基本用法（Next.js App Router）
 
-```tsxx
+```tsxxx
 // app/actions.ts — 服务端函数（'use server' 指令）
 'use server';
 
@@ -139,7 +139,7 @@ export async function updateUserName(userId: string, name: string) {
 }
 ```
 
-```tsxx
+```tsxxx
 // 客户端组件中直接使用 Server Action
 'use client';
 import { updateUserName } from './actions';
@@ -162,7 +162,7 @@ function ProfileForm({ userId }) {
 
 ### 与 `useActionState` 配合（处理返回值）
 
-```tsxx
+```tsxxx
 'use client';
 import { useActionState } from 'react';
 import { updateName } from './actions';
@@ -200,7 +200,7 @@ function EditForm({ userId }) {
 
 ### 经典场景：点赞按钮
 
-```tsxx
+```tsxxx
 import { useOptimistic, useState } from "react";
 
 function LikeButton({ postId, initialLikes }) {
@@ -231,7 +231,7 @@ function LikeButton({ postId, initialLikes }) {
 
 ### 经典场景：TODO 列表乐观添加
 
-```tsxx
+```tsxxx
 import { useOptimistic, useState, useTransition } from 'react';
 
 function TodoList() {
@@ -295,7 +295,7 @@ action 失败           → optimisticState 自动回滚到 actualState
 
 > 获取**祖先 `<form>`** 的提交状态，无需 prop drilling。
 
-```tsxx
+```tsxxx
 import { useFormStatus } from 'react-dom'; // 注意：从 react-dom 导入！
 
 // 提交按钮组件：自动感知父 form 的 pending 状态
@@ -335,7 +335,7 @@ function ContactForm() {
 
 ### ⚠️ 常见错误
 
-```tsxx
+```tsxxx
 // ❌ 错误：在 form 本身的组件里用 useFormStatus，获取不到
 function MyForm() {
   const { pending } = useFormStatus(); // ❌ 这里是 form 的同层，不是子组件
@@ -358,7 +358,7 @@ function MyForm() {
 
 ### 5.1 ref 直接作为 prop（告别 forwardRef）
 
-```tsxx
+```tsxxx
 // React 19 之前：必须用 forwardRef
 const OldInput = forwardRef<HTMLInputElement, Props>((props, ref) => (
   <input ref={ref} {...props} />
@@ -376,7 +376,7 @@ const inputRef = useRef<HTMLInputElement>(null);
 
 ### 5.2 `<Context>` 直接作为 Provider
 
-```tsxx
+```tsxxx
 const ThemeContext = createContext('light');
 
 // 之前：必须用 ThemeContext.Provider
@@ -392,7 +392,7 @@ const ThemeContext = createContext('light');
 
 ### 5.3 文档 Metadata 原生支持
 
-```tsxx
+```tsxxx
 // 无需 react-helmet，直接在组件中写 title/meta
 function BlogPost({ post }) {
   return (
@@ -410,7 +410,7 @@ function BlogPost({ post }) {
 
 ### 5.4 资源预加载 API
 
-```tsxx
+```tsxxx
 import { preload, preloadModule, prefetchDNS, preinit } from "react-dom";
 
 function App() {
@@ -503,7 +503,7 @@ React Actions 是轻量级的**局部状态管理**，配合 `useActionState` + 
 
 React 18 最重要的改变：渲染可以**被中断**。
 
-```tsxx
+```tsxxx
 // createRoot 替代 render（开启并发特性）
 import { createRoot } from "react-dom/client";
 const root = createRoot(document.getElementById("root"));
@@ -517,7 +517,7 @@ root.render(<App />);
 
 React 17 只在事件处理器中批处理，React 18 **所有场景**都自动批处理：
 
-```tsxx
+```tsxxx
 // React 18：setTimeout 里也会批处理（只触发一次渲染）
 setTimeout(() => {
   setCount((c) => c + 1); // 不会立即渲染
@@ -528,7 +528,7 @@ setTimeout(() => {
 
 如果需要立即渲染，用 `flushSync`：
 
-```tsxx
+```tsxxx
 import { flushSync } from "react-dom";
 flushSync(() => setCount((c) => c + 1)); // 立即渲染
 ```
@@ -537,7 +537,7 @@ flushSync(() => setCount((c) => c + 1)); // 立即渲染
 
 标记**非紧急**更新，让紧急更新（输入、点击）优先：
 
-```tsxx
+```tsxxx
 import { useTransition } from "react";
 
 function SearchPage() {
@@ -565,7 +565,7 @@ function SearchPage() {
 
 延迟更新某个值，类似 transition 但更简单：
 
-```tsxx
+```tsxxx
 function SearchResults({ query }) {
   const deferredQuery = useDeferredValue(query);
   return <HeavyList query={deferredQuery} />;
@@ -576,7 +576,7 @@ function SearchResults({ query }) {
 
 支持**服务端渲染流式传输** + **数据获取**：
 
-```tsxx
+```tsxxx
 <Suspense fallback={<Skeleton />}>
   <Comments />
 </Suspense>
@@ -586,7 +586,7 @@ function SearchResults({ query }) {
 
 生成 SSR 安全的唯一 ID：
 
-```tsxx
+```tsxxx
 function EmailField() {
   const id = useId();
   return (
@@ -614,7 +614,7 @@ function EmailField() {
 
 **告别手动 useMemo/useCallback/React.memo！**
 
-```tsxx
+```tsxxx
 // React 19：直接写，编译器自动优化
 function TodoList({ todos, filter }) {
   const filtered = todos.filter((t) => t.status === filter);
@@ -624,7 +624,7 @@ function TodoList({ todos, filter }) {
 
 ### 2. Actions（表单简化）
 
-```tsxx
+```tsxxx
 function ChangeName() {
   const [error, submitAction, isPending] = useActionState(
     async (prev, formData) => {
@@ -650,7 +650,7 @@ function ChangeName() {
 
 在组件中直接读取 Promise 和 Context：
 
-```tsxx
+```tsxxx
 function Comments({ commentsPromise }) {
   const comments = use(commentsPromise);
   return comments.map((c) => <Comment key={c.id} comment={c} />);
@@ -661,7 +661,7 @@ function Comments({ commentsPromise }) {
 
 组件在服务端执行，不发送 JS 到客户端：
 
-```tsxx
+```tsxxx
 // server component（默认）
 async function BlogPost({ id }) {
   const post = await db.posts.find(id);
@@ -755,7 +755,7 @@ RSC 最强大的特性在于它可以与 Client Components 无缝交织。但这
 
 **正确的组合方式：通过 `children` 或 `props` 传递。**
 
-```tsx
+```tsxx
 // ❌ 错误示范：在 Client Component 中直接导入 Server Component
 "use client";
 import ServerComponent from "./ServerComponent";
@@ -770,7 +770,7 @@ export default function ClientComponent() {
 }
 ```
 
-```tsx
+```tsxx
 // ✅ 正确示范：通过 children 将 Server Component 传递给 Client Component
 // app/page.tsx (这是一个 Server Component)
 import ClientComponent from "./ClientComponent";
@@ -807,7 +807,7 @@ export default function ClientComponent({
 
 RSC 彻底改变了数据获取的方式。在 App Router 中，推荐的数据获取方式是：**在 Server Component 中直接使用 `async/await`。**
 
-```tsx
+```tsxx
 // app/users/page.tsx (Server Component)
 // 组件可以直接是 async 的！
 export default async function UsersPage() {
@@ -842,3 +842,271 @@ export default async function UsersPage() {
    - 需要状态管理（`useState`, `useReducer`）。
    - 需要生命周期/副作用（`useEffect`）。
    - 需要使用特定的浏览器 API。
+
+---
+
+# React19_API与心智模型.md
+
+# React 19 API 与心智模型速查
+
+> 目标：把 React 19 当作一次“渲染模型 + 数据提交模型 + 资源加载模型”的收敛升级，而不是只背新增 Hook。
+
+## 一、核心心智模型
+
+React 19 延续 React 18 的并发渲染基础，但把“异步数据、表单提交、服务端渲染、资源预加载”这些过去依赖框架或社区库补齐的能力进一步标准化。理解时建议分成三层：
+
+1. **Render 是可中断的**：并发渲染允许 React 在不阻塞高优先级交互的前提下准备 UI。渲染函数必须保持纯净，不要在 render 阶段写外部状态。
+2. **Commit 是原子的**：真正修改 DOM 仍发生在提交阶段，用户不会看到半成品 UI。
+3. **Async 是 UI 状态的一部分**：请求、提交、乐观更新、错误边界、Suspense fallback 都应被建模为 UI 状态，而不是散落在命令式回调里。
+
+## 二、新增/重点 API
+
+### `useActionState`
+
+用于把“提交动作 + pending 状态 + 返回结果”组合在一起，特别适合表单和服务端动作。
+
+```tsxx
+import { useActionState } from "react";
+
+async function updateName(prevState: { error?: string }, formData: FormData) {
+  const name = String(formData.get("name") ?? "").trim();
+
+  if (!name) {
+    return { error: "请输入名称" };
+  }
+
+  await saveName(name);
+  return {};
+}
+
+export function ProfileForm() {
+  const [state, formAction, isPending] = useActionState(updateName, {});
+
+  return (
+    <form action={formAction}>
+      <input name="name" aria-label="name" />
+      <button disabled={isPending}>{isPending ? "保存中..." : "保存"}</button>
+      {state.error ? <p role="alert">{state.error}</p> : null}
+    </form>
+  );
+}
+```
+
+**面试表达**：它把异步 Action 的结果状态收敛到 Hook 内，减少手写 `isLoading/error/data` 三件套，尤其适合渐进增强的表单提交。
+
+### `useOptimistic`
+
+用于在服务端确认前先展示乐观 UI。
+
+```tsxx
+import { useOptimistic } from "react";
+
+type Comment = { id: string; text: string; pending?: boolean };
+
+export function CommentList({ comments }: { comments: Comment[] }) {
+  const [optimisticComments, addOptimisticComment] = useOptimistic(
+    comments,
+    (current, text: string) => [
+      ...current,
+      { id: crypto.randomUUID(), text, pending: true },
+    ],
+  );
+
+  async function submit(formData: FormData) {
+    const text = String(formData.get("text") ?? "");
+    addOptimisticComment(text);
+    await createComment(text);
+  }
+
+  return (
+    <form action={submit}>
+      {optimisticComments.map((item) => (
+        <p key={item.id} style={{ opacity: item.pending ? 0.6 : 1 }}>
+          {item.text}
+        </p>
+      ))}
+      <input name="text" />
+    </form>
+  );
+}
+```
+
+**注意**：乐观 UI 不是本地最终状态，失败时需要借助 Action 返回值、错误边界或重新拉取数据回滚。
+
+### `use`
+
+`use` 可以在组件中读取 Promise 或 Context。读取 Promise 时会与 Suspense 协作：pending 触发 fallback，reject 交给 Error Boundary。
+
+```tsxx
+import { Suspense, use } from "react";
+
+function UserName({ userPromise }: { userPromise: Promise<{ name: string }> }) {
+  const user = use(userPromise);
+  return <span>{user.name}</span>;
+}
+
+export function UserCard(props: { userPromise: Promise<{ name: string }> }) {
+  return (
+    <Suspense fallback={<span>加载中...</span>}>
+      <UserName userPromise={props.userPromise} />
+    </Suspense>
+  );
+}
+```
+
+**边界**：不要在 render 中临时创建新 Promise，否则每次渲染都可能重新挂起；Promise 应来自框架、缓存层或父组件。
+
+## 三、资源加载 API
+
+React 19 支持更显式地表达资源优先级，例如 `preload`、`preinit`、`preconnect`。它们的价值是让组件在渲染过程中声明自己需要的关键资源，由 React 协调插入资源提示，减少瀑布加载。
+
+```tsxx
+import { preconnect, preload } from "react-dom";
+
+export function ProductHero() {
+  preconnect("https://cdn.example.com");
+  preload("https://cdn.example.com/hero.webp", { as: "image" });
+
+  return <img src="https://cdn.example.com/hero.webp" alt="商品主图" />;
+}
+```
+
+## 四、React Compiler 相关心智
+
+React Compiler 的目标是自动推导一部分 memoization，减少手写 `useMemo/useCallback/memo` 的样板代码。即使没有启用 Compiler，也应该遵守这些约束：
+
+- 组件和 Hook 保持纯函数语义。
+- 不在 render 中写外部可变状态。
+- props/state 使用不可变更新。
+- 不为了“让依赖数组通过”而隐藏真实依赖。
+
+## 五、迁移检查清单
+
+1. 表单提交：优先评估 `useActionState`，减少手动维护 pending/error。
+2. 即时反馈：使用 `useOptimistic` 表达乐观 UI，而不是把临时项混入真实服务端列表。
+3. 异步读取：Promise 来源必须稳定，并配套 Suspense 与 Error Boundary。
+4. 性能优化：先用 Profiler 定位瓶颈，再决定是否保留手写 memo。
+5. 类型约束：Action 返回值、表单字段和乐观数据都要补齐 TypeScript 类型，避免 `any` 扩散。
+
+---
+
+# React并发渲染与Server_Components心智模型.md
+
+# React 并发渲染与 Server Components 心智模型
+
+## 一、并发渲染不是多线程
+
+Concurrent Rendering 的重点不是“同时执行多个线程”，而是 React 可以把一次更新拆成更小的工作单元，并根据优先级暂停、恢复或丢弃尚未提交的渲染结果。
+
+- **紧急更新**：输入框输入、点击反馈，应尽快响应。
+- **非紧急更新**：筛选大列表、切换复杂图表，可以放进 transition。
+- **提交阶段不可中断**：DOM 修改仍是一次性提交，避免用户看到中间态。
+
+```tsxx
+import { useMemo, useState, useTransition } from "react";
+
+type Item = { id: string; title: string };
+
+export function SearchList({ items }: { items: Item[] }) {
+  const [keyword, setKeyword] = useState("");
+  const [query, setQuery] = useState("");
+  const [isPending, startTransition] = useTransition();
+
+  const filteredItems = useMemo(
+    () => items.filter((item) => item.title.includes(query)),
+    [items, query],
+  );
+
+  return (
+    <>
+      <input
+        value={keyword}
+        onChange={(event) => {
+          const nextKeyword = event.target.value;
+          setKeyword(nextKeyword);
+          startTransition(() => setQuery(nextKeyword));
+        }}
+      />
+      {isPending ? <p>更新结果中...</p> : null}
+      {filteredItems.map((item) => (
+        <p key={item.id}>{item.title}</p>
+      ))}
+    </>
+  );
+}
+```
+
+**判断标准**：如果某个更新影响“输入是否跟手”，不要放进 transition；如果只是影响“结果区域何时刷新”，可以放进 transition。
+
+## 二、Suspense 的定位
+
+Suspense 是“等待某段 UI 准备好”的边界，不是数据请求库本身。它负责声明 fallback、协调 reveal 顺序，并与 `React.lazy`、框架数据缓存、RSC 流式渲染协作。
+
+常见误区：
+
+- 把所有页面包一个巨大 Suspense，导致 fallback 粒度太粗。
+- 在组件 render 中创建不稳定 Promise，造成重复挂起。
+- 忽略 Error Boundary，导致 reject 后没有合适的错误 UI。
+
+## 三、Server Components 解决什么问题
+
+Server Components（RSC）的核心是让一部分组件只在服务端执行，产物不是 HTML 字符串，而是可被客户端 React 合并的组件载荷。它主要解决：
+
+1. **减少客户端 JS**：纯展示、数据读取、Markdown 渲染等逻辑无需打包到浏览器。
+2. **靠近数据源**：服务端组件可以直接访问数据库、文件系统或内网服务。
+3. **保留组件模型**：服务端组件可以组合客户端组件，但客户端组件不能直接导入服务端组件。
+
+## 四、Server / Client 边界
+
+| 场景     | Server Component                 | Client Component                      |
+| -------- | -------------------------------- | ------------------------------------- |
+| 数据读取 | 适合，靠近数据源                 | 通常通过 API/缓存层读取               |
+| 交互状态 | 不支持 Hook 状态和浏览器事件     | 支持 `useState`、事件处理、浏览器 API |
+| 包体积   | 不进入客户端 bundle              | 会进入客户端 bundle                   |
+| 典型用途 | 页面骨架、详情展示、列表初始数据 | 表单、弹窗、拖拽、富交互组件          |
+
+边界设计原则：默认 Server，必要时 Client。把交互叶子节点标记为 Client，而不是把整个页面都变成 Client。
+
+```tsxx
+// app/products/page.tsx - Server Component
+import { AddToCartButton } from "./AddToCartButton";
+
+export default async function ProductPage() {
+  const products = await getProducts();
+
+  return (
+    <main>
+      {products.map((product) => (
+        <section key={product.id}>
+          <h2>{product.name}</h2>
+          <AddToCartButton productId={product.id} />
+        </section>
+      ))}
+    </main>
+  );
+}
+```
+
+```tsxx
+// app/products/AddToCartButton.tsx - Client Component
+"use client";
+
+import { useState } from "react";
+
+export function AddToCartButton({ productId }: { productId: string }) {
+  const [count, setCount] = useState(0);
+
+  return (
+    <button onClick={() => setCount((value) => value + 1)}>
+      加入购物车 {productId} × {count}
+    </button>
+  );
+}
+```
+
+## 五、面试高频回答模板
+
+- **Concurrent Mode 是什么？** 更准确叫并发特性集合，不是一个必须全局开启的模式。它让 React 能按优先级调度渲染，提升交互响应。
+- **RSC 和 SSR 区别？** SSR 生成首屏 HTML，客户端仍需 hydrate 对应组件；RSC 让部分组件只在服务端执行，并把组件树载荷流给客户端合并，可减少客户端 JS。
+- **什么时候用 Client Component？** 需要浏览器事件、状态、副作用、DOM API、第三方客户端库时使用。
+- **为什么 Server Component 不能传函数给 Client Component？** 跨越网络/序列化边界，函数闭包无法安全序列化；应传可序列化数据或使用 Server Actions。
