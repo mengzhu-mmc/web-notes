@@ -46,7 +46,7 @@
 
 3. **路由与服务端渲染 (SSR)**
    - [React 路由模式详解](./React路由模式详解.md)
-   - [React SSR 实现原理](./React%20SSR实现原理.md)
+   - [React SSR 实现原理](./React_SSR实现原理.md)
    - [Next.js 与 Nuxt.js 架构对比](./Next.js与Nuxt.js对比.md)
 
 4. **架构设计**
