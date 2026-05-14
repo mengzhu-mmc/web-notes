@@ -24,9 +24,7 @@
     "gene_id": "gene_gep_innovate_from_opportunity",
     "gene_category": "innovate",
     "hypothesis_id": "hyp_1774918152306_0fe3cf8f",
-    "capsules_used": [
-      "capsule_1770477654236"
-    ],
+    "capsules_used": ["capsule_1770477654236"],
     "had_error": true,
     "created_at": "2026-03-31T00:49:12.306Z",
     "outcome_recorded": false,

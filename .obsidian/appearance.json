@@ -1,6 +1,4 @@
 {
   "cssTheme": "Things",
-  "enabledCssSnippets": [
-    "table"
-  ]
+  "enabledCssSnippets": ["table"]
 }

@@ -14,9 +14,7 @@
         "memory_graph: memory_prefer:gene_gep_innovate_from_opportunity | gene_prior:0.333",
         "drift_intensity: 0.577"
       ],
-      "alternatives": [
-        "gene_gep_repair_from_errors"
-      ]
+      "alternatives": ["gene_gep_repair_from_errors"]
     },
     "signals": [
       "log_error",
