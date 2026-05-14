@@ -1,6 +1,6 @@
 # React 19 新特性深度指南
 
-> 更新日期：2026-03-31 | 来源：React 官方文档 + RFC
+> 更新日期：2026-05-14 | 来源：React 官方文档 (React v19 发布)
 
 ---
 
@@ -8,14 +8,14 @@
 
 | 特性                      | 一句话描述                             | 稳定版本 |
 | ------------------------- | -------------------------------------- | -------- |
-| `use()` Hook              | 在渲染中直接 await Promise / Context   | ✅ RC    |
-| Server Actions            | 在 Server Component 中直接调用异步函数 | ✅ RC    |
-| `useOptimistic`           | 乐观 UI，异步操作前先更新界面          | ✅ RC    |
-| `useFormStatus`           | 获取父级 form 的提交状态               | ✅ RC    |
-| `useActionState`          | 管理 action 返回值 + pending 状态      | ✅ RC    |
+| `use()` Hook              | 在渲染中直接 await Promise / Context   | ✅ 稳定   |
+| Server Actions            | 在 Server Component 中直接调用异步函数 | ✅ 稳定   |
+| `useOptimistic`           | 乐观 UI，异步操作前先更新界面          | ✅ 稳定   |
+| `useFormStatus`           | 获取父级 form 的提交状态               | ✅ 稳定   |
+| `useActionState`          | 管理 action 返回值 + pending 状态      | ✅ 稳定   |
 | React Compiler            | 编译时自动 memo，告别手动优化          | 实验中   |
-| ref 作为 prop             | 无需 `forwardRef` 包裹                 | ✅ RC    |
-| `<Context>` 作为 Provider | 简化 Context 写法                      | ✅ RC    |
+| ref 作为 prop             | 无需 `forwardRef` 包裹                 | ✅ 稳定   |
+| `<Context>` 作为 Provider | 简化 Context 写法                      | ✅ 稳定   |
 
 ---
 
@@ -506,12 +506,23 @@ React Actions 是轻量级的**局部状态管理**，配合 `useActionState` + 
 
 > 💡 Vue 3 的响应式系统（Proxy + 依赖追踪）让大多数场景不需要手动优化；React 需要 Compiler 来弥补这一差距。
 
+## 八、React 19.2 预告：流式 SSR 与 Performance 强化
+
+> Updated: 2026-05-14 based on React 19.2 updates
+
+React 19.2 继续巩固服务端渲染与性能追踪能力：
+
+1. **`<Activity />` 组件**：用于管理后台组件生命周期与渲染优先级的原语。
+2. **`useEffectEvent`（实验性）**：打破 Hook 规则，从 Effect 抽离出“非响应式回调”，在需要拿取最新 props/state 但不想重新执行 Effect 时极其有用。
+3. **`cacheSignal`**：集成资源缓存取消信号能力。
+4. **Node.js Web Streams 支持**：`renderToReadableStream` 和 `prerender` 开始完整支持 Node 环境的 Web Streams，替代旧版 Node 流 API (`renderToPipeableStream`)。
+
 ---
 
 ## 🔗 参考资料
 
-- [React 19 官方博客](https://react.dev/blog/2024/12/05/react-19)
-- [React 19 RC 发布说明](https://react.dev/blog/2024/04/25/react-19)
+- [React 19 官方发布博客 (2024-12-05)](https://react.dev/blog/2024/12/05/react-19)
+- [React 19 RC 发布说明 (2024-04-25)](https://react.dev/blog/2024/04/25/react-19-upgrade-guide)
 - [use() RFC](https://github.com/reactjs/rfcs/pull/229)
 - [Server Actions 文档](https://nextjs.org/docs/app/building-your-application/data-fetching/server-actions-and-mutations)
 
