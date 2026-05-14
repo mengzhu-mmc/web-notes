@@ -9,10 +9,12 @@
 ### 一、React Fiber 与双缓存机制
 
 **1. 设计动机**
+
 - 旧版（React 15及以前）：全量同步递归更新（Reconciler），任务一旦开始就无法停止，长时间执行会阻塞浏览器主线程，导致动画卡顿和交互延迟。
 - 架构升级（React 16+）：引入 Fiber 架构，从**同步阻塞更新**变为**异步可中断更新**。React 18 的 `createRoot` 正式开放了基于该架构的并发特性。
 
 **2. 两大生命周期阶段**
+
 - **协调阶段（Render / Reconcile）—— 可中断**
   - 使用双缓存：`current` 树（当前展示）+ `workInProgress` 树（正在构建的新树）。
   - 基于 `current` 树深度优先遍历（**循环+链表**代替递归），增量构建 `workInProgress` 树。
@@ -27,6 +29,7 @@
   - 结束后，通过切换指针 `root.current = finishedWork` 完成双缓存交替。
 
 **3. Fiber 节点核心结构**
+
 ```tsxx
 {
   type,         // 节点类型 ('div', Component等)
@@ -49,9 +52,11 @@
 
 **1. 产生原因**
 组件渲染时，函数/Effect 捕获了**当时的 state 快照**。由于依赖数组设置不当（如 `[]`）或其他原因导致函数未更新，即便外部 state 已改变，闭包内引用的仍是旧值。
+
 > 本质：React 每次渲染都是一次独立的函数调用，各自有独立的变量快照。
 
 **2. 经典场景**
+
 ```tsxx
 function Demo() {
   const [count, setCount] = useState(0);
@@ -59,11 +64,12 @@ function Demo() {
     setInterval(() => {
       console.log(count); // 空依赖导致只执行一次，永远打印首次的 0！
     }, 1000);
-  }, []); 
+  }, []);
 }
 ```
 
 **3. 解决方案**
+
 - **方案A：补全依赖**（最本分） - `useEffect` 依赖加入 `[count]`，每次变化重新绑挂定时器。
 - **方案B：函数式更新** - `setCount(prev => prev + 1)`，如果只是为了更新而不需读取最新状态值。
 - **方案C：使用 `useRef`**（最通用、ahooks `useMemoizedFn` 底层原理） - `useRef` 内容随时可变且在生命周期内引用唯一。
@@ -105,6 +111,7 @@ React 默认会**合并批量更新**（Batching），如果在同一宏任务�
 
 适合中小型应用，免去额外引包。
 **实现流程：**
+
 1. **Context**：`createContext()` 创建上下文。
 2. **Reducer**：纯函数，处理 state 和 action（`switch(action.type)...`）。
 3. **Provider**：包裹根组件，`const [state, dispatch] = useReducer(reducer, initialState)`，然后将 `{ state, dispatch }` 通过 `Context.Provider value` 传入。
