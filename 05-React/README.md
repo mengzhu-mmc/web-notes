@@ -56,6 +56,5 @@
 
 ## 四、杂项与前沿追踪
 
-- [AI 对话笔记 - React 专题](./AI对话笔记-React专题.md)
-- [AI 对话笔记 - 综合前沿追踪](./AI对话笔记-综合.md)
+- [AI 对话笔记 - React 综合与重难点融合](./AI对话笔记-React综合与重难点融合.md)
 - [SolidJS 2 Beta 新特性探索](./SolidJS2-Beta新特性.md)
