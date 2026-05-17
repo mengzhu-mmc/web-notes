@@ -14,8 +14,8 @@
 
 ### 基础与进阶（重点梳理）
 
-- [TypeScript 基础到进阶 - 标准答案索引](./TypeScript基础到进阶%20-%20标准答案索引.md) — 涵盖类型系统、泛型、基础用法
-- [TypeScript 基础到进阶 - 深挖专题索引](./TypeScript基础到进阶%20-%20深挖专题索引.md) — 工具类型、类型体操、tsconfig 全覆盖
+- [TypeScript 基础到进阶 - 标准答案索引](./TypeScript基础到进阶 - 标准答案索引.md) — 涵盖类型系统、泛型、基础用法
+- [TypeScript 基础到进阶 - 深挖专题索引](./TypeScript基础到进阶 - 深挖专题索引.md) — 工具类型、类型体操、tsconfig 全覆盖
 
 ### 框架实战
 

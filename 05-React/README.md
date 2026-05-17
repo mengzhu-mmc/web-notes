@@ -10,7 +10,7 @@
 
 1. **Fiber 架构与并发渲染核心**
    - [React_Fiber 与 Concurrent Mode 详解](./React_Fiber与Concurrent_Mode详解.md)
-   - [React 18-19 新特性与 Server Components](./React18-19新特性与Server_Components.md) _(已合并 React 19 API 与 RSC 心智模型)_
+   - [React 18-19 新特性与 Server Components](./React18-19新特性与Server_Components.md) _(已合并 React 19/19.2 API、RSC 与并发心智模型)_
 
 2. **状态更新与闭包机制 (重点难点)**
    - [React 闭包陷阱与底层执行机制解析](./React闭包陷阱与底层执行机制解析.md) ⭐ _重点剖析执行上下文与 GC 引用链_

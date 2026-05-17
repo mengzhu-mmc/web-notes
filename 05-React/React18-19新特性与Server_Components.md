@@ -8,14 +8,14 @@
 
 | 特性                      | 一句话描述                             | 稳定版本 |
 | ------------------------- | -------------------------------------- | -------- |
-| `use()` Hook              | 在渲染中直接 await Promise / Context   | ✅ 稳定   |
-| Server Actions            | 在 Server Component 中直接调用异步函数 | ✅ 稳定   |
-| `useOptimistic`           | 乐观 UI，异步操作前先更新界面          | ✅ 稳定   |
-| `useFormStatus`           | 获取父级 form 的提交状态               | ✅ 稳定   |
-| `useActionState`          | 管理 action 返回值 + pending 状态      | ✅ 稳定   |
+| `use()` Hook              | 在渲染中直接 await Promise / Context   | ✅ 稳定  |
+| Server Actions            | 在 Server Component 中直接调用异步函数 | ✅ 稳定  |
+| `useOptimistic`           | 乐观 UI，异步操作前先更新界面          | ✅ 稳定  |
+| `useFormStatus`           | 获取父级 form 的提交状态               | ✅ 稳定  |
+| `useActionState`          | 管理 action 返回值 + pending 状态      | ✅ 稳定  |
 | React Compiler            | 编译时自动 memo，告别手动优化          | 实验中   |
-| ref 作为 prop             | 无需 `forwardRef` 包裹                 | ✅ 稳定   |
-| `<Context>` 作为 Provider | 简化 Context 写法                      | ✅ 稳定   |
+| ref 作为 prop             | 无需 `forwardRef` 包裹                 | ✅ 稳定  |
+| `<Context>` 作为 Provider | 简化 Context 写法                      | ✅ 稳定  |
 
 ---
 
@@ -25,7 +25,7 @@
 
 ### 基本用法
 
-```tsxxx
+```tsx
 import { use, Suspense } from "react";
 
 // 1. 读取 Promise（配合 Suspense 使用）
@@ -55,7 +55,7 @@ function App() {
 
 ### 条件使用（突破 Hooks 规则）
 
-```tsxxx
+```tsx
 function UserProfile({ userId, showDetails }) {
   // ✅ use() 可以放在 if 里！普通 Hook 不行
   if (showDetails) {
@@ -68,7 +68,7 @@ function UserProfile({ userId, showDetails }) {
 
 ### 读取 Context
 
-```tsxxx
+```tsx
 import { use, createContext } from "react";
 
 const ThemeContext = createContext("light");
@@ -83,7 +83,7 @@ function Button() {
 
 ### `use()` vs `useEffect` 数据获取对比
 
-```tsxxx
+```tsx
 // ❌ 旧方式：useEffect + state 管理 loading/error
 function OldFetch({ url }) {
   const [data, setData] = useState(null);
@@ -125,28 +125,28 @@ function NewFetch({ dataPromise }) {
 
 ### 基本用法（Next.js App Router）
 
-```tsxxx
+```tsx
 // app/actions.ts — 服务端函数（'use server' 指令）
-'use server';
+"use server";
 
-import { db } from '@/lib/db';
-import { revalidatePath } from 'next/cache';
+import { db } from "@/lib/db";
+import { revalidatePath } from "next/cache";
 
 export async function updateUserName(userId: string, name: string) {
   await db.users.update({ where: { id: userId }, data: { name } });
-  revalidatePath('/profile'); // 重新验证缓存
+  revalidatePath("/profile"); // 重新验证缓存
   return { success: true };
 }
 ```
 
-```tsxxx
+```tsx
 // 客户端组件中直接使用 Server Action
-'use client';
-import { updateUserName } from './actions';
+"use client";
+import { updateUserName } from "./actions";
 
 function ProfileForm({ userId }) {
   async function handleSubmit(formData: FormData) {
-    const name = formData.get('name') as string;
+    const name = formData.get("name") as string;
     await updateUserName(userId, name);
     // 无需 fetch，无需 API 路由！
   }
@@ -162,31 +162,29 @@ function ProfileForm({ userId }) {
 
 ### 与 `useActionState` 配合（处理返回值）
 
-```tsxxx
-'use client';
-import { useActionState } from 'react';
-import { updateName } from './actions';
+```tsx
+"use client";
+import { useActionState } from "react";
+import { updateName } from "./actions";
 
 function EditForm({ userId }) {
   const [state, formAction, isPending] = useActionState(
     async (prevState: State, formData: FormData) => {
-      const name = formData.get('name') as string;
-      if (name.length < 2) return { error: '名字至少2个字符' };
+      const name = formData.get("name") as string;
+      if (name.length < 2) return { error: "名字至少2个字符" };
 
       const result = await updateName(userId, name);
-      return result.success ? { success: true } : { error: '更新失败' };
+      return result.success ? { success: true } : { error: "更新失败" };
     },
-    null // 初始 state
+    null, // 初始 state
   );
 
   return (
     <form action={formAction}>
       <input name="name" defaultValue="" />
-      <button disabled={isPending}>
-        {isPending ? '保存中...' : '保存'}
-      </button>
-      {state?.error && <p style={{ color: 'red' }}>{state.error}</p>}
-      {state?.success && <p style={{ color: 'green' }}>保存成功！</p>}
+      <button disabled={isPending}>{isPending ? "保存中..." : "保存"}</button>
+      {state?.error && <p style={{ color: "red" }}>{state.error}</p>}
+      {state?.success && <p style={{ color: "green" }}>保存成功！</p>}
     </form>
   );
 }
@@ -200,7 +198,7 @@ function EditForm({ userId }) {
 
 ### 经典场景：点赞按钮
 
-```tsxxx
+```tsx
 import { useOptimistic, useState } from "react";
 
 function LikeButton({ postId, initialLikes }) {
@@ -231,8 +229,8 @@ function LikeButton({ postId, initialLikes }) {
 
 ### 经典场景：TODO 列表乐观添加
 
-```tsxxx
-import { useOptimistic, useState, useTransition } from 'react';
+```tsx
+import { useOptimistic, useState, useTransition } from "react";
 
 function TodoList() {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -240,19 +238,19 @@ function TodoList() {
 
   const [optimisticTodos, addOptimisticTodo] = useOptimistic(
     todos,
-    (currentTodos, newTodo: Todo) => [...currentTodos, newTodo]
+    (currentTodos, newTodo: Todo) => [...currentTodos, newTodo],
   );
 
   async function handleSubmit(formData: FormData) {
-    const title = formData.get('title') as string;
-    const tempTodo = { id: 'temp-' + Date.now(), title, done: false };
+    const title = formData.get("title") as string;
+    const tempTodo = { id: "temp-" + Date.now(), title, done: false };
 
     // 乐观更新：立即显示
     addOptimisticTodo(tempTodo);
 
     // 后台异步保存
     const savedTodo = await createTodo(title);
-    setTodos(prev => [...prev, savedTodo]); // 替换为真实数据
+    setTodos((prev) => [...prev, savedTodo]); // 替换为真实数据
   }
 
   return (
@@ -262,10 +260,13 @@ function TodoList() {
         <button type="submit">添加</button>
       </form>
       <ul>
-        {optimisticTodos.map(todo => (
-          <li key={todo.id} style={{ opacity: todo.id.startsWith('temp') ? 0.5 : 1 }}>
+        {optimisticTodos.map((todo) => (
+          <li
+            key={todo.id}
+            style={{ opacity: todo.id.startsWith("temp") ? 0.5 : 1 }}
+          >
             {todo.title}
-            {todo.id.startsWith('temp') && ' (保存中...)'}
+            {todo.id.startsWith("temp") && " (保存中...)"}
           </li>
         ))}
       </ul>
@@ -295,8 +296,8 @@ action 失败           → optimisticState 自动回滚到 actualState
 
 > 获取**祖先 `<form>`** 的提交状态，无需 prop drilling。
 
-```tsxxx
-import { useFormStatus } from 'react-dom'; // 注意：从 react-dom 导入！
+```tsx
+import { useFormStatus } from "react-dom"; // 注意：从 react-dom 导入！
 
 // 提交按钮组件：自动感知父 form 的 pending 状态
 function SubmitButton() {
@@ -304,7 +305,7 @@ function SubmitButton() {
 
   return (
     <button type="submit" disabled={pending}>
-      {pending ? '提交中...' : '提交'}
+      {pending ? "提交中..." : "提交"}
     </button>
   );
 }
@@ -312,7 +313,7 @@ function SubmitButton() {
 // 使用：直接放在 form 内即可
 function ContactForm() {
   async function handleSubmit(formData: FormData) {
-    await sendMessage(formData.get('message'));
+    await sendMessage(formData.get("message"));
   }
 
   return (
@@ -335,7 +336,7 @@ function ContactForm() {
 
 ### ⚠️ 常见错误
 
-```tsxxx
+```tsx
 // ❌ 错误：在 form 本身的组件里用 useFormStatus，获取不到
 function MyForm() {
   const { pending } = useFormStatus(); // ❌ 这里是 form 的同层，不是子组件
@@ -360,7 +361,7 @@ function MyForm() {
 
 ### 5.1 ref 直接作为 prop（告别 forwardRef）
 
-```tsxxx
+```tsx
 // React 19 之前：必须用 forwardRef
 const OldInput = forwardRef<HTMLInputElement, Props>((props, ref) => (
   <input ref={ref} {...props} />
@@ -373,12 +374,12 @@ function NewInput({ ref, ...props }) {
 
 // 使用方式完全一样
 const inputRef = useRef<HTMLInputElement>(null);
-<NewInput ref={inputRef} placeholder="输入内容" />
+<NewInput ref={inputRef} placeholder="输入内容" />;
 ```
 
 ### 5.2 `<Context>` 直接作为 Provider
 
-```tsxxx
+```tsx
 const ThemeContext = createContext('light');
 
 // 之前：必须用 ThemeContext.Provider
@@ -394,7 +395,7 @@ const ThemeContext = createContext('light');
 
 ### 5.3 文档 Metadata 原生支持
 
-```tsxxx
+```tsx
 // 无需 react-helmet，直接在组件中写 title/meta
 function BlogPost({ post }) {
   return (
@@ -412,7 +413,7 @@ function BlogPost({ post }) {
 
 ### 5.4 资源预加载 API
 
-```tsxxx
+```tsx
 import { preload, preloadModule, prefetchDNS, preinit } from "react-dom";
 
 function App() {
@@ -506,22 +507,119 @@ React Actions 是轻量级的**局部状态管理**，配合 `useActionState` + 
 
 > 💡 Vue 3 的响应式系统（Proxy + 依赖追踪）让大多数场景不需要手动优化；React 需要 Compiler 来弥补这一差距。
 
-## 八、React 19.2 预告：流式 SSR 与 Performance 强化
+## 八、React 19.2 稳定版：Activity、Effect Event 与 SSR 能力补齐
 
-> Updated: 2026-05-14 based on React 19.2 updates
+> Updated: 2026-05-17 based on official React 19.2 release notes: https://react.dev/blog/2025/10/01/react-19-2
 
-React 19.2 继续巩固服务端渲染与性能追踪能力：
+React 19.2 已经是稳定发布版本，不再只是“预告”。这一版的主线不是再新增一批表层 Hook，而是把 React 的三个底层方向继续往前推进：**后台 UI 保活与降优先级、Effect 中非响应式事件抽离、服务端渲染/预渲染流水线增强**。
 
-1. **`<Activity />` 组件**：用于管理后台组件生命周期与渲染优先级的原语。
-2. **`useEffectEvent`（实验性）**：打破 Hook 规则，从 Effect 抽离出“非响应式回调”，在需要拿取最新 props/state 但不想重新执行 Effect 时极其有用。
-3. **`cacheSignal`**：集成资源缓存取消信号能力。
-4. **Node.js Web Streams 支持**：`renderToReadableStream` 和 `prerender` 开始完整支持 Node 环境的 Web Streams，替代旧版 Node 流 API (`renderToPipeableStream`)。
+### 8.1 `<Activity />`：隐藏但不销毁的 UI 分区
+
+过去我们经常用条件渲染控制页面片段：
+
+```tsx
+{
+  isVisible && <Page />;
+}
+```
+
+这种写法的问题是：隐藏时组件会被卸载，组件内部 state、未完成的数据预热、图片/CSS 加载进度都会丢掉。React 19.2 的 `<Activity />` 提供了更细的控制：
+
+```tsx
+import { Activity } from "react";
+
+function App({ isVisible }: { isVisible: boolean }) {
+  return (
+    <Activity mode={isVisible ? "visible" : "hidden"}>
+      <Page />
+    </Activity>
+  );
+}
+```
+
+当前稳定支持两个模式：
+
+- `visible`：正常展示 children，挂载 effects，更新按正常优先级处理。
+- `hidden`：隐藏 children，卸载 effects，并把该子树更新延后到 React 空闲时处理。
+
+**心智模型**：`<Activity />` 不是简单的 `display: none`，也不是普通条件渲染。它更像“后台标签页”：UI 不显示，副作用暂停，但状态和已经构建出的子树可以保留，适合用于路由预渲染、Tab 切换保活、返回上一页时恢复输入状态等场景。
+
+### 8.2 `useEffectEvent`：把 Effect 里的“事件”拆出来
+
+`useEffectEvent` 解决的是一个非常典型的闭包/依赖困境：Effect 订阅的是 `roomId`，但回调里又想读取最新的 `theme`。如果把 `theme` 放进依赖数组，切换主题会导致聊天室重连；如果不放，又会遇到 stale closure。
+
+```tsx
+import { useEffect, useEffectEvent } from "react";
+
+function ChatRoom({ roomId, theme }: { roomId: string; theme: string }) {
+  const onConnected = useEffectEvent(() => {
+    showNotification("Connected!", theme); // 永远读到最新 theme
+  });
+
+  useEffect(() => {
+    const connection = createConnection(roomId);
+    connection.on("connected", () => {
+      onConnected();
+    });
+    connection.connect();
+    return () => connection.disconnect();
+  }, [roomId]); // ✅ Effect 只对真正的订阅条件响应
+}
+```
+
+**判断标准**：只有那些“由 Effect 内部触发、但自身不应该决定 Effect 是否重跑”的逻辑，才适合放进 `useEffectEvent`。不要为了绕过依赖检查而滥用它；它不是 `eslint-disable` 的替代品。
+
+### 8.3 `cacheSignal`：让 RSC 缓存生命周期能中断异步任务
+
+`cacheSignal` 只用于 React Server Components 场景。它返回一个和 `cache()` 生命周期绑定的 `AbortSignal`，当 React 已经不再需要某个缓存结果时，可以中断仍在进行中的异步工作。
+
+```tsx
+import { cache, cacheSignal } from "react";
+
+const dedupedFetch = cache(fetch);
+
+export default async function Page() {
+  const res = await dedupedFetch("https://api.example.com/posts", {
+    signal: cacheSignal(),
+  });
+  const posts = await res.json();
+  return <PostList posts={posts} />;
+}
+```
+
+它适合用来取消服务端渲染中已经失效的请求，避免渲染被中止、失败或缓存生命周期结束后，后台请求还继续占用资源。
+
+### 8.4 Performance Tracks：把 React 调度过程放进 Chrome Performance 面板
+
+React 19.2 在 Chrome DevTools Performance 中增加了 React 自定义 tracks，主要包括：
+
+- **Scheduler track**：展示 blocking、transition 等不同优先级的工作，以及更新何时被阻塞、何时等待 paint、何时继续。
+- **Components track**：展示组件 render、mount、effect 执行等阶段，帮助定位是哪棵组件子树耗时。
+
+这对理解 Concurrent Rendering 很有帮助：以前我们只能说“React 会按优先级调度”，现在可以在性能面板里看到“哪次交互触发了哪个优先级的更新、它被谁阻塞、最后在哪个时间片完成”。
+
+### 8.5 Partial Pre-rendering：先发静态壳，再恢复动态内容
+
+React 19.2 新增的 Partial Pre-rendering 允许先把页面的静态部分预渲染出来并放到 CDN，后续请求到来时再使用 `resume` 系列 API 恢复渲染动态部分。
+
+核心链路可以理解为：
+
+1. 构建或预渲染阶段：`prerender(<App />)` 生成静态 `prelude` 和可恢复的 `postponed` 状态。
+2. 请求阶段：读取 `postponed`，调用 `resume(<App />, postponed)` 继续产出 SSR stream。
+3. 对用户：先快速看到静态壳，再逐步补齐动态区域。
+
+### 8.6 SSR 细节变化：Suspense 批量 reveal 与 Node Web Streams
+
+React 19.2 调整了服务端流式渲染中 Suspense boundary 的 reveal 行为：不会每个 boundary 一完成就立刻替换 fallback，而是短暂批量合并，让服务端流式 SSR 与客户端渲染的视觉行为更一致，也为后续 View Transition 场景打基础。
+
+同时，`renderToReadableStream`、`prerender`、`resume`、`resumeAndPrerender` 等 Web Streams API 开始支持 Node.js。不过在 Node 环境里，官方仍然更推荐 Node Streams 版本，例如 `renderToPipeableStream`、`resumeToPipeableStream`、`prerenderToNodeStream`，因为 Node Streams 通常更快，并且更容易接入压缩能力。
 
 ---
 
 ## 🔗 参考资料
 
 - [React 19 官方发布博客 (2024-12-05)](https://react.dev/blog/2024/12/05/react-19)
+- [React 19.2 官方发布博客 (2025-10-01)](https://react.dev/blog/2025/10/01/react-19-2)
 - [React 19 RC 发布说明 (2024-04-25)](https://react.dev/blog/2024/04/25/react-19-upgrade-guide)
 - [use() RFC](https://github.com/reactjs/rfcs/pull/229)
 - [Server Actions 文档](https://nextjs.org/docs/app/building-your-application/data-fetching/server-actions-and-mutations)
@@ -538,7 +636,7 @@ React 19.2 继续巩固服务端渲染与性能追踪能力：
 
 React 18 最重要的改变：渲染可以**被中断**。
 
-```tsxxx
+```tsx
 // createRoot 替代 render（开启并发特性）
 import { createRoot } from "react-dom/client";
 const root = createRoot(document.getElementById("root"));
@@ -552,7 +650,7 @@ root.render(<App />);
 
 React 17 只在事件处理器中批处理，React 18 **所有场景**都自动批处理：
 
-```tsxxx
+```tsx
 // React 18：setTimeout 里也会批处理（只触发一次渲染）
 setTimeout(() => {
   setCount((c) => c + 1); // 不会立即渲染
@@ -563,7 +661,7 @@ setTimeout(() => {
 
 如果需要立即渲染，用 `flushSync`：
 
-```tsxxx
+```tsx
 import { flushSync } from "react-dom";
 flushSync(() => setCount((c) => c + 1)); // 立即渲染
 ```
@@ -572,7 +670,7 @@ flushSync(() => setCount((c) => c + 1)); // 立即渲染
 
 标记**非紧急**更新，让紧急更新（输入、点击）优先：
 
-```tsxxx
+```tsx
 import { useTransition } from "react";
 
 function SearchPage() {
@@ -600,7 +698,7 @@ function SearchPage() {
 
 延迟更新某个值，类似 transition 但更简单：
 
-```tsxxx
+```tsx
 function SearchResults({ query }) {
   const deferredQuery = useDeferredValue(query);
   return <HeavyList query={deferredQuery} />;
@@ -611,7 +709,7 @@ function SearchResults({ query }) {
 
 支持**服务端渲染流式传输** + **数据获取**：
 
-```tsxxx
+```tsx
 <Suspense fallback={<Skeleton />}>
   <Comments />
 </Suspense>
@@ -621,7 +719,7 @@ function SearchResults({ query }) {
 
 生成 SSR 安全的唯一 ID：
 
-```tsxxx
+```tsx
 function EmailField() {
   const id = useId();
   return (
@@ -649,7 +747,7 @@ function EmailField() {
 
 **告别手动 useMemo/useCallback/React.memo！**
 
-```tsxxx
+```tsx
 // React 19：直接写，编译器自动优化
 function TodoList({ todos, filter }) {
   const filtered = todos.filter((t) => t.status === filter);
@@ -659,7 +757,7 @@ function TodoList({ todos, filter }) {
 
 ### 2. Actions（表单简化）
 
-```tsxxx
+```tsx
 function ChangeName() {
   const [error, submitAction, isPending] = useActionState(
     async (prev, formData) => {
@@ -685,7 +783,7 @@ function ChangeName() {
 
 在组件中直接读取 Promise 和 Context：
 
-```tsxxx
+```tsx
 function Comments({ commentsPromise }) {
   const comments = use(commentsPromise);
   return comments.map((c) => <Comment key={c.id} comment={c} />);
@@ -696,7 +794,7 @@ function Comments({ commentsPromise }) {
 
 组件在服务端执行，不发送 JS 到客户端：
 
-```tsxxx
+```tsx
 // server component（默认）
 async function BlogPost({ id }) {
   const post = await db.posts.find(id);
@@ -764,7 +862,7 @@ React Server Components (RSC) 是一种在**构建时和服务器端**运行的�
 
 - **运行环境：** 仅在服务端。
 - **能做什么：**
-  - 直接读取后端数据源（数据库、文件系统、内部微服务）。
+  - 直接读取服务端数据源（数据库、文件系统或后端服务）。
   - 处理重型依赖或大体积的 NPM 包（如 markdown 渲染、语法高亮），而不会增加客户端 bundle size。
   - 保护敏感数据（如 API keys、访问令牌）。
 - **不能做什么：**
@@ -790,7 +888,7 @@ RSC 最强大的特性在于它可以与 Client Components 无缝交织。但这
 
 **正确的组合方式：通过 `children` 或 `props` 传递。**
 
-```tsxx
+```tsx
 // ❌ 错误示范：在 Client Component 中直接导入 Server Component
 "use client";
 import ServerComponent from "./ServerComponent";
@@ -805,7 +903,7 @@ export default function ClientComponent() {
 }
 ```
 
-```tsxx
+```tsx
 // ✅ 正确示范：通过 children 将 Server Component 传递给 Client Component
 // app/page.tsx (这是一个 Server Component)
 import ClientComponent from "./ClientComponent";
@@ -842,7 +940,7 @@ export default function ClientComponent({
 
 RSC 彻底改变了数据获取的方式。在 App Router 中，推荐的数据获取方式是：**在 Server Component 中直接使用 `async/await`。**
 
-```tsxx
+```tsx
 // app/users/page.tsx (Server Component)
 // 组件可以直接是 async 的！
 export default async function UsersPage() {
@@ -900,7 +998,7 @@ React 19 延续 React 18 的并发渲染基础，但把“异步数据、表单�
 
 用于把“提交动作 + pending 状态 + 返回结果”组合在一起，特别适合表单和服务端动作。
 
-```tsxx
+```tsx
 import { useActionState } from "react";
 
 async function updateName(prevState: { error?: string }, formData: FormData) {
@@ -933,7 +1031,7 @@ export function ProfileForm() {
 
 用于在服务端确认前先展示乐观 UI。
 
-```tsxx
+```tsx
 import { useOptimistic } from "react";
 
 type Comment = { id: string; text: string; pending?: boolean };
@@ -972,7 +1070,7 @@ export function CommentList({ comments }: { comments: Comment[] }) {
 
 `use` 可以在组件中读取 Promise 或 Context。读取 Promise 时会与 Suspense 协作：pending 触发 fallback，reject 交给 Error Boundary。
 
-```tsxx
+```tsx
 import { Suspense, use } from "react";
 
 function UserName({ userPromise }: { userPromise: Promise<{ name: string }> }) {
@@ -995,7 +1093,7 @@ export function UserCard(props: { userPromise: Promise<{ name: string }> }) {
 
 React 19 支持更显式地表达资源优先级，例如 `preload`、`preinit`、`preconnect`。它们的价值是让组件在渲染过程中声明自己需要的关键资源，由 React 协调插入资源提示，减少瀑布加载。
 
-```tsxx
+```tsx
 import { preconnect, preload } from "react-dom";
 
 export function ProductHero() {
@@ -1037,7 +1135,7 @@ Concurrent Rendering 的重点不是“同时执行多个线程”，而是 Reac
 - **非紧急更新**：筛选大列表、切换复杂图表，可以放进 transition。
 - **提交阶段不可中断**：DOM 修改仍是一次性提交，避免用户看到中间态。
 
-```tsxx
+```tsx
 import { useMemo, useState, useTransition } from "react";
 
 type Item = { id: string; title: string };
@@ -1088,7 +1186,7 @@ Suspense 是“等待某段 UI 准备好”的边界，不是数据请求库本�
 Server Components（RSC）的核心是让一部分组件只在服务端执行，产物不是 HTML 字符串，而是可被客户端 React 合并的组件载荷。它主要解决：
 
 1. **减少客户端 JS**：纯展示、数据读取、Markdown 渲染等逻辑无需打包到浏览器。
-2. **靠近数据源**：服务端组件可以直接访问数据库、文件系统或内网服务。
+2. **靠近数据源**：服务端组件可以直接访问数据库、文件系统或后端服务。
 3. **保留组件模型**：服务端组件可以组合客户端组件，但客户端组件不能直接导入服务端组件。
 
 ## 四、Server / Client 边界
@@ -1102,7 +1200,7 @@ Server Components（RSC）的核心是让一部分组件只在服务端执行，
 
 边界设计原则：默认 Server，必要时 Client。把交互叶子节点标记为 Client，而不是把整个页面都变成 Client。
 
-```tsxx
+```tsx
 // app/products/page.tsx - Server Component
 import { AddToCartButton } from "./AddToCartButton";
 
@@ -1122,7 +1220,7 @@ export default async function ProductPage() {
 }
 ```
 
-```tsxx
+```tsx
 // app/products/AddToCartButton.tsx - Client Component
 "use client";
 
