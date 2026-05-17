@@ -1,4 +1,4 @@
-# 02-JavaScript · JavaScript
+# 91-AI前端 · AI 前端
 
 > 中文主索引已迁移到 [索引.md](./索引.md)。
 

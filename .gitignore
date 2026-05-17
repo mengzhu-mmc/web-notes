@@ -1,6 +1,7 @@
 .obsidian/workspace.json
 .obsidian/workspace-mobile.json
 .obsidian/graph.json
+.obsidian/plugins/*/data.json
 .trash/
 
 # 忽略本地简历 PDF 避免隐私泄露和仓库膨胀

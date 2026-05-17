@@ -1,4 +1,4 @@
-# 02-JavaScript · JavaScript
+# 99-其他 · 其他
 
 > 中文主索引已迁移到 [索引.md](./索引.md)。
 
