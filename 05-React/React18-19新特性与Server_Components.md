@@ -1243,3 +1243,21 @@ export function AddToCartButton({ productId }: { productId: string }) {
 - **RSC 和 SSR 区别？** SSR 生成首屏 HTML，客户端仍需 hydrate 对应组件；RSC 让部分组件只在服务端执行，并把组件树载荷流给客户端合并，可减少客户端 JS。
 - **什么时候用 Client Component？** 需要浏览器事件、状态、副作用、DOM API、第三方客户端库时使用。
 - **为什么 Server Component 不能传函数给 Client Component？** 跨越网络/序列化边界，函数闭包无法安全序列化；应传可序列化数据或使用 Server Actions。
+
+## 九、React 19.2 后的学习补充：Compiler 与 Effect 语义
+
+> Updated: 2026-05-19 based on official React Compiler docs: https://react.dev/learn/react-compiler
+
+React 19.2 之后，现代 React 的学习重点还需要补上一条线：**编译器如何帮助开发者减少手写 memoization**。
+
+过去我们常用 `useMemo`、`useCallback`、`React.memo` 手动控制渲染性能，但这些 API 很容易被滥用：依赖数组写错会产生 bug，过度 memo 又会增加阅读成本。React Compiler 的方向是：在代码满足 React 纯度规则的前提下，由编译器自动推导安全的 memoization。
+
+这意味着未来写 React 组件时更应该关注：
+
+1. render 阶段保持纯净，不读写不可追踪的外部可变状态。
+2. 派生数据尽量写成直接、可分析的表达式。
+3. Effect 只用于同步外部系统，不把业务计算塞进 Effect。
+4. `useEffectEvent` 用于 Effect 内部事件，而不是规避依赖数组。
+5. 手写 memo 仍然可以保留，但应逐步从“默认写”变成“有明确证据再写”。
+
+更完整的整理见：[React Compiler 自动记忆化心智模型](./React_Compiler自动记忆化.md)。
