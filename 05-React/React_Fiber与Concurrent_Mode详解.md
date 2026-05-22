@@ -796,3 +796,77 @@ const [money, setMoney] = useState(100); // 正常是第三顺位
 假设某次渲染时 `isAdult` 变成了 `false`，第二个 `useState` 被跳过了。那么当 React 读到第三个 `useState(100)` 时，它会去读链表上的**第二顺位**（本来存的是 'BMW'），直接导致状态错乱，整个组件彻底崩溃。
 
 > **总结**：Hooks 的极简使用体验，建立在“执行顺序绝对稳定”这一个极其脆弱的隐式契约之上。这也是为什么 React 团队开发了专门的 ESLint 插件来强制规范你的写法。
+
+## 现代 Concurrent API 心智模型（2026-05-22）
+
+> Updated: 2026-05-22 based on official React 19.2 release notes: https://react.dev/blog/2025/10/01/react-19-2.
+
+Concurrent Mode 不应该再理解成一个需要整体打开的“模式开关”，而是一组可组合 API：React 根据更新优先级、Suspense 边界和用户输入，把工作切片、暂停、恢复或丢弃。
+
+### API 对照
+
+| API / 能力                               | 解决的问题                                        | 典型使用                                    |
+| ---------------------------------------- | ------------------------------------------------- | ------------------------------------------- |
+| `startTransition` / `useTransition`      | 把非紧急更新标记为 transition，避免阻塞输入       | 搜索过滤、路由切换、重型列表更新            |
+| `useDeferredValue(value, initialValue?)` | 让派生 UI 滞后于高优先级输入；React 19 支持初始值 | 输入框实时响应，结果区延迟刷新              |
+| `<Suspense>`                             | 为异步数据或 lazy 组件提供可中断边界              | RSC、路由分块、懒加载                       |
+| `<Activity />`                           | 隐藏但保留 UI 状态，并降低隐藏更新优先级          | Tab、返回恢复、下一页预渲染                 |
+| Performance Tracks                       | 观察 React 调度和组件渲染轨迹                     | 定位 transition 是否被阻塞、effect 是否过重 |
+
+### TypeScript 示例：输入优先，列表延后
+
+```tsx
+import {
+  ChangeEvent,
+  useDeferredValue,
+  useMemo,
+  useState,
+  useTransition,
+} from "react";
+
+interface Product {
+  id: string;
+  name: string;
+  tags: string[];
+}
+
+interface ProductSearchProps {
+  products: Product[];
+}
+
+export function ProductSearch({ products }: ProductSearchProps) {
+  const [query, setQuery] = useState("");
+  const [isPending, startTransition] = useTransition();
+  const deferredQuery = useDeferredValue(query, "");
+
+  const visibleProducts = useMemo(() => {
+    const normalizedQuery = deferredQuery.trim().toLowerCase();
+    if (!normalizedQuery) return products;
+    return products.filter((product) =>
+      product.name.toLowerCase().includes(normalizedQuery),
+    );
+  }, [deferredQuery, products]);
+
+  function handleChange(event: ChangeEvent<HTMLInputElement>) {
+    const nextQuery = event.target.value;
+    startTransition(() => {
+      setQuery(nextQuery);
+    });
+  }
+
+  return (
+    <section aria-busy={isPending}>
+      <input value={query} onChange={handleChange} />
+      <ProductList products={visibleProducts} />
+    </section>
+  );
+}
+```
+
+### 判断口诀
+
+1. 用户正在输入、点击、拖拽时，交互反馈优先。
+2. 列表过滤、图表重算、路由内容切换可以进入 transition。
+3. 数据/代码未就绪时用 Suspense 边界兜底，而不是把 loading 状态散落在多层组件里。
+4. 只是暂时不可见但马上可能回来，用 `<Activity />`；真正不再需要才卸载。
+5. 性能问题先用 Performance Tracks 验证优先级和耗时，再决定是否手写 memo 或拆分边界。

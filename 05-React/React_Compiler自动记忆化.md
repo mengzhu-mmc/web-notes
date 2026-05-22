@@ -164,3 +164,46 @@ React 19.2 同步强化了 `eslint-plugin-react-hooks` 和 Compiler 相关规则
 如果被问“React Compiler 是什么”，可以回答：
 
 > React Compiler 是 React 的编译阶段优化器，核心目标是自动推导安全的 memoization，减少手写 useMemo、useCallback 和 React.memo 的需求。它依赖组件和 Hook 遵守纯函数规则，因此不是无脑提速工具。实际落地时，我会先通过 eslint-plugin-react-hooks 暴露不符合规则的代码，再在低风险模块增量开启，逐步减少冗余手写 memo。
+
+## 与 TypeScript、手写 memo 的协作边界（2026-05-22）
+
+> Updated: 2026-05-22 based on official React Compiler docs: https://react.dev/learn/react-compiler.
+
+React Compiler 更偏好“类型清晰、数据不可变、render 纯净”的代码。TypeScript 本身不会让组件更快，但它能把编译器难以证明的模式提前暴露出来。
+
+### 推荐写法
+
+```tsx
+interface PriceTagProps {
+  price: number;
+  currency: "CNY" | "USD";
+  formatter?: Intl.NumberFormat;
+}
+
+export function PriceTag({ price, currency, formatter }: PriceTagProps) {
+  const label = formatter
+    ? formatter.format(price)
+    : new Intl.NumberFormat("zh-CN", {
+        style: "currency",
+        currency,
+      }).format(price);
+
+  return <span>{label}</span>;
+}
+```
+
+这类组件的输入、输出和派生值都在 render 内可追踪，适合交给 Compiler 自动优化。
+
+### 仍然需要人工判断的情况
+
+- 跨组件的昂贵缓存，例如大型虚拟列表索引、图表布局、富文本解析。
+- 依赖第三方库且库内部有可变状态，Compiler 可能无法安全证明。
+- 需要稳定引用作为外部协议，例如传给非 React 系统的订阅/取消订阅 API。
+- 已经通过 profiling 证明某个 `memo` 边界有收益，并且 Compiler 尚未覆盖该路径。
+
+### 迁移建议
+
+1. 先打开 `eslint-plugin-react-hooks@latest` 的推荐规则，修复 purity、refs、immutability 等问题。
+2. 对新代码默认不急着手写 `useMemo/useCallback`；先保持组件纯净和类型明确。
+3. 对历史性能代码保留已有 memo，等 Compiler + profiling 证明无收益后再删除。
+4. 用 `'use memo'` / `'use no memo'` 这类指令做局部控制，而不是一次性全仓库切换。

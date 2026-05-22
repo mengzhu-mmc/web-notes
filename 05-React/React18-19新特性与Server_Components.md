@@ -1261,3 +1261,93 @@ React 19.2 之后，现代 React 的学习重点还需要补上一条线：**编
 5. 手写 memo 仍然可以保留，但应逐步从“默认写”变成“有明确证据再写”。
 
 更完整的整理见：[React Compiler 自动记忆化心智模型](./React_Compiler自动记忆化.md)。
+
+## React 19/19.2 API Delta Checklist（2026-05-22）
+
+> Updated: 2026-05-22 based on official React docs: https://react.dev/blog/2024/12/05/react-19, https://react.dev/blog/2025/10/01/react-19-2, https://react.dev/reference/rsc/server-components.
+
+### 1. React 19：从“手写异步状态”到 Actions
+
+React 19 的主线是把数据提交过程纳入 React 调度模型：
+
+- `useActionState`：让 Action 的返回值、pending 状态和表单提交绑定在一起。
+- `<form action={fn}>` / `formAction`：DOM 表单可以直接接收函数，成功后自动 reset 非受控表单。
+- `useFormStatus`：设计系统按钮能读取父级 form 的 pending 状态，不再层层传 props。
+- `useOptimistic`：请求进行中先展示乐观 UI；失败后 React 能回退到真实状态。
+- `use(resource)`：render 阶段读取 Promise 或 Context；读取 Promise 时必须来自 Suspense 兼容缓存，避免在 Client Component render 内新建 Promise。
+
+```tsx
+import { useActionState, useOptimistic } from "react";
+import { useFormStatus } from "react-dom";
+
+interface Todo {
+  id: string;
+  text: string;
+}
+
+interface ActionResult {
+  error?: string;
+}
+
+async function addTodoAction(
+  previousState: ActionResult,
+  formData: FormData,
+): Promise<ActionResult> {
+  const text = String(formData.get("text") ?? "").trim();
+  if (!text) return { error: "请输入内容" };
+  await createTodo(text);
+  return {};
+}
+
+function SubmitButton() {
+  const { pending } = useFormStatus();
+  return <button disabled={pending}>{pending ? "Saving..." : "Add"}</button>;
+}
+
+export function TodoForm({ todos }: { todos: Todo[] }) {
+  const [optimisticTodos, addOptimisticTodo] = useOptimistic(
+    todos,
+    (current: Todo[], text: string): Todo[] => [
+      ...current,
+      { id: `optimistic-${Date.now()}`, text },
+    ],
+  );
+  const [state, formAction] = useActionState(addTodoAction, {});
+
+  return (
+    <form
+      action={(formData) => {
+        addOptimisticTodo(String(formData.get("text") ?? ""));
+        formAction(formData);
+      }}
+    >
+      <input name="text" />
+      <SubmitButton />
+      {state.error ? <p role="alert">{state.error}</p> : null}
+      <ul>
+        {optimisticTodos.map((todo) => (
+          <li key={todo.id}>{todo.text}</li>
+        ))}
+      </ul>
+    </form>
+  );
+}
+```
+
+### 2. React 19.2：后台 UI、Effect Event 与 SSR Resume
+
+React 19.2 继续把并发能力产品化：
+
+- `<Activity mode="hidden" />`：隐藏子树但保留状态，隐藏时清理 Effects，并把隐藏更新降级处理。
+- `useEffectEvent`：把 Effect 内部的“事件逻辑”从同步逻辑中拆出，事件逻辑读取最新 props/state，但不触发 Effect 重跑。
+- `cacheSignal`：RSC 场景下感知 `cache()` 生命周期结束，便于中断 fetch 或清理异步任务。
+- Performance Tracks：Chrome Performance 面板中查看 Scheduler 与 Components 轨道，定位 transition、blocking update、effect mount 等耗时。
+- Partial Pre-rendering：`prerender` 返回 `prelude` 和 `postponed`，请求阶段再用 `resume` / `resumeToPipeableStream` 恢复动态内容。
+
+### 3. RSC 常见误区修正
+
+- Server Component **没有** `'use server'` 指令；默认由框架/RSC bundler 决定服务端边界。
+- `'use client'` 标记 Client Component 边界；边界以下代码会进入客户端 bundle。
+- `'use server'` 用于 Server Functions / Server Actions，让客户端拿到可调用引用。
+- Server Component 可以是 `async function`；Client Component 不支持 async component，但可以用 `use(promise)` 读取从服务端传下来的 Promise。
+- RSC 稳定面向使用者；实现 RSC bundler/framework 的底层 API 在 React 19.x 仍建议 pin 具体版本。
