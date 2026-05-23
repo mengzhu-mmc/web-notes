@@ -1,119 +1,144 @@
-# React Hooks 深入实战指南
+# React Hooks 深入实战与底层机制指南
 
-> 收录日期：2026-03-07 | 来源：掘金精选 + 官方文档
+> 收录日期：2026-05-24 | 来源：核心主干整合（包含基础用法、闭包陷阱解析与自定义 Hooks 实战）
 
----
+## 一、理解 React 的心智模型：状态快照与闭包
 
-## 一、常见 Hooks 使用陷阱
+在 React 里，组件的每一次重新渲染，就像是拍了一张**拍立得照片（状态快照）**。每一次渲染都有它自己独立的 `props` 和 `state`。
 
-### 1. useState 的闭包陷阱
+### 1. 什么是闭包陷阱？
+React 函数组件的每一次重新渲染，本质上就是把组件函数重新执行了一遍。
+如果在某次渲染中定义了一个异步操作（如 `setTimeout`）或缓存了一个函数（如依赖为空的 `useCallback`），这个函数就会把**当前这一帧**的快照死死抱住（闭包）。当异步操作执行时，它读取的依然是那张“旧照片”里的数据，这就是所谓的“闭包陷阱”。
 
-```tsxxx
+### 2. useState 闭包陷阱经典案例
+
+```tsx
 function Counter() {
   const [count, setCount] = useState(0);
 
   const handleClick = () => {
-    // ❌ 连续调用 3 次，count 还是只 +1
+    // ❌ 连续调用 3 次，闭包捕获的 count 都是 0
+    // 相当于：setCount(0 + 1); setCount(0 + 1); setCount(0 + 1);
     setCount(count + 1);
     setCount(count + 1);
     setCount(count + 1);
+    // 最终 count 只会变成 1，而不是 3
 
-    // ✅ 使用函数式更新
-    setCount((c) => c + 1);
-    setCount((c) => c + 1);
-    setCount((c) => c + 1); // count 最终 +3
+    // ✅ 正确解法：使用函数式更新
+    // 函数式更新不依赖闭包中的旧值，而是由 React 传入最新状态
+    setCount((prev) => prev + 1);
+    setCount((prev) => prev + 1);
+    setCount((prev) => prev + 1); 
+    // count 最终 +3，且 React 会进行批处理，只触发 1 次渲染
   };
 }
 ```
 
-### 2. useEffect 依赖陷阱
+### 3. useEffect 依赖陷阱
 
-```tsxxx
-// ❌ 缺少依赖，拿到的永远是初始值
-useEffect(() => {
-  const timer = setInterval(() => {
-    console.log(count); // 永远是 0
-  }, 1000);
-  return () => clearInterval(timer);
-}, []);
+```tsx
+function Timer() {
+  const [count, setCount] = useState(0);
 
-// ✅ 用 ref 保存最新值
-const countRef = useRef(count);
-countRef.current = count;
-useEffect(() => {
-  const timer = setInterval(() => {
-    console.log(countRef.current); // 始终最新
-  }, 1000);
-  return () => clearInterval(timer);
-}, []);
+  // ❌ 缺少依赖，闭包永远拿到初始值 0
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCount(count + 1); // count 永远是 0
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []); // 空依赖导致 effect 永远不会重新执行并捕获新闭包
+
+  // ✅ 解法一：函数式更新（推荐）
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCount((c) => c + 1); // 总是基于内部维护的最新值
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // ✅ 解法二：用 ref 保存最新值（适用于需要读取值做判断的场景）
+  const countRef = useRef(count);
+  countRef.current = count; // 每次渲染都更新 ref
+  useEffect(() => {
+    const timer = setInterval(() => {
+      console.log(countRef.current); // 始终能拿到最新值
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+}
 ```
 
-### 3. useCallback 的正确使用时机
+### 4. useMemo / useCallback 的陷阱
+传空数组 `[]` 作为依赖时，仅在**首次渲染时执行一次**，之后永远复用缓存。
+如果内部依赖了 state 却没写进依赖数组，就会形成闭包陷阱，永远只能拿到初始的 state。
 
-```tsxxx
-// ❌ 不需要 useCallback 的场景（没传给 memo 子组件）
+```tsx
+// ❌ 错误示范：闭包陷阱
 const handleClick = useCallback(() => {
-  console.log("clicked");
-}, []);
-
-// ✅ 需要 useCallback：传给 memo 子组件
-const MemoChild = React.memo(({ onClick }) => (
-  <button onClick={onClick}>Click</button>
-));
-
-function Parent() {
-  const handleClick = useCallback(() => doSomething(), []);
-  return <MemoChild onClick={handleClick} />;
-}
+  console.log("count:", count); // 永远打印 0
+}, []); 
+// 💡 原则：内部依赖什么 state/props，就必须把它加入依赖数组。
 ```
 
 ---
 
-## 二、自定义 Hooks 实战
+## 二、自定义 Hooks 实战解析
 
-### useLocalStorage
+自定义 Hook 的本质就是**逻辑复用**。命名必须以 `use` 开头。
 
-```tsxxx
-function useLocalStorage(key, initialValue) {
-  const [value, setValue] = useState(() => {
+### 1. 状态持久化：useLocalStorage
+```tsx
+import { useState, useEffect } from 'react';
+
+function useLocalStorage<T>(key: string, initialValue: T) {
+  const [value, setValue] = useState<T>(() => {
     try {
-      const item = localStorage.getItem(key);
+      const item = window.localStorage.getItem(key);
       return item ? JSON.parse(item) : initialValue;
     } catch {
       return initialValue;
     }
   });
+
   useEffect(() => {
-    localStorage.setItem(key, JSON.stringify(value));
+    window.localStorage.setItem(key, JSON.stringify(value));
   }, [key, value]);
-  return [value, setValue];
+
+  return [value, setValue] as const;
 }
 ```
 
-### useDebounce
+### 2. 防抖控制：useDebounce
+```tsx
+import { useState, useEffect } from 'react';
 
-```tsxxx
-function useDebounce(value, delay = 300) {
+function useDebounce<T>(value: T, delay = 300): T {
   const [debouncedValue, setDebouncedValue] = useState(value);
+  
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedValue(value), delay);
+    // 关键点：每次 value 或 delay 变化时，清理上一个 timer
     return () => clearTimeout(timer);
   }, [value, delay]);
+  
   return debouncedValue;
 }
 ```
 
-### useFetch
+### 3. 数据请求：useFetch (带竞态处理)
+```tsx
+import { useState, useEffect } from 'react';
 
-```tsxxx
-function useFetch(url) {
-  const [data, setData] = useState(null);
+function useFetch<T>(url: string) {
+  const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
+    // 使用 AbortController 处理竞态问题和组件卸载
     const controller = new AbortController();
     setLoading(true);
+    
     fetch(url, { signal: controller.signal })
       .then((res) => res.json())
       .then(setData)
@@ -121,6 +146,7 @@ function useFetch(url) {
         if (err.name !== "AbortError") setError(err);
       })
       .finally(() => setLoading(false));
+      
     return () => controller.abort();
   }, [url]);
 
@@ -128,11 +154,13 @@ function useFetch(url) {
 }
 ```
 
-### usePrevious
+### 4. 获取上一帧状态：usePrevious
+利用 `useEffect` 在浏览器绘制完成后执行的特性。
+```tsx
+import { useRef, useEffect } from 'react';
 
-```tsxxx
-function usePrevious(value) {
-  const ref = useRef();
+function usePrevious<T>(value: T): T | undefined {
+  const ref = useRef<T>();
   useEffect(() => {
     ref.current = value;
   });
@@ -140,320 +168,40 @@ function usePrevious(value) {
 }
 ```
 
-### useClickOutside
-
-```tsxxx
-function useClickOutside(ref, handler) {
-  useEffect(() => {
-    const listener = (e) => {
-      if (!ref.current || ref.current.contains(e.target)) return;
-      handler(e);
-    };
-    document.addEventListener("mousedown", listener);
-    return () => document.removeEventListener("mousedown", listener);
-  }, [ref, handler]);
-}
-```
-
-### useIntersectionObserver
-
-```tsxxx
-function useIntersectionObserver(ref, options = {}) {
-  const [isVisible, setIsVisible] = useState(false);
-  useEffect(() => {
-    const observer = new IntersectionObserver(([entry]) => {
-      setIsVisible(entry.isIntersecting);
-    }, options);
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, [ref, options]);
-  return isVisible;
-}
-```
-
 ---
 
-## 三、Hooks 设计原则
+## 三、面试高频问题总结
 
-- **逻辑复用**：多个组件需要相同的状态逻辑 → 抽 Hook
-- **关注点分离**：复杂组件拆成多个 Hook
-- **命名规范**：必须以 `use` 开头，名字体现功能
-- **组合优于嵌套**：多个小 Hook 组合成大 Hook
+### 1. 连续三次 setState 怎么处理？
+**问题**：连续调用三次 `setCount(count + 1)` 如何让每次都生效？
+**回答**：
+1. **最优解**：使用函数式更新 `setCount(prev => prev + 1)`。React 会将三次更新放入队列，传入最新状态计算，三次都生效，且由于批处理（Batching）机制，只触发 1 次渲染。
+2. **强制同步（不推荐）**：使用 `flushSync` 包裹，会强制打破批处理，触发 3 次渲染。
+3. **宏任务（历史遗留）**：在 React 17 及以前，放在 `setTimeout` 中可以绕开批处理；但在 React 18 中，所有事件（包括 setTimeout）默认都会被批处理。
 
----
+### 2. useCallback 的正确使用时机是什么？
+**误区**：到处都在写 `useCallback` 以“提升性能”。
+**正解**：`useCallback` 的唯一作用是**保持函数引用的稳定**。
+它只有在以下两种情况才有意义：
+1. 将函数作为 props 传给被 `React.memo` 包裹的子组件（防止子组件因为父组件渲染导致函数引用变化而无意义重渲染）。
+2. 该函数被作为其他 Hook（如 `useEffect`）的依赖项。
+如果不符合这两种情况，包裹 `useCallback` 反而会因为额外的闭包创建和依赖对比带来性能损耗。
 
-## 四、面试手写题
-
-### useUpdate（强制更新）
-
-```tsxxx
-function useUpdate() {
-  const [, setState] = useState({});
-  return useCallback(() => setState({}), []);
-}
-```
-
-### useMount / useUnmount
-
-```tsxxx
-function useMount(fn) {
+### 3. useMount 与 useUnmount 的手写实现
+```tsx
+function useMount(fn: () => void) {
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     fn();
-  }, []);
+  }, []); // 仅挂载时执行
 }
-function useUnmount(fn) {
+
+function useUnmount(fn: () => void) {
+  // 必须用 ref 保存最新 fn，防止闭包陷阱导致卸载时执行的是旧函数
   const fnRef = useRef(fn);
   fnRef.current = fn;
+  
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => () => fnRef.current(), []);
 }
 ```
-
-# React 闭包陷阱详解
-
-## 什么是闭包陷阱
-
-在 React 函数组件中，由于每次渲染都会创建新的函数作用域，闭包会捕获创建时的变量值（快照），而非变量的实时引用。当在异步操作或旧函数引用中使用状态值时，就会出现"闭包陷阱"——使用的是过时的状态快照。
-
-## 问题演示
-
-### setState(value) 的问题
-
-```tsxx
-function Counter() {
-  const [count, setCount] = useState(0);
-
-  const handleClick = () => {
-    // 连续调用3次，count 在闭包中被"冻结"为 0
-    setCount(count + 1); // setCount(0 + 1)
-    setCount(count + 1); // setCount(0 + 1)
-    setCount(count + 1); // setCount(0 + 1)
-    // 最终 count 只会变成 1，而不是 3
-  };
-
-  return <button onClick={handleClick}>{count}</button>;
-}
-```
-
-### setState(fn) 的正确写法
-
-```tsxx
-const handleClick = () => {
-  setCount((c) => c + 1); // c = 0，返回 1
-  setCount((c) => c + 1); // c = 1，返回 2
-  setCount((c) => c + 1); // c = 2，返回 3
-  // 最终 count 会变成 3
-};
-```
-
-函数式更新不依赖闭包中的旧值，而是由 React 在执行更新队列时传入最新状态。
-
-## 渲染机制解析
-
-每次渲染，组件函数重新执行，创建新的 `handleClick` 函数，捕获当次渲染的 `count` 值。旧函数仍然持有旧的 `count` 值：
-
-```tsxx
-// === 第1次渲染 ===
-// const count = 0; handleClick_v1 捕获 count=0
-
-// === 第2次渲染（点击后） ===
-// const count = 1; handleClick_v2 捕获 count=1
-```
-
-## 典型陷阱场景
-
-### 场景一：异步操作中的陷阱
-
-```tsxx
-function Counter() {
-  const [count, setCount] = useState(0);
-
-  const handleClick = () => {
-    setTimeout(() => {
-      // 3秒后执行，闭包捕获的 count 还是点击时的值
-      setCount(count + 1); // ❌ 使用过时的快照
-    }, 3000);
-  };
-
-  return <button onClick={handleClick}>{count}</button>;
-}
-```
-
-如果在 3 秒内多次点击，每个 `setTimeout` 都捕获各自点击时的 `count` 值，导致结果不符合预期。
-
-### 场景二：useEffect 依赖陷阱
-
-```tsxx
-function Timer() {
-  const [count, setCount] = useState(0);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCount(count + 1); // ❌ count 永远是 0
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []); // 空依赖，effect 永远不会重新创建
-
-  return <div>{count}</div>;
-  // count 只会显示 1，不会继续增长
-}
-```
-
-空依赖数组导致 effect 只在挂载时创建一次，闭包捕获的 `count` 永远是初始值 0。
-
-### 正确写法
-
-```tsxx
-function Timer() {
-  const [count, setCount] = useState(0);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCount((c) => c + 1); // ✅ 总是基于最新值
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []); // 可以保持空依赖
-
-  return <div>{count}</div>;
-}
-```
-
-## React 内部处理机制
-
-```tsxx
-// React 内部维护状态队列
-class ReactState {
-  constructor() {
-    this.state = 0;
-    this.updateQueue = [];
-  }
-
-  setState(updater) {
-    if (typeof updater === "function") {
-      this.updateQueue.push(updater); // 函数式：执行时传入最新状态
-    } else {
-      this.updateQueue.push(() => updater); // 直接值：使用给定的值
-    }
-  }
-
-  flush() {
-    this.updateQueue.forEach((updater) => {
-      this.state = updater(this.state); // 关键：传入最新 state
-    });
-    this.updateQueue = [];
-  }
-}
-```
-
-直接传值时，所有更新函数都返回同一个固定值（因为闭包捕获的旧值相同），合并后只生效一次。函数式更新时，每个函数接收上一次的返回值作为输入，形成链式更新。
-
-## 形象比喻
-
-直接传值相当于"拍照片"——`setTimeout` 中看到的 `count` 是拍照时的值，即使实际的 `count` 已经变了，照片里还是旧值。函数式更新相当于"视频通话"——每次都能看到最新的 `count`。
-
-## 类组件中的函数式更新
-
-类组件的 `this.setState` 同样支持函数式更新，接收 `(prevState, props)` 两个参数：
-
-```tsxx
-// 函数式写法
-this.setState((prevState, props) => ({
-  count: prevState.count + 1,
-}));
-
-// 带回调的写法
-this.setState(
-  (state) => ({ count: state.count + 1 }),
-  () => {
-    console.log("更新完成，当前count:", this.state.count);
-  },
-);
-```
-
-类组件中对象式写法 `this.setState({ count: this.state.count + 1 })` 多次调用时，React 会通过 `Object.assign` 合并，只有最后一次生效。
-
-## render 中的异步判断陷阱
-
-```tsxx
-render() {
-  return isZhenguoLogin() ? this.renderList() : this.renderLoginView();
-}
-```
-
-如果 `isZhenguoLogin()` 是异步函数（返回 Promise），这段代码不会报错但逻辑是错的——Promise 对象在 JavaScript 中永远是 truthy，所以永远进入 `true` 分支。正确做法是在 `componentDidMount` 或 `useEffect` 中执行异步检查，将结果存入 state，render 中只根据 state 判断。
-
-## 使用建议
-
-| 方式              | 获取的状态     | 适用场景       |
-| ----------------- | -------------- | -------------- |
-| `setState(value)` | 闭包捕获的旧值 | 新值不依赖旧值 |
-| `setState(fn)`    | 最新的状态值   | 新值依赖旧值   |
-
-当更新依赖当前状态时，永远使用函数式更新。其他解决方案包括正确设置 `useEffect` 依赖项，以及使用 `useRef` 存储不需要触发渲染的可变值。
-
----
-
-## useMemo / useCallback 空数组依赖 = 只执行一次
-
-传空数组 `[]` 作为依赖时，仅在**首次渲染时执行一次**，之后永远复用缓存值。这本身是合法的，但如果内部依赖了 state，会形成闭包陷阱：
-
-```tsxx
-const [count, setCount] = useState(0);
-
-// useMemo 空依赖：只计算一次，count 变化后 expensiveValue 仍为旧值
-const expensiveValue = useMemo(() => {
-  return count * 1000; // count 变化后不会重新计算！
-}, []);
-// count=1 之后，expensiveValue 仍然是 0
-
-// useCallback 空依赖：只创建一次函数，捕获初始 count（闭包陷阱）
-const handleClick = useCallback(() => {
-  console.log("count:", count); // 永远打印 0
-}, []);
-// 点击后 count=1，再调用 handleClick 仍然输出 0！
-```
-
-**正确用法**：内部依赖什么 state/props，就把它加入依赖数组；无依赖时传 `[]` 才安全。
-
----
-
-## useState 连续三次 setState 四种方案对比
-
-```tsxx
-// 问题：连续三次调用，如何让每次都生效（值不丢）？
-
-// 方案1：函数式更新（推荐）
-setCount((prev) => prev + 1);
-setCount((prev) => prev + 1);
-setCount((prev) => prev + 1);
-// ✅ 三次值全部生效，但只触发 1 次渲染（React 批处理合并）
-
-// 方案2：flushSync（React 18+，强制同步）
-import { flushSync } from "react-dom";
-flushSync(() => setCount((c) => c + 1));
-flushSync(() => setCount((c) => c + 1));
-flushSync(() => setCount((c) => c + 1));
-// ✅ 三次值全部生效，触发 3 次渲染
-
-// 方案3：setTimeout 宏任务（绕开批处理）
-setTimeout(() => setCount(count + 1), 0);
-setTimeout(() => setCount(count + 1), 0);
-setTimeout(() => setCount(count + 1), 0);
-// ⚠️ React 18 中仍会批处理，值可能丢；React 17 中可以绕开
-
-// 方案4：回调嵌套（串行执行，不推荐）
-setState({ count: count + 1 }, () => {
-  setState({ count: this.state.count + 1 }, () => {
-    setState({ count: this.state.count + 1 });
-  });
-});
-// ✅ 三次都生效，但触发 3 次渲染，且是"回调地狱"
-```
-
-| 方式       | 触发几次渲染                       | 值是否都生效 | 推荐度         |
-| ---------- | ---------------------------------- | ------------ | -------------- |
-| 函数式更新 | 1 次（批处理合并）                 | ✅ 都生效    | ⭐⭐⭐⭐⭐     |
-| flushSync  | 3 次                               | ✅ 都生效    | ⭐⭐⭐         |
-| setTimeout | 3 次（React 17）/ 1 次（React 18） | ⚠️ 视版本    | ⭐⭐           |
-| 回调嵌套   | 3 次                               | ✅ 都生效    | ⭐（回调地狱） |
-
-**面试要点**：函数式更新是最优解，值一定不丢，且渲染次数最少。
