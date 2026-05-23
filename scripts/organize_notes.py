@@ -35,6 +35,10 @@ SECTIONS = [
 ]
 
 EXCLUDE_DIRS = {'node_modules', '.git'}
+COURSE_DIR_NAME = '课程笔记'
+COURSE_KEYWORDS = ('课程笔记', '开篇词', '结束语', '导读', '加餐', '彩蛋')
+INDEX_EXCLUDED_DIRS = {'assets', COURSE_DIR_NAME}
+
 
 
 def title_from_file(path: Path) -> str:
@@ -67,6 +71,51 @@ def first_level_links(directory: Path, limit: int = 14) -> list[tuple[str, str]]
     return [(title_from_file(p), './' + p.name) for p in chosen]
 
 
+
+def is_course_note(path: Path) -> bool:
+    name = path.stem
+    return any(keyword in name for keyword in COURSE_KEYWORDS)
+
+
+def course_note_files(directory: Path) -> list[Path]:
+    course_dir = directory / COURSE_DIR_NAME
+    if not course_dir.exists() or not course_dir.is_dir():
+        return []
+    files: list[Path] = []
+    for p in course_dir.rglob('*.md'):
+        if any(part in EXCLUDE_DIRS for part in p.parts):
+            continue
+        if p.name.lower() == 'readme.md' or p.name == INDEX_NAME:
+            continue
+        files.append(p)
+    return sorted(files, key=lambda p: str(p.relative_to(directory)))
+
+
+def main_note_files(directory: Path) -> list[Path]:
+    files = []
+    for p in md_files_under(directory):
+        rel_parts = p.relative_to(directory).parts
+        if rel_parts and rel_parts[0] == COURSE_DIR_NAME:
+            continue
+        if p.parent == directory and is_course_note(p):
+            continue
+        files.append(p)
+    return files
+
+
+def first_level_main_links(directory: Path, limit: int = 14) -> list[tuple[str, str]]:
+    direct = []
+    for p in directory.glob('*.md'):
+        if p.name.lower() == 'readme.md' or p.name == INDEX_NAME:
+            continue
+        if is_course_note(p):
+            continue
+        direct.append(p)
+    direct = sorted(direct, key=lambda p: p.name)
+    chosen = direct[:limit]
+    return [(title_from_file(p), './' + p.name) for p in chosen]
+
+
 def write(path: Path, text: str) -> None:
     path.write_text(text.rstrip() + '\n', encoding='utf-8')
 
@@ -80,7 +129,7 @@ def generate_root_index() -> None:
         '## 使用约定',
         '',
         '- 每个一级目录使用 `00-🌟索引.md` 作为中文主索引；`README.md` 仅保留为 GitHub 兼容入口。',
-        '- 主干文档优先沉淀稳定知识；课程笔记、旧题库和原始资料先保留在原目录，后续逐步合并。',
+        '- 主干文档优先沉淀稳定知识；课程笔记统一收纳到各模块 `课程笔记/` 目录，旧题库和原始资料按专题保留。',
         '- 已确认重复、过时或只剩跳转价值的内容，可在合并后删除。',
         '',
         '## 模块导航',
@@ -139,7 +188,7 @@ def generate_section_indexes() -> None:
             '## 学习定位',
             '',
             f'- **模块职责**：沉淀{name}相关的核心概念、实践经验和面试复习材料。',
-            '- **整理原则**：优先维护主干文档；课程笔记、旧题库和原始资料暂存，后续合并到主干。',
+            '- **整理原则**：优先维护主干文档；课程笔记统一归档到 `课程笔记/`，旧题库和原始资料按专题保留。',
             '- **索引约定**：本文是中文主索引；`README.md` 仅作为兼容入口。',
             '',
             '## 主干文档',
@@ -262,7 +311,7 @@ def generate_todo() -> None:
         '1. **先合并再删除**：重复笔记先抽取到主干文档，确认内容已覆盖后再删除旧文档。',
         '2. **先修入口再修细节**：优先保证根索引、模块索引、重点专题入口可用。',
         '3. **一文一个主标题**：长文内部层级使用二级及以下标题，多 H1 文档逐步改造。',
-        '4. **课程笔记保留上下文**：课程型资料不直接打散，先标注来源和适合合并的章节。',
+        '4. **课程笔记单独归档**：课程型资料统一沉到各模块 `课程笔记/` 目录，不与主干知识文档混排。',
         '',
         '## 待合并主题',
         '',
