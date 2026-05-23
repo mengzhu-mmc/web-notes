@@ -6,7 +6,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "prepare": "husky install",
-    "format": "prettier --write **/*.json"
+    "format": "prettier --write \"**/*.{md,json,js,ts,tsx,yml,yaml}\"",
+    "format:md": "prettier --write \"**/*.md\"",
+    "check:format": "prettier --check \"**/*.{md,json,js,ts,tsx,yml,yaml}\"",
+    "audit:thin": "python3 scripts/audit_notes_quality.py"
   },
   "repository": {
     "type": "git",
@@ -26,9 +29,6 @@
     "prettier": "^3.8.3"
   },
   "lint-staged": {
-    "**/*": {
-      "md": "prettier --write",
-      "{js,ts,json}": "prettier --write"
-    }
+    "*.{md,json,js,ts,tsx,yml,yaml}": "prettier --write"
   }
 }

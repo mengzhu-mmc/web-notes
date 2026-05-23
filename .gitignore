@@ -10,3 +10,7 @@
 # 依赖与临时文件
 node_modules/
 .DS_Store
+.obsidian/plugins/*/data.json.bak
+.obsidian/plugins/*/cache.json
+.obsidian/plugins/*/cache/
+*.tmp

@@ -1,0 +1,6 @@
+.obsidian/plugins/
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/graph.json
+.trash/
+node_modules/
