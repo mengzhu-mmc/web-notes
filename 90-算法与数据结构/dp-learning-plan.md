@@ -27,12 +27,12 @@
 
 **推导套路**：当前第 `i` 个元素只有两种命运：要么选它，要么不选它。`dp[i] = Math.max(不选i的情况, 选i的情况)`。
 
-*   **198. 打家劫舍** (中等) - 必刷基础，当前房屋“偷”还是“不偷”。
-*   **740. 删除并获得点数** (中等) - 打家劫舍的变种，需要先做一次频数统计。
-*   **139. 单词拆分** (中等) - 字符串的“选与不选”（或者说是划分与不划分）。
-*   **91. 解码方法** (中等) - 当前字符是单独解码（1位），还是和前面字符组合解码（2位）？
-*   **279. 完全平方数** (中等) - 最后一步是减去哪一个完全平方数。
-*   **343. 整数拆分** (中等) - 最后一步是拆分成两个数，还是拆分成多个数？
+*   **[198. 打家劫舍](https://leetcode.cn/problems/house-robber/)** (中等) - 必刷基础，当前房屋“偷”还是“不偷”。
+*   **[740. 删除并获得点数](https://leetcode.cn/problems/delete-and-earn/)** (中等) - 打家劫舍的变种，需要先做一次频数统计。
+*   **[139. 单词拆分](https://leetcode.cn/problems/word-break/)** (中等) - 字符串的“选与不选”（或者说是划分与不划分）。
+*   **[91. 解码方法](https://leetcode.cn/problems/decode-ways/)** (中等) - 当前字符是单独解码（1位），还是和前面字符组合解码（2位）？
+*   **[279. 完全平方数](https://leetcode.cn/problems/perfect-squares/)** (中等) - 最后一步是减去哪一个完全平方数。
+*   **[343. 整数拆分](https://leetcode.cn/problems/integer-break/)** (中等) - 最后一步是拆分成两个数，还是拆分成多个数？
 
 **【代码示例：打家劫舍 - 记忆化搜索思维】**
 ```javascript
@@ -81,11 +81,11 @@ var robDP = function(nums) {
 
 **推导套路**：这类问题状态通常定义为“**以第 i 个元素结尾**的最优解”。在推导时，必须向前回头看前 `j` 个元素（`0 <= j < i`），寻找能和第 `i` 个元素拼接的状态。
 
-*   **300. 最长递增子序列** (中等) - 经典中的经典。
-*   **673. 最长递增子序列的个数** (中等) - 求最值的同时求方案数，体会双数组 DP。
-*   **376. 摆动序列** (中等) - 状态细化：以 `i` 结尾时，最后一步是“上升”还是“下降”？
-*   **873. 最长的斐波那契子序列的长度** (中等) - 二维状态，需要知道最后两个数字。
-*   **1027. 最长等差数列** (中等) - 状态需要记录“公差”。
+*   **[300. 最长递增子序列](https://leetcode.cn/problems/longest-increasing-subsequence/)** (中等) - 经典中的经典。
+*   **[673. 最长递增子序列的个数](https://leetcode.cn/problems/number-of-longest-increasing-subsequence/)** (中等) - 求最值的同时求方案数，体会双数组 DP。
+*   **[376. 摆动序列](https://leetcode.cn/problems/wiggle-subsequence/)** (中等) - 状态细化：以 `i` 结尾时，最后一步是“上升”还是“下降”？
+*   **[873. 最长的斐波那契子序列的长度](https://leetcode.cn/problems/length-of-longest-fibonacci-subsequence/)** (中等) - 二维状态，需要知道最后两个数字。
+*   **[1027. 最长等差数列](https://leetcode.cn/problems/longest-arithmetic-subsequence/)** (中等) - 状态需要记录“公差”。
 
 **【代码示例：最长递增子序列】**
 ```javascript
@@ -114,11 +114,11 @@ var lengthOfLIS = function(nums) {
 
 **推导套路**：涉及两个字符串 `s1` 和 `s2`，状态一律定义为二维 `dp[i][j]`，表示 `s1` 的前 `i` 个和 `s2` 的前 `j` 个的状态。推导时，最后一步看 `s1[i-1]` 和 `s2[j-1]` 是否相等。
 
-*   **1143. 最长公共子序列** (中等) - 基础，相等时 `+1`，不相等时继承 `Math.max(左, 上)`。
-*   **72. 编辑距离** (中等) - 不相等时的三种选择对应增、删、改。
-*   **97. 交错字符串** (中等) - 最后一步是 `s1` 出了一个字符，还是 `s2` 出了一个字符？
-*   **115. 不同的子序列** (困难) - 当字符相等时，你可以选择“用它匹配”，也可以选择“不用它匹配”。
-*   **712. 两个字符串的最小ASCII删除和** (中等) - 最长公共子序列变种。
+*   **[1143. 最长公共子序列](https://leetcode.cn/problems/longest-common-subsequence/)** (中等) - 基础，相等时 `+1`，不相等时继承 `Math.max(左, 上)`。
+*   **[72. 编辑距离](https://leetcode.cn/problems/edit-distance/)** (中等) - 不相等时的三种选择对应增、删、改。
+*   **[97. 交错字符串](https://leetcode.cn/problems/interleaving-string/)** (中等) - 最后一步是 `s1` 出了一个字符，还是 `s2` 出了一个字符？
+*   **[115. 不同的子序列](https://leetcode.cn/problems/distinct-subsequences/)** (困难) - 当字符相等时，你可以选择“用它匹配”，也可以选择“不用它匹配”。
+*   **[712. 两个字符串的最小ASCII删除和](https://leetcode.cn/problems/minimum-ascii-delete-sum-for-two-strings/)** (中等) - 最长公共子序列变种。
 
 **【代码示例：最长公共子序列】**
 ```javascript
@@ -149,18 +149,18 @@ var longestCommonSubsequence = function(text1, text2) {
 
 **推导套路**：在基础的“只能向右/向下”走的基础上，增加一些维度（比如剩余血量、剩余步数、钥匙数量等）。
 
-*   **64. 最小路径和** (中等) - 基础复习。
-*   **174. 地下城游戏** (困难) - **逆向思维！** 从终点往起点推导。
-*   **576. 出界的路径数** (中等) - 引入第三个维度：剩余步数 `dp[i][j][k]`。
-*   **931. 下降路径最小和** (中等) - 类似三角形路径和，但变为矩形。
+*   **[64. 最小路径和](https://leetcode.cn/problems/minimum-path-sum/)** (中等) - 基础复习。
+*   **[174. 地下城游戏](https://leetcode.cn/problems/dungeon-game/)** (困难) - **逆向思维！** 从终点往起点推导。
+*   **[576. 出界的路径数](https://leetcode.cn/problems/out-of-boundary-paths/)** (中等) - 引入第三个维度：剩余步数 `dp[i][j][k]`。
+*   **[931. 下降路径最小和](https://leetcode.cn/problems/minimum-falling-path-sum/)** (中等) - 类似三角形路径和，但变为矩形。
 
 ### 专项五：状态机 DP 强化（复杂流转）
 
 **推导套路**：当一个物体在不同时刻有多种固定的“状态”时，画出**状态转换图**，直接根据图写方程。
 
-*   **股票买卖全家桶**（121, 122, 123, 188, 309, 714）- 用通用的状态机模板秒杀全场。
-*   **152. 乘积最大子数组** (中等) - 需要同时维护最大值和最小值状态。
-*   **801. 使序列递增的最小交换次数** (困难) - 当前位置的状态只有两个：“交换”或“不交换”。
+*   **股票买卖全家桶**（[121](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock/), [122](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-ii/), [123](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-iii/), [188](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-iv/), [309](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-with-cooldown/), [714](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-with-transaction-fee/)）- 用通用的状态机模板秒杀全场。
+*   **[152. 乘积最大子数组](https://leetcode.cn/problems/maximum-product-subarray/)** (中等) - 需要同时维护最大值和最小值状态。
+*   **[801. 使序列递增的最小交换次数](https://leetcode.cn/problems/minimum-swaps-to-make-sequences-increasing/)** (困难) - 当前位置的状态只有两个：“交换”或“不交换”。
 
 **【代码示例：买卖股票的最佳时机含冷冻期 (309)】**
 ```javascript
