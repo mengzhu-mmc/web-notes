@@ -178,8 +178,19 @@ def generate_section_indexes() -> None:
         if not directory.exists():
             continue
         all_md = md_files_under(directory)
-        direct_links = first_level_links(directory)
-        subdirs = sorted([p for p in directory.iterdir() if p.is_dir() and p.name not in EXCLUDE_DIRS], key=lambda p: p.name)
+        main_md = main_note_files(directory)
+        course_md = course_note_files(directory)
+        direct_links = first_level_main_links(directory)
+        subdirs = sorted(
+            [
+                p
+                for p in directory.iterdir()
+                if p.is_dir()
+                and p.name not in EXCLUDE_DIRS
+                and p.name not in INDEX_EXCLUDED_DIRS
+            ],
+            key=lambda p: p.name,
+        )
         lines = [
             f'# {dirname} · {name}',
             '',
@@ -188,7 +199,7 @@ def generate_section_indexes() -> None:
             '## 学习定位',
             '',
             f'- **模块职责**：沉淀{name}相关的核心概念、实践经验和面试复习材料。',
-            '- **整理原则**：优先维护主干文档；课程笔记统一归档到 `课程笔记/`，旧题库和原始资料按专题保留。',
+            '- **整理原则**：主干文档沉淀稳定知识；课程笔记统一归档到 `课程笔记/`，不与主干知识笔记混排。',
             '- **索引约定**：本文是中文主索引；`README.md` 仅作为兼容入口。',
             '',
             '## 主干文档',
@@ -199,6 +210,11 @@ def generate_section_indexes() -> None:
                 lines.append(f'- [{title}]({link})')
         else:
             lines.append('- 暂无主干文档，待从原始资料中提炼。')
+        lines += ['', '## 课程笔记', '']
+        if course_md:
+            lines.append(f'- [课程笔记目录](./{COURSE_DIR_NAME}/README.md) — {len(course_md)} 篇课程归档')
+        else:
+            lines.append('- 暂无独立课程笔记目录。')
         lines += ['', '## 子目录', '']
         if subdirs:
             for sub in subdirs:
@@ -209,15 +225,15 @@ def generate_section_indexes() -> None:
                     target = f'./{sub.name}/{INDEX_NAME}'
                 elif readme.exists():
                     target = f'./{sub.name}/README.md'
-                count = len(md_files_under(sub))
-                lines.append(f'- [{sub.name}]({target}) — {count} 篇笔记')
+                count = len(main_note_files(sub))
+                lines.append(f'- [{sub.name}]({target}) — {count} 篇主干/专题笔记')
         else:
             lines.append('- 暂无子目录。')
         lines += [
             '',
             '## 整理记录',
             '',
-            f'- 当前 Markdown 文档数：{len(all_md)}',
+            f'- 当前 Markdown 文档数：{len(all_md)}（主干/专题 {len(main_md)}，课程笔记 {len(course_md)}）',
             '- 待合并、待删除和断链问题统一记录在 [知识库整理规划](../99-其他/知识库整理规划.md)。',
         ]
         write(directory / INDEX_NAME, '\n'.join(lines))

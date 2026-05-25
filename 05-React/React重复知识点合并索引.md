@@ -30,3 +30,10 @@
 1. 把 `课程笔记/02-Hooks` 中“依赖数组、闭包、Effect 清理”的重复段落抽象进主干 Hooks 文档。
 2. 把 `课程笔记/03-Fiber与虚拟DOM/16-Fiber架构下Concurrent模式实现原理.md` 的历史实现细节压缩为“React 16/17 历史背景”。
 3. 将性能优化章节中手写 `memo/useMemo/useCallback` 的建议补充“React Compiler 开启后如何降级为例外优化”。
+
+## 2026-05-25 巡检补充
+
+- React 19/19.2 新增内容继续收敛到 `React18-19新特性与Server_Components.md` 与 `React19.2实践心智模型.md`，避免在课程笔记中重复扩写。
+- Fiber/Concurrent 的历史实现细节保留在 `React_Fiber与Concurrent_Mode详解.md`，新增 API 只补充“如何判断优先级、如何调试”的心智模型。
+- 对短小占位文件和课程原文保留索引映射，不直接删除；低信息量文件由 `99-其他/低信息量文件合并索引.md` 和 `知识库整理规划.md` 继续跟踪。
+- Vue 相关内容本轮不扩写，仅参与敏感信息和格式化巡检。

@@ -16,7 +16,7 @@
 
 虚拟 DOM 是用 JavaScript 对象来描述真实 DOM 结构的一种抽象。
 
-```tsxxx
+```text
 // JSX
 <div className="container">
   <h1>Hello</h1>
@@ -64,7 +64,7 @@ React 的 diff 算法基于三个假设（启发式算法，O(n) 复杂度）：
 
 ### 同类型元素的比较
 
-```tsxxx
+```text
 // 更新前
 <div className="before" title="stuff" />
 // 更新后
@@ -74,7 +74,7 @@ React 的 diff 算法基于三个假设（启发式算法，O(n) 复杂度）：
 
 ### 不同类型元素
 
-```tsxxx
+```text
 // 更新前
 <div><Counter /></div>
 // 更新后
@@ -84,7 +84,7 @@ React 的 diff 算法基于三个假设（启发式算法，O(n) 复杂度）：
 
 ### 列表 diff 与 key
 
-```tsxxx
+```text
 // 没有 key 时，React 按位置比较
 // 更新前：[A, B, C]
 // 更新后：[B, C, A]（A 移到末尾）
@@ -171,7 +171,7 @@ React 18 引入了并发模式，不同更新有不同优先级：
 5. 空闲（Idle）：如离屏渲染
 ```
 
-```tsxxx
+```text
 // React 18 并发特性
 import { startTransition, useTransition, useDeferredValue } from "react";
 
@@ -196,7 +196,7 @@ const deferredQuery = useDeferredValue(query);
 
 React 构建 workInProgress 树采用**深度优先遍历（DFS）**，遵循 `child → sibling → return` 的顺序。
 
-```tsxx
+```text
 function performUnitOfWork(unitOfWork) {
   // 1. beginWork：处理当前节点，创建子 Fiber
   let next = beginWork(current, unitOfWork, renderLanes);
@@ -238,7 +238,7 @@ function completeUnitOfWork(unitOfWork) {
 
 ## 五、Fiber 节点核心字段
 
-```tsxx
+```text
 {
   type,         // 节点类型（'div' | App | () => {}）
   props,        // 当前属性
@@ -269,7 +269,7 @@ React 时间切片底层用的是 **MessageChannel**，不是 `requestIdleCallba
 | 兼容性     | Safari 不支持                                    | 全面支持                       |
 | 优先级控制 | React 无法自定义优先级                           | 可配合 Scheduler 精确调度      |
 
-```tsxx
+```text
 // React 借用 MessageChannel 产生"干净的宏任务"
 const channel = new MessageChannel();
 // port1 发消息，port2 收消息（自己给自己发）
@@ -367,7 +367,7 @@ Renderer（渲染器）：Commit 阶段（不可中断）
 
 ### 1.2 开启并发模式
 
-```tsxx
+```text
 // React 17（旧版，同步模式）
 ReactDOM.render(<App />, document.getElementById("root"));
 
@@ -388,7 +388,7 @@ root.render(<App />);
 
 ### 2.2 基本用法
 
-```tsxx
+```text
 import { useState, useTransition } from "react";
 
 function SearchPage() {
@@ -434,7 +434,7 @@ SyncLane（同步）> InputContinuousLane（连续输入）> DefaultLane（默�
 
 ### 3.1 基本用法
 
-```tsxx
+```text
 import { useState, useDeferredValue } from "react";
 
 function SearchPage() {
@@ -470,7 +470,7 @@ function SearchPage() {
 
 ### 4.1 基本用法（代码分割）
 
-```tsxx
+```text
 import { Suspense, lazy } from "react";
 
 const HeavyComponent = lazy(() => import("./HeavyComponent"));
@@ -488,7 +488,7 @@ function App() {
 
 Suspense 的核心机制是**抛出 Promise**：
 
-```tsxx
+```text
 // 简化版原理
 function fetchData(url) {
   let status = "pending";
@@ -526,7 +526,7 @@ function fetchData(url) {
 
 React 18 引入了 `use` Hook，可以在组件内直接 await Promise：
 
-```tsxx
+```text
 import { use, Suspense } from "react";
 
 // 在组件外创建 Promise（不能在组件内创建，否则每次渲染都是新 Promise）
@@ -548,7 +548,7 @@ function App() {
 
 ### 4.4 Suspense + 错误边界
 
-```tsxx
+```text
 class ErrorBoundary extends React.Component {
   state = { hasError: false, error: null };
 
@@ -581,7 +581,7 @@ function App() {
 
 ### 场景：搜索 + 分页 + 懒加载
 
-```tsxx
+```text
 import { useState, useTransition, Suspense, lazy } from "react";
 
 const ResultDetail = lazy(() => import("./ResultDetail"));
@@ -632,7 +632,7 @@ function SearchApp() {
 
 并发模式下，React 可能多次调用渲染函数（包括 render 阶段的生命周期和函数组件体）。副作用必须放在 `useEffect` 中，不能放在渲染函数里：
 
-```tsxx
+```text
 // ❌ 危险：渲染函数中的副作用可能执行多次
 function Component() {
   console.log("渲染了"); // 可能打印多次
@@ -718,7 +718,7 @@ React 17 的同步渲染模型中，一旦开始渲染就无法中断，大型�
 
 借助于浏览器的 `requestIdleCallback` API（实际上 React 自己用 MessageChannel 模拟实现了类似的功能），我们可以这样理解 Fiber 的工作循环：
 
-```tsxx
+```text
 let nextUnitOfWork = null; // 记录下一个要执行的 Fiber 节点任务
 
 function workLoop(deadline) {
@@ -786,7 +786,7 @@ React 官方文档极其严厉地警告：**不要在循环、条件判断或嵌
 
 如果你的代码是这样写的：
 
-```tsxx
+```text
 if (isAdult) {
   const [car, setCar] = useState("BMW"); // 这是第二顺位的 Hook
 }
@@ -870,3 +870,64 @@ export function ProductSearch({ products }: ProductSearchProps) {
 3. 数据/代码未就绪时用 Suspense 边界兜底，而不是把 loading 状态散落在多层组件里。
 4. 只是暂时不可见但马上可能回来，用 `<Activity />`；真正不再需要才卸载。
 5. 性能问题先用 Performance Tracks 验证优先级和耗时，再决定是否手写 memo 或拆分边界。
+
+## 现代并发 API 巡检补充（2026-05-25）
+
+> Updated: 2026-05-25 based on React 19.2 release notes and Activity docs: https://react.dev/blog/2025/10/01/react-19-2, https://react.dev/reference/react/Activity
+
+### 并发不是“全局开关”
+
+现代 React 里更建议把并发理解为一组可组合能力：`startTransition` 标记非紧急更新，`useTransition` 暴露 pending 状态，`useDeferredValue` 延迟消费高频输入，`Suspense` 切分等待边界，`<Activity />` 则让隐藏子树以更低优先级继续准备。
+
+```tsx
+import {
+  Activity,
+  Suspense,
+  useDeferredValue,
+  useState,
+  useTransition,
+} from "react";
+
+interface Product {
+  id: string;
+  title: string;
+}
+
+interface SearchPageProps {
+  products: Product[];
+}
+
+export function SearchPage({ products }: SearchPageProps) {
+  const [query, setQuery] = useState("");
+  const [showPreview, setShowPreview] = useState(false);
+  const [isPending, startTransition] = useTransition();
+  const deferredQuery = useDeferredValue(query);
+
+  return (
+    <>
+      <input
+        value={query}
+        onChange={(event) => {
+          const nextQuery = event.target.value;
+          setQuery(nextQuery);
+          startTransition(() => setShowPreview(nextQuery.length > 0));
+        }}
+      />
+      {isPending && <span>更新结果中...</span>}
+      <Suspense fallback={<p>加载搜索结果...</p>}>
+        <SearchResults products={products} query={deferredQuery} />
+      </Suspense>
+      <Activity mode={showPreview ? "visible" : "hidden"}>
+        <RecommendationPreview query={deferredQuery} />
+      </Activity>
+    </>
+  );
+}
+```
+
+### 调试顺序
+
+1. 先用 React DevTools / Chrome Performance Tracks 确认是 render、commit、effect 还是网络等待慢。
+2. 输入卡顿优先考虑 `startTransition` 和 `useDeferredValue`。
+3. 切换页面丢状态或重复加载，优先考虑 `<Activity />` 与 Suspense 边界。
+4. 服务端首屏等待过长，再考虑 streaming SSR、RSC、Partial Pre-rendering 的架构拆分。

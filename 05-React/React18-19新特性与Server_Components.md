@@ -29,13 +29,22 @@
 import { use, Suspense } from "react";
 
 // 1. 读取 Promise（配合 Suspense 使用）
-function Comments({ commentsPromise }) {
+interface Comment {
+  id: string;
+  text: string;
+}
+
+interface CommentsProps {
+  commentsPromise: Promise<Comment[]>;
+}
+
+function Comments({ commentsPromise }: CommentsProps) {
   // 如果 promise 还在 pending，组件会 suspend（交给 Suspense 显示 loading）
   const comments = use(commentsPromise);
   return (
     <ul>
-      {comments.map((c) => (
-        <li key={c.id}>{c.text}</li>
+      {comments.map((comment) => (
+        <li key={comment.id}>{comment.text}</li>
       ))}
     </ul>
   );
@@ -56,10 +65,19 @@ function App() {
 ### 条件使用（突破 Hooks 规则）
 
 ```tsx
-function UserProfile({ userId, showDetails }) {
+interface UserDetails {
+  bio: string;
+}
+
+interface UserProfileProps {
+  userId: string;
+  showDetails: boolean;
+}
+
+function UserProfile({ userId, showDetails }: UserProfileProps) {
   // ✅ use() 可以放在 if 里！普通 Hook 不行
   if (showDetails) {
-    const details = use(fetchUserDetails(userId));
+    const details = use(fetchUserDetails(userId) as Promise<UserDetails>);
     return <div>{details.bio}</div>;
   }
   return <div>基本信息</div>;
@@ -368,7 +386,13 @@ const OldInput = forwardRef<HTMLInputElement, Props>((props, ref) => (
 ));
 
 // React 19：直接传 ref prop
-function NewInput({ ref, ...props }) {
+import type { ComponentProps, Ref } from "react";
+
+type NewInputProps = ComponentProps<"input"> & {
+  ref?: Ref<HTMLInputElement>;
+};
+
+function NewInput({ ref, ...props }: NewInputProps) {
   return <input ref={ref} {...props} />;
 }
 
@@ -397,7 +421,14 @@ const ThemeContext = createContext('light');
 
 ```tsx
 // 无需 react-helmet，直接在组件中写 title/meta
-function BlogPost({ post }) {
+interface BlogPostModel {
+  title: string;
+  summary: string;
+  slug: string;
+  content: string;
+}
+
+function BlogPost({ post }: { post: BlogPostModel }) {
   return (
     <article>
       <title>{post.title} - 我的博客</title>
@@ -1351,3 +1382,50 @@ React 19.2 继续把并发能力产品化：
 - `'use server'` 用于 Server Functions / Server Actions，让客户端拿到可调用引用。
 - Server Component 可以是 `async function`；Client Component 不支持 async component，但可以用 `use(promise)` 读取从服务端传下来的 Promise。
 - RSC 稳定面向使用者；实现 RSC bundler/framework 的底层 API 在 React 19.x 仍建议 pin 具体版本。
+
+## 十三、React 19/19.2 官方巡检补充（2026-05-25）
+
+> Updated: 2026-05-25 based on official React 19 and React 19.2 release notes: https://react.dev/blog/2024/12/05/react-19, https://react.dev/blog/2025/10/01/react-19-2, https://react.dev/reference/rsc/server-components
+
+### 13.1 RSC 指令边界再确认
+
+- Server Component **没有**专门的 `"use server"` 指令；没有写 `"use client"` 的组件是否作为 Server Component 运行，取决于框架和 bundler 的 RSC 集成。
+- `"use client"` 标记客户端边界，边界内可以使用 state、Effect、事件处理和浏览器 API。
+- `"use server"` 用于 Server Functions / Server Actions，表示该异步函数在服务端执行，并由框架把引用传给客户端。
+- RSC 的稳定性要分两层理解：面向应用和库作者的 RSC 能力在 React 19 稳定；实现 RSC bundler/framework 的底层 API 在 19.x 内仍建议锁定具体版本。
+
+### 13.2 Actions 不是表单专属
+
+React 19 的 Actions 本质是“异步 transition 的约定”：它可以统一 pending、错误、乐观更新和顺序提交。`<form action>` 是最常见入口，但 `startTransition(async () => ...)`、`useActionState`、`useOptimistic` 组合也适合按钮点击、列表变更等非表单场景。
+
+```tsx
+interface RenameState {
+  error?: string;
+}
+
+async function renameAction(
+  previousState: RenameState,
+  formData: FormData,
+): Promise<RenameState> {
+  const name = String(formData.get("name") ?? "").trim();
+  if (name.length < 2) {
+    return { error: "名称至少 2 个字符" };
+  }
+  await updateName(name);
+  return {};
+}
+```
+
+### 13.3 React 19.2 与并发心智模型的连接
+
+- `<Activity />` 可以视为“可隐藏、可降优先级、可恢复状态”的 UI 分区，不是简单替代 `display: none`。
+- `useEffectEvent` 把 Effect 内部事件从同步依赖中拆出，避免因为读取最新 UI 状态而重建订阅。
+- `cacheSignal` 只面向 RSC 缓存生命周期，用于在渲染失败、被中止或缓存不再需要时中断异步工作。
+- Performance Tracks 把 Scheduler 和 Components 维度暴露到 Chrome Performance 面板，适合定位 transition、Suspense、Effect 导致的耗时。
+
+### 13.4 代码质量落地规则
+
+1. 新增 React 示例默认使用 `tsx`，补齐 props、action state、DOM ref、Promise payload 类型。
+2. 涉及 `ref` 回调时不要隐式返回 DOM 节点，避免 React 19 ref cleanup 与 TypeScript 类型冲突。
+3. `use()` 读取 Promise 时，Promise 应来自父级、框架缓存或 Suspense 数据源，不在 Client Component render 中临时创建。
+4. Server Actions 示例避免写真实密钥、内网域名或公司私有接口；只保留抽象业务函数名。

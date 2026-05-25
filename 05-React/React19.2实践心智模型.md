@@ -166,7 +166,8 @@ export function ChatRoom({ roomId, muted }: ChatRoomProps) {
 React 19.2 的 Partial Pre-rendering 允许先生成静态壳，再在请求阶段恢复动态部分。
 
 ```tsx
-import { prerender, resume } from "react-dom/static";
+import { resume } from "react-dom/server";
+import { prerender } from "react-dom/static";
 
 async function buildShell() {
   const controller = new AbortController();
@@ -210,3 +211,12 @@ React 19.2 让 Web Streams 版本也能在 Node.js 中使用，但官方仍更�
 如果被问“React 19.2 有哪些值得关注的变化”，可以回答：
 
 > React 19.2 的重点是把并发和服务端能力继续产品化。`<Activity />` 让 UI 可以隐藏但保留状态，适合 Tab、路由预加载和返回恢复；`useEffectEvent` 解决 Effect 中事件逻辑读取最新值但不想重同步的问题；`cacheSignal` 让 RSC 缓存生命周期能中断异步任务；Performance Tracks 让 React 调度过程能在 Chrome Performance 面板中观察；服务端方面新增 Partial Pre-rendering 和 resume API，让静态壳和动态内容可以分阶段渲染。
+
+## 十一、巡检补充：Activity / PPR 的工程边界（2026-05-25）
+
+> Updated: 2026-05-25 based on official Activity and React 19.2 docs: https://react.dev/reference/react/Activity, https://react.dev/blog/2025/10/01/react-19-2
+
+- **Activity 适合保留状态，不适合隐藏所有东西**：表单草稿、Tab、即将进入的路由适合；视频、音频、iframe 需要在 Effect cleanup 中暂停或释放资源。
+- **hidden Activity 会清理 Effects**：逻辑上接近“暂停副作用但保留状态”，不要依赖隐藏子树继续轮询、订阅或上报。
+- **预渲染只对 Suspense-aware 数据源有效**：`lazy`、框架级数据缓存、`use()` 读取的缓存 Promise 可以受益；普通 `useEffect` 里的 fetch 不会被 Activity 预加载捕获。
+- **PPR 不是普通 SSR 的替代品**：它适合“静态壳可缓存、动态洞稍后恢复”的页面。若页面强依赖每次请求的实时数据，仍优先使用流式 SSR 或框架的数据缓存策略。
