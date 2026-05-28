@@ -14,3 +14,12 @@ node_modules/
 .obsidian/plugins/*/cache.json
 .obsidian/plugins/*/cache/
 *.tmp
+# Sensitive local AI agent backups / identity configs
+00-贾维斯备份/身份与配置/
+00-贾维斯备份/记忆日记/
+# Obsidian local plugin runtime bundles and settings
+.obsidian/plugins/*/main.js
+.obsidian/plugins/*/manifest.json
+.obsidian/plugins/*/styles.css
+
+.obsidian/plugins/

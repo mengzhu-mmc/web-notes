@@ -220,3 +220,23 @@ React 19.2 让 Web Streams 版本也能在 Node.js 中使用，但官方仍更�
 - **hidden Activity 会清理 Effects**：逻辑上接近“暂停副作用但保留状态”，不要依赖隐藏子树继续轮询、订阅或上报。
 - **预渲染只对 Suspense-aware 数据源有效**：`lazy`、框架级数据缓存、`use()` 读取的缓存 Promise 可以受益；普通 `useEffect` 里的 fetch 不会被 Activity 预加载捕获。
 - **PPR 不是普通 SSR 的替代品**：它适合“静态壳可缓存、动态洞稍后恢复”的页面。若页面强依赖每次请求的实时数据，仍优先使用流式 SSR 或框架的数据缓存策略。
+
+## 十二、useEffectEvent 官方边界补充（2026-05-28）
+
+> Updated: 2026-05-28 based on official useEffectEvent docs: https://react.dev/reference/react/useEffectEvent
+
+`useEffectEvent` 返回的函数不是普通事件处理器，也不是稳定引用。它只能在 `useEffect`、`useLayoutEffect`、`useInsertionEffect` 或同组件内其他 Effect Event 中调用，不能在 render 阶段调用，也不要传给子组件。
+
+### 正确使用场景
+
+- 定时器、订阅、外部连接回调里需要读取最新 props/state。
+- 这段逻辑由 Effect 内部触发，但它本身不应该决定 Effect 是否重新同步。
+- 例如聊天室连接只依赖 `roomId`，但连接成功提示需要读取最新 `theme` 或 `muted`。
+
+### 不该使用的场景
+
+1. 为了绕过 `exhaustive-deps`，把本该作为依赖的值藏进 Effect Event。
+2. 把 Effect Event 当成 `useCallback` 替代品传给子组件。
+3. 在点击事件、render 计算或条件分支中直接调用。
+
+一句话判断：**如果逻辑是用户事件，继续用事件处理器；如果逻辑是 Effect 触发的内部事件，才考虑 `useEffectEvent`。**

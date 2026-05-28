@@ -207,3 +207,21 @@ export function PriceTag({ price, currency, formatter }: PriceTagProps) {
 2. 对新代码默认不急着手写 `useMemo/useCallback`；先保持组件纯净和类型明确。
 3. 对历史性能代码保留已有 memo，等 Compiler + profiling 证明无收益后再删除。
 4. 用 `'use memo'` / `'use no memo'` 这类指令做局部控制，而不是一次性全仓库切换。
+
+## 九、2026-05 巡检：Compiler 渐进接入策略
+
+> Updated: 2026-05-28 based on official React Compiler docs: https://react.dev/learn/react-compiler
+
+React Compiler 官方推荐把接入拆成“安装、增量启用、调试排错、配置参考”几个阶段。对已有业务仓库来说，不建议一次性全量开启，而是先让 lint 暴露不符合 React 纯度规则的组件，再逐步扩大编译范围。
+
+### 推荐落地顺序
+
+1. **先修规则**：优先处理 render 阶段副作用、可变对象写入、Hook 条件调用、依赖数组不完整等问题。
+2. **再开局部编译**：从低风险、纯展示组件开始启用 Compiler，观察渲染行为和性能曲线。
+3. **保留手写 memo 的例外**：第三方库边界、上下文 Provider、大列表 item、昂贵 selector 等场景仍可保留人工优化。
+4. **用指令做局部控制**：`"use memo"` 用于明确希望编译器优化的函数，`"use no memo"` 用于排除不适合编译的函数。
+5. **用性能面板验证收益**：不要把“少写 useMemo”误解为“必然更快”，最终仍以 React DevTools 和 Performance Tracks 的数据为准。
+
+### 面试回答补充
+
+> React Compiler 不是替代 React 运行时的新框架，而是把一部分安全的 memoization 移到编译阶段。它能减少手写 `useMemo/useCallback/memo` 的样板代码，但前提是组件遵守纯函数和 Hooks 规则。真实项目里我会用增量启用策略，先让 lint 和小范围模块验证稳定性，再逐步迁移。

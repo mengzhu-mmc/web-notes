@@ -1429,3 +1429,44 @@ async function renameAction(
 2. 涉及 `ref` 回调时不要隐式返回 DOM 节点，避免 React 19 ref cleanup 与 TypeScript 类型冲突。
 3. `use()` 读取 Promise 时，Promise 应来自父级、框架缓存或 Suspense 数据源，不在 Client Component render 中临时创建。
 4. Server Actions 示例避免写真实密钥、内网域名或公司私有接口；只保留抽象业务函数名。
+
+## 十四、Server Functions 命名与 Action 边界再校准（2026-05-28）
+
+> Updated: 2026-05-28 based on official React Server Functions docs: https://react.dev/reference/rsc/server-functions
+
+React 官方文档已经把早期笼统称为 “Server Actions” 的能力拆得更清楚：**Server Function** 是总称，表示客户端可以调用、但实际在服务端执行的异步函数；当这个 Server Function 被传给 `<form action>`，或从某个 Action 内部调用时，它才是狭义的 **Server Action**。
+
+### 14.1 两种创建方式
+
+```tsx
+// 方式一：在 Server Component 内部定义，并用 "use server" 标记函数体
+async function createNoteAction(): Promise<void> {
+  "use server";
+  await createNote();
+}
+
+// 方式二：在独立文件顶部写 "use server"，导出给 Client Component 使用
+("use server");
+
+export async function renameNote(
+  noteId: string,
+  title: string,
+): Promise<ActionResult> {
+  if (!title.trim()) {
+    return { error: "标题不能为空" };
+  }
+  await updateNoteTitle(noteId, title);
+  return {};
+}
+```
+
+### 14.2 面试回答模板
+
+> Server Function 是 React 19 中客户端调用服务端异步函数的抽象；Server Action 是它在表单提交或 Action 流程里的使用方式。`"use server"` 不是 Server Component 的标记，而是 Server Function 的标记。框架会把函数引用序列化给客户端，客户端调用时再由 React/框架发请求到服务端执行。
+
+### 14.3 工程注意点
+
+1. Server Function 的参数和返回值应保持可序列化，不要依赖闭包里的不可序列化对象。
+2. 表单场景优先用 `useActionState` 暴露 pending、错误和渐进增强 permalink。
+3. 非表单按钮点击可用 `startTransition(async () => ...)` 包裹调用，以获得 pending 状态和非阻塞更新。
+4. RSC bundler/framework 底层实现 API 在 React 19.x 内仍建议锁定具体 React 版本，应用层使用的 Server Functions 能力则是稳定面向用户的 API。

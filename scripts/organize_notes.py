@@ -34,7 +34,7 @@ SECTIONS = [
     ('99-其他', '其他', '待整理资料、归档内容、知识库治理记录'),
 ]
 
-EXCLUDE_DIRS = {'node_modules', '.git'}
+EXCLUDE_DIRS = {'node_modules', '.git', '.obsidian', '身份与配置', '记忆日记'}
 COURSE_DIR_NAME = '课程笔记'
 COURSE_KEYWORDS = ('课程笔记', '开篇词', '结束语', '导读', '加餐', '彩蛋')
 INDEX_EXCLUDED_DIRS = {'assets', COURSE_DIR_NAME}
