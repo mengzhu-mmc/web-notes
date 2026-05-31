@@ -37,3 +37,10 @@
 - Fiber/Concurrent 的历史实现细节保留在 `React_Fiber与Concurrent_Mode详解.md`，新增 API 只补充“如何判断优先级、如何调试”的心智模型。
 - 对短小占位文件和课程原文保留索引映射，不直接删除；低信息量文件由 `99-其他/低信息量文件合并索引.md` 和 `知识库整理规划.md` 继续跟踪。
 - Vue 相关内容本轮不扩写，仅参与敏感信息和格式化巡检。
+
+## 2026-05-31 巡检补充
+
+- React 19.2 稳定 API 边界继续收敛到 `React18-19新特性与Server_Components.md` 和 `React19.2实践心智模型.md`。
+- PPR、`cacheSignal`、`resumeAndPrerender`、Activity selective hydration 等内容不再分散扩写到课程笔记，课程笔记仅保留历史学习语境。
+- React Compiler 与 hooks lint v6 的工程化策略统一维护在 `React_Compiler自动记忆化.md`。
+- `<ViewTransition />`、`addTransitionType` 等 Canary 能力暂不作为稳定主干展开，只在边界说明中标注，避免和 React 19.2 稳定能力混淆。

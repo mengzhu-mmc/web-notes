@@ -1470,3 +1470,29 @@ export async function renameNote(
 2. 表单场景优先用 `useActionState` 暴露 pending、错误和渐进增强 permalink。
 3. 非表单按钮点击可用 `startTransition(async () => ...)` 包裹调用，以获得 pending 状态和非阻塞更新。
 4. RSC bundler/framework 底层实现 API 在 React 19.x 内仍建议锁定具体 React 版本，应用层使用的 Server Functions 能力则是稳定面向用户的 API。
+
+## 十五、React 19.2 API 边界复盘（2026-05-31）
+
+> Updated: 2026-05-31 based on official React 19.2 docs: https://react.dev/blog/2025/10/01/react-19-2, https://react.dev/reference/react/Activity, https://react.dev/reference/react/useEffectEvent, https://react.dev/reference/react/cacheSignal
+
+这一轮复盘的重点不是继续堆 API 名称，而是把稳定能力、RSC 专属能力和 Canary 能力分开，避免面试或工程选型时混淆。
+
+### 15.1 稳定能力清单
+
+- `<Activity />`：隐藏子树但保留 UI/DOM 状态；隐藏时清理 Effects，并把隐藏更新降为低优先级。
+- `useEffectEvent`：Effect 内部事件逻辑读取最新 props/state，但不参与依赖数组，不应传给子组件或在用户事件中调用。
+- `cacheSignal`：RSC 场景下感知 `cache()` 生命周期结束，取消已经无用的异步工作。
+- Performance Tracks：在 Chrome Performance 中观察 Scheduler 与 Components 轨道，定位 blocking update、transition、render、effect mount 等耗时。
+- PPR 相关 API：`prerender` 产出静态壳与 postponed state，`resume` / `resumeAndPrerender` 在后续阶段恢复渲染。
+
+### 15.2 不能混淆的边界
+
+1. **Server Component 没有 `"use server"` 指令**：`"use server"` 标记的是 Server Function。
+2. **Server Function 不等于 Server Action**：传给 `<form action>` 或从 Action 中调用时，才是狭义 Server Action。
+3. **Effect Event 不是稳定 callback**：它的身份会随 render 变化，不能作为依赖或传参下发。
+4. **Activity 不是隐藏所有副作用的万能容器**：视频、音频、iframe 这类 DOM 本身有副作用的节点，需要在 Effect cleanup 中主动暂停或释放。
+5. **ViewTransition 相关 API 仍应按 Canary 处理**：不要把 `<ViewTransition />` 写进稳定生产方案的核心依赖。
+
+### 15.3 面试精简回答
+
+> React 19.2 的主线是把 React 的并发和服务端流水线继续产品化：`<Activity />` 负责隐藏但保留状态的 UI 分区，`useEffectEvent` 解决 Effect 内部事件读取最新值但不重建订阅的问题，`cacheSignal` 让 RSC 缓存生命周期能中断无用异步任务，Performance Tracks 把调度和组件耗时暴露到浏览器性能面板，PPR 则把静态壳和动态恢复拆成两阶段渲染。实际项目里我会区分稳定 API、RSC 专属 API 和 Canary API，避免把实验能力当成生产基础设施。

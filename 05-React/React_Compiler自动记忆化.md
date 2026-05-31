@@ -225,3 +225,23 @@ React Compiler 官方推荐把接入拆成“安装、增量启用、调试排�
 ### 面试回答补充
 
 > React Compiler 不是替代 React 运行时的新框架，而是把一部分安全的 memoization 移到编译阶段。它能减少手写 `useMemo/useCallback/memo` 的样板代码，但前提是组件遵守纯函数和 Hooks 规则。真实项目里我会用增量启用策略，先让 lint 和小范围模块验证稳定性，再逐步迁移。
+
+## 十、2026-05-31 巡检：Compiler 与 hooks lint v6
+
+> Updated: 2026-05-31 based on official React Compiler and React 19.2 docs: https://react.dev/learn/react-compiler, https://react.dev/blog/2025/10/01/react-19-2
+
+React 19.2 同步推进了 `eslint-plugin-react-hooks` v6 和 Compiler 相关 lint。对已有项目来说，推荐先把 lint 当成“可编译性体检”，而不是一上来就追求全量编译。
+
+### 推荐接入顺序
+
+1. 使用最新 hooks lint 暴露 `rules-of-hooks`、`exhaustive-deps`、`purity`、`immutability`、`refs`、`set-state-in-render` 等问题。
+2. 先修 render 阶段副作用、可变对象写入、条件 Hook、依赖数组缺失。
+3. 在纯展示组件、无复杂第三方状态的模块小范围开启 Compiler。
+4. 使用 Performance Tracks / React DevTools 对比开启前后的 render 与 commit 成本。
+5. 对已经通过 profiling 证明有效的大列表、Context Provider、第三方库边界，继续保留人工 memo，等编译器覆盖和性能数据都确认后再删除。
+
+### 代码质量原则
+
+- TypeScript 类型要表达清楚 props、action state、Promise payload 和 DOM ref。
+- 不要为了让 Compiler 接受而隐藏真实依赖；该同步的 Effect 仍然要同步。
+- `"use memo"` / `"use no memo"` 应作为局部控制工具，而不是替代架构拆分和性能分析。

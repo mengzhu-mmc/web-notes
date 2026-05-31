@@ -240,3 +240,64 @@ React 19.2 让 Web Streams 版本也能在 Node.js 中使用，但官方仍更�
 3. 在点击事件、render 计算或条件分支中直接调用。
 
 一句话判断：**如果逻辑是用户事件，继续用事件处理器；如果逻辑是 Effect 触发的内部事件，才考虑 `useEffectEvent`。**
+
+## 十三、2026-05-31 巡检：PPR、cacheSignal 与稳定/Canary 边界
+
+> Updated: 2026-05-31 based on official React 19.2 docs: https://react.dev/blog/2025/10/01/react-19-2, https://react.dev/reference/react/cacheSignal, https://react.dev/reference/react-dom/static/resumeAndPrerender
+
+### 13.1 Partial Pre-rendering 的两段式模型
+
+React 19.2 的 Partial Pre-rendering 可以理解为“两段式生成”：先用 `prerender` 产出可缓存的静态壳和 `postponed` 状态，再在请求阶段用 `resume` 继续 SSR，或用 `resumeAndPrerender` 继续生成完整静态 HTML。
+
+```tsx
+import { prerender, resumeAndPrerender } from "react-dom/static";
+
+interface RenderRequest {
+  signal: AbortSignal;
+}
+
+async function buildShell({ signal }: RenderRequest) {
+  const { prelude, postponed } = await prerender(<App />, { signal });
+  await savePostponedState(postponed);
+  return prelude;
+}
+
+async function completeStaticPage(request: Request) {
+  const postponedState = await getPostponedState(request);
+  const { prelude } = await resumeAndPrerender(<App />, postponedState, {
+    bootstrapScripts: ["/main.js"],
+  });
+  return new Response(prelude, {
+    headers: { "content-type": "text/html" },
+  });
+}
+```
+
+工程判断：如果页面是“静态外壳 + 动态洞”，PPR 有价值；如果页面每次请求都依赖强实时数据，优先考虑 streaming SSR 或框架数据缓存，而不是为了用 PPR 强行拆分。
+
+### 13.2 cacheSignal 的边界
+
+`cacheSignal()` 只在 RSC 渲染与 `cache()` 生命周期内可靠。它返回 `AbortSignal | null`：在渲染之外会返回 `null`，在 Client Component 中目前也总是 `null`。不要把它写成通用取消请求工具。
+
+```tsx
+import { cache, cacheSignal } from "react";
+
+const getPost = cache(async (postId: string) => {
+  const response = await fetch(`/posts/${postId}`, {
+    signal: cacheSignal() ?? undefined,
+  });
+  return response.json() as Promise<Post>;
+});
+```
+
+适合场景：RSC 渲染失败、被中止或缓存结果不再需要时，取消仍在进行的 fetch / 数据库查询 / 后台计算。
+
+### 13.3 稳定能力与 Canary 能力不要混答
+
+React 19.2 稳定能力包括 `<Activity />`、`useEffectEvent`、`cacheSignal`、Performance Tracks、PPR 相关 `resume` / `resumeAndPrerender` API。`<ViewTransition />` 和 `addTransitionType` 仍标记为 Canary，不应在“React 19.2 稳定特性”面试回答里当作已稳定 API 展开。
+
+### 13.4 版本升级注意点
+
+- `eslint-plugin-react-hooks@latest` 推荐配置进入 v6，Compiler 相关 lint 可按项目成熟度逐步启用。
+- React 19.2 默认 `useId` 前缀调整为 `_r_`，主要是为了兼容 View Transition 和 XML 命名要求；不要依赖生成 ID 的具体字符串。
+- Node.js 环境虽然支持 Web Streams 版本 SSR/PPR API，但官方仍更推荐 Node Streams 版本，如 `resumeToPipeableStream`、`prerenderToNodeStream`、`resumeAndPrerenderToNodeStream`。
