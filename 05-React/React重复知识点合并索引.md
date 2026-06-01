@@ -44,3 +44,9 @@
 - PPR、`cacheSignal`、`resumeAndPrerender`、Activity selective hydration 等内容不再分散扩写到课程笔记，课程笔记仅保留历史学习语境。
 - React Compiler 与 hooks lint v6 的工程化策略统一维护在 `React_Compiler自动记忆化.md`。
 - `<ViewTransition />`、`addTransitionType` 等 Canary 能力暂不作为稳定主干展开，只在边界说明中标注，避免和 React 19.2 稳定能力混淆。
+
+## 2026-06-01 巡检补充
+
+- Action 相关内容继续合并到 `React18-19新特性与Server_Components.md`，重点维护 `useActionState` 队列语义、Server Function 渐进增强、`startTransition` 触发边界。
+- React DOM 资源加载 API 统一按 `preload/preinit/preloadModule/preinitModule` 的“下载 vs 执行、普通资源 vs ESM 模块”维度收敛，不在课程笔记中重复扩写。
+- 课程笔记中的历史 React 18 并发内容保留为学习语境；主干答案以 React 19.2 官方文档边界为准。

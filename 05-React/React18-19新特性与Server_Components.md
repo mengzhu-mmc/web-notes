@@ -1496,3 +1496,101 @@ export async function renameNote(
 ### 15.3 面试精简回答
 
 > React 19.2 的主线是把 React 的并发和服务端流水线继续产品化：`<Activity />` 负责隐藏但保留状态的 UI 分区，`useEffectEvent` 解决 Effect 内部事件读取最新值但不重建订阅的问题，`cacheSignal` 让 RSC 缓存生命周期能中断无用异步任务，Performance Tracks 把调度和组件耗时暴露到浏览器性能面板，PPR 则把静态壳和动态恢复拆成两阶段渲染。实际项目里我会区分稳定 API、RSC 专属 API 和 Canary API，避免把实验能力当成生产基础设施。
+
+## 十六、Action 队列、渐进增强与资源预初始化（2026-06-01）
+
+> Updated: 2026-06-01 based on official React docs: https://react.dev/reference/react/useActionState, https://react.dev/reference/rsc/server-functions, https://react.dev/reference/react-dom/preinitModule
+
+这一轮巡检重点补齐三个容易被混淆的工程细节：`useActionState` 的队列语义、Server Function 表单渐进增强，以及 `preinitModule` / `preloadModule` 的资源加载边界。
+
+### 16.1 `useActionState` 不是普通 loading hook
+
+`useActionState(reducerAction, initialState, permalink?)` 返回 `[state, dispatchAction, isPending]`。它和 `useReducer` 的相似点是“根据上一次 state 计算下一次 state”，差异是 `reducerAction` 可以是异步函数并执行副作用。
+
+```tsx
+import { startTransition, useActionState } from "react";
+
+interface RenameState {
+  error?: string;
+  name?: string;
+}
+
+interface RenamePayload {
+  name: string;
+}
+
+async function renameAction(
+  previousState: RenameState,
+  payload: RenamePayload,
+): Promise<RenameState> {
+  const nextName = payload.name.trim();
+  if (nextName.length < 2) {
+    return { ...previousState, error: "名称至少 2 个字符" };
+  }
+  await updateName(nextName);
+  return { name: nextName };
+}
+
+function RenameButton() {
+  const [state, dispatchAction, isPending] = useActionState(renameAction, {});
+
+  function handleClick() {
+    startTransition(() => {
+      dispatchAction({ name: "React" });
+    });
+  }
+
+  return (
+    <button disabled={isPending} onClick={handleClick}>
+      {state.error ?? "保存名称"}
+    </button>
+  );
+}
+```
+
+关键边界：手动调用 `dispatchAction` 时必须在 `startTransition` 或 Action prop 中触发；如果把 `dispatchAction` 直接放在普通点击回调里调用，`isPending` 可能不会按预期更新，开发环境也会提示该异步 Action 发生在 Transition 之外。
+
+### 16.2 队列语义：串行执行，不是并发请求池
+
+同一个 `useActionState` 的多次 `dispatchAction` 会排队串行执行，后一次的 `previousState` 来自前一次返回值。这非常适合购物车数量、表单状态、步骤流这类“必须按顺序折叠”的场景；但如果业务需要并行请求，不应强行塞进一个 `useActionState`，而应该用 `useState + useTransition` 或拆分多个 Action。
+
+如果要取消排队中的操作，可以把 `AbortSignal` 放进 payload，但要注意：取消网络请求不等于回滚服务端副作用。只有当副作用可忽略、可幂等重试或能被服务端安全处理时，才适合主动 abort。
+
+### 16.3 表单渐进增强与 permalink
+
+当 `useActionState` 搭配 Server Function 和 `<form action>` 使用时，第三个参数 `permalink` 可用于 JavaScript bundle 尚未加载前的渐进增强：用户提前提交表单时，浏览器会跳转到这个稳定 URL；目标页必须渲染同一个表单组件、同一个 reducerAction 和同一个 permalink，React 才能在 hydration 后接上这次提交的返回状态。
+
+```tsx
+"use client";
+
+import { useActionState } from "react";
+import { updateProfile } from "./actions";
+
+const PROFILE_PERMALINK = "/settings/profile";
+
+export function ProfileForm() {
+  const [state, formAction, isPending] = useActionState(
+    updateProfile,
+    { error: null },
+    PROFILE_PERMALINK,
+  );
+
+  return (
+    <form action={formAction}>
+      <input name="displayName" disabled={isPending} />
+      {state.error && <p role="alert">{state.error}</p>}
+      <button type="submit">保存</button>
+    </form>
+  );
+}
+```
+
+### 16.4 `preinitModule` 与 `preloadModule` 的选择
+
+React DOM 的资源 API 可以在组件渲染、事件处理、Effect 等阶段发出资源提示；但在 SSR/RSC 中，只有“渲染组件时”或“源自组件渲染的 async context”里的调用会生效，其他位置的调用会被忽略。
+
+- `preloadModule(href, { as: "script" })`：提前下载 ESM 模块，但不立即执行，适合“很可能用到，但不希望立刻产生副作用”的场景。
+- `preinitModule(href, { as: "script" })`：提前下载并执行 ESM 模块，适合明确知道后续页面/交互一定需要，且模块执行副作用可接受的场景。
+- 非 ESM 脚本使用 `preinit`；字体、图片、样式等资源使用 `preload` / `preconnect` / `prefetchDNS`。
+
+面试表达：React 19 的资源 API 不是替代构建工具的分包能力，而是让组件在渲染或交互时声明“我即将需要什么资源”，由 React 协调浏览器资源提示，减少瀑布加载。
