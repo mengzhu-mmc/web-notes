@@ -1594,3 +1594,135 @@ React DOM 的资源 API 可以在组件渲染、事件处理、Effect 等阶段�
 - 非 ESM 脚本使用 `preinit`；字体、图片、样式等资源使用 `preload` / `preconnect` / `prefetchDNS`。
 
 面试表达：React 19 的资源 API 不是替代构建工具的分包能力，而是让组件在渲染或交互时声明“我即将需要什么资源”，由 React 协调浏览器资源提示，减少瀑布加载。
+
+## 十七、`useOptimistic`、`useFormStatus` 与 Action 组合边界（2026-06-04）
+
+> Updated: 2026-06-04 based on official React docs.
+
+### 17.1 `useOptimistic` 的核心语义
+
+`useOptimistic(value, reducer?)` 用来在 Action 进行中临时展示乐观状态；如果没有 pending Action，它返回的 optimistic state 等于传入的真实 `value`[[useOptimistic – React]](https://react.dev/reference/react/useOptimistic)。
+
+它不是“把假数据写进真实列表”，而是把**提交中临时 UI**和**服务端确认后的真实状态**分层管理。Action 成功时，父级真实数据更新，乐观状态与真实状态收敛；Action 失败时，如果父级真实数据没有更新，界面会自然回到提交前状态[[useOptimistic – React]](https://react.dev/reference/react/useOptimistic)。
+
+```tsx
+import { startTransition, useOptimistic } from "react";
+
+interface Todo {
+  id: string;
+  text: string;
+  pending?: boolean;
+}
+
+interface AddTodoPayload {
+  id: string;
+  text: string;
+}
+
+function TodoList({
+  todos,
+  addTodoAction,
+}: {
+  todos: Todo[];
+  addTodoAction: (todo: AddTodoPayload) => Promise<void>;
+}) {
+  const [optimisticTodos, addOptimisticTodo] = useOptimistic(
+    todos,
+    (currentTodos: Todo[], newTodo: AddTodoPayload): Todo[] => [
+      ...currentTodos,
+      { ...newTodo, pending: true },
+    ],
+  );
+
+  function handleAdd(text: string) {
+    const payload = { id: crypto.randomUUID(), text };
+    startTransition(async () => {
+      addOptimisticTodo(payload);
+      await addTodoAction(payload);
+    });
+  }
+
+  return (
+    <ul>
+      {optimisticTodos.map((todo) => (
+        <li key={todo.id} aria-busy={todo.pending}>
+          {todo.text}
+          {todo.pending ? "（提交中）" : ""}
+        </li>
+      ))}
+    </ul>
+  );
+}
+```
+
+### 17.2 什么时候用 reducer，而不是直接 set 乐观值
+
+如果乐观更新只影响一个布尔值，例如点赞按钮，可以直接 `setOptimistic(nextValue)`。如果乐观更新依赖列表、计数、购物车等复合状态，优先使用 reducer，因为当 base state 在 Action pending 期间发生变化时，React 会用最新 base state 重新运行 reducer，避免把新数据叠加到旧快照上[[useOptimistic – React]](https://react.dev/reference/react/useOptimistic)。
+
+面试回答可以这样说：`useOptimistic` 的 reducer 不是业务 reducer，而是“pending 期间的 UI 投影函数”。它必须保持纯函数，只描述临时 UI 怎么叠在真实数据之上，不应该在 reducer 里发请求、写缓存或修改外部变量。
+
+### 17.3 `useFormStatus` 的父级 form 限制
+
+`useFormStatus()` 从 `react-dom` 导入，返回父级 `<form>` 最近一次提交的 `pending`、`data`、`method`、`action` 等状态[[useFormStatus – React]](https://react.dev/reference/react-dom/hooks/useFormStatus)。
+
+最容易踩坑的是：调用 `useFormStatus` 的组件必须渲染在目标 `<form>` 内部；它不会追踪同一个组件里直接返回的 `<form>`，也不会追踪子组件再嵌套的新 `<form>`[[useFormStatus – React]](https://react.dev/reference/react-dom/hooks/useFormStatus)。
+
+```tsx
+import { useFormStatus } from "react-dom";
+
+function SubmitButton() {
+  const { pending, data } = useFormStatus();
+  const title = String(data?.get("title") ?? "");
+
+  return (
+    <button type="submit" disabled={pending}>
+      {pending ? `正在保存 ${title}` : "保存"}
+    </button>
+  );
+}
+
+export function ArticleForm({
+  action,
+}: {
+  action: (formData: FormData) => Promise<void>;
+}) {
+  return (
+    <form action={action}>
+      <input name="title" />
+      <SubmitButton />
+    </form>
+  );
+}
+```
+
+### 17.4 三个 Hook 的组合分工
+
+- `useActionState`：管理 Action 的返回值、错误状态、串行队列和 `isPending`。
+- `useOptimistic`：在 Action pending 期间展示即时反馈，尤其适合列表新增、关注/点赞、购物车数量等“先显示预期结果”的交互。
+- `useFormStatus`：让设计系统里的提交按钮、局部提示文案读取父级 form 的提交状态，避免把 `pending` 一层层传 props。
+
+组合口诀：**Action 负责真实提交，Optimistic 负责临时观感，FormStatus 负责表单子组件感知提交状态。**
+
+### 17.5 错误恢复策略
+
+`useOptimistic` 不负责吞掉错误；Action 抛错后 Transition 结束，乐观状态会回到当前真实值。如果是可预期业务错误，建议在 Action 或 `useActionState` 中返回结构化错误；如果是未知异常，交给最近的 Error Boundary，并让 UI 回到真实数据[[useActionState – React]](https://react.dev/reference/react/useActionState)。
+
+```tsx
+interface DeleteState {
+  error?: string;
+}
+
+async function deleteTodoAction(
+  previousState: DeleteState,
+  todoId: string,
+): Promise<DeleteState> {
+  try {
+    await deleteTodo(todoId);
+    return {};
+  } catch {
+    return { ...previousState, error: "删除失败，请稍后重试" };
+  }
+}
+```
+
+工程判断：如果一个操作失败后很难自动恢复，例如支付、库存扣减、权限变更，就不要做强乐观更新；可以只做按钮 pending、禁用重复提交和局部骨架屏。

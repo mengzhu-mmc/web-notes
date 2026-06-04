@@ -50,3 +50,10 @@
 - Action 相关内容继续合并到 `React18-19新特性与Server_Components.md`，重点维护 `useActionState` 队列语义、Server Function 渐进增强、`startTransition` 触发边界。
 - React DOM 资源加载 API 统一按 `preload/preinit/preloadModule/preinitModule` 的“下载 vs 执行、普通资源 vs ESM 模块”维度收敛，不在课程笔记中重复扩写。
 - 课程笔记中的历史 React 18 并发内容保留为学习语境；主干答案以 React 19.2 官方文档边界为准。
+
+## 2026-06-04 巡检补充
+
+- `useOptimistic`、`useFormStatus`、`useActionState` 的组合边界继续合并到 `React18-19新特性与Server_Components.md`。
+- 乐观 UI 相关碎片统一按“真实状态、临时投影、错误恢复”三层组织，不再分散到课程笔记中重复扩写。
+- 表单提交相关碎片统一按“Action 负责提交、FormStatus 负责子组件感知、Optimistic 负责即时反馈”维护。
+- 原始课程笔记和历史面试题暂不删除，仅作为复习来源保留。
