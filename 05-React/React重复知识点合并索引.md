@@ -57,3 +57,10 @@
 - 乐观 UI 相关碎片统一按“真实状态、临时投影、错误恢复”三层组织，不再分散到课程笔记中重复扩写。
 - 表单提交相关碎片统一按“Action 负责提交、FormStatus 负责子组件感知、Optimistic 负责即时反馈”维护。
 - 原始课程笔记和历史面试题暂不删除，仅作为复习来源保留。
+
+## 2026-06-07 巡检补充
+
+- React Compiler 的 directive、`compilationMode` 与 lint 接入策略继续统一维护在 `React_Compiler自动记忆化.md`。
+- 性能优化类碎片后续按“默认 `infer`、灰度 `annotation`、临时 `use no memo`、谨慎 `all`”的工程化路径合并，不再在课程笔记中重复扩写。
+- TypeScript 项目中关于 Compiler 的配置建议统一标注为避免常规使用 `syntax` 模式，防止与 Flow component / hook syntax 语义混淆。
+- 原始性能优化课程笔记仍保留手写 memo 的历史语境；主干答案以 Compiler 官方配置和 React 纯度规则为准。

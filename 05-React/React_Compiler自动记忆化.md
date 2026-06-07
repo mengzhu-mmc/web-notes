@@ -245,3 +245,80 @@ React 19.2 同步推进了 `eslint-plugin-react-hooks` v6 和 Compiler 相关 li
 - TypeScript 类型要表达清楚 props、action state、Promise payload 和 DOM ref。
 - 不要为了让 Compiler 接受而隐藏真实依赖；该同步的 Effect 仍然要同步。
 - `"use memo"` / `"use no memo"` 应作为局部控制工具，而不是替代架构拆分和性能分析。
+
+## 十一、2026-06-07 巡检：Compiler 指令与 compilationMode 边界
+
+> Updated: 2026-06-07 based on official React Compiler docs.
+
+React Compiler 的接入不应只理解成“打开自动 memo”，还要同时理解 **指令、编译模式、命名约定、临时逃生门** 四层边界。默认心智模型可以概括为：项目级 `compilationMode` 决定编译器扫描范围；函数或模块顶部的 directive 只在少数场景里覆盖默认策略；违反 React 纯度和 Hook 规则的代码依然应该先重构，而不是靠 directive 强行绕过。
+
+### 1. `"use memo"`：显式 opt-in，而不是常规性能注释
+
+`"use memo"` 会标记一个函数交给 React Compiler 优化，但官方更推荐先依赖项目级配置和命名约定；只有在 `annotation` 模式、或少数无法被 `infer` 命名规则识别的函数中，才需要显式添加它[["use memo" – React]](https://react.dev/reference/react-compiler/directives/use-memo)。
+
+```tsx
+function ProductGrid({ products }: { products: Product[] }) {
+  "use memo";
+
+  const visibleProducts = products.filter((product) => product.available);
+  return visibleProducts.map((product) => (
+    <ProductCard key={product.id} product={product} />
+  ));
+}
+```
+
+使用边界：
+
+- directive 必须放在函数体最前面，位于任何表达式或变量声明之前。
+- 只能使用单引号或双引号字符串字面量，不能使用模板字符串。
+- 字符串必须精确匹配 `"use memo"`。
+- 如果同一位置有多个 directive，只有第一个会被编译器处理。
+- 在 `infer` 模式中，如果一个组件或 Hook 没有被识别，优先修正命名：组件使用 PascalCase，Hook 使用 `use` 前缀，而不是到处添加 `"use memo"`。
+
+### 2. `"use no memo"`：临时逃生门，不是长期架构策略
+
+`"use no memo"` 会阻止某个函数被 React Compiler 优化，而且优先级高于所有 `compilationMode`；它适合临时隔离编译器问题、第三方库兼容问题或灰度期间的风险函数，但不应该成为永久方案[["use no memo" – React]](https://react.dev/reference/react-compiler/directives/use-no-memo)。
+
+```tsx
+function LegacyChart({ data }: { data: ChartPoint[] }) {
+  "use no memo";
+  // TODO(compiler): 第三方图表库依赖可变实例，完成适配后移除此逃生门。
+  return <Chart data={data} />;
+}
+```
+
+落地规则：
+
+1. 每个 `"use no memo"` 都要写清楚原因、负责人或跟踪 issue。
+2. 能缩小到函数级就不要放到模块级，避免整文件失去编译收益。
+3. 定期巡检并移除已经不需要的 opt-out。
+4. 如果问题来自 render 副作用、可变 props、Hook 违规或手写 memo 依赖错误，应优先修代码，而不是长期 opt-out。
+
+### 3. `compilationMode` 四种模式怎么选
+
+React Compiler 的 `compilationMode` 支持 `infer`、`annotation`、`syntax`、`all`，默认值是 `infer`[[compilationMode – React]](https://react.dev/reference/react-compiler/compilationMode)。
+
+| 模式         | 编译范围                         | 适合场景                     | 风险与建议                         |
+| ------------ | -------------------------------- | ---------------------------- | ---------------------------------- |
+| `infer`      | 推断组件、Hook，以及显式标注函数 | 默认推荐；大多数 React 项目  | 依赖命名约定和 JSX / Hook 使用特征 |
+| `annotation` | 只编译带 `"use memo"` 的函数     | 老项目、小范围灰度、风险隔离 | 需要人工标注，覆盖率较低           |
+| `syntax`     | Flow component / hook syntax     | 使用 Flow 新语法的项目       | TypeScript 项目通常不适用          |
+| `all`        | 所有 top-level functions         | 极少数受控代码库或实验性验证 | 可能编译非 React 工具函数，不推荐  |
+
+实践建议：
+
+- 新项目或规则较好的 React 项目：优先使用默认 `infer`。
+- 历史包袱重、还没完成 lint 修复的项目：先用 `annotation` 小范围试点。
+- TypeScript 项目：不要选择 `syntax` 作为常规方案，因为它面向 Flow component / hook syntax。
+- 不建议直接上 `all`，因为工具函数、数据转换函数、非 React 入口也可能被纳入编译范围。
+- 不论选择哪种模式，带有 `"use no memo"` 的函数都会被跳过。
+
+### 4. 团队接入检查清单
+
+1. 先升级 `eslint-plugin-react-hooks`，修复纯度、不可变性、Hook 调用顺序和依赖问题。
+2. 使用 `infer` 或 `annotation` 做灰度，不要一开始全仓 `all`。
+3. 对每个 `"use no memo"` 建立台账，记录原因和计划移除时间。
+4. 通过 React DevTools 的 memo 标识、构建产物或性能基线验证收益，不要仅凭“加了 Compiler”判断性能变好。
+5. 手写 `useMemo/useCallback/memo` 暂时保留，等编译覆盖稳定后再逐步删除明显冗余的优化。
+
+面试表达可以这样收束：React Compiler 的核心不是让开发者手动给每个组件加 directive，而是通过编译器在遵守 React 纯函数规则的前提下自动推导 memoization；`"use memo"` 是显式 opt-in，`"use no memo"` 是临时 opt-out，`compilationMode` 决定默认编译范围，团队落地时应优先修正规则违规和命名问题，再决定是否扩大编译范围。
