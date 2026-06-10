@@ -301,3 +301,100 @@ React 19.2 稳定能力包括 `<Activity />`、`useEffectEvent`、`cacheSignal`�
 - `eslint-plugin-react-hooks@latest` 推荐配置进入 v6，Compiler 相关 lint 可按项目成熟度逐步启用。
 - React 19.2 默认 `useId` 前缀调整为 `_r_`，主要是为了兼容 View Transition 和 XML 命名要求；不要依赖生成 ID 的具体字符串。
 - Node.js 环境虽然支持 Web Streams 版本 SSR/PPR API，但官方仍更推荐 Node Streams 版本，如 `resumeToPipeableStream`、`prerenderToNodeStream`、`resumeAndPrerenderToNodeStream`。
+
+## 十四、2026-06-10 巡检：View Transition 与 transition type 的 Canary 边界
+
+> Updated: 2026-06-10 based on official React ViewTransition and addTransitionType docs.
+
+React 19.2 的稳定能力已经覆盖 `<Activity />`、`useEffectEvent`、`cacheSignal`、Performance Tracks 与 PPR；但 `<ViewTransition />` 和 `addTransitionType` 仍标记为 Canary / Experimental，不应在“稳定版 React 19.2 必考 API”里和稳定能力混答[[React 19.2 – React]](https://react.dev/blog/2025/10/01/react-19-2)。更准确的心智模型是：稳定版负责 UI 保活、Effect 语义拆分和 SSR/PPR 流水线；Canary 继续探索路由动画、共享元素动画和 Transition 原因标注。
+
+### 14.1 `<ViewTransition />` 的定位
+
+`<ViewTransition>` 用于包裹一棵组件子树，让它在 Transition、Suspense 或 deferred update 触发时参与浏览器 View Transition 动画；它目前只在 React Canary 和 Experimental 渠道可用[[<ViewTransition> – React]](https://react.dev/reference/react/ViewTransition)。
+
+```tsx
+import { startTransition, useState, ViewTransition } from "react";
+
+interface VideoCardProps {
+  id: string;
+  title: string;
+}
+
+function VideoCard({ id, title }: VideoCardProps) {
+  return (
+    <ViewTransition name={`video-${id}`}>
+      <article>
+        <h3>{title}</h3>
+      </article>
+    </ViewTransition>
+  );
+}
+
+export function VideoSwitcher({ videos }: { videos: VideoCardProps[] }) {
+  const [index, setIndex] = useState(0);
+  const current = videos[index];
+
+  function showNext() {
+    startTransition(() => {
+      setIndex((value) => (value + 1) % videos.length);
+    });
+  }
+
+  return (
+    <section>
+      <button onClick={showNext}>切换视频</button>
+      <VideoCard id={current.id} title={current.title} />
+    </section>
+  );
+}
+```
+
+使用边界：
+
+- 普通 `setState` 默认不会激活 `<ViewTransition>`；通常需要在 `startTransition`、Suspense 或 `useDeferredValue` 相关更新中触发[[<ViewTransition> – React]](https://react.dev/reference/react/ViewTransition)。
+- `name` 只建议用于共享元素动画；非共享元素场景优先让 React 自动生成唯一名称，避免不同边界意外串联动画。
+- 同一时间全局不能挂载两个同名 `<ViewTransition>`，列表项要把业务 id 拼进 name。
+- enter / exit 动画对边界位置敏感；如果 `<ViewTransition>` 前面已经有 DOM wrapper，可能无法按预期触发。
+- React 不会自动处理 `prefers-reduced-motion`，团队需要在 CSS 中尊重用户的减少动效偏好。
+
+### 14.2 `addTransitionType`：标注 Transition 原因，而不是状态管理
+
+`addTransitionType(type)` 用来在 `startTransition` 作用域内给一次 Transition 添加原因标记，它不返回值，且 Transition Types 会在每次 commit 后重置[[addTransitionType – React]](https://react.dev/reference/react/addTransitionType)。
+
+```tsx
+import { addTransitionType, startTransition } from "react";
+
+interface NavigateOptions {
+  direction: "forward" | "back";
+  to: string;
+}
+
+function navigate({ direction, to }: NavigateOptions) {
+  startTransition(() => {
+    addTransitionType(`navigation-${direction}`);
+    router.navigate(to);
+  });
+}
+```
+
+它的价值不在于“保存业务状态”，而在于让 View Transition 能按触发原因选择不同动画。多个 transition type 可以被合并收集；当它们匹配 `<ViewTransition>` 的 class 配置时，可以对 forward / back、add / remove、fast / slow 等不同原因使用不同动画[[addTransitionType – React]](https://react.dev/reference/react/addTransitionType)。
+
+```tsx
+<ViewTransition
+  enter={{
+    "navigation-forward": "enter-from-right",
+    "navigation-back": "enter-from-left",
+    default: "fade-in",
+  }}
+  exit={{
+    "navigation-forward": "exit-to-left",
+    "navigation-back": "exit-to-right",
+  }}
+>
+  <RoutePage />
+</ViewTransition>
+```
+
+### 14.3 面试与落地回答
+
+如果被问 React 19.2 和 View Transition 的关系，可以这样回答：React 19.2 稳定版已经发布了 Activity、Effect Event、cacheSignal、PPR 和 Performance Tracks；`<ViewTransition>` 与 `addTransitionType` 出现在 19.2 文档导航中，但仍属于 Canary / Experimental 渠道，因此项目落地时要把它们当作前瞻能力灰度验证，而不是稳定生产依赖。实际设计路由动画时，可以先用 `<Activity />` 保留隐藏页面状态，再在 Canary 试验中用 `<ViewTransition>` 做 enter / exit / share 动画，并用 `addTransitionType` 区分前进、后退或快速切换等触发原因。

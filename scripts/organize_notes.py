@@ -116,6 +116,10 @@ def first_level_main_links(directory: Path, limit: int = 14) -> list[tuple[str, 
     return [(title_from_file(p), './' + p.name) for p in chosen]
 
 
+def display_name(name: str) -> str:
+    return name.replace('_', r'\_')
+
+
 def write(path: Path, text: str) -> None:
     path.write_text(text.rstrip() + '\n', encoding='utf-8')
 
@@ -226,7 +230,7 @@ def generate_section_indexes() -> None:
                 elif readme.exists():
                     target = f'./{sub.name}/README.md'
                 count = len(main_note_files(sub))
-                lines.append(f'- [{sub.name}]({target}) — {count} 篇主干/专题笔记')
+                lines.append(f'- [{display_name(sub.name)}]({target}) — {count} 篇主干/专题笔记')
         else:
             lines.append('- 暂无子目录。')
         lines += [

@@ -64,3 +64,9 @@
 - 性能优化类碎片后续按“默认 `infer`、灰度 `annotation`、临时 `use no memo`、谨慎 `all`”的工程化路径合并，不再在课程笔记中重复扩写。
 - TypeScript 项目中关于 Compiler 的配置建议统一标注为避免常规使用 `syntax` 模式，防止与 Flow component / hook syntax 语义混淆。
 - 原始性能优化课程笔记仍保留手写 memo 的历史语境；主干答案以 Compiler 官方配置和 React 纯度规则为准。
+
+## 2026-06-10 巡检补充
+
+- React 19.2 稳定能力与 Canary 动画能力继续统一维护在 `React19.2实践心智模型.md`，避免把 `<ViewTransition />`、`addTransitionType` 与稳定 API 混答。
+- 路由动画、共享元素动画和 Transition Type 相关碎片后续按“稳定能力先讲 Activity / PPR，Canary 能力单独标注风险”的口径合并。
+- Vue 相关内容本轮不扩写，仅保留既有索引和格式化治理。
