@@ -70,3 +70,10 @@
 - React 19.2 稳定能力与 Canary 动画能力继续统一维护在 `React19.2实践心智模型.md`，避免把 `<ViewTransition />`、`addTransitionType` 与稳定 API 混答。
 - 路由动画、共享元素动画和 Transition Type 相关碎片后续按“稳定能力先讲 Activity / PPR，Canary 能力单独标注风险”的口径合并。
 - Vue 相关内容本轮不扩写，仅保留既有索引和格式化治理。
+
+## 2026-06-13 巡检补充
+
+- RSC、Server Function、Server Action 与 `"use server"` 的安全边界继续统一维护在 `React18-19新特性与Server_Components.md`。
+- Server Function 相关碎片后续按“可远程调用 async 函数、参数可序列化、客户端输入不可信、表单外调用进入 Transition、mutation 优先”的口径合并。
+- 课程笔记中的 Server Actions 旧称保留历史语境；主干文档统一采用 React 19 文档中的 Server Function / Server Action 区分。
+- Vue 相关内容本轮不扩写，仅参与索引、格式化和安全巡检。

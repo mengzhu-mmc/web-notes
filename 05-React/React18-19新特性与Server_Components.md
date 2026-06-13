@@ -1726,3 +1726,156 @@ async function deleteTodoAction(
 ```
 
 工程判断：如果一个操作失败后很难自动恢复，例如支付、库存扣减、权限变更，就不要做强乐观更新；可以只做按钮 pending、禁用重复提交和局部骨架屏。
+
+## 十八、2026-06-13 巡检：RSC、Server Function 与 Action 的安全边界
+
+> Updated: 2026-06-13 based on official React Server Components and Server Functions docs.
+
+React 19 之后，RSC 的面试和工程落地最容易混淆三件事：**Server Component 是渲染位置，Server Function 是客户端可调用的服务端异步函数，Server Action 是 Server Function 在 Action / form 流程里的用法**。React 官方在 2024 年 9 月之后把过去泛称的 Server Actions 重新命名为 Server Functions；当 Server Function 被传给 action prop，或从 Action 中调用时，才是 Server Action[[Server Functions – React]](https://react.dev/reference/rsc/server-functions)。
+
+### 18.1 Server Component 没有 `"use server"` 指令
+
+Server Components 会在独立于客户端应用或 SSR 服务器的环境中提前渲染，可以在构建时运行，也可以按请求在 Web Server 中运行[[Server Components – React]](https://react.dev/reference/rsc/server-components)。需要特别记住：**Server Component 没有专属 directive\*\*；`"use server"` 不是 Server Component 的标记，而是 Server Function 的标记[[Server Components – React]](https://react.dev/reference/rsc/server-components)。
+
+```tsx
+// app/notes/page.tsx —— Server Component
+import { Suspense } from "react";
+import { NoteComments } from "./NoteComments";
+
+interface Note {
+  id: string;
+  title: string;
+  body: string;
+}
+
+interface Comment {
+  id: string;
+  body: string;
+}
+
+async function getNote(noteId: string): Promise<Note> {
+  return db.notes.get(noteId);
+}
+
+function getComments(noteId: string): Promise<Comment[]> {
+  return db.comments.list(noteId);
+}
+
+export default async function NotePage({ noteId }: { noteId: string }) {
+  const note = await getNote(noteId);
+  const commentsPromise = getComments(note.id);
+
+  return (
+    <article>
+      <h1>{note.title}</h1>
+      <p>{note.body}</p>
+      <Suspense fallback={<p>评论加载中...</p>}>
+        <NoteComments commentsPromise={commentsPromise} />
+      </Suspense>
+    </article>
+  );
+}
+```
+
+这个例子表达两个边界：核心内容在服务端 await，保证首屏内容优先；低优先级评论可以把 Promise 传给 Client Component，再由客户端用 `use` 继续等待。Server Components 支持 async / await；客户端组件不支持 async component，因此客户端应通过 `use(promise)` 读取从服务端传来的 Promise[[Server Components – React]](https://react.dev/reference/rsc/server-components)。
+
+### 18.2 `"use server"` 标记的是可远程调用函数
+
+`"use server"` 可以放在 async 函数体最前面，也可以放在模块顶部来标记该文件导出的函数；这些函数会被框架变成客户端可调用的 Server Function 引用[["use server" – React]](https://react.dev/reference/rsc/use-server)。
+
+```tsx
+// app/notes/actions.ts
+"use server";
+
+interface RenameNoteResult {
+  ok: boolean;
+  error?: string;
+}
+
+export async function renameNote(
+  noteId: string,
+  title: string,
+): Promise<RenameNoteResult> {
+  const nextTitle = title.trim();
+
+  if (nextTitle.length < 2) {
+    return { ok: false, error: "标题至少 2 个字符" };
+  }
+
+  await assertCanEditNote(noteId);
+  await db.notes.rename(noteId, nextTitle);
+
+  return { ok: true };
+}
+```
+
+```tsx
+// app/notes/RenameButton.tsx
+"use client";
+
+import { useState, useTransition } from "react";
+import { renameNote } from "./actions";
+
+export function RenameButton({ noteId }: { noteId: string }) {
+  const [title, setTitle] = useState("React 19");
+  const [error, setError] = useState<string | null>(null);
+  const [isPending, startRenameTransition] = useTransition();
+
+  function handleRename() {
+    startRenameTransition(async () => {
+      const result = await renameNote(noteId, title);
+      setError(result.ok ? null : (result.error ?? "重命名失败"));
+    });
+  }
+
+  return (
+    <section>
+      <input value={title} onChange={(event) => setTitle(event.target.value)} />
+      <button disabled={isPending} onClick={handleRename}>
+        {isPending ? "保存中" : "保存"}
+      </button>
+      {error && <p role="alert">{error}</p>}
+    </section>
+  );
+}
+```
+
+使用边界：
+
+- `"use server"` 必须位于函数或模块的最前面；注释可以在其上方，但 import 和其他代码不能在模块级 directive 之前[["use server" – React]](https://react.dev/reference/rsc/use-server)。
+- Server Function 只能用于 async function，因为底层网络调用始终是异步的[["use server" – React]](https://react.dev/reference/rsc/use-server)。
+- 从客户端代码 import Server Function 时，`"use server"` 必须放在模块级，不能只写在某个内联函数体里[["use server" – React]](https://react.dev/reference/rsc/use-server)。
+- 在表单外调用 Server Function 时，应放进 Transition；传给 `<form action>` 或 `formAction` 的 Server Function 会自动在 Transition 中调用[["use server" – React]](https://react.dev/reference/rsc/use-server)。
+
+### 18.3 序列化、安全与缓存边界
+
+Server Function 的参数完全由客户端控制，因此所有参数都必须当作不可信输入处理；任何写操作都要重新校验权限，而不是相信按钮是否隐藏或客户端是否传了正确 id[["use server" – React]](https://react.dev/reference/rsc/use-server)。
+
+```tsx
+"use server";
+
+interface DeleteNoteResult {
+  ok: boolean;
+  error?: string;
+}
+
+export async function deleteNote(noteId: string): Promise<DeleteNoteResult> {
+  if (!isValidId(noteId)) {
+    return { ok: false, error: "非法笔记 ID" };
+  }
+
+  const currentUser = await requireUser();
+  await assertCanDeleteNote(currentUser.id, noteId);
+  await db.notes.delete(noteId);
+
+  return { ok: true };
+}
+```
+
+序列化限制也要前置考虑：Server Function 参数需要可序列化，支持 primitive、包含可序列化值的 Array / Map / Set、TypedArray / ArrayBuffer、Date、FormData、普通对象、Server Function、Promise 等；不支持 React element / JSX、普通函数、class、类实例、null prototype 对象、非全局注册 Symbol、事件对象等[["use server" – React]](https://react.dev/reference/rsc/use-server)。
+
+工程上还要避免把 Server Function 当成通用查询 RPC：官方更推荐它用于修改服务端状态的 mutation，而不是 data fetching；实现 Server Functions 的框架通常一次处理一个 action，且不会提供返回值缓存机制[["use server" – React]](https://react.dev/reference/rsc/use-server)。查询型数据优先放在 Server Component、框架 loader 或缓存层；写操作再交给 Server Function / Action。
+
+### 18.4 面试收束模板
+
+可以这样回答：RSC 解决的是“哪些组件和数据读取可以留在服务端提前渲染”，Server Function 解决的是“客户端如何调用服务端异步函数”，Action 解决的是“这个调用如何接入表单、Transition、pending、乐观 UI 和渐进增强”。`"use client"` 划分客户端边界，`"use server"` 标记可远程调用的 async Server Function；Server Component 本身没有 directive。真正落地时，我会把读数据和静态渲染放在 Server Component，把写操作封装为 Server Function，并在函数内部做序列化约束、输入校验、鉴权和错误返回。
