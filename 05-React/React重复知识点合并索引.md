@@ -77,3 +77,10 @@
 - Server Function 相关碎片后续按“可远程调用 async 函数、参数可序列化、客户端输入不可信、表单外调用进入 Transition、mutation 优先”的口径合并。
 - 课程笔记中的 Server Actions 旧称保留历史语境；主干文档统一采用 React 19 文档中的 Server Function / Server Action 区分。
 - Vue 相关内容本轮不扩写，仅参与索引、格式化和安全巡检。
+
+## 2026-06-16 巡检补充
+
+- Concurrent API 的输入边界、Action 异步边界和 `useDeferredValue` 旧内容保留策略继续统一维护在 `React_Fiber与Concurrent_Mode详解.md`。
+- 课程笔记中把输入 `setState` 包进 `startTransition` 的历史示例后续按“输入同步、结果延后消费”的口径修正。
+- 对需要提交顺序、错误状态和 pending 状态的异步交互，主干文档统一推荐优先考虑 `useActionState`、form Action 或 Server Function。
+- Vue 相关内容本轮不扩写，仅参与索引、格式化和安全巡检。

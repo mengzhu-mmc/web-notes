@@ -816,13 +816,7 @@ Concurrent Mode 不应该再理解成一个需要整体打开的“模式开关�
 ### TypeScript 示例：输入优先，列表延后
 
 ```tsx
-import {
-  ChangeEvent,
-  useDeferredValue,
-  useMemo,
-  useState,
-  useTransition,
-} from "react";
+import { ChangeEvent, useDeferredValue, useMemo, useState } from "react";
 
 interface Product {
   id: string;
@@ -836,7 +830,6 @@ interface ProductSearchProps {
 
 export function ProductSearch({ products }: ProductSearchProps) {
   const [query, setQuery] = useState("");
-  const [isPending, startTransition] = useTransition();
   const deferredQuery = useDeferredValue(query, "");
 
   const visibleProducts = useMemo(() => {
@@ -848,16 +841,15 @@ export function ProductSearch({ products }: ProductSearchProps) {
   }, [deferredQuery, products]);
 
   function handleChange(event: ChangeEvent<HTMLInputElement>) {
-    const nextQuery = event.target.value;
-    startTransition(() => {
-      setQuery(nextQuery);
-    });
+    setQuery(event.target.value);
   }
 
+  const isStale = query !== deferredQuery;
+
   return (
-    <section aria-busy={isPending}>
+    <section aria-busy={isStale}>
       <input value={query} onChange={handleChange} />
-      <ProductList products={visibleProducts} />
+      <ProductList products={visibleProducts} stale={isStale} />
     </section>
   );
 }
@@ -931,3 +923,125 @@ export function SearchPage({ products }: SearchPageProps) {
 2. 输入卡顿优先考虑 `startTransition` 和 `useDeferredValue`。
 3. 切换页面丢状态或重复加载，优先考虑 `<Activity />` 与 Suspense 边界。
 4. 服务端首屏等待过长，再考虑 streaming SSR、RSC、Partial Pre-rendering 的架构拆分。
+
+## 2026-06-16 巡检补充：Transition、Action 与 deferred value 的边界
+
+> Updated: 2026-06-16 based on official React `startTransition`, `useTransition`, and `useDeferredValue` docs.
+
+现代 React 的并发能力不是“把所有 setState 都包进 transition”，而是把**紧急交互、非阻塞渲染、异步 Action、旧内容保留**分层处理。`startTransition(action)` 会立即执行传入函数，并把该函数同步执行期间调度的 state update 标记为 Transition；它本身不提供 pending 状态，组件内需要 pending UI 时应使用 `useTransition`[[startTransition – React]](https://react.dev/reference/react/startTransition)。
+
+### 1. 输入框状态必须同步更新
+
+Transition update 不能用于控制文本输入；输入框自身的 `value` 应同步更新，昂贵列表、图表或搜索结果再通过 `useDeferredValue` 延后消费[[useTransition – React]](https://react.dev/reference/react/useTransition)。
+
+```tsx
+import { ChangeEvent, Suspense, useDeferredValue, useState } from "react";
+
+interface SearchResult {
+  id: string;
+  title: string;
+}
+
+interface SearchResultsProps {
+  query: string;
+  stale: boolean;
+}
+
+function SearchResults({ query, stale }: SearchResultsProps) {
+  const results = useSearchResults(query);
+
+  return (
+    <ul aria-busy={stale} style={{ opacity: stale ? 0.55 : 1 }}>
+      {results.map((item: SearchResult) => (
+        <li key={item.id}>{item.title}</li>
+      ))}
+    </ul>
+  );
+}
+
+export function SearchPage() {
+  const [query, setQuery] = useState("");
+  const deferredQuery = useDeferredValue(query);
+  const isStale = query !== deferredQuery;
+
+  function handleChange(event: ChangeEvent<HTMLInputElement>) {
+    setQuery(event.target.value);
+  }
+
+  return (
+    <section>
+      <input value={query} onChange={handleChange} />
+      <Suspense fallback={<p>搜索结果加载中...</p>}>
+        <SearchResults query={deferredQuery} stale={isStale} />
+      </Suspense>
+    </section>
+  );
+}
+```
+
+`useDeferredValue` 返回的值会在更新时先保持旧值，再在后台尝试用新值重渲染；如果后台渲染挂起，用户会继续看到旧内容而不是最近的 Suspense fallback[[useDeferredValue – React]](https://react.dev/reference/react/useDeferredValue)。它不会减少网络请求，也不会设置固定延迟；它优化的是 React 渲染优先级，真正的请求节流仍要配合 debounce、throttle、缓存或框架数据层[[useDeferredValue – React]](https://react.dev/reference/react/useDeferredValue)。
+
+### 2. Action 可以异步，但 `await` 后的 setState 要重新标记
+
+`useTransition()` 返回 `[isPending, startTransition]`，适合在组件内展示 pending 状态；传给 `startTransition` 的函数被称为 Action，Action 内可以执行副作用，但 `await` 之后的 state update 目前需要再次包进 `startTransition` 才会继续被标记为 Transition[[useTransition – React]](https://react.dev/reference/react/useTransition)。
+
+```tsx
+import {
+  startTransition as markTransition,
+  useState,
+  useTransition,
+} from "react";
+
+interface SaveResult {
+  version: number;
+}
+
+async function saveDraft(content: string): Promise<SaveResult> {
+  return api.saveDraft(content);
+}
+
+export function DraftToolbar({ content }: { content: string }) {
+  const [version, setVersion] = useState(0);
+  const [error, setError] = useState<string | null>(null);
+  const [isPending, startSaveTransition] = useTransition();
+
+  function handleSave() {
+    startSaveTransition(async () => {
+      try {
+        const result = await saveDraft(content);
+        markTransition(() => {
+          setVersion(result.version);
+          setError(null);
+        });
+      } catch {
+        markTransition(() => {
+          setError("保存失败，请稍后重试");
+        });
+      }
+    });
+  }
+
+  return (
+    <section aria-busy={isPending}>
+      <button disabled={isPending} onClick={handleSave}>
+        {isPending ? "保存中" : "保存草稿"}
+      </button>
+      <span>版本：{version}</span>
+      {error && <p role="alert">{error}</p>}
+    </section>
+  );
+}
+```
+
+如果一个异步流程可能被快速重复触发，普通 Transition 内的 async update 可能出现完成顺序和触发顺序不一致的问题；常见表单和提交场景应优先用 `useActionState`、`<form action>` 或 Server Functions，因为这些抽象会处理常见的提交顺序问题[[useTransition – React]](https://react.dev/reference/react/useTransition)。
+
+### 3. 选择口诀
+
+- **控制输入值**：同步 `setState`，不要放进 Transition。
+- **输入驱动慢列表**：输入同步更新，列表消费 `useDeferredValue`。
+- **按钮触发慢渲染或页面切换**：用 `useTransition` 拿 `isPending`，把非紧急状态更新标记为 Transition。
+- **组件外或数据库里触发非阻塞更新**：用独立的 `startTransition`，但它没有 pending 标记。
+- **异步提交要顺序和错误状态**：优先 `useActionState` / form Action / Server Function，而不是手写一堆 Transition 队列。
+- **Suspense 导航**：路由或页面切换默认应该进入 Transition，避免已经显示的内容被突兀 fallback 替换。
+
+面试可以这样收束：`startTransition` 是“标记非紧急更新”的 API，`useTransition` 是“带 pending 状态的组件内版本”，`useDeferredValue` 是“延后消费某个值”的 API。输入框自身永远优先保持同步；慢列表、图表、路由内容和 Suspense 子树才适合并发降级。
