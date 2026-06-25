@@ -322,3 +322,79 @@ React Compiler 的 `compilationMode` 支持 `infer`、`annotation`、`syntax`、
 5. 手写 `useMemo/useCallback/memo` 暂时保留，等编译覆盖稳定后再逐步删除明显冗余的优化。
 
 面试表达可以这样收束：React Compiler 的核心不是让开发者手动给每个组件加 directive，而是通过编译器在遵守 React 纯函数规则的前提下自动推导 memoization；`"use memo"` 是显式 opt-in，`"use no memo"` 是临时 opt-out，`compilationMode` 决定默认编译范围，团队落地时应优先修正规则违规和命名问题，再决定是否扩大编译范围。
+
+## 十二、2026-06-25 巡检：Compiler gating 与 target 灰度边界
+
+> Updated: 2026-06-25 based on official React Compiler configuration docs.
+
+React Compiler 的工程化接入还需要区分 **编译范围**、**运行时开关** 和 **React 版本目标**。`compilationMode` 解决“哪些函数会被编译”，`gating` 解决“编译后的代码是否在运行时启用”，`target` 解决“生成代码面向哪个 React 大版本运行时”。三者不要混用：灰度发布用 `gating`，版本兼容用 `target`，增量扫描范围用 `compilationMode`。
+
+### 1. `gating`：运行时特性开关，不是编译范围控制
+
+React Compiler 的 `gating` 选项可以为已编译函数生成运行时 feature flag 分支，从而控制是否使用优化后的代码[[gating – React]](https://react.dev/reference/react-compiler/gating)。它的配置形态是 `{ source, importSpecifierName } | null`，默认值为 `null`[[gating – React]](https://react.dev/reference/react-compiler/gating)。
+
+```ts
+// src/utils/reactCompilerFlags.ts
+export function shouldUseReactCompiler(): boolean {
+  return readRuntimeFlag("react-compiler-enabled");
+}
+```
+
+```js
+// compiler config
+export default {
+  compilationMode: "infer",
+  gating: {
+    source: "./src/utils/reactCompilerFlags",
+    importSpecifierName: "shouldUseReactCompiler",
+  },
+};
+```
+
+使用边界：
+
+- gating 函数必须返回 boolean。
+- `source` 指向导出 feature flag 函数的模块，`importSpecifierName` 必须匹配具名导出。
+- 编译器会把 gating import 加到每个包含 compiled functions 的文件里。
+- 同时保留 compiled 和 original 两个版本会增加 bundle size。
+- gating 函数在模块求值时执行一次；JS bundle 解析并求值后，本次浏览器会话中的组件选择会保持静态[[gating – React]](https://react.dev/reference/react-compiler/gating)。
+
+因此，`gating` 适合做“上线灰度 / 回滚开关”，不适合做“用户每次点击动态切换优化版本”。如果团队只是想小范围选择哪些文件参与编译，优先调整 `compilationMode`、目录 include/exclude 或 directive，而不是依赖 `gating`。
+
+### 2. `target`：匹配 React 大版本运行时
+
+React Compiler 的 `target` 用来指定生成代码兼容的 React 版本，合法值是 `'17' | '18' | '19'`，默认值为 `'19'`[[target – React]](https://react.dev/reference/react-compiler/target)。React 19 内置 compiler runtime API；React 17 和 React 18 项目需要安装 `react-compiler-runtime@latest`，并把 `target` 设置为对应的大版本字符串[[target – React]](https://react.dev/reference/react-compiler/target)。
+
+```js
+// React 19 项目：默认即可
+export default {
+  target: "19",
+};
+```
+
+```js
+// React 18 项目：需要额外安装 react-compiler-runtime@latest
+export default {
+  target: "18",
+};
+```
+
+检查清单：
+
+1. `target` 必须写字符串，不要写数字，例如写 `"18"`，不要写 `18`。
+2. 只写大版本，不要写 patch 版本，例如写 `"18"`，不要写 `"18.2.0"`。
+3. React 17 / 18 的 runtime 包应放在 `dependencies`，不要只放在 `devDependencies`。
+4. 如果编译产物引用 `react/compiler-runtime`，说明目标是 React 19 内置 runtime；如果引用 `react-compiler-runtime`，说明目标是 React 17 / 18 polyfill runtime[[target – React]](https://react.dev/reference/react-compiler/target)。
+
+### 3. 团队灰度策略
+
+推荐按下面顺序接入：
+
+1. 用 `eslint-plugin-react-hooks` 先清理纯度、不可变性、Hook 调用和依赖问题。
+2. 用 `compilationMode: "annotation"` 或较保守的 `infer` 控制编译范围。
+3. 用 `gating` 做运行时灰度，准备快速回滚。
+4. 确认 React 大版本后配置 `target`，React 17 / 18 项目补齐 runtime 包。
+5. 通过 React DevTools、Performance Tracks 和线上指标观察 compiled / original 分支差异。
+6. 灰度稳定后减少不必要的 `"use no memo"`，再逐步扩大编译范围。
+
+面试可以这样回答：`compilationMode` 决定编译器“看哪些函数”，`gating` 决定运行时“用不用编译后的版本”，`target` 决定编译产物“依赖哪个 React runtime”。成熟项目不会一上来全量 `all`，而是先 lint，再小范围编译，再用 gating 灰度，最后按 React 版本配置 target 和 runtime。

@@ -84,3 +84,10 @@
 - 课程笔记中把输入 `setState` 包进 `startTransition` 的历史示例后续按“输入同步、结果延后消费”的口径修正。
 - 对需要提交顺序、错误状态和 pending 状态的异步交互，主干文档统一推荐优先考虑 `useActionState`、form Action 或 Server Function。
 - Vue 相关内容本轮不扩写，仅参与索引、格式化和安全巡检。
+
+## 2026-06-25 巡检补充
+
+- React Compiler 的 `gating`、`target`、`compilationMode` 与 directive 接入策略继续统一维护在 `React_Compiler自动记忆化.md`。
+- Compiler 灰度相关碎片后续按“lint 体检 → 控制编译范围 → gating 灰度 → target/runtime 版本匹配 → 性能验证”的工程路径合并。
+- React 17 / 18 项目使用 Compiler 时，主干文档统一提醒安装 `react-compiler-runtime` 并把 runtime 依赖放入生产依赖。
+- Vue 相关内容本轮不扩写，仅参与索引、格式化和安全巡检。
