@@ -2,6 +2,16 @@
 
 > 维护原则：官方 / 一手资料优先；社区文章用于拓展视角；每条资料都要标注学习用途，避免收藏后不复习。
 
+## 〇、系统课程（原理打底）
+
+### 微软《面向初学者的生成式 AI》（中文版）
+
+- [generative-ai-for-beginners / translations / zh-CN](https://github.com/microsoft/generative-ai-for-beginners/tree/main/translations/zh-CN)
+  - 用途：A 线（原理）主教材，21 课系统覆盖 GenAI 概念到应用落地。
+  - 重点章节：01 简介、04/05 提示工程、07 聊天应用、08 搜索与向量库、11 函数调用、13 安全、15 RAG、17 AI 代理。
+  - 课程同时提供 Python 与 TypeScript 代码示例，适合前端工程师边学边写。
+  - 配套执行计划见 `91-AI前端/AI学习计划-执行版-原理与应用.md`。
+
 ## 一、Agent 协议与工具连接
 
 ### Model Context Protocol（MCP）
