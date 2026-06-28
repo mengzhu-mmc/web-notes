@@ -398,3 +398,75 @@ function navigate({ direction, to }: NavigateOptions) {
 ### 14.3 面试与落地回答
 
 如果被问 React 19.2 和 View Transition 的关系，可以这样回答：React 19.2 稳定版已经发布了 Activity、Effect Event、cacheSignal、PPR 和 Performance Tracks；`<ViewTransition>` 与 `addTransitionType` 出现在 19.2 文档导航中，但仍属于 Canary / Experimental 渠道，因此项目落地时要把它们当作前瞻能力灰度验证，而不是稳定生产依赖。实际设计路由动画时，可以先用 `<Activity />` 保留隐藏页面状态，再在 Canary 试验中用 `<ViewTransition>` 做 enter / exit / share 动画，并用 `addTransitionType` 区分前进、后退或快速切换等触发原因。
+
+## 十五、2026-06-28 巡检：Effect Event 与 prerender 的误用边界
+
+> Updated: 2026-06-28 based on official React 19.2 API references.
+
+本轮补充两个容易被误解的细节：`useEffectEvent` 的返回函数**不是稳定 callback**，`prerender` 也**不是流式 SSR 的同义词**。这两个边界都影响面试表达和真实项目选型。
+
+### 15.1 Effect Event 不是稳定引用，也不是依赖逃生门
+
+`useEffectEvent` 返回的 Effect Event 会读取最新提交的 props/state，但它只能在 `useEffect`、`useLayoutEffect`、`useInsertionEffect` 或同组件内其他 Effect Event 中调用[[useEffectEvent – React]](https://react.dev/reference/react/useEffectEvent)。官方同时强调，Effect Event 函数的 identity 会在每次 render 改变，不应放入依赖数组，也不要传给子组件或普通 Hook[[useEffectEvent – React]](https://react.dev/reference/react/useEffectEvent)。
+
+```tsx
+import { useEffect, useEffectEvent } from "react";
+
+interface ChatRoomProps {
+  roomId: string;
+  muted: boolean;
+}
+
+export function ChatRoom({ roomId, muted }: ChatRoomProps) {
+  const onConnected = useEffectEvent(() => {
+    if (!muted) {
+      showToast("Connected");
+    }
+  });
+
+  useEffect(() => {
+    const connection = createConnection(roomId);
+    connection.on("connected", onConnected);
+    connection.connect();
+    return () => connection.disconnect();
+  }, [roomId]);
+
+  return null;
+}
+```
+
+判断标准：
+
+- `roomId` 决定外部连接，应保留在依赖数组。
+- `muted` 只是连接成功后读取的最新 UI 状态，不应导致重连，因此放入 Effect Event。
+- 如果某个值本来就应该触发重新订阅、重新请求或重新同步，不要把它藏进 Effect Event。
+
+### 15.2 `prerender` 等待数据完成，不等于 streaming SSR
+
+`prerender` 用于静态服务端生成，返回 `prelude` Web Stream 和可选 `postponed` 状态；它会等待所有数据加载完成后再 resolve，适合 SSG，而不是“边加载边发”的流式 SSR[[prerender – React]](https://react.dev/reference/react-dom/static/prerender)。如果目标是内容加载时逐步流式输出，应优先考虑 `renderToReadableStream` 等 SSR API[[prerender – React]](https://react.dev/reference/react-dom/static/prerender)。
+
+```tsx
+import { prerender } from "react-dom/static";
+
+export async function renderStaticPage() {
+  const { prelude, postponed } = await prerender(<App />, {
+    bootstrapScripts: ["/main.js"],
+  });
+
+  if (postponed) {
+    await savePostponedState(postponed);
+  }
+
+  return new Response(prelude, {
+    headers: { "content-type": "text/html" },
+  });
+}
+```
+
+补充边界：
+
+1. `prerender` 的 Web Streams 版本适合 Web Streams 环境；Node.js 中应使用 `prerenderToNodeStream`[[prerender – React]](https://react.dev/reference/react-dom/static/prerender)。
+2. `prerender` 可被 abort，后续可用 `resumeAndPrerender` 或 `resume` 继续支持 PPR[[prerender – React]](https://react.dev/reference/react-dom/static/prerender)。
+3. `prerender` 不支持 `nonce` 选项；官方指出 nonce 应按请求唯一生成，把 nonce 固化进 prerender 产物不合适也不安全[[prerender – React]](https://react.dev/reference/react-dom/static/prerender)。
+
+面试收束：`useEffectEvent` 解决的是 Effect 内部事件读取最新值的问题，不是通用稳定 callback；`prerender` 解决的是静态生成和 PPR 静态壳问题，不是替代 streaming SSR。

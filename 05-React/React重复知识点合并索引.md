@@ -91,3 +91,10 @@
 - Compiler 灰度相关碎片后续按“lint 体检 → 控制编译范围 → gating 灰度 → target/runtime 版本匹配 → 性能验证”的工程路径合并。
 - React 17 / 18 项目使用 Compiler 时，主干文档统一提醒安装 `react-compiler-runtime` 并把 runtime 依赖放入生产依赖。
 - Vue 相关内容本轮不扩写，仅参与索引、格式化和安全巡检。
+
+## 2026-06-28 巡检补充
+
+- `useEffectEvent` 的 non-stable identity、调用位置和依赖数组边界继续统一维护在 `React19.2实践心智模型.md`。
+- `prerender`、`resumeAndPrerender` 与 streaming SSR 的差异继续统一维护在 `React19.2实践心智模型.md`，避免把静态生成 API 当成普通 SSR API。
+- React Compiler 的 `logger` 与 `panicThreshold` 作为“可观测性 + 失败策略”补充到 `React_Compiler自动记忆化.md`，后续 Compiler 碎片按“lint → 编译范围 → logger → gating → panicThreshold → 指标验证”路径收敛。
+- Vue 相关内容本轮不扩写，仅参与索引、格式化和安全巡检。

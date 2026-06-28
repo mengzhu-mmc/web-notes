@@ -398,3 +398,57 @@ export default {
 6. 灰度稳定后减少不必要的 `"use no memo"`，再逐步扩大编译范围。
 
 面试可以这样回答：`compilationMode` 决定编译器“看哪些函数”，`gating` 决定运行时“用不用编译后的版本”，`target` 决定编译产物“依赖哪个 React runtime”。成熟项目不会一上来全量 `all`，而是先 lint，再小范围编译，再用 gating 灰度，最后按 React 版本配置 target 和 runtime。
+
+## 十三、2026-06-28 巡检：Compiler logger 与 panicThreshold 调试边界
+
+> Updated: 2026-06-28 based on official React Compiler configuration docs.
+
+React Compiler 的灰度接入除了 `compilationMode`、`gating`、`target`，还要补上 **可观测性** 和 **失败策略** 两层。`logger` 负责记录哪些函数被编译、跳过或诊断，`panicThreshold` 负责决定编译器遇到问题时是跳过优化还是让构建失败。
+
+### 1. `logger`：看见编译器做了什么
+
+`logger` 选项可以通过 `logEvent(filename, event)` 接收 Compiler 编译事件，默认值是 `null`[[logger – React]](https://react.dev/reference/react-compiler/logger)。官方列出的事件类型包括 `CompileSuccess`、`CompileError`、`CompileDiagnostic`、`CompileSkip`、`PipelineError` 和 `Timing`[[logger – React]](https://react.dev/reference/react-compiler/logger)。
+
+```js
+const isDevelopment = process.env.NODE_ENV === "development";
+
+export default {
+  compilationMode: "infer",
+  logger: isDevelopment
+    ? {
+        logEvent(filename, event) {
+          if (event.kind === "CompileError") {
+            console.warn("[React Compiler skipped]", filename, event.detail);
+          }
+        },
+      }
+    : null,
+};
+```
+
+使用建议：
+
+1. 本地调试或 CI 诊断时开启，帮助定位哪些组件因为纯度、不可变性、Hook 规则或不兼容库被跳过。
+2. 大型仓库不要长期输出全量日志；官方提醒大代码库会产生大量日志，事件结构也可能随版本变化[[logger – React]](https://react.dev/reference/react-compiler/logger)。
+3. 日志只用于判断“编译器有没有覆盖到目标函数”，最终收益仍要靠 React DevTools、Performance Tracks 和业务指标验证。
+
+### 2. `panicThreshold`：生产跳过，调试再收紧
+
+`panicThreshold` 的类型是 `'none' | 'critical_errors' | 'all_errors'`，默认值为 `'none'`[[panicThreshold – React]](https://react.dev/reference/react-compiler/panicThreshold)。React 官方建议生产构建使用 `'none'`，这样无法编译的组件会跳过优化并继续正常运行，避免 Compiler 问题阻断应用构建[[panicThreshold – React]](https://react.dev/reference/react-compiler/panicThreshold)。
+
+```js
+const isDevelopment = process.env.NODE_ENV === "development";
+
+export default {
+  compilationMode: "infer",
+  panicThreshold: isDevelopment ? "critical_errors" : "none",
+};
+```
+
+工程边界：
+
+- **生产默认宽松**：`'none'` 表示“尽量优化，失败就跳过”，适合稳定发布。
+- **开发临时收紧**：`'critical_errors'` 或 `'all_errors'` 只适合定位问题，不宜直接作为生产门禁。
+- **不要把 Compiler 当 lint 替代品**：构建不失败不代表代码质量没问题；纯度、依赖、可变性仍应由 `eslint-plugin-react-hooks` 和代码评审兜底。
+
+接入顺序可以更新为：lint 体检 → 小范围 `compilationMode` → `logger` 观察覆盖率和跳过原因 → `gating` 灰度 → `panicThreshold: "none"` 保持生产稳定 → 用性能指标决定是否扩大范围。
