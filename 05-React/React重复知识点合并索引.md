@@ -98,3 +98,11 @@
 - `prerender`、`resumeAndPrerender` 与 streaming SSR 的差异继续统一维护在 `React19.2实践心智模型.md`，避免把静态生成 API 当成普通 SSR API。
 - React Compiler 的 `logger` 与 `panicThreshold` 作为“可观测性 + 失败策略”补充到 `React_Compiler自动记忆化.md`，后续 Compiler 碎片按“lint → 编译范围 → logger → gating → panicThreshold → 指标验证”路径收敛。
 - Vue 相关内容本轮不扩写，仅参与索引、格式化和安全巡检。
+
+## 2026-07-01 巡检补充
+
+- RSC、`"use client"`、Server Function 与 Server Action 的命名边界继续统一维护在 `React18-19新特性与Server_Components.md`。
+- `"use client"` 相关碎片后续按“module dependency tree boundary，不是 render tree boundary”的口径合并，避免把 JSX 父子关系误解为同一运行环境。
+- Server Component 本身没有 directive；`"use server"` 只用于 Server Functions。后续遇到“给组件文件加 `"use server"`”的旧说法，统一改写为框架 RSC 默认边界说明。
+- Server Action 只作为 Server Function 接入 `<form action>`、`formAction` 或 Action 流程时的具体场景；不是所有 Server Functions 都叫 Server Actions。
+- Vue 相关内容本轮不扩写，仅参与索引、格式化和安全巡检。

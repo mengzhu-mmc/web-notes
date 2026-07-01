@@ -1879,3 +1879,154 @@ export async function deleteNote(noteId: string): Promise<DeleteNoteResult> {
 ### 18.4 面试收束模板
 
 可以这样回答：RSC 解决的是“哪些组件和数据读取可以留在服务端提前渲染”，Server Function 解决的是“客户端如何调用服务端异步函数”，Action 解决的是“这个调用如何接入表单、Transition、pending、乐观 UI 和渐进增强”。`"use client"` 划分客户端边界，`"use server"` 标记可远程调用的 async Server Function；Server Component 本身没有 directive。真正落地时，我会把读数据和静态渲染放在 Server Component，把写操作封装为 Server Function，并在函数内部做序列化约束、输入校验、鉴权和错误返回。
+
+## 十九、RSC module boundary 与 Server Function 命名边界（2026-07-01）
+
+> Updated: 2026-07-01 based on official React RSC docs.
+
+这一轮巡检重点校准三个常被混用的说法：`"use client"` 划的是**模块依赖树边界**，不是 JSX 父子树边界；Server Component 本身没有专属 directive；Server Action 是 Server Function 进入表单或 Action 流程后的具体场景，不是所有 Server Function 的同义词。
+
+### 19.1 `"use client"` 不是“这个组件以下都在浏览器渲染”
+
+`"use client"` 必须写在文件顶部、import 之前，它把当前模块及其传递依赖标记为 client code；React 官方文档强调这个边界来自 module dependency tree，而不是 render tree[['use client' – React]](https://react.dev/reference/rsc/use-client)。因此，父组件、子组件和实际运行环境不能简单画等号：一个 Client Component 可以通过 `children` 或可序列化 props 接收 Server Component 已经在服务端生成的 JSX 结果，但不能在 client module 里直接 import Server Component。
+
+```tsx
+// app/dashboard/page.tsx：Server Component
+import { DashboardShell } from "./DashboardShell";
+import { RevenueChart } from "./RevenueChart";
+
+export default async function DashboardPage() {
+  const revenue = await getRevenue();
+
+  return (
+    <DashboardShell>
+      <RevenueChart data={revenue} />
+    </DashboardShell>
+  );
+}
+```
+
+```tsx
+// app/dashboard/DashboardShell.tsx：Client Component
+"use client";
+
+import { useState, type ReactNode } from "react";
+
+interface DashboardShellProps {
+  children: ReactNode;
+}
+
+export function DashboardShell({ children }: DashboardShellProps) {
+  const [collapsed, setCollapsed] = useState(false);
+
+  return (
+    <section data-sidebar-collapsed={collapsed}>
+      <button type="button" onClick={() => setCollapsed((value) => !value)}>
+        切换侧边栏
+      </button>
+      {children}
+    </section>
+  );
+}
+```
+
+这个例子里，`DashboardShell` 是 Client Component，因为它需要 state 和点击事件；`RevenueChart` 仍然可以是 Server Component，因为它在 `page.tsx` 的服务端渲染过程中先完成，再作为 `children` 结果交给客户端壳组件。面试时可以把它表达为：“`"use client"` 控制 import 图，不控制 JSX 父子树。”
+
+### 19.2 Server Component 没有 directive，`"use server"` 属于 Server Function
+
+Server Components 是一种可提前运行的组件类型，可以在构建时运行，也可以按请求在服务端运行；它们不会把组件代码发送到浏览器，也不能使用 `useState`、浏览器事件和浏览器专属 API[[Server Components – React]](https://react.dev/reference/rsc/server-components)。官方文档明确说明 Server Components 没有 directive，`"use server"` 用于 Server Functions，而不是用于把组件声明成 Server Component[[Server Components – React]](https://react.dev/reference/rsc/server-components)。
+
+```tsx
+// ✅ Server Component：没有 "use server" directive
+interface ArticlePageProps {
+  params: Promise<{ slug: string }>;
+}
+
+export default async function ArticlePage({ params }: ArticlePageProps) {
+  const { slug } = await params;
+  const article = await getArticleBySlug(slug);
+
+  return (
+    <article>
+      <h1>{article.title}</h1>
+      <p>{article.summary}</p>
+    </article>
+  );
+}
+```
+
+```tsx
+// ✅ Server Function：使用 "use server"，供客户端或表单 Action 调用
+"use server";
+
+interface PublishResult {
+  ok: boolean;
+  error?: string;
+}
+
+export async function publishArticle(slug: string): Promise<PublishResult> {
+  await assertCanPublish(slug);
+  await db.article.publish(slug);
+  return { ok: true };
+}
+```
+
+这能避免一个常见误区：不要为了“声明服务端组件”给组件文件添加 `"use server"`。如果文件导出的是组件，默认是否为 Server Component 通常由框架的 RSC 编译环境决定；如果文件导出的是客户端可调用的 async mutation，才考虑模块级 `"use server"`。
+
+### 19.3 Server Function 与 Server Action 的命名关系
+
+Server Functions 允许 Client Components 调用在服务端执行的 async function；在 2024 年 9 月之前，这类能力都曾被称为 Server Actions，但 React 现在区分得更细：当 Server Function 被传给 `action` prop，或从某个 action 内部调用时，它才是 Server Action；不是所有 Server Functions 都是 Server Actions[[Server Functions – React]](https://react.dev/reference/rsc/server-functions)。
+
+```tsx
+// app/articles/actions.ts
+"use server";
+
+export async function saveDraft(formData: FormData): Promise<void> {
+  const title = String(formData.get("title") ?? "").trim();
+  await saveArticleDraft({ title });
+}
+
+export async function archiveArticle(id: string): Promise<void> {
+  await archiveById(id);
+}
+```
+
+```tsx
+// app/articles/EditForm.tsx
+"use client";
+
+import { useTransition } from "react";
+import { archiveArticle, saveDraft } from "./actions";
+
+interface EditFormProps {
+  articleId: string;
+}
+
+export function EditForm({ articleId }: EditFormProps) {
+  const [isPending, startTransition] = useTransition();
+
+  function handleArchive() {
+    startTransition(async () => {
+      await archiveArticle(articleId);
+    });
+  }
+
+  return (
+    <form action={saveDraft}>
+      <input name="title" />
+      <button type="submit">保存草稿</button>
+      <button type="button" disabled={isPending} onClick={handleArchive}>
+        归档
+      </button>
+    </form>
+  );
+}
+```
+
+上面两个导出都是 Server Functions；`saveDraft` 作为 `<form action>` 使用时是 Server Action，`archiveArticle` 是在普通事件中通过 Transition 调用的 Server Function。工程表达上可以统一称它们为“服务端写操作入口”，但在 API 边界上要区分是否接入表单、Action context、pending 状态和渐进增强。
+
+### 19.4 稳定性边界：应用 API 稳定，框架集成 API 要 pin
+
+React 19 中 Server Functions 对应用开发者是稳定能力，但实现 Server Functions 的底层 bundler / framework API 不遵循 semver，React 19.x minor 版本可能包含破坏性变更；官方建议框架或打包器要么 pin 指定 React 版本，要么使用 Canary release[[Server Functions – React]](https://react.dev/reference/rsc/server-functions)。
+
+落地时可以按两层处理：业务应用侧按 React 19 文档使用 Server Components、`"use client"`、Server Functions 和 Actions；自研框架、构建插件或 RSC 打包集成侧则必须锁定 React 版本、保留集成测试，并把升级作为框架层变更，而不是普通 patch 依赖更新。
