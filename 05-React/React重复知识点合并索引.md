@@ -112,4 +112,6 @@
 - React 19.2 的 Activity 清理语义、`cacheSignal()` 返回值边界、`createRoot` root options 错误上报继续统一维护在 `React19.2实践心智模型.md`。
 - Concurrent API 旧示例中的 `text` 代码块和隐式 `any` 事件参数，后续按 TypeScript 示例逐步改为 `tsx`、显式 `ChangeEvent<HTMLInputElement>` 与明确的结果类型。
 - `createRoot` 与 `hydrateRoot` 的 SSR/SSG 边界后续只在 SSR 主干文档和 React 19.2 心智模型中维护，避免分散到课程笔记。
+- React Compiler 的库作者编译、`incompatible-library` 与 `use-memo` lint 边界继续统一维护在 `React_Compiler自动记忆化.md`。
+- Compiler 相关碎片后续按“应用接入配置”和“库发布兼容”两条线合并：应用看 `compilationMode/gating/logger/panicThreshold`，库作者额外检查 `target` 与 `react-compiler-runtime`。
 - Vue 相关内容本轮不扩写，仅参与索引、格式化和安全巡检。

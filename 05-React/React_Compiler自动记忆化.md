@@ -452,3 +452,96 @@ export default {
 - **不要把 Compiler 当 lint 替代品**：构建不失败不代表代码质量没问题；纯度、依赖、可变性仍应由 `eslint-plugin-react-hooks` 和代码评审兜底。
 
 接入顺序可以更新为：lint 体检 → 小范围 `compilationMode` → `logger` 观察覆盖率和跳过原因 → `gating` 灰度 → `panicThreshold: "none"` 保持生产稳定 → 用性能指标决定是否扩大范围。
+
+## 十四、2026-07-04 巡检：库作者编译、incompatible-library 与 use-memo lint
+
+> Updated: 2026-07-04 based on official React Compiler and eslint-plugin-react-hooks docs.
+
+这一轮补齐 Compiler 在“库代码发布”和“lint 规则解释”上的两个边界：库作者可以在发布前编译自己的库代码，但要处理 React 17/18 兼容；应用代码则要重点关注 `incompatible-library` 和 `use-memo` 这类会影响自动 memoization 语义的规则。
+
+### 14.1 库作者可以发布已编译代码，但要声明 runtime 兼容
+
+React 官方给库作者的建议是：可以在发布到 npm 前用 React Compiler 编译库代码，让使用方即使没有配置 Compiler，也能直接获得优化后的库产物[[Compiling Libraries – React]](https://react.dev/reference/react-compiler/compiling-libraries)。如果库需要支持 React 19 以下版本，需要把 `react-compiler-runtime` 作为直接依赖，并把 Compiler `target` 配置为最低支持的 React 大版本[[Compiling Libraries – React]](https://react.dev/reference/react-compiler/compiling-libraries)。
+
+```json
+{
+  "dependencies": {
+    "react-compiler-runtime": "^1.0.0"
+  },
+  "peerDependencies": {
+    "react": "^17.0.0 || ^18.0.0 || ^19.0.0"
+  }
+}
+```
+
+```js
+// babel.config.js
+module.exports = {
+  plugins: [
+    [
+      "babel-plugin-react-compiler",
+      {
+        target: "17",
+      },
+    ],
+  ],
+};
+```
+
+工程口径：应用项目接入 Compiler 时，更关注 `compilationMode`、`gating`、`logger` 和 `panicThreshold`；组件库 / hooks 库接入 Compiler 时，还必须补上“编译后产物是否能在最低 peer React 版本运行”的验证。测试策略应同时覆盖 compiled build 和未编译 build，避免把 Compiler 优化误当成唯一运行路径。
+
+### 14.2 `incompatible-library`：识别会破坏 memoization 假设的库 API
+
+`incompatible-library` 会检查与手动或自动 memoization 不兼容的库 API；这些 API 往往依赖内部可变状态，即引用不变但内部值会变化，容易让 `useMemo` 或 Compiler 自动 memoization 读到冻结的旧值[[incompatible-library – React]](https://react.dev/reference/eslint-plugin-react-hooks/lints/incompatible-library)。官方示例中，`react-hook-form` 的 `watch` 就属于这种模式，而 `useWatch` 是更适合 memoization 模型的替代写法[[incompatible-library – React]](https://react.dev/reference/eslint-plugin-react-hooks/lints/incompatible-library)。
+
+```tsx
+import { useWatch, type Control } from "react-hook-form";
+
+interface ProfileFormValue {
+  displayName: string;
+}
+
+interface DisplayNamePreviewProps {
+  control: Control<ProfileFormValue>;
+}
+
+export function DisplayNamePreview({ control }: DisplayNamePreviewProps) {
+  const displayName = useWatch({
+    control,
+    name: "displayName",
+  });
+
+  return <p>预览名称：{displayName || "未填写"}</p>;
+}
+```
+
+判断标准不是“这个库能不能用”，而是“这个 API 的返回值是否符合 React 的可追踪更新模型”。如果 API 通过内部可变对象、固定引用或隐藏订阅来表达变化，Compiler 可能跳过相关组件；若业务必须使用这类 API，可优先换成官方推荐的 React-friendly API，或在局部使用 `"use no memo"` 隔离。
+
+### 14.3 `use-memo`：`useMemo` 必须返回缓存值，不负责副作用
+
+`use-memo` 规则会检查 `useMemo` 是否返回了值；`useMemo` 的用途是计算并缓存昂贵值，不是执行副作用，如果回调没有返回值，最终只会得到 `undefined`，通常说明应该改用事件处理器或 `useEffect`[[use-memo – React]](https://react.dev/reference/eslint-plugin-react-hooks/lints/use-memo)。
+
+```tsx
+import { useEffect, useMemo } from "react";
+
+interface ThemePreviewProps {
+  theme: "light" | "dark";
+  tokens: Record<string, string>;
+}
+
+export function ThemePreview({ theme, tokens }: ThemePreviewProps) {
+  const cssVariables = useMemo(() => {
+    return Object.entries(tokens)
+      .map(([name, value]) => `--${name}: ${value};`)
+      .join("\n");
+  }, [tokens]);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+  }, [theme]);
+
+  return <pre>{cssVariables}</pre>;
+}
+```
+
+面试收束：Compiler 并不会让 `useMemo` 变成“随便放逻辑的地方”。派生值可以用 `useMemo` 或交给 Compiler 自动优化；同步外部系统用 Effect；响应用户行为用事件处理器；遇到内部可变状态或不兼容库 API 时，优先换成符合 React 更新模型的 API，再考虑局部 opt-out。
