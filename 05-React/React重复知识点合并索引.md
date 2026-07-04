@@ -106,3 +106,10 @@
 - Server Component 本身没有 directive；`"use server"` 只用于 Server Functions。后续遇到“给组件文件加 `"use server"`”的旧说法，统一改写为框架 RSC 默认边界说明。
 - Server Action 只作为 Server Function 接入 `<form action>`、`formAction` 或 Action 流程时的具体场景；不是所有 Server Functions 都叫 Server Actions。
 - Vue 相关内容本轮不扩写，仅参与索引、格式化和安全巡检。
+
+## 2026-07-04 巡检补充
+
+- React 19.2 的 Activity 清理语义、`cacheSignal()` 返回值边界、`createRoot` root options 错误上报继续统一维护在 `React19.2实践心智模型.md`。
+- Concurrent API 旧示例中的 `text` 代码块和隐式 `any` 事件参数，后续按 TypeScript 示例逐步改为 `tsx`、显式 `ChangeEvent<HTMLInputElement>` 与明确的结果类型。
+- `createRoot` 与 `hydrateRoot` 的 SSR/SSG 边界后续只在 SSR 主干文档和 React 19.2 心智模型中维护，避免分散到课程笔记。
+- Vue 相关内容本轮不扩写，仅参与索引、格式化和安全巡检。

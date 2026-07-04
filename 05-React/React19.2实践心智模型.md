@@ -470,3 +470,111 @@ export async function renderStaticPage() {
 3. `prerender` 不支持 `nonce` 选项；官方指出 nonce 应按请求唯一生成，把 nonce 固化进 prerender 产物不合适也不安全[[prerender – React]](https://react.dev/reference/react-dom/static/prerender)。
 
 面试收束：`useEffectEvent` 解决的是 Effect 内部事件读取最新值的问题，不是通用稳定 callback；`prerender` 解决的是静态生成和 PPR 静态壳问题，不是替代 streaming SSR。
+
+## 十六、2026-07-04 巡检：Activity 清理、cacheSignal 返回值与 createRoot 错误上报
+
+> Updated: 2026-07-04 based on official React 19.2 API references.
+
+本轮补充三个工程落地时容易遗漏的细节：`<Activity />` 的隐藏不是完全卸载，`cacheSignal()` 不是通用 AbortSignal 工厂，`createRoot` 的错误回调应放在 root options 中，而不是传给 `root.render`。
+
+### 16.1 Activity 保留 DOM，但会清理 Effects
+
+`<Activity mode="hidden">` 会用 `display: none` 隐藏子树、清理子树 Effects，并以更低优先级继续处理隐藏内容更新；重新 visible 时会恢复之前的 UI state 并重新创建 Effects[[<Activity> – React]](https://react.dev/reference/react/Activity)。这让它适合 Tab、返回恢复、下一页预渲染，但也意味着 DOM 本身带副作用的元素不能只依赖“隐藏”。
+
+```tsx
+import { Activity, useLayoutEffect, useRef, useState } from "react";
+
+function VideoPane() {
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+
+  useLayoutEffect(() => {
+    const video = videoRef.current;
+    return () => {
+      video?.pause();
+    };
+  }, []);
+
+  return <video ref={videoRef} controls playsInline src="/demo.mp4" />;
+}
+
+export function VideoTabs() {
+  const [activeTab, setActiveTab] = useState<"home" | "video">("home");
+
+  return (
+    <>
+      <button type="button" onClick={() => setActiveTab("home")}>
+        Home
+      </button>
+      <button type="button" onClick={() => setActiveTab("video")}>
+        Video
+      </button>
+
+      <Activity mode={activeTab === "video" ? "visible" : "hidden"}>
+        <VideoPane />
+      </Activity>
+    </>
+  );
+}
+```
+
+判断标准：表单草稿、折叠面板、即将返回的路由可以用 Activity 保留状态；视频、音频、iframe 这类 DOM 自带持续副作用的内容要在 Effect cleanup 中暂停或释放资源。Activity 隐藏时 Effects 会被清理，所以不要依赖隐藏子树继续轮询、订阅或上报。
+
+### 16.2 cacheSignal 只适合 RSC 渲染期间的 cache 生命周期
+
+`cacheSignal()` 在渲染期间返回 `AbortSignal`，当 React 完成渲染、渲染中止或渲染失败时会 abort；如果在渲染之外调用会返回 `null`，在 Client Components 中目前也返回 `null`[[cacheSignal – React]](https://react.dev/reference/react/cacheSignal)。因此它适合把 RSC 渲染生命周期传给 `cache()` 包裹的数据读取，而不是替代业务层的通用取消控制器。
+
+```tsx
+import { cache, cacheSignal } from "react";
+
+interface Product {
+  id: string;
+  name: string;
+}
+
+const getProduct = cache(async (id: string): Promise<Product | null> => {
+  const response = await fetch(`https://api.example.com/products/${id}`, {
+    signal: cacheSignal() ?? undefined,
+  });
+
+  if (!response.ok) {
+    return null;
+  }
+
+  return (await response.json()) as Product;
+});
+
+export default async function ProductPage({ id }: { id: string }) {
+  const product = await getProduct(id);
+  return product ? <h1>{product.name}</h1> : <p>商品不存在</p>;
+}
+```
+
+一个常见错误是在模块顶层先发起请求，再把 `cacheSignal()` 传进去；这类请求不是从组件渲染过程启动的，React 完成渲染时并不能可靠取消它。需要取消非渲染生命周期的请求时，仍应使用业务自己的 `AbortController`。
+
+### 16.3 createRoot 的错误回调属于 root options
+
+`createRoot(domNode, options?)` 支持 `onCaughtError`、`onUncaughtError`、`onRecoverableError` 和 `identifierPrefix` 等 root options；`root.render(reactNode)` 只接收一个 React node，不接收第二个 options 参数[[createRoot – React]](https://react.dev/reference/react-dom/client/createRoot)。如果应用是 SSR 或 SSG 产物，应使用 `hydrateRoot` 复用已有 HTML，而不是 `createRoot` 重新创建 DOM[[createRoot – React]](https://react.dev/reference/react-dom/client/createRoot)。
+
+```tsx
+import { createRoot } from "react-dom/client";
+
+const container = document.getElementById("root");
+
+if (!(container instanceof HTMLElement)) {
+  throw new Error("React root container not found");
+}
+
+const root = createRoot(container, {
+  identifierPrefix: "app-",
+  onCaughtError(error, errorInfo) {
+    reportError({ error, componentStack: errorInfo.componentStack });
+  },
+  onRecoverableError(error, errorInfo) {
+    reportRecoverableError({ error, componentStack: errorInfo.componentStack });
+  },
+});
+
+root.render(<App />);
+```
+
+面试收束：React 19.2 的新增能力不只是“多了几个 API”，而是在 UI 生命周期、Effect 事件语义、RSC 缓存生命周期和 SSR/PPR 恢复能力上继续细化边界。工程落地时要把这些 API 放回各自生命周期：Activity 管隐藏 UI，Effect Event 管 Effect 内事件，cacheSignal 管 RSC cache 生命周期，createRoot options 管客户端根错误上报。

@@ -388,24 +388,30 @@ root.render(<App />);
 
 ### 2.2 基本用法
 
-```text
-import { useState, useTransition } from "react";
+```tsx
+import { ChangeEvent, useState, useTransition } from "react";
 
-function SearchPage() {
+interface SearchResult {
+  id: string;
+  title: string;
+}
+
+function SearchPage({ allItems }: { allItems: SearchResult[] }) {
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState([]);
+  const [results, setResults] = useState<SearchResult[]>([]);
   const [isPending, startTransition] = useTransition();
 
-  const handleChange = (e) => {
+  function handleChange(event: ChangeEvent<HTMLInputElement>) {
+    const nextQuery = event.target.value;
+
     // 高优先级：立即更新输入框
-    setQuery(e.target.value);
+    setQuery(nextQuery);
 
     // 低优先级：标记为 transition，可被中断
     startTransition(() => {
-      const filtered = heavyFilter(e.target.value); // 耗时操作
-      setResults(filtered);
+      setResults(heavyFilter(allItems, nextQuery));
     });
-  };
+  }
 
   return (
     <div>
@@ -434,18 +440,32 @@ SyncLane（同步）> InputContinuousLane（连续输入）> DefaultLane（默�
 
 ### 3.1 基本用法
 
-```text
-import { useState, useDeferredValue } from "react";
+```tsx
+import { ChangeEvent, useDeferredValue, useMemo, useState } from "react";
 
-function SearchPage() {
+interface SearchResult {
+  id: string;
+  title: string;
+}
+
+function SearchPage({ allItems }: { allItems: SearchResult[] }) {
   const [query, setQuery] = useState("");
   const deferredQuery = useDeferredValue(query); // 延迟版本的 query
 
+  const visibleResults = useMemo(
+    () => heavyFilter(allItems, deferredQuery),
+    [allItems, deferredQuery],
+  );
+
+  function handleChange(event: ChangeEvent<HTMLInputElement>) {
+    setQuery(event.target.value);
+  }
+
   return (
     <div>
-      <input value={query} onChange={(e) => setQuery(e.target.value)} />
+      <input value={query} onChange={handleChange} />
       {/* 使用延迟值渲染列表，不阻塞输入框 */}
-      <SlowList query={deferredQuery} />
+      <SlowList results={visibleResults} stale={query !== deferredQuery} />
     </div>
   );
 }
