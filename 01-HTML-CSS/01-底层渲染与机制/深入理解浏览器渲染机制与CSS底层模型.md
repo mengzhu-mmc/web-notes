@@ -12,9 +12,9 @@ graph TD
     C[CSS] -->|CSS Parser| D(CSSOM Tree)
     B --> E{Render Tree<br>渲染树}
     D --> E
-    E -->|1. 回流 / Layout| F[Layout Tree<br>计算尺寸与位置]
-    F -->|2. 重绘 / Paint| G[Paint Record<br>生成绘制记录]
-    G -->|3. 复合 / Composite| H[Composite Layers<br>图层合成与GPU光栅化]
+    E -->|① 回流 / Layout| F[Layout Tree<br>计算尺寸与位置]
+    F -->|② 重绘 / Paint| G[Paint Record<br>生成绘制记录]
+    G -->|③ 复合 / Composite| H[Composite Layers<br>图层合成与GPU光栅化]
     H --> I((Display))
 
     style E fill:#f9f,stroke:#333,stroke-width:2px
