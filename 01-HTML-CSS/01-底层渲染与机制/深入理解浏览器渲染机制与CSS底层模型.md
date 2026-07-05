@@ -205,11 +205,60 @@ BFC 经常被当做魔法来清除浮动，但从规范角度看，**BFC 的本�
 2. **BFC 区域不会与 Float 盒子重叠**（**考点**：利用此特性实现左侧浮动图片，右侧文字自适应的经典两栏布局）。
 3. **计算 BFC 高度时，浮动元素也参与计算**（**考点**：利用此特性清除浮动，解决父元素高度塌陷）。
 
-## 五、 现代 CSS 渲染级优化：`content-visibility` 与 `contain`
+## 五、 易混概念辨析：contain / overflow / BFC / 包含块 / 层叠上下文
+
+这几个概念在面试和排障中反复被搞混。核心原因是它们分属**不同抽象层**（布局语义 vs 渲染性能 vs Z 轴层叠），却经常被同一批属性（`transform`、`contain` 等）一起触发。逐个厘清。
+
+### 5.1 `contain` 与 BFC：不同抽象层，contain 是 BFC 的超集
+
+- **BFC 是「布局模型」概念**（CSS2.1 视觉格式化模型），描述一块「布局自洽」的区域：内部块盒垂直排列、相邻垂直 margin 折叠、不与浮动重叠、计算高度时纳入浮动子元素。它是写 `float`/`overflow`/`flow-root` 时**被动顺带**建立的。
+- **`contain` 是「渲染隔离/性能」原语**，你**主动声明**「子树内部状态与外部无关」，浏览器据此缩小重排/重绘的脏区范围。
+- **关系**：`contain: layout` 和 `contain: paint` 在实现上都会**顺带建立 BFC**，但还额外做了 BFC 做不到的事——创建**层叠上下文**、成为 `abs/fixed` 后代的**包含块**、（`size` 时）让父尺寸不依赖子元素。
+- **一句话**：BFC 管「排得对不对」（布局正确性：清浮动、防 margin 折叠）；`contain` 管「画得快不快」（性能：限定 Layout/Paint 脏区）。
+
+### 5.2 `contain: layout` 与 `overflow: hidden`：不是同类，唯一交集是都建 BFC
+
+| 维度     | `overflow: hidden`                                                       | `contain: layout`                |
+| -------- | ------------------------------------------------------------------------ | -------------------------------- |
+| 本职     | **溢出裁剪策略**：越界内容裁掉不显示                                     | **布局隔离承诺**：内部重排不外溢 |
+| 裁剪     | ✅ 建立裁剪区域（clip）                                                  | ❌ 不裁剪，子元素可画到边界外    |
+| 布局隔离 | ❌ 内容撑高仍影响外部                                                    | ✅ 切断内外几何耦合              |
+| 滚动容器 | ⚠️ 可能成为潜在滚动容器（scroll anchoring / scrollWidth 计算等隐藏开销） | 无此语义                         |
+| BFC      | ✅（副作用）                                                             | ✅（副作用）                     |
+
+- 真正和 `overflow: hidden` 在「裁剪」上对标的是 **`contain: paint`**，且 `contain: paint` 更纯粹——明确「越界内容跳过绘制」，不背滚动容器的隐藏语义。
+
+### 5.3 关键因果澄清：改变 fixed 参照 ≠ 形成新图层
+
+`transform` / `contain:layout|paint` / `will-change` 会让祖先成为后代 `fixed`/`absolute` 的包含块，导致 fixed 弹窗「跟着滚走」。**但这不是因为形成了新图层**：
+
+```text
+transform / contain / will-change 等属性
+   ├──（结果 A · Layout 阶段）成为后代 fixed/abs 的「包含块」← 改 fixed 参照的真正原因
+   └──（结果 B · Composite 阶段）可能被提升为独立合成层（GraphicsLayer）
+```
+
+- 「改参照」是 **Layout 阶段的布局语义**，和像素、图层无关。
+- 「新图层」是 **Composite 阶段的性能行为**，交给 GPU 处理位移/透明度。
+- 两者**无因果关系**，只是**触发条件高度重叠**。反证：`contain: layout` 会建包含块（改参照），却**不保证**提升合成层；`will-change: transform` 即便还没真正分层，包含块也已生效。
+
+### 5.4 `contain: content`（=layout+paint）到底隔离了什么
+
+- **`contain: paint` 是「裁剪」不是「跳过渲染」**：本质是建立裁剪矩形，盒内照常画、越界裁掉；正因为有明确边界，盒子**整体离屏时才能被顺带跳过绘制**。「逐元素离屏就不渲染」是 **`content-visibility: auto`** 的能力，不是 `contain`。
+- **重排（Layout）会「层层传染」，重绘（Paint）按脏区局部进行、不横向传染**：所以「同图层其他元素连累我重绘」这个担忧本就不成立——重绘只画被标脏的区域。`contain` 的真实收益是：① 内部重排锁死在盒内不外溢；② 有裁剪边界 → 离屏整体跳过绘制、在屏独立缓存。
+- **`contain: content` 不含 `size`**：盒子自身尺寸仍依赖内容，「被内容撑大」仍会连累外部重排。要连这条也切断需 `contain: strict`（含 size）或显式给尺寸。这也是为什么用 `content-visibility: auto` 时要补 `contain-intrinsic-size` 提供预估高度。
+
+### 5.5 包含块 vs 层叠上下文：一个管平面定位，一个管 Z 轴遮盖
+
+- **包含块（Containing Block）**：元素的百分比宽高、`top/left` 偏移的「参照物盒子」。`static/relative` → 最近块级祖先的 content box；`absolute` → 最近非 static 祖先的 padding box；`fixed` → 通常是视口，**但祖先有 `transform`/`filter`/`contain` 等时会被夺走**（弹窗滚走的根因）。管的是 **X/Y 平面上「摆在哪、多大」**。
+- **层叠上下文（Stacking Context）**：Z 轴上「谁盖谁」的分组规则。`z-index` 只在**同一层叠上下文内**可比——A 的 `z-index:9999` 被 B 的 `z-index:1` 盖住，是因为 A 所在的上下文整体层级更低（「拼爹失败」）。管的是 **Z 轴上「谁盖谁」**。
+- 两者常被 `transform`、`fixed` 等属性**同时触发**（既改包含块又建层叠上下文），这正是各种「诡异定位 Bug」的高发区。
+
+## 六、 现代 CSS 渲染级优化：`content-visibility` 与 `contain`
 
 传统的性能优化（如 `will-change` 或 `transform`）主要作用于 **Composite（复合）阶段**。而现代 CSS 引入了更底层的控制权，允许我们直接干预 **Layout（布局）和 Paint（绘制）阶段**，其中最著名的就是 `content-visibility` 和 `contain` 属性。
 
-### 5.1 `contain`： CSS 包含机制（Containment）
+### 6.1 `contain`： CSS 包含机制（Containment）
 
 `contain` 属性允许开发者向浏览器声明：**“这个元素的内部状态独立于其外部”**。这使得浏览器可以在计算布局、样式、绘制时，将该元素隔离在一个独立的边界内，从而避免“牵一发而动全身”的大规模重排。
 
@@ -219,7 +268,7 @@ BFC 经常被当做魔法来清除浮动，但从规范角度看，**BFC 的本�
 - `contain: strict;`：等同于 `contain: layout paint size;`。
 - `contain: content;`：等同于 `contain: layout paint;`（最常用，非常适合列表项）。
 
-### 5.2 `content-visibility`： 原生的虚拟滚动与懒渲染
+### 6.2 `content-visibility`： 原生的虚拟滚动与懒渲染
 
 `content-visibility` 建立在 `contain` 的基础之上，被称为 CSS 性能的“核武器”。它允许浏览器**跳过不在屏幕（Viewport）内的元素的渲染工作（包括 Layout 和 Paint）**，直到用户滚动到该元素附近。
 
