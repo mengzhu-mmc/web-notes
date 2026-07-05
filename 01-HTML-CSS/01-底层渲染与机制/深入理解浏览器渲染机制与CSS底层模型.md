@@ -240,3 +240,5 @@ BFC 经常被当做魔法来清除浮动，但从规范角度看，**BFC 的本�
   contain-intrinsic-size: 1000px; /* 告诉浏览器，假设这个元素高度约 1000px */
 }
 ```
+
+> 📎 **延伸阅读**：`contain` / `content-visibility` / `will-change` 等性能优化属性的完整取值、副作用与综合示例，详见同目录下的《CSS性能优化属性.md》。
