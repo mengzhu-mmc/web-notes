@@ -284,6 +284,22 @@ function shouldYieldToHost() {
 }
 ```
 
+### 常见误区：时间片和浏览器 16.6ms 帧是「解耦」的
+
+一个高频错误说法是「浏览器每 16.6ms 检查一次刷新，React 占用其中的 5ms 干活」。这不准确：
+
+- **5ms 是一个固定常量**（`frameYieldMs = 5`），**不是从 16.6ms 帧里切出来的一段**。React 的调度器不依附于浏览器的帧节奏。
+- Scheduler 用 **`MessageChannel.postMessage` 把工作切成一个个宏任务**来跑。每个宏任务里循环执行 `performUnitOfWork`，每处理一个节点就调用一次 `shouldYield()`，只要**本段已经跑满 5ms** 就中断，再 `postMessage` 排下一个宏任务续跑。
+- 让出主线程的目的，是把控制权还给浏览器，让它有机会处理**输入事件、渲染**等；至于这个间隙浏览器要不要绘制、什么时候绘制，由浏览器按自己的刷新率决定，**和 React 的 5ms 时间片没有对齐关系**。
+
+> 「16.6ms 检查 / 用 rAF 动态算帧预算」其实描述的是 React 16 **最初设想、但已被弃用**的方案：早期打算用 `requestIdleCallback` 配合 rAF 计算每帧剩余时间，因触发不稳定、兼容性差被放弃，最终改成 `MessageChannel` + 固定 5ms 时间片[[React Scheduler 源码 - GitHub](https://github.com/facebook/react/blob/main/packages/scheduler/src/forks/Scheduler.js)]。
+
+### 关键前提：可中断只在「并发模式」下才生效
+
+Fiber 架构（React 16）只是把递归 reconcile 重构成了**可中断的链表循环**，让时间切片**成为可能**——但它本身不等于「异步可中断」。在 legacy 同步模式（`ReactDOM.render`）下，即使底层是 Fiber，更新依然是**同步、一口气跑完、不可中断**的。真正把时间切片开起来，要靠 React 18 的 `createRoot` 或并发特性（如 `startTransition`）。
+
+> 严谨表述：**Fiber 提供了可中断的底层结构，并发模式（Concurrent Rendering）才把这个能力真正开启。** 详见下方「并发模式」章节的开启条件。
+
 ---
 
 ## 七、协调阶段 vs 提交阶段
@@ -377,6 +393,30 @@ root.render(<App />);
 ```
 
 使用 `createRoot` 即开启并发模式，这是 React 18 的默认行为。
+
+#### 「开启并发模式」到底意味着什么——两层含义
+
+很多人以为「用了 `createRoot` 页面就会自动变成可中断的并发渲染」，这是误解。准确来说分**两层**：
+
+**第一层：`createRoot` 只是「解锁」并发能力，不是「全量启用」。**
+
+- 只要用 `createRoot`（而非旧的 `ReactDOM.render`）挂载应用，就进入了 **Concurrent Mode 的运行时**——并发特性**可用**了。
+- 但**默认的普通更新（如直接 `setState`、事件回调里的更新）仍是同步、不可中断的**。`createRoot` 本身不会把你所有的更新都变成可切片的低优先级任务。
+- 也就是说：`createRoot` 是「把并发发动机装上车」，但不代表「一直在用并发档位跑」。
+
+**第二层：真正触发「可中断、可切片」渲染，需要显式把更新标记为并发（低优先级）。** 满足以下任一条件，该次更新才会走可中断的并发渲染路径：
+
+| 触发方式                       | 说明                                                               |
+| ------------------------------ | ------------------------------------------------------------------ |
+| `startTransition(() => {...})` | 把回调内的 state 更新标记为 Transition（非紧急），可被高优先级打断 |
+| `useTransition()`              | 同上，额外提供 `isPending` 状态                                    |
+| `useDeferredValue(value)`      | 让派生值延迟更新，延迟版本的重渲染走并发路径                       |
+| `<Suspense>` 内的挂起与恢复    | 数据/组件未就绪时的等待与重试，由并发渲染驱动                      |
+| `use()` Hook 触发的挂起        | React 18/19 中读取未就绪 Promise，触发并发下的 Suspense            |
+
+一句话概括开启条件：**① 用 `createRoot` 挂载（解锁并发运行时）→ ② 用 `startTransition` / `useTransition` / `useDeferredValue` / `Suspense` 等把某次更新标记为「非紧急」，这次更新才真正享受可中断、可丢弃、可插队的时间切片。** 只做①不做②，普通更新依旧同步。
+
+> 换句话说：**并发不是一个「全局开关」，而是一组「可组合的 API」。** `createRoot` 提供土壤，具体哪次更新并发，由你用并发 API 逐处声明。（这也是官方在 React 18 后不再叫「Concurrent Mode（模式）」而叫「Concurrent Features（特性）」的原因。）
 
 ---
 
