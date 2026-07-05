@@ -11,34 +11,63 @@
 
 JavaScript 是单线程语言，通过事件循环机制实现异步非阻塞。
 
-### 执行模型
+### 执行模型（浏览器）
 
-JS 引擎维护一个调用栈（Call Stack）和多个任务队列。执行流程如下：
+JS 引擎维护一个调用栈（Call Stack）和多个任务队列。浏览器的一次事件循环「tick」远不止「宏任务→微任务」两步，完整流程如下：
 
-1. 执行当前宏任务（第一个宏任务是整体 script 代码）
-2. 宏任务执行完毕后，清空所有微任务队列
-3. 浏览器可能进行渲染（requestAnimationFrame 在此时执行）
-4. 取下一个宏任务，重复上述过程
+1. **取一个宏任务**：从任务队列中取出**一个**宏任务执行（第一个宏任务是整体 script 代码）。注意每一轮只取一个宏任务，而不是清空整个宏任务队列。
+2. **清空微任务**：宏任务执行完（调用栈清空）后，把微任务队列**全部**执行完；微任务执行过程中新产生的微任务也会在本轮一并清空。
+3. **判断是否需要渲染**：浏览器根据显示器刷新率（通常 60Hz≈16.6ms）决定这一 tick 是否渲染。**不是每个 tick 都渲染**——若距上次渲染时间太短，会跳过渲染步骤。
+4. **渲染阶段（如需要）**，内部按固定顺序执行一系列子步骤：
+   - 执行 `requestAnimationFrame` 回调（在样式/布局计算**之前**，是修改动画属性的最佳时机）
+   - 执行 `IntersectionObserver` 回调
+   - 计算样式（Recalculate Style）→ 布局（Layout / Reflow）
+   - 执行 `ResizeObserver` 回调（在 Layout 之后、Paint 之前，可能触发再次 Layout）
+   - 绘制（Paint）→ 合成上屏（Composite）
+5. **空闲阶段（如有富余时间）**：若本帧还有空闲时间，执行 `requestIdleCallback` 回调。
+6. 回到第 1 步，取下一个宏任务。
 
 ```
-┌─────────────────────────────────┐
-│         宏任务执行               │
-│  (script / setTimeout / ...)    │
-└──────────────┬──────────────────┘
-               ↓
-┌─────────────────────────────────┐
-│      清空所有微任务              │
-│  (Promise.then / queueMicrotask │
-│   / MutationObserver)           │
-└──────────────┬──────────────────┘
-               ↓
-┌─────────────────────────────────┐
-│      浏览器渲染（可能）          │
-│  (requestAnimationFrame)        │
-└──────────────┬──────────────────┘
-               ↓
-          下一个宏任务 ...
+┌──────────────────────────────────────────┐
+│  ① 取一个宏任务执行                        │
+│     (script / setTimeout / MessageChannel)│
+└───────────────────┬──────────────────────┘
+                    ↓
+┌──────────────────────────────────────────┐
+│  ② 清空所有微任务                          │
+│     (Promise.then / queueMicrotask         │
+│      / MutationObserver)                   │
+└───────────────────┬──────────────────────┘
+                    ↓
+          需要渲染？（受刷新率节流）
+                    ↓ 是
+┌──────────────────────────────────────────┐
+│  ③ 渲染阶段（子步骤有序执行）              │
+│     requestAnimationFrame 回调             │
+│       ↓                                    │
+│     IntersectionObserver 回调              │
+│       ↓                                    │
+│     样式计算 → 布局(Layout)                │
+│       ↓                                    │
+│     ResizeObserver 回调                    │
+│       ↓                                    │
+│     绘制(Paint) → 合成(Composite)          │
+└───────────────────┬──────────────────────┘
+                    ↓
+┌──────────────────────────────────────────┐
+│  ④ 空闲阶段（如有富余）                    │
+│     requestIdleCallback 回调               │
+└───────────────────┬──────────────────────┘
+                    ↓
+              下一个宏任务 ...
 ```
+
+**几个关键结论**：
+
+- **微任务在每个宏任务之后、渲染之前清空**。所以在微任务里无限追加微任务会**饿死渲染**（页面卡死不刷新）。
+- **`requestAnimationFrame` 不是宏任务也不是微任务**，它属于渲染阶段的专用回调，执行时机固定在「样式/布局计算之前」，因此在 rAF 里改样式不会造成本帧多余的重排。
+- **渲染受刷新率节流**：连续多个 `setTimeout(fn, 0)` 之间不一定都夹着渲染，只有到了浏览器认为该刷新的时刻才渲染一次。
+- 「还有哪些环节」——除了 rAF，一次渲染 tick 里还穿插着 `IntersectionObserver`、`ResizeObserver` 回调，以及帧末的 `requestIdleCallback`（空闲回调）。
 
 ### 宏任务与微任务
 
@@ -88,6 +117,97 @@ console.log("d");
 
 // 输出：a → c → d → b
 ```
+
+---
+
+## Node.js 事件循环
+
+Node 的事件循环由 **libuv** 实现，和浏览器**不是同一套模型**。浏览器只区分「宏任务/微任务」，而 Node 把宏任务细分成了**六个有序阶段（phase）**，每个阶段都有自己的回调队列。
+
+### 六个阶段
+
+事件循环按固定顺序循环执行这六个阶段，每进入一个阶段就执行该阶段队列里的回调：
+
+```
+   ┌───────────────────────────┐
+┌─>│   timers                  │  执行 setTimeout / setInterval 到期回调
+│  └─────────────┬─────────────┘
+│  ┌─────────────┴─────────────┐
+│  │   pending callbacks       │  执行上一轮延迟到本轮的 I/O 回调（如某些 TCP 错误）
+│  └─────────────┬─────────────┘
+│  ┌─────────────┴─────────────┐
+│  │   idle, prepare           │  仅供 libuv 内部使用
+│  └─────────────┬─────────────┘
+│  ┌─────────────┴─────────────┐   ┌───────────────┐
+│  │   poll                    │<──┤ 传入连接、数据  │  ★ 核心阶段
+│  └─────────────┬─────────────┘   └───────────────┘  取 I/O 事件、执行 I/O 回调，
+│  ┌─────────────┴─────────────┐                      队列空时可能在此阻塞等待
+│  │   check                   │  执行 setImmediate 回调
+│  └─────────────┬─────────────┘
+│  ┌─────────────┴─────────────┐
+└──┤   close callbacks         │  执行 close 事件回调（如 socket.on('close')）
+   └───────────────────────────┘
+```
+
+- **timers**：执行 `setTimeout` / `setInterval` 中已到期的回调。
+- **pending callbacks**：执行被推迟到本次循环的系统级 I/O 回调。
+- **idle, prepare**：libuv 内部使用，业务代码接触不到。
+- **poll（轮询，核心）**：取回 I/O 事件并执行其回调；若队列为空，会在此**阻塞等待**新的 I/O（有 timer 到期或有 `setImmediate` 时则不阻塞，尽快进入下一阶段）。
+- **check**：执行 `setImmediate` 回调。
+- **close callbacks**：执行 `'close'` 事件回调。
+
+### 微任务：process.nextTick 与 Promise
+
+Node 里有**两个**优先级不同的微任务队列，它们不属于上面六个阶段，而是**在每个阶段切换之间被清空**：
+
+1. **`process.nextTick` 队列**——优先级**最高**，先清空。
+2. **Promise 微任务队列**（`.then` / `queueMicrotask` / `await` 后续）——其次清空。
+
+> 关键：Node 在**每个阶段的每个回调执行完后**，都会先清空 `nextTick` 队列，再清空 Promise 微任务队列，然后才继续下一个回调 / 进入下一阶段。这一点和浏览器「一个宏任务之后清一次微任务」的粒度是一致的（现代 Node 已对齐浏览器行为）。
+
+```js
+setTimeout(() => console.log("timeout"), 0);
+setImmediate(() => console.log("immediate"));
+Promise.resolve().then(() => console.log("promise"));
+process.nextTick(() => console.log("nextTick"));
+
+console.log("sync");
+
+// 输出：sync → nextTick → promise → timeout → immediate
+// 同步代码 sync 最先；退出前清微任务：nextTick 高于 promise；
+// 之后进入事件循环：timers 阶段的 timeout 早于 check 阶段的 immediate
+```
+
+### setTimeout(fn, 0) vs setImmediate 的顺序
+
+在**主模块**里两者顺序**不确定**，取决于进入事件循环时 timer 是否已到期（受进程启动耗时影响）：
+
+```js
+setTimeout(() => console.log("timeout"), 0);
+setImmediate(() => console.log("immediate"));
+// 主模块中：顺序不确定，可能 timeout→immediate，也可能 immediate→timeout
+```
+
+但在 **I/O 回调内部**，顺序是**确定的**——`setImmediate` **总是先于** `setTimeout`。因为 I/O 回调在 poll 阶段执行，执行完紧接着就是 check 阶段（`setImmediate`），而 timers 要等下一轮循环：
+
+```js
+const fs = require("fs");
+fs.readFile(__filename, () => {
+  setTimeout(() => console.log("timeout"), 0);
+  setImmediate(() => console.log("immediate"));
+});
+// 稳定输出：immediate → timeout
+```
+
+### 浏览器 vs Node 事件循环对比
+
+| 维度       | 浏览器                                          | Node.js                                            |
+| ---------- | ----------------------------------------------- | -------------------------------------------------- |
+| 宏任务组织 | 单一/少数任务队列                               | 六个有序阶段（timers/pending/poll/check/close 等） |
+| 微任务     | 一种（Promise / queueMicrotask 等）             | 两种：`process.nextTick`（更高优先级）+ Promise    |
+| 微任务时机 | 每个宏任务后清空一次                            | 每个阶段的每个回调后清空（先 nextTick 再 Promise） |
+| 渲染       | 有渲染阶段（rAF / 样式 / 布局 / 绘制）          | 无渲染概念                                         |
+| 特有 API   | `requestAnimationFrame` / `requestIdleCallback` | `setImmediate`（check 阶段）/ `process.nextTick`   |
 
 ---
 
