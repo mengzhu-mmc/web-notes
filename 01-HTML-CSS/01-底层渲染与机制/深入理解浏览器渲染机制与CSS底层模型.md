@@ -125,12 +125,12 @@ drawText("Hello", ..., white)       // 文字
 
 ```mermaid
 graph BT
-    A("① Background & Border<br>根元素的背景与边框") --> B("② z-index &lt; 0<br>负 z-index")
-    B --> C("③ Block Level Box<br>块级盒子")
-    C --> D("④ Float Box<br>浮动盒子")
-    D --> E("⑤ Inline Box<br>行内文本/内联盒子")
-    E --> F("⑥ z-index = 0 / auto")
-    F --> G("⑦ z-index &gt; 0<br>正 z-index")
+    A(1 根元素 Background 与 Border) --> B(2 负 z-index<br>z-index 小于 0)
+    B --> C(3 块级盒子 Block Level Box)
+    C --> D(4 浮动盒子 Float Box)
+    D --> E(5 行内盒子 Inline Box<br>行内文本)
+    E --> F(6 z-index 为 0 / auto)
+    F --> G(7 正 z-index<br>z-index 大于 0)
 
     style A fill:#eee
     style G fill:#f96,stroke:#333,stroke-width:2px
