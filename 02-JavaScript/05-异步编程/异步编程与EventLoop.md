@@ -71,9 +71,40 @@ JS 引擎维护一个调用栈（Call Stack）和多个任务队列。浏览器�
 
 ### 宏任务与微任务
 
-**宏任务（Macro Task）**：script 整体代码、setTimeout、setInterval、setImmediate（Node）、I/O、UI rendering
+宏任务是「一整块要跑的任务」，每轮事件循环只取**一个**执行；微任务是「宏任务执行完、渲染之前要**清空的全部小任务**」，清空过程中新产生的微任务也会在本轮一起处理。
 
-**微任务（Micro Task）**：Promise.then/catch/finally、queueMicrotask、MutationObserver、process.nextTick（Node，优先级最高）
+**宏任务（Macro Task）逐个作用：**
+
+| 宏任务源                                                 | 作用                                                                                                 |
+| -------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `<script>` 整体代码                                      | 页面首次加载时，整段脚本本身就是第一个宏任务                                                         |
+| `setTimeout` / `setInterval`                             | 定时器**到期后**把回调作为宏任务入队（是「到期入队」，不是「到点立即执行」，会被当前任务阻塞而延后） |
+| I/O 回调（网络/文件、`XMLHttpRequest`/`fetch` 事件回调） | I/O 完成后把回调作为宏任务入队                                                                       |
+| UI 事件回调（`click` / `scroll` / `input` 等）           | 用户交互事件触发的监听器，作为宏任务执行                                                             |
+| `MessageChannel` / `postMessage`                         | 跨线程/上下文通信的消息回调，常被当作「比 `setTimeout` 更快的宏任务」做任务切片                      |
+| `setImmediate`（Node）                                   | Node check 阶段执行，浏览器无                                                                        |
+
+**微任务（Micro Task）逐个作用：**
+
+| 微任务源                         | 作用                                                                                   |
+| -------------------------------- | -------------------------------------------------------------------------------------- |
+| `Promise.then / catch / finally` | Promise 决议后的回调，最常见的微任务来源                                               |
+| `await` 后续代码                 | `async/await` 是 Promise 语法糖，`await` 之后的代码等价于 `.then` 回调，故也是微任务   |
+| `queueMicrotask()`               | 官方 API，直接把函数塞进微任务队列，用于「比 `setTimeout` 早、又不想借 Promise」的场景 |
+| `MutationObserver`               | 监听 DOM 树变化（子节点增删、属性、文本），变化回调以微任务**批量**触发                |
+| `process.nextTick`（Node）       | Node 专有，优先级高于 Promise 微任务；浏览器无                                         |
+
+> ⚠️ **`requestAnimationFrame` 既不是宏任务也不是微任务**——它属于渲染阶段的专用回调，执行时机固定在样式/布局计算之前，别把它归进任何一类。
+
+### 为什么 MutationObserver 设计成微任务，而非宏任务
+
+MutationObserver 用于监听 DOM 变化，选择微任务而非宏任务，核心是为了**批量合并 + 渲染前尽早响应**：
+
+- **批量合并**：一次 JS 执行里可能连续改很多次 DOM（如循环 append 100 个节点）。若每次改动都同步回调就是 100 次，性能极差。微任务让所有改动**攒到当前宏任务结束时一次性回调**，合并成 1 次，回调参数是一批 `MutationRecord`。
+- **渲染前响应，避免闪烁**：微任务在「宏任务之后、浏览器渲染之前」清空，因此 MutationObserver 能在**本帧真正绘制前**就拿到变更并做调整（如再改一次样式），用户看到的直接是最终结果，不会「先渲染错的、下一帧再纠正」。
+- **若做成宏任务**：回调要等下一轮循环才跑，中间可能已夹了一次渲染，既丢了「渲染前修正」能力，也无法合并同轮多次改动，响应还慢一拍。
+
+> 对比：它的前辈 **Mutation Events**（如 `DOMNodeInserted`）是**同步**触发的——每改一次 DOM 就立刻打断当前代码跑回调，是性能灾难；MutationObserver 用「异步微任务 + 批量」正是为解决这个问题而生[[MutationObserver - MDN](https://developer.mozilla.org/zh-CN/docs/Web/API/MutationObserver)]。
 
 ### 经典面试题
 
