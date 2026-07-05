@@ -418,6 +418,85 @@ root.render(<App />);
 
 > 换句话说：**并发不是一个「全局开关」，而是一组「可组合的 API」。** `createRoot` 提供土壤，具体哪次更新并发，由你用并发 API 逐处声明。（这也是官方在 React 18 后不再叫「Concurrent Mode（模式）」而叫「Concurrent Features（特性）」的原因。）
 
+### 1.3 代码对比：同步 setState vs 包进 startTransition
+
+同一个「重型列表更新」，不加标记时是同步阻塞的，包进 `startTransition` 后才走可中断路径：
+
+```tsx
+import { ChangeEvent, useState, useTransition } from "react";
+
+// ❌ 普通 setState：即使用了 createRoot，这次更新依然同步、不可中断
+function SyncSearch({ allItems }: { allItems: string[] }) {
+  const [query, setQuery] = useState("");
+  const [list, setList] = useState<string[]>([]);
+
+  function handleChange(e: ChangeEvent<HTMLInputElement>) {
+    const next = e.target.value;
+    setQuery(next); // 输入框更新
+    setList(heavyFilter(allItems, next)); // 重型过滤：会和输入更新一起同步跑完 → 卡输入
+  }
+
+  return <input value={query} onChange={handleChange} />;
+}
+
+// ✅ 包进 startTransition：过滤被标记为非紧急，可被后续击键打断 / 丢弃
+function ConcurrentSearch({ allItems }: { allItems: string[] }) {
+  const [query, setQuery] = useState("");
+  const [list, setList] = useState<string[]>([]);
+  const [isPending, startTransition] = useTransition();
+
+  function handleChange(e: ChangeEvent<HTMLInputElement>) {
+    const next = e.target.value;
+    setQuery(next); // 紧急更新：输入框立即响应
+    startTransition(() => {
+      setList(heavyFilter(allItems, next)); // 非紧急：可中断，快速连打时旧的构建被丢弃
+    });
+  }
+
+  return (
+    <>
+      <input value={query} onChange={handleChange} />
+      {isPending && <span>更新中…</span>}
+      <List data={list} />
+    </>
+  );
+}
+```
+
+关键差异：两者都在 `createRoot` 下运行，但**只有右边的 `setList` 因被 `startTransition` 包裹而进入可中断的并发渲染**；左边的 `setList` 仍是同步的，会阻塞输入框刷新。这直观印证了「`createRoot` 只解锁能力、并发 API 才真正启用切片」。
+
+### 1.4 如何验证某次更新真的走了并发
+
+光看代码不放心，可以用工具确认更新是否被中断/降级：
+
+- **React DevTools → Profiler**：录制一次交互，被标记为 Transition 的更新会显示为**独立的、优先级更低的 commit**；若过程中被高优先级更新打断，能看到 render 被丢弃后**重新开始**的记录（同一次逻辑更新出现多段 render）。
+- **Chrome DevTools → Performance（React 19.2 起支持 Performance Tracks）**：在时间轴上能看到 React 的 **Scheduler track**，Transition 工作被切成多段 ~5ms 的任务，中间夹着浏览器处理输入/绘制的空隙；对比普通同步更新则是一整段长任务[[React 19.2 Performance Tracks - React](https://react.dev/blog/2025/10/01/react-19-2)]。
+- **粗略自测**：在重型渲染组件里放 `console.log`（仅调试用），快速连续输入时，被 `startTransition` 包裹的渲染日志会出现「打印到一半的旧值被跳过、直接跳到最新值」的现象，说明中间的构建被丢弃了。
+- **判断标准**：同步更新 = 一整段长任务、输入卡顿；并发更新 = 多段短任务 + 输入始终跟手 + 可能出现被丢弃的中间渲染。
+
+> ⚠️ 时间切片只在 CPU 密集（大量组件 render）时才明显。如果卡顿来自**同步布局/长任务 JS**（如一次性 `getBoundingClientRect` 触发强制重排），并发切片救不了，得先解决那段同步瓶颈。
+
+### 1.5 并发模式与自动批处理（Automatic Batching）的关系
+
+两者都是 React 18 `createRoot` 带来的行为，但**是两件独立的事**，别混为一谈：
+
+- **自动批处理**：把「一次事件循环 tick 内的多个 `setState`」合并成**一次**重渲染。React 17 只在 React 事件回调里批处理；React 18 用 `createRoot` 后，**Promise、setTimeout、原生事件回调里的多个 setState 也会自动批处理**[[Automatic batching - React 18](https://react.dev/blog/2022/03/29/react-v18#new-feature-automatic-batching)]。
+
+```tsx
+// React 18 + createRoot：以下三个 setState 只触发一次重渲染
+setTimeout(() => {
+  setA(1);
+  setB(2);
+  setC(3); // 旧版(React 17)会渲染 3 次；React 18 自动批处理 → 渲染 1 次
+}, 0);
+```
+
+- **和并发的区别**：
+  - **自动批处理**解决的是「更新**次数**」——把多次 setState 压成一次 render，是默认、无脑生效的优化，不涉及可中断。
+  - **并发（Transition）**解决的是「更新的**优先级与可中断性**」——把某次 render 标记为可暂停/丢弃/插队，需要你用并发 API 显式声明。
+- **联系**：自动批处理是并发调度的**基础设施之一**（都依赖 `createRoot` 的新调度器），但你可以只享受自动批处理而完全不用任何并发 API。
+- **退出批处理**：极少数需要「立即读到 DOM 最新结果」的场景，用 `flushSync(() => setX(v))` 强制同步刷新、跳过批处理[[flushSync - React](https://react.dev/reference/react-dom/flushSync)]。
+
 ---
 
 ## 二、useTransition — 标记低优先级更新
