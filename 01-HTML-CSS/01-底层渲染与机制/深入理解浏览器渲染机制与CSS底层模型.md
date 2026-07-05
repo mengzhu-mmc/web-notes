@@ -125,12 +125,12 @@ drawText("Hello", ..., white)       // 文字
 
 ```mermaid
 graph BT
-    A(1. Background & Border<br>根元素的背景与边框) --> B(2. z-index < 0<br>负z-index)
-    B --> C(3. Block Level Box<br>块级盒子)
-    C --> D(4. Float Box<br>浮动盒子)
-    D --> E(5. Inline Box<br>行内文本/内联盒子)
-    E --> F(6. z-index = 0 / auto)
-    F --> G(7. z-index > 0<br>正z-index)
+    A("1. Background & Border<br>根元素的背景与边框") --> B("2. z-index &lt; 0<br>负 z-index")
+    B --> C("3. Block Level Box<br>块级盒子")
+    C --> D("4. Float Box<br>浮动盒子")
+    D --> E("5. Inline Box<br>行内文本/内联盒子")
+    E --> F("6. z-index = 0 / auto")
+    F --> G("7. z-index &gt; 0<br>正 z-index")
 
     style A fill:#eee
     style G fill:#f96,stroke:#333,stroke-width:2px
@@ -167,15 +167,15 @@ graph BT
 
 ```mermaid
 flowchart TD
-    Start[元素是什么定位 position ?]
+    Start["元素是什么定位 position ?"]
 
-    Start -->|static / relative| B[离它最近的块级/表格/Flex/Grid祖先元素的 Content Box]
+    Start -->|static / relative| B["离它最近的块级/表格/Flex/Grid祖先元素的 Content Box"]
 
-    Start -->|absolute| C[离它最近的 position 不为 static 的祖先元素的 Padding Box]
+    Start -->|absolute| C["离它最近的 position 不为 static 的祖先元素的 Padding Box"]
 
-    Start -->|fixed| D{祖先中是否有触发<br>特定属性的元素?}
-    D -->|否| E[Viewport 视口]
-    D -->|是| F[该特定祖先元素]
+    Start -->|fixed| D{"祖先中是否有触发<br>特定属性的元素?"}
+    D -->|否| E["Viewport 视口"]
+    D -->|是| F["该特定祖先元素"]
 
     style F fill:#f96,stroke:#333
 ```
