@@ -189,7 +189,8 @@ flowchart TD
 - `transform` 不为 `none`
 - `perspective` 不为 `none`
 - `filter` / `backdrop-filter` 不为 `none`
-- `will-change: transform/filter`
+- `will-change: transform / perspective / filter`
+- `contain: layout / paint / strict`（或 `content`，因其含 paint）
 
 **修复方案：** 弹窗类组件（Modal/Dialog）应使用 React Portal / Vue Teleport 直接挂载到 `<body>` 下，或者使用原生 `<dialog>` 标签，从 DOM 结构上脱离 `transform` 祖先。
 
@@ -204,6 +205,8 @@ BFC 经常被当做魔法来清除浮动，但从规范角度看，**BFC 的本�
 1. **内部 Box 垂直排列**，且相邻 Box 的垂直 margin 会发生重叠（**考点**：要解决 margin 重叠，就把它们放进不同的 BFC）。
 2. **BFC 区域不会与 Float 盒子重叠**（**考点**：利用此特性实现左侧浮动图片，右侧文字自适应的经典两栏布局）。
 3. **计算 BFC 高度时，浮动元素也参与计算**（**考点**：利用此特性清除浮动，解决父元素高度塌陷）。
+
+> 📎 **延伸阅读**：BFC 的触发方式全集与「清除浮动 / 阻止 margin 折叠 / 自适应两栏」三大应用场景的完整代码示例，详见同目录下的《BFC详解.md》。
 
 ## 五、 易混概念辨析：contain / overflow / BFC / 包含块 / 层叠上下文
 
@@ -230,10 +233,10 @@ BFC 经常被当做魔法来清除浮动，但从规范角度看，**BFC 的本�
 
 ### 5.3 关键因果澄清：改变 fixed 参照 ≠ 形成新图层
 
-`transform` / `contain:layout|paint` / `will-change` 会让祖先成为后代 `fixed`/`absolute` 的包含块，导致 fixed 弹窗「跟着滚走」。**但这不是因为形成了新图层**：
+`transform` / `perspective` / `filter` / `backdrop-filter` / `will-change` / `contain: layout|paint|strict` 会让祖先成为后代 `fixed`/`absolute` 的包含块，导致 fixed 弹窗「跟着滚走」（完整触发清单见 §3.2）。**但这不是因为形成了新图层**：
 
 ```text
-transform / contain / will-change 等属性
+transform / perspective / filter / contain / will-change 等属性
    ├──（结果 A · Layout 阶段）成为后代 fixed/abs 的「包含块」← 改 fixed 参照的真正原因
    └──（结果 B · Composite 阶段）可能被提升为独立合成层（GraphicsLayer）
 ```
@@ -259,6 +262,8 @@ transform / contain / will-change 等属性
 传统的性能优化（如 `will-change` 或 `transform`）主要作用于 **Composite（复合）阶段**。而现代 CSS 引入了更底层的控制权，允许我们直接干预 **Layout（布局）和 Paint（绘制）阶段**，其中最著名的就是 `content-visibility` 和 `contain` 属性。
 
 ### 6.1 `contain`： CSS 包含机制（Containment）
+
+> 📎 本节侧重 `contain` 各取值的**速查列举**；关于 `contain` 与 BFC / `overflow: hidden` 的**概念辨析**，以及「改 fixed 参照 ≠ 分图层」的因果澄清，见 §5.1~5.4。
 
 `contain` 属性允许开发者向浏览器声明：**“这个元素的内部状态独立于其外部”**。这使得浏览器可以在计算布局、样式、绘制时，将该元素隔离在一个独立的边界内，从而避免“牵一发而动全身”的大规模重排。
 
