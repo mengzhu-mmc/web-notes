@@ -76,7 +76,7 @@ React Router v6 相比 v5 有重大改动，面试常考"v5 和 v6 的区别"。
 
 ### 2.2 基础用法
 
-```tsxxx
+```tsx
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 
 function App() {
@@ -104,7 +104,7 @@ function App() {
 
 ### 3.1 URL 参数（params）
 
-```tsxxx
+```tsx
 // 路由定义
 <Route path="/user/:id" element={<UserDetail />} />;
 
@@ -119,7 +119,7 @@ function UserDetail() {
 
 ### 3.2 查询参数（search params）
 
-```tsxxx
+```tsx
 // URL: /search?keyword=react&page=2
 import { useSearchParams } from "react-router-dom";
 
@@ -143,7 +143,7 @@ function SearchPage() {
 
 ### 3.3 路由 state 传参（不显示在 URL 中）
 
-```tsxxx
+```tsx
 // 跳转时传递 state
 import { useNavigate } from "react-router-dom";
 
@@ -173,7 +173,7 @@ function ProductDetail() {
 
 v6 的嵌套路由是最大亮点，通过 `<Outlet>` 实现子路由渲染占位。
 
-```tsxxx
+```tsx
 // 路由配置（集中式）
 function App() {
   return (
@@ -211,7 +211,7 @@ function DashboardLayout() {
 
 ## 五、编程式导航
 
-```tsxxx
+```tsx
 import { useNavigate } from "react-router-dom";
 
 function LoginPage() {
@@ -234,7 +234,7 @@ function LoginPage() {
 
 结合 `React.lazy` 和 `Suspense` 实现按需加载，减小首屏 bundle 体积。
 
-```tsxxx
+```tsx
 import React, { Suspense, lazy } from "react";
 import { Routes, Route } from "react-router-dom";
 
@@ -264,7 +264,7 @@ function App() {
 
 React Router 没有内置路由守卫，需要自己封装高阶组件。
 
-```tsxxx
+```tsx
 // 封装 PrivateRoute 组件
 import { Navigate, useLocation } from "react-router-dom";
 
@@ -309,7 +309,7 @@ function LoginPage() {
 
 v6 支持用 JavaScript 对象配置路由，更适合动态路由场景（如根据权限动态生成菜单）。
 
-```tsxxx
+```tsx
 import { useRoutes } from "react-router-dom";
 
 const routes = [
@@ -356,7 +356,7 @@ function App() {
 
 **Q: 如何获取当前路由信息？**
 
-```tsxxx
+```tsx
 import { useLocation, useParams, useSearchParams } from "react-router-dom";
 
 function MyComponent() {
