@@ -23,8 +23,15 @@
 
 ```tsx
 // ✅ 自定义 Hook：只管逻辑，不返回 JSX
-function useCounter(initialValue = 0) {
-  const [count, setCount] = useState(initialValue);
+type UseCounterReturn = {
+  count: number;
+  increment: () => void;
+  decrement: () => void;
+  reset: () => void;
+};
+
+function useCounter(initialValue: number = 0): UseCounterReturn {
+  const [count, setCount] = useState<number>(initialValue);
   const increment = () => setCount((prev) => prev + 1);
   const decrement = () => setCount((prev) => prev - 1);
   const reset = () => setCount(initialValue);
@@ -74,12 +81,19 @@ function CounterB() {
 ### 方案一：React Context + 自定义 Hook
 
 ```tsx
+import { type ReactNode, createContext, useContext, useState } from "react";
+
+type CounterContextValue = {
+  count: number;
+  increment: () => void;
+};
+
 // 1. 创建 Context
-const CounterContext = createContext(null);
+const CounterContext = createContext<CounterContextValue | null>(null);
 
 // 2. Provider 组件持有状态
-function CounterProvider({ children }) {
-  const [count, setCount] = useState(0);
+function CounterProvider({ children }: { children: ReactNode }) {
+  const [count, setCount] = useState<number>(0);
   const increment = () => setCount((prev) => prev + 1);
   return (
     <CounterContext.Provider value={{ count, increment }}>
@@ -89,7 +103,7 @@ function CounterProvider({ children }) {
 }
 
 // 3. 自定义 Hook 封装 useContext（加错误边界）
-function useSharedCounter() {
+function useSharedCounter(): CounterContextValue {
   const context = useContext(CounterContext);
   if (!context) {
     throw new Error("useSharedCounter 必须在 CounterProvider 内部使用");

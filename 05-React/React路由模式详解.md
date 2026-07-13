@@ -125,11 +125,11 @@ import { useSearchParams } from "react-router-dom";
 
 function SearchPage() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const keyword = searchParams.get("keyword"); // 'react'
-  const page = searchParams.get("page"); // '2'
+  const keyword = searchParams.get("keyword") ?? ""; // 'react'
+  const page = searchParams.get("page") ?? "1"; // '2'
 
   // 更新查询参数
-  const handlePageChange = (newPage) => {
+  const handlePageChange = (newPage: string) => {
     setSearchParams({ keyword, page: newPage });
   };
 
@@ -145,12 +145,21 @@ function SearchPage() {
 
 ```tsx
 // 跳转时传递 state
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+
+type Product = {
+  id: string;
+  name: string;
+};
+
+type ProductDetailLocationState = {
+  product?: Product;
+};
 
 function ProductList() {
   const navigate = useNavigate();
 
-  const goToDetail = (product) => {
+  const goToDetail = (product: Product) => {
     navigate("/product/detail", {
       state: { product }, // 不会出现在 URL 中
     });
@@ -158,11 +167,9 @@ function ProductList() {
 }
 
 // 目标页面接收
-import { useLocation } from "react-router-dom";
-
 function ProductDetail() {
   const location = useLocation();
-  const { product } = location.state || {};
+  const { product } = (location.state ?? {}) as ProductDetailLocationState;
   return <div>{product?.name}</div>;
 }
 ```
@@ -266,9 +273,10 @@ React Router 没有内置路由守卫，需要自己封装高阶组件。
 
 ```tsx
 // 封装 PrivateRoute 组件
-import { Navigate, useLocation } from "react-router-dom";
+import { type ReactNode } from "react";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 
-function PrivateRoute({ children }) {
+function PrivateRoute({ children }: { children: ReactNode }) {
   const isAuthenticated = useAuth(); // 自定义 hook 获取登录状态
   const location = useLocation();
 
@@ -291,10 +299,17 @@ function PrivateRoute({ children }) {
 />;
 
 // 登录成功后跳回原页面
+type LoginLocationState = {
+  from?: {
+    pathname?: string;
+  };
+};
+
 function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const from = location.state?.from?.pathname || "/";
+  const state = location.state as LoginLocationState | null;
+  const from = state?.from?.pathname ?? "/";
 
   const handleLogin = async () => {
     await login();
