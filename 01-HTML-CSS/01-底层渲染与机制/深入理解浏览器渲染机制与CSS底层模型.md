@@ -10,18 +10,22 @@
 graph TD
     A[HTML] -->|HTML Parser| B(DOM Tree)
     C[CSS] -->|CSS Parser| D(CSSOM Tree)
-    B --> E{Render Tree<br>渲染树}
+    B --> E{Render Tree<br>渲染树：只留可见节点}
     D --> E
-    E -->|① 回流 / Layout| F[Layout Tree<br>计算尺寸与位置]
-    F -->|② 重绘 / Paint| G[Paint Record<br>生成绘制记录]
-    G -->|③ 复合 / Composite| H[Composite Layers<br>图层合成与GPU光栅化]
+    E -->|Layout 布局/回流| F[Layout Tree<br>算尺寸与位置]
+    F -->|Paint 绘制/重绘| G[Paint Record<br>生成绘制指令清单·无像素]
+    G -->|Layer 分层| J[Layer Tree<br>把指令按图层归类]
+    J -->|Raster 栅格化| K[Bitmap<br>指令执行成像素位图·GPU加速]
+    K -->|Composite 合成| H[Composite<br>合成线程拼合各层上屏]
     H --> I((Display))
 
     style E fill:#f9f,stroke:#333,stroke-width:2px
+    style G fill:#ff9,stroke:#333,stroke-width:2px
+    style K fill:#9f9,stroke:#333,stroke-width:2px
     style H fill:#bbf,stroke:#333,stroke-width:2px
 ```
 
-上图把管线压成了 3 步（Layout → Paint → Composite），方便快速记忆。但真实管线要细得多——它横跨**主线程**（1–6 步：决定“画什么、怎么画、归哪层”）和**合成线程 / GPU**（7–8 步：真正“画出像素、拼上屏”）。下面把每一步完整走一遍，并把关键坑点直接融进对应步骤。
+上图完整呈现了渲染管线：它横跨**主线程**（1–6 步：决定“画什么、怎么画、归哪层”）和**合成线程 / GPU**（7–8 步：真正“画出像素、拼上屏”）。其中最易被忽略的三步——**分层（Layer）**把绘制指令按图层归类，让每层能单独画、单独复用；**栅格化（Raster）**才真正把指令执行成像素位图；**合成（Composite）**由独立线程拼合各层位图上屏，不占用主线程。下面把每一步完整走一遍，并把关键坑点直接融进对应步骤。
 
 #### 第 1 步：解析 HTML → DOM 树
 
@@ -78,7 +82,7 @@ CSS 与 HTML **并行解析**，构建 **CSSOM 树**。CSS 是**渲染阻塞**�
 
 ### 1.2 完整渲染管线（8 步）：主线程 vs 合成线程
 
-上面（§一 简化图正下方）已按第 1–8 步逐步讲透。这里给一张紧凑的 ASCII 总览图，方便面试速记——每步的细节和坑点回看上文详解即可：
+上面（§一 流程图正下方）已按第 1–8 步逐步讲透。这里给一张紧凑的 ASCII 总览图，方便面试速记——每步的细节和坑点回看上文详解即可：
 
 ```text
 主线程 ─────────────────────────────────────────────
