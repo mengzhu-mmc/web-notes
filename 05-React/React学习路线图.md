@@ -22,14 +22,14 @@ React 解决的不是“如何写组件”这么简单，而是如何把 UI 描�
 1. [React JSX 原理与 Fragment 深度解析](./React组件单根元素原因.md)
 2. [React 组件设计模式](./React组件设计模式.md)
 3. [React 自定义 Hook 与自定义组件区别](./React自定义Hook与组件区别.md)
-4. [手写自定义 Hook 合集](./手写自定义Hook合集.md)
+4. [手写自定义 Hook 合集](./React_Hooks原理与实战避坑.md)
 
 ### 阶段 2：Hooks 与闭包
 
 目标：理解为什么 Hook 依赖、闭包、Effect 容易出 bug。
 
 1. [React Hooks 深入实战指南](./React_Hooks原理与实战避坑.md)
-2. [聊透 React 闭包陷阱与底层执行机制](./React闭包陷阱与底层执行机制解析.md)
+2. [聊透 React 闭包陷阱与底层执行机制](./React_Hooks原理与实战避坑.md)
 3. [React 19.2 实践心智模型](./React19.2实践心智模型.md)
 
 ### 阶段 3：Fiber 与并发渲染

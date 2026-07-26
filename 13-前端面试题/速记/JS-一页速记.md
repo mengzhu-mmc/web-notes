@@ -1,6 +1,6 @@
 # JavaScript 一页速记
 
-> 来源：[牛客网-面试题-JavaScript.md](../牛客网-面试题-JavaScript.md) | ~40 题浓缩
+> 来源：[牛客网-面试题-JavaScript.md](../牛客网-面试题-JavaScript/) | ~40 题浓缩
 
 ---
 

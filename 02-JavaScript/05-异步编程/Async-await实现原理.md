@@ -2,7 +2,7 @@
 
 ## 相关笔记
 
-- [异步编程与 EventLoop](../异步编程与EventLoop.md) — 宏任务微任务、async/await 执行顺序
+- [异步编程与 EventLoop](./异步编程与EventLoop.md) — 宏任务微任务、async/await 执行顺序
 - [Promise 实现原理](./Promise实现原理.md) — 手写 SimplePromise
 
 ## 面试高频考点

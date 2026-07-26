@@ -252,7 +252,7 @@ dialog[open] {
 }
 ```
 
-> 📌 **扩展阅读**：`closedBy` 属性（控制 dialog 如何被关闭：`any` / `closerequest` / `none`）详见 [CSS新特性/dialog-closedby.md](../CSS新特性/dialog-closedby.md)
+> 📌 **扩展阅读**：`closedBy` 属性（控制 dialog 如何被关闭：`any` / `closerequest` / `none`）详见 [CSS新特性/dialog-closedby.md](../04-前沿特性与工程化/2024-2026新特性/dialog-closedBy属性笔记.md)
 
 ### `popover` Attribute — HTML Popover API
 

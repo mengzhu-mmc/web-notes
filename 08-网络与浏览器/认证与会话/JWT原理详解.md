@@ -194,5 +194,5 @@ axios.interceptors.request.use((config) => {
 
 ## 相关笔记
 
-- [Token 认证机制（Token 整体概念与 Access/Refresh Token 设计）](./token.md)
+- [Token 认证机制（Token 整体概念与 Access/Refresh Token 设计）](./Token机制详解.md)
 - [双 Token 无感刷新（JWT 的工程落地实践）](./双Token无感刷新.md)

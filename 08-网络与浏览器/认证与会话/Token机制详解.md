@@ -122,6 +122,6 @@ request.interceptors.response.use(
 
 ## 相关笔记
 
-- [JWT 详解（JWT 是 Token 的一种具体实现，包含签名算法/结构/安全实践）](./jwt.md)
+- [JWT 详解（JWT 是 Token 的一种具体实现，包含签名算法/结构/安全实践）](./JWT原理详解.md)
 - [双 Token 无感刷新](./双Token无感刷新.md)
-- [Session 认证机制（与 Token 对比）](./session.md)
+- [Session 认证机制（与 Token 对比）](./Session机制详解.md)

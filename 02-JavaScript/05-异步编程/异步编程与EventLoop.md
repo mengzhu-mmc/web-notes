@@ -4,8 +4,8 @@
 
 ## 相关笔记
 
-- [async/await 实现原理](./异步编程/async-await实现原理.md) — Generator 原理、手写自动执行器
-- [Promise 实现原理](./异步编程/Promise实现原理.md) — 手写 SimplePromise、Promise/A+ 规范
+- [async/await 实现原理](./Async-await实现原理.md) — Generator 原理、手写自动执行器
+- [Promise 实现原理](./Promise实现原理.md) — 手写 SimplePromise、Promise/A+ 规范
 
 ## Event Loop 事件循环（面试必考）
 
@@ -357,7 +357,7 @@ structuredClone({ fn: () => {} }); // ❌ 函数不支持
 structuredClone(document.body); // ❌ DOM 节点不支持
 ```
 
-详见：[深拷贝方案对比.md](../深拷贝方案对比.md)
+详见：[深拷贝方案对比.md](../03-对象与原型/深拷贝方案对比.md)
 
 ---
 
