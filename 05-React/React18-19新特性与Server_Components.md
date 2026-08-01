@@ -162,9 +162,13 @@ export async function updateUserName(userId: string, name: string) {
 "use client";
 import { updateUserName } from "./actions";
 
-function ProfileForm({ userId }) {
+interface ProfileFormProps {
+  userId: string;
+}
+
+function ProfileForm({ userId }: ProfileFormProps) {
   async function handleSubmit(formData: FormData) {
-    const name = formData.get("name") as string;
+    const name = String(formData.get("name") ?? "");
     await updateUserName(userId, name);
     // 无需 fetch，无需 API 路由！
   }
@@ -185,10 +189,22 @@ function ProfileForm({ userId }) {
 import { useActionState } from "react";
 import { updateName } from "./actions";
 
-function EditForm({ userId }) {
+type EditNameState = {
+  success?: boolean;
+  error?: string;
+} | null;
+
+interface EditFormProps {
+  userId: string;
+}
+
+function EditForm({ userId }: EditFormProps) {
   const [state, formAction, isPending] = useActionState(
-    async (prevState: State, formData: FormData) => {
-      const name = formData.get("name") as string;
+    async (
+      prevState: EditNameState,
+      formData: FormData,
+    ): Promise<EditNameState> => {
+      const name = String(formData.get("name") ?? "");
       if (name.length < 2) return { error: "名字至少2个字符" };
 
       const result = await updateName(userId, name);
@@ -219,12 +235,17 @@ function EditForm({ userId }) {
 ```tsx
 import { useOptimistic, useState } from "react";
 
-function LikeButton({ postId, initialLikes }) {
-  const [likes, setLikes] = useState(initialLikes);
+interface LikeButtonProps {
+  postId: string;
+  initialLikes: number;
+}
+
+function LikeButton({ postId, initialLikes }: LikeButtonProps) {
+  const [likes, setLikes] = useState<number>(initialLikes);
 
   // useOptimistic(actualState, updateFn)
   // updateFn: (currentState, optimisticValue) => newState
-  const [optimisticLikes, addOptimisticLike] = useOptimistic(
+  const [optimisticLikes, addOptimisticLike] = useOptimistic<number, number>(
     likes,
     (currentLikes, increment) => currentLikes + increment,
   );
@@ -730,7 +751,11 @@ function SearchPage() {
 延迟更新某个值，类似 transition 但更简单：
 
 ```tsx
-function SearchResults({ query }) {
+interface SearchResultsProps {
+  query: string;
+}
+
+function SearchResults({ query }: SearchResultsProps) {
   const deferredQuery = useDeferredValue(query);
   return <HeavyList query={deferredQuery} />;
 }
@@ -779,23 +804,40 @@ function EmailField() {
 **告别手动 useMemo/useCallback/React.memo！**
 
 ```tsx
+interface Todo {
+  id: string;
+  title: string;
+  status: "active" | "completed";
+}
+
+interface TodoListProps {
+  todos: Todo[];
+  filter: Todo["status"];
+}
+
 // React 19：直接写，编译器自动优化
-function TodoList({ todos, filter }) {
-  const filtered = todos.filter((t) => t.status === filter);
-  return filtered.map((t) => <Todo key={t.id} todo={t} />);
+function TodoList({ todos, filter }: TodoListProps) {
+  const filtered = todos.filter((todo) => todo.status === filter);
+  return filtered.map((todo) => <Todo key={todo.id} todo={todo} />);
 }
 ```
 
 ### 2. Actions（表单简化）
 
 ```tsx
+type ChangeNameState = string | null;
+
 function ChangeName() {
   const [error, submitAction, isPending] = useActionState(
-    async (prev, formData) => {
-      const name = formData.get("name");
+    async (
+      prevState: ChangeNameState,
+      formData: FormData,
+    ): Promise<ChangeNameState> => {
+      const name = String(formData.get("name") ?? "");
       const error = await updateName(name);
       if (error) return error;
       redirect("/profile");
+      return null;
     },
     null,
   );
@@ -815,9 +857,20 @@ function ChangeName() {
 在组件中直接读取 Promise 和 Context：
 
 ```tsx
-function Comments({ commentsPromise }) {
+interface Comment {
+  id: string;
+  text: string;
+}
+
+interface CommentsProps {
+  commentsPromise: Promise<Comment[]>;
+}
+
+function Comments({ commentsPromise }: CommentsProps) {
   const comments = use(commentsPromise);
-  return comments.map((c) => <Comment key={c.id} comment={c} />);
+  return comments.map((comment) => (
+    <Comment key={comment.id} comment={comment} />
+  ));
 }
 ```
 
@@ -826,16 +879,29 @@ function Comments({ commentsPromise }) {
 组件在服务端执行，不发送 JS 到客户端：
 
 ```tsx
-// server component（默认）
-async function BlogPost({ id }) {
-  const post = await db.posts.find(id);
-  return <article>{post.content}</article>;
+interface BlogPostData {
+  content: string;
 }
 
-// client component（需要交互时）
-("use client");
+interface BlogPostProps {
+  id: string;
+}
+
+// server component（默认）
+async function BlogPost({ id }: BlogPostProps) {
+  const post = (await db.posts.find(id)) as BlogPostData;
+  return <article>{post.content}</article>;
+}
+```
+
+需要交互时，单独拆成 Client Component 文件：
+
+```tsx
+// LikeButton.tsx
+"use client";
+
 function LikeButton() {
-  const [liked, setLiked] = useState(false);
+  const [liked, setLiked] = useState<boolean>(false);
   return <button onClick={() => setLiked(!liked)}>❤️</button>;
 }
 ```
