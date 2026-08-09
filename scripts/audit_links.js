@@ -29,12 +29,32 @@ function walk(dir, acc = []) {
   return acc;
 }
 
-/** 用等长空格替换代码块与行内代码，保持字符偏移不变，便于后续按行定位。 */
+/**
+ * 用等长空格替换代码块与行内代码，保持字符偏移不变，便于后续按行定位。
+ * 围栏用 3 个以上反引号，结束围栏长度需不小于开始围栏（笔记里有嵌套三反引号的 ````js 块）。
+ */
 function maskCode(text) {
-  return text
-    .replace(/^```[\s\S]*?^```/gm, (m) => m.replace(/[^\n]/g, ' '))
-    .replace(/^~~~[\s\S]*?^~~~/gm, (m) => m.replace(/[^\n]/g, ' '))
-    .replace(/`[^`\n]*`/g, (m) => ' '.repeat(m.length));
+  const lines = text.split('\n');
+  let fence = null; // { char, len }
+  const masked = lines.map((line) => {
+    const m = line.match(/^\s*(`{3,}|~{3,})(.*)$/);
+    if (m) {
+      const char = m[1][0];
+      const len = m[1].length;
+      if (fence === null) {
+        fence = { char, len };
+        return ' '.repeat(line.length);
+      }
+      // 结束围栏：同字符、长度不小于开始、且不带 info string
+      if (char === fence.char && len >= fence.len && m[2].trim() === '') {
+        fence = null;
+      }
+      return ' '.repeat(line.length);
+    }
+    return fence ? ' '.repeat(line.length) : line;
+  });
+  // 行内代码
+  return masked.join('\n').replace(/`[^`\n]*`/g, (m) => ' '.repeat(m.length));
 }
 
 function lineOf(text, index) {
@@ -65,7 +85,8 @@ for (const file of markdowns) {
   let m;
   while ((m = linkRe.exec(text))) {
     let target = m[2].trim();
-    if (/^(https?:|mailto:|tel:|data:|#)/i.test(target)) continue;
+    // 非文件协议一律跳过（含 chrome:// devtools:// about: 等浏览器内部页面）
+    if (/^[a-z][a-z0-9+.-]*:/i.test(target) || target.startsWith('#')) continue;
     target = target.split('#')[0];
     if (!target) continue;
     // 既无路径分隔符又无扩展名的，多为伪代码里的参数名（如 [value](value)），不是文件引用

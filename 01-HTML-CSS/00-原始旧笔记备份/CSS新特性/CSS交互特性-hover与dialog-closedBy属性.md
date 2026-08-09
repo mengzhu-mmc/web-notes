@@ -1,6 +1,0 @@
-# CSS交互特性-hover与dialog-closedBy属性
-
-> 本文内容已完成去重合并，后续维护请以 [[01-HTML-CSS/04-前沿特性与工程化/2024-2026新特性/CSS交互特性-hover与dialog-closedBy属性.md]] 为准。
-
-- 合并目标：`01-HTML-CSS/04-前沿特性与工程化/2024-2026新特性/CSS交互特性-hover与dialog-closedBy属性.md`
-- 处理原因：该文件与结构化目录下的同名/同主题笔记内容重复，保留轻量索引以避免知识点双线维护。
