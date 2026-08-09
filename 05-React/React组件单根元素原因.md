@@ -11,14 +11,10 @@ JSX 不是 HTML，也不是模板语言，它是 `React.createElement()` 的语�
 ```tsx
 // 你写的 JSX
 const element = (
-
-
-# Hello
-
-
-World
-
-
+  <div className="container">
+    <h1>Hello</h1>
+    <p>World</p>
+  </div>
 );
 
 // Babel 编译后（React 17 之前）
@@ -66,12 +62,12 @@ React 的虚拟 DOM 是一棵树形结构，树必须有且只有一个根节点
 
 ```
 // 合法的树结构（单根）
-
-  ├──
-# └──
+<div>
+  ├── <h1>
+  └── <p>
 
 // 非法的"森林"结构（多根）
-
+<h1>   <p>
 （两棵独立的树，React 无法处理）
 ```
 
@@ -91,13 +87,10 @@ React 17 之前，JSX 编译后需要调用 `React.createElement`，所以必须
 import React from "react";
 
 function MyComponent() {
- return (
-
- 标题
-
-
-内容
-
+  return (
+    <React.Fragment>
+      <h1>标题</h1>
+      <p>内容</p>
     </React.Fragment>
   );
 }
@@ -106,12 +99,8 @@ function MyComponent() {
 function MyComponent() {
   return (
     <>
-
-# 标题
-
-
-内容
-
+      <h1>标题</h1>
+      <p>内容</p>
     </>
   );
 }
@@ -121,20 +110,16 @@ function MyComponent() {
 
 - 不增加额外 DOM 节点，避免破坏 CSS 布局（如 Flexbox、Grid 的直接子元素关系）
 - 不影响语义化 HTML 结构
-- 性能略优于多余的 `` 包裹
+- 性能略优于多余的 `<div>` 包裹
 
 ### 方案二：返回数组（需要 key）
 
 ```tsx
 function MyComponent() {
   return [
-
-# 标题
-,
-
-内容
-,
-底部,
+    <h1 key="title">标题</h1>,
+    <p key="content">内容</p>,
+    <footer key="footer">底部</footer>,
   ];
 }
 ```
@@ -146,36 +131,32 @@ function MyComponent() {
 ```tsx
 function MyComponent() {
   return (
-
-
-# 标题
-
-
-内容
-
-
+    <div>
+      <h1>标题</h1>
+      <p>内容</p>
+    </div>
   );
 }
 ```
 
-**缺点**：会在 DOM 中增加一个无意义的 ``，可能破坏 CSS 布局。
+**缺点**：会在 DOM 中增加一个无意义的 `<div>`，可能破坏 CSS 布局。
 
 ---
 
 ## 四、Fragment 的 key 属性
 
-短语法 `<>...` 不支持任何属性，但 `` 支持 `key` 属性。这在渲染列表时非常有用：
+短语法 `<>...</>` 不支持任何属性，但 `<React.Fragment>` 支持 `key` 属性。这在渲染列表时非常有用：
 
 ```tsx
 // 场景：渲染一组包含多个元素的列表项
 function GlossaryList({ items }) {
   return (
-
+    <dl>
       {items.map(item => (
         // 必须用 React.Fragment 才能加 key
-
-{item.term}
-{item.description}
+        <React.Fragment key={item.id}>
+          <dt>{item.term}</dt>
+          <dd>{item.description}</dd>
         </React.Fragment>
       ))}
     </dl>
@@ -184,9 +165,9 @@ function GlossaryList({ items }) {
 
 // 错误写法：<> 不支持 key
 {items.map(item => (
-{/* 语法错误！ */}
-{item.term}
-{item.description}
+  <key={item.id}>  {/* 语法错误！ */}
+    <dt>{item.term}</dt>
+    <dd>{item.description}</dd>
   </>
 ))}
 ```
@@ -203,30 +184,31 @@ Fragment 在最终渲染的 DOM 中完全消失，不留任何痕迹：
 // React 代码
 function App() {
   return (
-
-
+    <ul>
+      <ListItems />
+    </ul>
   );
 }
 
 function ListItems() {
   return (
     <>
-      Item 1
-      Item 2
-      Item 3
+      <li>Item 1</li>
+      <li>Item 2</li>
+      <li>Item 3</li>
     </>
   );
 }
 
 // 最终 DOM（Fragment 不见了）
-
-- Item 1
-- Item 2
-- Item 3
-;
+<ul>
+  <li>Item 1</li>
+  <li>Item 2</li>
+  <li>Item 3</li>
+</ul>;
 ```
 
-这对于需要严格 HTML 结构的场景（如 `` 的 `/`、`` 的 ``）非常重要：
+这对于需要严格 HTML 结构的场景（如 `<table>` 的 `<tr>/<td>`、`<ul>` 的 `<li>`）非常重要：
 
 ```tsx
 // 正确：使用 Fragment 保持 table 结构合法
@@ -234,9 +216,9 @@ function TableRows({ data }) {
   return (
     <>
       {data.map((row) => (
-
-{row.name}
-{row.value}
+        <tr key={row.id}>
+          <td>{row.name}</td>
+          <td>{row.value}</td>
         </tr>
       ))}
     </>
@@ -246,13 +228,13 @@ function TableRows({ data }) {
 // 错误：用 div 包裹会破坏 table 结构
 function TableRows({ data }) {
   return (
-
+    <div>
       {" "}
-      {/*  不能是  的直接子元素！ */}
+      {/* <div> 不能是 <tbody> 的直接子元素！ */}
       {data.map((row) => (
-...
+        <tr key={row.id}>...</tr>
       ))}
-
+    </div>
   );
 }
 ```
@@ -268,17 +250,13 @@ React 17 引入了新的 JSX Transform，解决了以下问题：
 import React from "react"; // 即使不直接用 React，也必须引入
 
 function App() {
-  return
-# Hello
-; // 编译后需要 React.createElement
+  return <h1>Hello</h1>; // 编译后需要 React.createElement
 }
 
 // React 17+：无需手动 import React
 // Babel 自动从 react/jsx-runtime 引入 jsx 函数
 function App() {
-  return
-# Hello
-; // 编译后使用 _jsx，不需要 React 在作用域
+  return <h1>Hello</h1>; // 编译后使用 _jsx，不需要 React 在作用域
 }
 ```
 
@@ -292,13 +270,13 @@ function App() {
 
 ## 七、面试常见追问
 
-**Q1：Fragment 和 `` 包裹有什么区别？**
+**Q1：Fragment 和 `<div>` 包裹有什么区别？**
 
-Fragment 不会在 DOM 中生成真实节点，不影响 CSS 布局（特别是 Flexbox/Grid 的直接子元素关系）；`` 会增加一个真实 DOM 节点，可能破坏语义结构和样式。
+Fragment 不会在 DOM 中生成真实节点，不影响 CSS 布局（特别是 Flexbox/Grid 的直接子元素关系）；`<div>` 会增加一个真实 DOM 节点，可能破坏语义结构和样式。
 
-**Q2：什么时候必须用 `` 而不能用 `<>`？**
+**Q2：什么时候必须用 `<React.Fragment>` 而不能用 `<>`？**
 
-当需要给 Fragment 添加 `key` 属性时（如在 `.map()` 中渲染多个元素的列表项），必须使用 ``，因为短语法 `<>` 不支持任何属性。
+当需要给 Fragment 添加 `key` 属性时（如在 `.map()` 中渲染多个元素的列表项），必须使用 `<React.Fragment key={...}>`，因为短语法 `<>` 不支持任何属性。
 
 **Q3：React 17 之前为什么必须 `import React`？**
 
@@ -318,9 +296,9 @@ Fragment 不会在 DOM 中生成真实节点，不影响 CSS 布局（特别是 
 
 | 方案               | DOM 节点 | 支持 key   | 推荐度                 |
 | ------------------ | -------- | ---------- | ---------------------- |
-| `` | 无 | ✅ | ⭐⭐⭐⭐⭐ |
+| `<React.Fragment>` | 无       | ✅         | ⭐⭐⭐⭐⭐             |
 | `<>...</>` 短语法  | 无       | ❌         | ⭐⭐⭐⭐⭐             |
 | 返回数组 `[]`      | 无       | 必须手动加 | ⭐⭐                   |
-| `` 包裹       | 有       | ✅         | ⭐⭐（有副作用时避免） |
+| `<div>` 包裹       | 有       | ✅         | ⭐⭐（有副作用时避免） |
 
 **核心记忆点**：JSX 是 `React.createElement` 的语法糖 → 函数只能返回一个值 → 虚拟 DOM 树需要单根 → Fragment 是"透明容器"解决方案。

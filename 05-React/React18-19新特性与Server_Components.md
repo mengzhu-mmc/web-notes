@@ -15,7 +15,7 @@
 | `useActionState`          | 管理 action 返回值 + pending 状态      | ✅ 稳定  |
 | React Compiler            | 编译时自动 memo，告别手动优化          | 实验中   |
 | ref 作为 prop             | 无需 `forwardRef` 包裹                 | ✅ 稳定  |
-| `` 作为 Provider | 简化 Context 写法 | ✅ 稳定 |
+| `<Context>` 作为 Provider | 简化 Context 写法                      | ✅ 稳定  |
 
 ---
 
@@ -35,26 +35,26 @@ interface Comment {
 }
 
 interface CommentsProps {
-commentsPromise: Promise;
+  commentsPromise: Promise<Comment[]>;
 }
 
 function Comments({ commentsPromise }: CommentsProps) {
   // 如果 promise 还在 pending，组件会 suspend（交给 Suspense 显示 loading）
   const comments = use(commentsPromise);
   return (
-
-- {comment.text}
-
+    <ul>
+      {comments.map((comment) => (
+        <li key={comment.id}>{comment.text}</li>
+      ))}
+    </ul>
   );
 }
 
 function App() {
   const commentsPromise = fetchComments(); // 在外部创建，不要在组件内创建！
   return (
-    <Suspense fallback={
-加载评论中...
-}>
-
+    <Suspense fallback={<p>加载评论中...</p>}>
+      <Comments commentsPromise={commentsPromise} />
     </Suspense>
   );
 }
@@ -77,10 +77,10 @@ interface UserProfileProps {
 function UserProfile({ userId, showDetails }: UserProfileProps) {
   // ✅ use() 可以放在 if 里！普通 Hook 不行
   if (showDetails) {
-const details = use(fetchUserDetails(userId) as Promise);
-    return {details.bio};
+    const details = use(fetchUserDetails(userId) as Promise<UserDetails>);
+    return <div>{details.bio}</div>;
   }
-  return 基本信息;
+  return <div>基本信息</div>;
 }
 ```
 
@@ -95,7 +95,7 @@ function Button() {
   // use() 读取 Context，等价于 useContext(ThemeContext)
   // 但 use() 可以放在条件语句中
   const theme = use(ThemeContext);
-return Click me;
+  return <button className={theme}>Click me</button>;
 }
 ```
 
@@ -116,21 +116,21 @@ function OldFetch({ url }) {
       .finally(() => setLoading(false));
   }, [url]);
 
-if (loading) return ;
-if (error) return ;
-  return {data?.title};
+  if (loading) return <Spinner />;
+  if (error) return <Error error={error} />;
+  return <div>{data?.title}</div>;
 }
 
 // ✅ 新方式：use() + Suspense + ErrorBoundary
 function NewFetch({ dataPromise }) {
   const data = use(dataPromise); // 自动处理 loading/error 状态
-  return {data.title};
+  return <div>{data.title}</div>;
 }
 
 // 在父组件中统一处理 loading/error
-}>
-}>
-
+<ErrorBoundary fallback={<Error />}>
+  <Suspense fallback={<Spinner />}>
+    <NewFetch dataPromise={fetchData(url)} />
   </Suspense>
 </ErrorBoundary>;
 ```
@@ -174,8 +174,9 @@ function ProfileForm({ userId }: ProfileFormProps) {
   }
 
   return (
-
-保存
+    <form action={handleSubmit}>
+      <input name="name" placeholder="新名字" />
+      <button type="submit">保存</button>
     </form>
   );
 }
@@ -202,7 +203,7 @@ function EditForm({ userId }: EditFormProps) {
     async (
       prevState: EditNameState,
       formData: FormData,
-): Promise => {
+    ): Promise<EditNameState> => {
       const name = String(formData.get("name") ?? "");
       if (name.length < 2) return { error: "名字至少2个字符" };
 
@@ -213,14 +214,11 @@ function EditForm({ userId }: EditFormProps) {
   );
 
   return (
-
-{isPending ? "保存中..." : "保存"}
-      {state?.error &&
-{state.error}
-}
-      {state?.success &&
-保存成功！
-}
+    <form action={formAction}>
+      <input name="name" defaultValue="" />
+      <button disabled={isPending}>{isPending ? "保存中..." : "保存"}</button>
+      {state?.error && <p style={{ color: "red" }}>{state.error}</p>}
+      {state?.success && <p style={{ color: "green" }}>保存成功！</p>}
     </form>
   );
 }
@@ -243,11 +241,11 @@ interface LikeButtonProps {
 }
 
 function LikeButton({ postId, initialLikes }: LikeButtonProps) {
-const [likes, setLikes] = useState(initialLikes);
+  const [likes, setLikes] = useState<number>(initialLikes);
 
   // useOptimistic(actualState, updateFn)
   // updateFn: (currentState, optimisticValue) => newState
-const [optimisticLikes, addOptimisticLike] = useOptimistic(
+  const [optimisticLikes, addOptimisticLike] = useOptimistic<number, number>(
     likes,
     (currentLikes, increment) => currentLikes + increment,
   );
@@ -264,7 +262,7 @@ const [optimisticLikes, addOptimisticLike] = useOptimistic(
     }
   }
 
-return ❤️ {optimisticLikes};
+  return <button onClick={handleLike}>❤️ {optimisticLikes}</button>;
 }
 ```
 
@@ -274,7 +272,7 @@ return ❤️ {optimisticLikes};
 import { useOptimistic, useState, useTransition } from "react";
 
 function TodoList() {
-const [todos, setTodos] = useState([]);
+  const [todos, setTodos] = useState<Todo[]>([]);
   const [isPending, startTransition] = useTransition();
 
   const [optimisticTodos, addOptimisticTodo] = useOptimistic(
@@ -295,14 +293,23 @@ const [todos, setTodos] = useState([]);
   }
 
   return (
-
-
-添加
+    <div>
+      <form action={handleSubmit}>
+        <input name="title" placeholder="新任务" />
+        <button type="submit">添加</button>
       </form>
-
-- {todo.title} {todo.id.startsWith("temp") && " (保存中...)"}
-
-
+      <ul>
+        {optimisticTodos.map((todo) => (
+          <li
+            key={todo.id}
+            style={{ opacity: todo.id.startsWith("temp") ? 0.5 : 1 }}
+          >
+            {todo.title}
+            {todo.id.startsWith("temp") && " (保存中...)"}
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 ```
@@ -326,7 +333,7 @@ action 失败           → optimisticState 自动回滚到 actualState
 
 ## 四、`useFormStatus` — 表单状态
 
-> 获取**祖先 ``** 的提交状态，无需 prop drilling。
+> 获取**祖先 `<form>`** 的提交状态，无需 prop drilling。
 
 ```tsx
 import { useFormStatus } from "react-dom"; // 注意：从 react-dom 导入！
@@ -336,7 +343,7 @@ function SubmitButton() {
   const { pending, data, method, action } = useFormStatus();
 
   return (
-
+    <button type="submit" disabled={pending}>
       {pending ? "提交中..." : "提交"}
     </button>
   );
@@ -349,8 +356,9 @@ function ContactForm() {
   }
 
   return (
-
-{/* 自动获取 form 的 pending 状态 */}
+    <form action={handleSubmit}>
+      <textarea name="message" rows={4} />
+      <SubmitButton /> {/* 自动获取 form 的 pending 状态 */}
     </form>
   );
 }
@@ -371,14 +379,14 @@ function ContactForm() {
 // ❌ 错误：在 form 本身的组件里用 useFormStatus，获取不到
 function MyForm() {
   const { pending } = useFormStatus(); // ❌ 这里是 form 的同层，不是子组件
-return ...;
+  return <form action={submit}>...</form>;
 }
 
 // ✅ 正确：必须在 form 的子组件中使用
 function MyForm() {
   return (
-
-{/* ✅ SubmitButton 内部用 useFormStatus */}
+    <form action={submit}>
+      <SubmitButton /> {/* ✅ SubmitButton 内部用 useFormStatus */}
     </form>
   );
 }
@@ -394,37 +402,39 @@ function MyForm() {
 
 ```tsx
 // React 19 之前：必须用 forwardRef
-const OldInput = forwardRef((props, ref) => (
-
+const OldInput = forwardRef<HTMLInputElement, Props>((props, ref) => (
+  <input ref={ref} {...props} />
 ));
 
 // React 19：直接传 ref prop
 import type { ComponentProps, Ref } from "react";
 
 type NewInputProps = ComponentProps<"input"> & {
-ref?: Ref;
+  ref?: Ref<HTMLInputElement>;
 };
 
 function NewInput({ ref, ...props }: NewInputProps) {
-return ;
+  return <input ref={ref} {...props} />;
 }
 
 // 使用方式完全一样
-const inputRef = useRef(null);
-;
+const inputRef = useRef<HTMLInputElement>(null);
+<NewInput ref={inputRef} placeholder="输入内容" />;
 ```
 
-### 5.2 `` 直接作为 Provider
+### 5.2 `<Context>` 直接作为 Provider
 
 ```tsx
 const ThemeContext = createContext('light');
 
 // 之前：必须用 ThemeContext.Provider
-
+<ThemeContext.Provider value="dark">
+  <App />
 </ThemeContext.Provider>
 
 // React 19：直接用 Context 本身
-
+<ThemeContext value="dark">
+  <App />
 </ThemeContext>
 ```
 
@@ -441,18 +451,14 @@ interface BlogPostModel {
 
 function BlogPost({ post }: { post: BlogPostModel }) {
   return (
+    <article>
+      <title>{post.title} - 我的博客</title>
+      <meta name="description" content={post.summary} />
+      <link rel="canonical" href={`https://example.com/posts/${post.slug}`} />
 
-{post.title} - 我的博客
-
-
-
-
-# {post.title}
-
-
-{post.content}
-
-
+      <h1>{post.title}</h1>
+      <p>{post.content}</p>
+    </article>
   );
 }
 ```
@@ -472,7 +478,7 @@ function App() {
   // 预初始化（加载并执行）脚本
   preinit("/analytics.js", { as: "script" });
 
-  return ...;
+  return <div>...</div>;
 }
 ```
 
@@ -491,7 +497,7 @@ export default function Page() {
     logAnalytics();
   });
 
-  return Welcome to the Page;
+  return <div>Welcome to the Page</div>;
 }
 ```
 
@@ -523,7 +529,7 @@ export default function Page() {
 
 ### Q3：`useFormStatus` 为什么从 `react-dom` 导入？
 
-`useFormStatus` 和 HTML `` 元素强绑定，属于 DOM 相关 API，因此放在 `react-dom` 包。同样道理，`createPortal`、`flushSync` 也在 `react-dom`。
+`useFormStatus` 和 HTML `<form>` 元素强绑定，属于 DOM 相关 API，因此放在 `react-dom` 包。同样道理，`createPortal`、`flushSync` 也在 `react-dom`。
 
 ### Q4：Server Components 和 Client Components 如何选择？
 
@@ -545,7 +551,7 @@ React Actions 是轻量级的**局部状态管理**，配合 `useActionState` + 
 
 | 功能       | React 19                           | Vue 3                             |
 | ---------- | ---------------------------------- | --------------------------------- |
-| 异步数据 | `use()` + Suspense | `` + async setup |
+| 异步数据   | `use()` + Suspense                 | `<Suspense>` + async setup        |
 | 表单状态   | `useFormStatus` + `useActionState` | VueUse `useForm` / 手动           |
 | 乐观 UI    | `useOptimistic`                    | 手动 ref + 计算属性               |
 | 服务端数据 | Server Actions                     | Nuxt `useFetch` / `useAsyncData`  |
@@ -559,28 +565,27 @@ React Actions 是轻量级的**局部状态管理**，配合 `useActionState` + 
 
 React 19.2 已经是稳定发布版本，不再只是“预告”。这一版的主线不是再新增一批表层 Hook，而是把 React 的三个底层方向继续往前推进：**后台 UI 保活与降优先级、Effect 中非响应式事件抽离、服务端渲染/预渲染流水线增强**。
 
-### 8.1 ``：隐藏但不销毁的 UI 分区
+### 8.1 `<Activity />`：隐藏但不销毁的 UI 分区
 
 过去我们经常用条件渲染控制页面片段：
 
 ```tsx
 {
-  isVisible &&
-;
+  isVisible && <Page />;
 }
 ```
 
-这种写法的问题是：隐藏时组件会被卸载，组件内部 state、未完成的数据预热、图片/CSS 加载进度都会丢掉。React 19.2 的 `` 提供了更细的控制：
+这种写法的问题是：隐藏时组件会被卸载，组件内部 state、未完成的数据预热、图片/CSS 加载进度都会丢掉。React 19.2 的 `<Activity />` 提供了更细的控制：
 
 ```tsx
 import { Activity } from "react";
 
 function App({ isVisible }: { isVisible: boolean }) {
- return (
-
-
-
- );
+  return (
+    <Activity mode={isVisible ? "visible" : "hidden"}>
+      <Page />
+    </Activity>
+  );
 }
 ```
 
@@ -589,7 +594,7 @@ function App({ isVisible }: { isVisible: boolean }) {
 - `visible`：正常展示 children，挂载 effects，更新按正常优先级处理。
 - `hidden`：隐藏 children，卸载 effects，并把该子树更新延后到 React 空闲时处理。
 
-**心智模型**：`` 不是简单的 `display: none`，也不是普通条件渲染。它更像“后台标签页”：UI 不显示，副作用暂停，但状态和已经构建出的子树可以保留，适合用于路由预渲染、Tab 切换保活、返回上一页时恢复输入状态等场景。
+**心智模型**：`<Activity />` 不是简单的 `display: none`，也不是普通条件渲染。它更像“后台标签页”：UI 不显示，副作用暂停，但状态和已经构建出的子树可以保留，适合用于路由预渲染、Tab 切换保活、返回上一页时恢复输入状态等场景。
 
 ### 8.2 `useEffectEvent`：把 Effect 里的“事件”拆出来
 
@@ -599,18 +604,18 @@ function App({ isVisible }: { isVisible: boolean }) {
 import { useEffect, useEffectEvent } from "react";
 
 function ChatRoom({ roomId, theme }: { roomId: string; theme: string }) {
- const onConnected = useEffectEvent(() => {
- showNotification("Connected!", theme); // 永远读到最新 theme
- });
+  const onConnected = useEffectEvent(() => {
+    showNotification("Connected!", theme); // 永远读到最新 theme
+  });
 
- useEffect(() => {
- const connection = createConnection(roomId);
- connection.on("connected", () => {
- onConnected();
- });
- connection.connect();
- return () => connection.disconnect();
- }, [roomId]); // ✅ Effect 只对真正的订阅条件响应
+  useEffect(() => {
+    const connection = createConnection(roomId);
+    connection.on("connected", () => {
+      onConnected();
+    });
+    connection.connect();
+    return () => connection.disconnect();
+  }, [roomId]); // ✅ Effect 只对真正的订阅条件响应
 }
 ```
 
@@ -626,11 +631,11 @@ import { cache, cacheSignal } from "react";
 const dedupedFetch = cache(fetch);
 
 export default async function Page() {
- const res = await dedupedFetch("https://api.example.com/posts", {
- signal: cacheSignal(),
- });
- const posts = await res.json();
- return ;
+  const res = await dedupedFetch("https://api.example.com/posts", {
+    signal: cacheSignal(),
+  });
+  const posts = await res.json();
+  return <PostList posts={posts} />;
 }
 ```
 
@@ -651,8 +656,8 @@ React 19.2 新增的 Partial Pre-rendering 允许先把页面的静态部分预�
 
 核心链路可以理解为：
 
-1. 构建或预渲染阶段：`prerender()` 生成静态 `prelude` 和可恢复的 `postponed` 状态。
-2. 请求阶段：读取 `postponed`，调用 `resume(, postponed)` 继续产出 SSR stream。
+1. 构建或预渲染阶段：`prerender(<App />)` 生成静态 `prelude` 和可恢复的 `postponed` 状态。
+2. 请求阶段：读取 `postponed`，调用 `resume(<App />, postponed)` 继续产出 SSR stream。
 3. 对用户：先快速看到静态壳，再逐步补齐动态区域。
 
 ### 8.6 SSR 细节变化：Suspense 批量 reveal 与 Node Web Streams
@@ -687,10 +692,10 @@ React 18 最重要的改变：渲染可以**被中断**。
 // createRoot 替代 render（开启并发特性）
 import { createRoot } from "react-dom/client";
 const root = createRoot(document.getElementById("root"));
-root.render();
+root.render(<App />);
 
 // ❌ 旧写法（React 17）
-// ReactDOM.render(, document.getElementById('root'));
+// ReactDOM.render(<App />, document.getElementById('root'));
 ```
 
 ### 2. 自动批处理（Automatic Batching）
@@ -700,9 +705,9 @@ React 17 只在事件处理器中批处理，React 18 **所有场景**都自动�
 ```tsx
 // React 18：setTimeout 里也会批处理（只触发一次渲染）
 setTimeout(() => {
- setCount((c) => c + 1); // 不会立即渲染
- setFlag((f) => !f); // 不会立即渲染
- // React 18 会合并成一次渲染
+  setCount((c) => c + 1); // 不会立即渲染
+  setFlag((f) => !f); // 不会立即渲染
+  // React 18 会合并成一次渲染
 }, 1000);
 ```
 
@@ -721,23 +726,23 @@ flushSync(() => setCount((c) => c + 1)); // 立即渲染
 import { useTransition } from "react";
 
 function SearchPage() {
- const [query, setQuery] = useState("");
- const [results, setResults] = useState([]);
- const [isPending, startTransition] = useTransition();
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState([]);
+  const [isPending, startTransition] = useTransition();
 
- const handleChange = (e) => {
- setQuery(e.target.value); // 紧急：立即更新输入框
- startTransition(() => {
- setResults(filterData(e.target.value)); // 非紧急：可延迟
- });
- };
+  const handleChange = (e) => {
+    setQuery(e.target.value); // 紧急：立即更新输入框
+    startTransition(() => {
+      setResults(filterData(e.target.value)); // 非紧急：可延迟
+    });
+  };
 
- return (
- <>
-
- {isPending ? : }
-
- );
+  return (
+    <>
+      <input value={query} onChange={handleChange} />
+      {isPending ? <Spinner /> : <ResultList results={results} />}
+    </>
+  );
 }
 ```
 
@@ -747,12 +752,12 @@ function SearchPage() {
 
 ```tsx
 interface SearchResultsProps {
- query: string;
+  query: string;
 }
 
 function SearchResults({ query }: SearchResultsProps) {
- const deferredQuery = useDeferredValue(query);
- return ;
+  const deferredQuery = useDeferredValue(query);
+  return <HeavyList query={deferredQuery} />;
 }
 ```
 
@@ -761,9 +766,9 @@ function SearchResults({ query }: SearchResultsProps) {
 支持**服务端渲染流式传输** + **数据获取**：
 
 ```tsx
-}>
-
-
+<Suspense fallback={<Skeleton />}>
+  <Comments />
+</Suspense>
 ```
 
 ### 6. useId
@@ -772,13 +777,13 @@ function SearchResults({ query }: SearchResultsProps) {
 
 ```tsx
 function EmailField() {
- const id = useId();
- return (
- <>
- Email
-
-
- );
+  const id = useId();
+  return (
+    <>
+      <label htmlFor={id}>Email</label>
+      <input id={id} type="email" />
+    </>
+  );
 }
 ```
 
@@ -800,20 +805,20 @@ function EmailField() {
 
 ```tsx
 interface Todo {
- id: string;
- title: string;
- status: "active" | "completed";
+  id: string;
+  title: string;
+  status: "active" | "completed";
 }
 
 interface TodoListProps {
- todos: Todo[];
- filter: Todo["status"];
+  todos: Todo[];
+  filter: Todo["status"];
 }
 
 // React 19：直接写，编译器自动优化
 function TodoList({ todos, filter }: TodoListProps) {
- const filtered = todos.filter((todo) => todo.status === filter);
- return filtered.map((todo) => );
+  const filtered = todos.filter((todo) => todo.status === filter);
+  return filtered.map((todo) => <Todo key={todo.id} todo={todo} />);
 }
 ```
 
@@ -823,26 +828,25 @@ function TodoList({ todos, filter }: TodoListProps) {
 type ChangeNameState = string | null;
 
 function ChangeName() {
- const [error, submitAction, isPending] = useActionState(
- async (
- prevState: ChangeNameState,
- formData: FormData,
- ): Promise => {
- const name = String(formData.get("name") ?? "");
- const error = await updateName(name);
- if (error) return error;
- redirect("/profile");
- return null;
- },
- null,
- );
+  const [error, submitAction, isPending] = useActionState(
+    async (
+      prevState: ChangeNameState,
+      formData: FormData,
+    ): Promise<ChangeNameState> => {
+      const name = String(formData.get("name") ?? "");
+      const error = await updateName(name);
+      if (error) return error;
+      redirect("/profile");
+      return null;
+    },
+    null,
+  );
 
- return (
-
-
- Update
- {error && {error}
-}
+  return (
+    <form action={submitAction}>
+      <input name="name" />
+      <button disabled={isPending}>Update</button>
+      {error && <p>{error}</p>}
     </form>
   );
 }
@@ -859,13 +863,13 @@ interface Comment {
 }
 
 interface CommentsProps {
-commentsPromise: Promise;
+  commentsPromise: Promise<Comment[]>;
 }
 
 function Comments({ commentsPromise }: CommentsProps) {
   const comments = use(commentsPromise);
   return comments.map((comment) => (
-
+    <Comment key={comment.id} comment={comment} />
   ));
 }
 ```
@@ -886,7 +890,7 @@ interface BlogPostProps {
 // server component（默认）
 async function BlogPost({ id }: BlogPostProps) {
   const post = (await db.posts.find(id)) as BlogPostData;
-  return {post.content};
+  return <article>{post.content}</article>;
 }
 ```
 
@@ -897,8 +901,8 @@ async function BlogPost({ id }: BlogPostProps) {
 "use client";
 
 function LikeButton() {
-const [liked, setLiked] = useState(false);
-return setLiked(!liked)}>❤️;
+  const [liked, setLiked] = useState<boolean>(false);
+  return <button onClick={() => setLiked(!liked)}>❤️</button>;
 }
 ```
 
@@ -909,8 +913,8 @@ return setLiked(!liked)}>❤️;
 ### 6. 其他改进
 
 - **ref 作为 prop**：不再需要 forwardRef
-- **Context 直接作为 provider**：``
-- **文档 metadata 支持**：`` `` 在组件中直接写
+- **Context 直接作为 provider**：`<ThemeContext value={theme}>`
+- **文档 metadata 支持**：`<title>` `<meta>` 在组件中直接写
 - **资源预加载 API**：`preload()`、`preinit()` 优化资源加载时机
 
 ---
@@ -988,10 +992,10 @@ import ServerComponent from "./ServerComponent";
 
 export default function ClientComponent() {
   return (
-
-{" "}
+    <div>
+      <ServerComponent />{" "}
       {/* 打包工具会报错或默默将其转化为 Client Component */}
-
+    </div>
   );
 }
 ```
@@ -1005,7 +1009,8 @@ import ServerComponent from "./ServerComponent";
 export default function Page() {
   return (
     // Server Component 可以随意组合它们
-
+    <ClientComponent>
+      <ServerComponent />
     </ClientComponent>
   );
 }
@@ -1019,11 +1024,11 @@ export default function ClientComponent({
 }) {
   const [count, setCount] = useState(0);
   return (
-
-setCount((c) => c + 1)}>{count}
+    <div>
+      <button onClick={() => setCount((c) => c + 1)}>{count}</button>
       {/* 这里的 children 就是在服务端已经渲染好并序列化的 ServerComponent 的结果 */}
       {children}
-
+    </div>
   );
 }
 ```
@@ -1043,9 +1048,11 @@ export default async function UsersPage() {
   const users = await res.json();
 
   return (
-
-- {user.name}
-
+    <ul>
+      {users.map((user) => (
+        <li key={user.id}>{user.name}</li>
+      ))}
+    </ul>
   );
 }
 ```
@@ -1106,11 +1113,10 @@ export function ProfileForm() {
   const [state, formAction, isPending] = useActionState(updateName, {});
 
   return (
-
-{isPending ? "保存中..." : "保存"}
-      {state.error ?
-{state.error}
- : null}
+    <form action={formAction}>
+      <input name="name" aria-label="name" />
+      <button disabled={isPending}>{isPending ? "保存中..." : "保存"}</button>
+      {state.error ? <p role="alert">{state.error}</p> : null}
     </form>
   );
 }
@@ -1143,13 +1149,13 @@ export function CommentList({ comments }: { comments: Comment[] }) {
   }
 
   return (
-
+    <form action={submit}>
       {optimisticComments.map((item) => (
-
-{item.text}
-
+        <p key={item.id} style={{ opacity: item.pending ? 0.6 : 1 }}>
+          {item.text}
+        </p>
       ))}
-
+      <input name="text" />
     </form>
   );
 }
@@ -1166,12 +1172,13 @@ import { Suspense, use } from "react";
 
 function UserName({ userPromise }: { userPromise: Promise<{ name: string }> }) {
   const user = use(userPromise);
-  return {user.name};
+  return <span>{user.name}</span>;
 }
 
 export function UserCard(props: { userPromise: Promise<{ name: string }> }) {
   return (
-
+    <Suspense fallback={<span>加载中...</span>}>
+      <UserName userPromise={props.userPromise} />
     </Suspense>
   );
 }
@@ -1190,7 +1197,7 @@ export function ProductHero() {
   preconnect("https://cdn.example.com");
   preload("https://cdn.example.com/hero.webp", { as: "image" });
 
-return ![](https://cdn.example.com/hero.webp);
+  return <img src="https://cdn.example.com/hero.webp" alt="商品主图" />;
 }
 ```
 
@@ -1250,13 +1257,9 @@ export function SearchList({ items }: { items: Item[] }) {
           startTransition(() => setQuery(nextKeyword));
         }}
       />
-      {isPending ?
-更新结果中...
- : null}
+      {isPending ? <p>更新结果中...</p> : null}
       {filteredItems.map((item) => (
-
-{item.title}
-
+        <p key={item.id}>{item.title}</p>
       ))}
     </>
   );
@@ -1302,13 +1305,12 @@ export default async function ProductPage() {
   const products = await getProducts();
 
   return (
-
+    <main>
       {products.map((product) => (
-
-
-## {product.name}
-
-
+        <section key={product.id}>
+          <h2>{product.name}</h2>
+          <AddToCartButton productId={product.id} />
+        </section>
       ))}
     </main>
   );
@@ -1325,7 +1327,7 @@ export function AddToCartButton({ productId }: { productId: string }) {
   const [count, setCount] = useState(0);
 
   return (
-setCount((value) => value + 1)}>
+    <button onClick={() => setCount((value) => value + 1)}>
       加入购物车 {productId} × {count}
     </button>
   );
@@ -1366,7 +1368,7 @@ React 19.2 之后，现代 React 的学习重点还需要补上一条线：**编
 React 19 的主线是把数据提交过程纳入 React 调度模型：
 
 - `useActionState`：让 Action 的返回值、pending 状态和表单提交绑定在一起。
-- `` / `formAction`：DOM 表单可以直接接收函数，成功后自动 reset 非受控表单。
+- `<form action={fn}>` / `formAction`：DOM 表单可以直接接收函数，成功后自动 reset 非受控表单。
 - `useFormStatus`：设计系统按钮能读取父级 form 的 pending 状态，不再层层传 props。
 - `useOptimistic`：请求进行中先展示乐观 UI；失败后 React 能回退到真实状态。
 - `use(resource)`：render 阶段读取 Promise 或 Context；读取 Promise 时必须来自 Suspense 兼容缓存，避免在 Client Component render 内新建 Promise。
@@ -1387,7 +1389,7 @@ interface ActionResult {
 async function addTodoAction(
   previousState: ActionResult,
   formData: FormData,
-): Promise {
+): Promise<ActionResult> {
   const text = String(formData.get("text") ?? "").trim();
   if (!text) return { error: "请输入内容" };
   await createTodo(text);
@@ -1396,7 +1398,7 @@ async function addTodoAction(
 
 function SubmitButton() {
   const { pending } = useFormStatus();
-return {pending ? "Saving..." : "Add"};
+  return <button disabled={pending}>{pending ? "Saving..." : "Add"}</button>;
 }
 
 export function TodoForm({ todos }: { todos: Todo[] }) {
@@ -1416,13 +1418,14 @@ export function TodoForm({ todos }: { todos: Todo[] }) {
         formAction(formData);
       }}
     >
-
-      {state.error ?
-{state.error}
- : null}
-
-- {todo.text}
-
+      <input name="text" />
+      <SubmitButton />
+      {state.error ? <p role="alert">{state.error}</p> : null}
+      <ul>
+        {optimisticTodos.map((todo) => (
+          <li key={todo.id}>{todo.text}</li>
+        ))}
+      </ul>
     </form>
   );
 }
@@ -1432,7 +1435,7 @@ export function TodoForm({ todos }: { todos: Todo[] }) {
 
 React 19.2 继续把并发能力产品化：
 
-- ``：隐藏子树但保留状态，隐藏时清理 Effects，并把隐藏更新降级处理。
+- `<Activity mode="hidden" />`：隐藏子树但保留状态，隐藏时清理 Effects，并把隐藏更新降级处理。
 - `useEffectEvent`：把 Effect 内部的“事件逻辑”从同步逻辑中拆出，事件逻辑读取最新 props/state，但不触发 Effect 重跑。
 - `cacheSignal`：RSC 场景下感知 `cache()` 生命周期结束，便于中断 fetch 或清理异步任务。
 - Performance Tracks：Chrome Performance 面板中查看 Scheduler 与 Components 轨道，定位 transition、blocking update、effect mount 等耗时。
@@ -1459,7 +1462,7 @@ React 19.2 继续把并发能力产品化：
 
 ### 13.2 Actions 不是表单专属
 
-React 19 的 Actions 本质是“异步 transition 的约定”：它可以统一 pending、错误、乐观更新和顺序提交。`` 是最常见入口，但 `startTransition(async () => ...)`、`useActionState`、`useOptimistic` 组合也适合按钮点击、列表变更等非表单场景。
+React 19 的 Actions 本质是“异步 transition 的约定”：它可以统一 pending、错误、乐观更新和顺序提交。`<form action>` 是最常见入口，但 `startTransition(async () => ...)`、`useActionState`、`useOptimistic` 组合也适合按钮点击、列表变更等非表单场景。
 
 ```tsx
 interface RenameState {
@@ -1469,7 +1472,7 @@ interface RenameState {
 async function renameAction(
   previousState: RenameState,
   formData: FormData,
-): Promise {
+): Promise<RenameState> {
   const name = String(formData.get("name") ?? "").trim();
   if (name.length < 2) {
     return { error: "名称至少 2 个字符" };
@@ -1481,7 +1484,7 @@ async function renameAction(
 
 ### 13.3 React 19.2 与并发心智模型的连接
 
-- `` 可以视为“可隐藏、可降优先级、可恢复状态”的 UI 分区，不是简单替代 `display: none`。
+- `<Activity />` 可以视为“可隐藏、可降优先级、可恢复状态”的 UI 分区，不是简单替代 `display: none`。
 - `useEffectEvent` 把 Effect 内部事件从同步依赖中拆出，避免因为读取最新 UI 状态而重建订阅。
 - `cacheSignal` 只面向 RSC 缓存生命周期，用于在渲染失败、被中止或缓存不再需要时中断异步工作。
 - Performance Tracks 把 Scheduler 和 Components 维度暴露到 Chrome Performance 面板，适合定位 transition、Suspense、Effect 导致的耗时。
@@ -1497,13 +1500,13 @@ async function renameAction(
 
 > Updated: 2026-05-28 based on official React Server Functions docs: https://react.dev/reference/rsc/server-functions
 
-React 官方文档已经把早期笼统称为 “Server Actions” 的能力拆得更清楚：**Server Function** 是总称，表示客户端可以调用、但实际在服务端执行的异步函数；当这个 Server Function 被传给 ``，或从某个 Action 内部调用时，它才是狭义的 **Server Action**。
+React 官方文档已经把早期笼统称为 “Server Actions” 的能力拆得更清楚：**Server Function** 是总称，表示客户端可以调用、但实际在服务端执行的异步函数；当这个 Server Function 被传给 `<form action>`，或从某个 Action 内部调用时，它才是狭义的 **Server Action**。
 
 ### 14.1 两种创建方式
 
 ```tsx
 // 方式一：在 Server Component 内部定义，并用 "use server" 标记函数体
-async function createNoteAction(): Promise {
+async function createNoteAction(): Promise<void> {
   "use server";
   await createNote();
 }
@@ -1514,7 +1517,7 @@ async function createNoteAction(): Promise {
 export async function renameNote(
   noteId: string,
   title: string,
-): Promise {
+): Promise<ActionResult> {
   if (!title.trim()) {
     return { error: "标题不能为空" };
   }
@@ -1542,7 +1545,7 @@ export async function renameNote(
 
 ### 15.1 稳定能力清单
 
-- ``：隐藏子树但保留 UI/DOM 状态；隐藏时清理 Effects，并把隐藏更新降为低优先级。
+- `<Activity />`：隐藏子树但保留 UI/DOM 状态；隐藏时清理 Effects，并把隐藏更新降为低优先级。
 - `useEffectEvent`：Effect 内部事件逻辑读取最新 props/state，但不参与依赖数组，不应传给子组件或在用户事件中调用。
 - `cacheSignal`：RSC 场景下感知 `cache()` 生命周期结束，取消已经无用的异步工作。
 - Performance Tracks：在 Chrome Performance 中观察 Scheduler 与 Components 轨道，定位 blocking update、transition、render、effect mount 等耗时。
@@ -1551,14 +1554,14 @@ export async function renameNote(
 ### 15.2 不能混淆的边界
 
 1. **Server Component 没有 `"use server"` 指令**：`"use server"` 标记的是 Server Function。
-2. **Server Function 不等于 Server Action**：传给 `` 或从 Action 中调用时，才是狭义 Server Action。
+2. **Server Function 不等于 Server Action**：传给 `<form action>` 或从 Action 中调用时，才是狭义 Server Action。
 3. **Effect Event 不是稳定 callback**：它的身份会随 render 变化，不能作为依赖或传参下发。
 4. **Activity 不是隐藏所有副作用的万能容器**：视频、音频、iframe 这类 DOM 本身有副作用的节点，需要在 Effect cleanup 中主动暂停或释放。
-5. **ViewTransition 相关 API 仍应按 Canary 处理**：不要把 `` 写进稳定生产方案的核心依赖。
+5. **ViewTransition 相关 API 仍应按 Canary 处理**：不要把 `<ViewTransition />` 写进稳定生产方案的核心依赖。
 
 ### 15.3 面试精简回答
 
-> React 19.2 的主线是把 React 的并发和服务端流水线继续产品化：`` 负责隐藏但保留状态的 UI 分区，`useEffectEvent` 解决 Effect 内部事件读取最新值但不重建订阅的问题，`cacheSignal` 让 RSC 缓存生命周期能中断无用异步任务，Performance Tracks 把调度和组件耗时暴露到浏览器性能面板，PPR 则把静态壳和动态恢复拆成两阶段渲染。实际项目里我会区分稳定 API、RSC 专属 API 和 Canary API，避免把实验能力当成生产基础设施。
+> React 19.2 的主线是把 React 的并发和服务端流水线继续产品化：`<Activity />` 负责隐藏但保留状态的 UI 分区，`useEffectEvent` 解决 Effect 内部事件读取最新值但不重建订阅的问题，`cacheSignal` 让 RSC 缓存生命周期能中断无用异步任务，Performance Tracks 把调度和组件耗时暴露到浏览器性能面板，PPR 则把静态壳和动态恢复拆成两阶段渲染。实际项目里我会区分稳定 API、RSC 专属 API 和 Canary API，避免把实验能力当成生产基础设施。
 
 ## 十六、Action 队列、渐进增强与资源预初始化（2026-06-01）
 
@@ -1585,7 +1588,7 @@ interface RenamePayload {
 async function renameAction(
   previousState: RenameState,
   payload: RenamePayload,
-): Promise {
+): Promise<RenameState> {
   const nextName = payload.name.trim();
   if (nextName.length < 2) {
     return { ...previousState, error: "名称至少 2 个字符" };
@@ -1604,7 +1607,7 @@ function RenameButton() {
   }
 
   return (
-
+    <button disabled={isPending} onClick={handleClick}>
       {state.error ?? "保存名称"}
     </button>
   );
@@ -1621,7 +1624,7 @@ function RenameButton() {
 
 ### 16.3 表单渐进增强与 permalink
 
-当 `useActionState` 搭配 Server Function 和 `` 使用时，第三个参数 `permalink` 可用于 JavaScript bundle 尚未加载前的渐进增强：用户提前提交表单时，浏览器会跳转到这个稳定 URL；目标页必须渲染同一个表单组件、同一个 reducerAction 和同一个 permalink，React 才能在 hydration 后接上这次提交的返回状态。
+当 `useActionState` 搭配 Server Function 和 `<form action>` 使用时，第三个参数 `permalink` 可用于 JavaScript bundle 尚未加载前的渐进增强：用户提前提交表单时，浏览器会跳转到这个稳定 URL；目标页必须渲染同一个表单组件、同一个 reducerAction 和同一个 permalink，React 才能在 hydration 后接上这次提交的返回状态。
 
 ```tsx
 "use client";
@@ -1639,11 +1642,10 @@ export function ProfileForm() {
   );
 
   return (
-
-      {state.error &&
-{state.error}
-}
-保存
+    <form action={formAction}>
+      <input name="displayName" disabled={isPending} />
+      {state.error && <p role="alert">{state.error}</p>}
+      <button type="submit">保存</button>
     </form>
   );
 }
@@ -1688,7 +1690,7 @@ function TodoList({
   addTodoAction,
 }: {
   todos: Todo[];
-addTodoAction: (todo: AddTodoPayload) => Promise;
+  addTodoAction: (todo: AddTodoPayload) => Promise<void>;
 }) {
   const [optimisticTodos, addOptimisticTodo] = useOptimistic(
     todos,
@@ -1707,9 +1709,14 @@ addTodoAction: (todo: AddTodoPayload) => Promise;
   }
 
   return (
-
-- {todo.text} {todo.pending ? "（提交中）" : ""}
-
+    <ul>
+      {optimisticTodos.map((todo) => (
+        <li key={todo.id} aria-busy={todo.pending}>
+          {todo.text}
+          {todo.pending ? "（提交中）" : ""}
+        </li>
+      ))}
+    </ul>
   );
 }
 ```
@@ -1722,9 +1729,9 @@ addTodoAction: (todo: AddTodoPayload) => Promise;
 
 ### 17.3 `useFormStatus` 的父级 form 限制
 
-`useFormStatus()` 从 `react-dom` 导入，返回父级 `` 最近一次提交的 `pending`、`data`、`method`、`action` 等状态[[useFormStatus – React]](https://react.dev/reference/react-dom/hooks/useFormStatus)。
+`useFormStatus()` 从 `react-dom` 导入，返回父级 `<form>` 最近一次提交的 `pending`、`data`、`method`、`action` 等状态[[useFormStatus – React]](https://react.dev/reference/react-dom/hooks/useFormStatus)。
 
-最容易踩坑的是：调用 `useFormStatus` 的组件必须渲染在目标 `` 内部；它不会追踪同一个组件里直接返回的 ``，也不会追踪子组件再嵌套的新 ``[[useFormStatus – React]](https://react.dev/reference/react-dom/hooks/useFormStatus)。
+最容易踩坑的是：调用 `useFormStatus` 的组件必须渲染在目标 `<form>` 内部；它不会追踪同一个组件里直接返回的 `<form>`，也不会追踪子组件再嵌套的新 `<form>`[[useFormStatus – React]](https://react.dev/reference/react-dom/hooks/useFormStatus)。
 
 ```tsx
 import { useFormStatus } from "react-dom";
@@ -1734,7 +1741,7 @@ function SubmitButton() {
   const title = String(data?.get("title") ?? "");
 
   return (
-
+    <button type="submit" disabled={pending}>
       {pending ? `正在保存 ${title}` : "保存"}
     </button>
   );
@@ -1743,10 +1750,12 @@ function SubmitButton() {
 export function ArticleForm({
   action,
 }: {
-action: (formData: FormData) => Promise;
+  action: (formData: FormData) => Promise<void>;
 }) {
   return (
-
+    <form action={action}>
+      <input name="title" />
+      <SubmitButton />
     </form>
   );
 }
@@ -1772,7 +1781,7 @@ interface DeleteState {
 async function deleteTodoAction(
   previousState: DeleteState,
   todoId: string,
-): Promise {
+): Promise<DeleteState> {
   try {
     await deleteTodo(todoId);
     return {};
@@ -1810,11 +1819,11 @@ interface Comment {
   body: string;
 }
 
-async function getNote(noteId: string): Promise {
+async function getNote(noteId: string): Promise<Note> {
   return db.notes.get(noteId);
 }
 
-function getComments(noteId: string): Promise {
+function getComments(noteId: string): Promise<Comment[]> {
   return db.comments.list(noteId);
 }
 
@@ -1823,19 +1832,13 @@ export default async function NotePage({ noteId }: { noteId: string }) {
   const commentsPromise = getComments(note.id);
 
   return (
-
-
-# {note.title}
-
-
-{note.body}
-
-      <Suspense fallback={
-评论加载中...
-}>
-
+    <article>
+      <h1>{note.title}</h1>
+      <p>{note.body}</p>
+      <Suspense fallback={<p>评论加载中...</p>}>
+        <NoteComments commentsPromise={commentsPromise} />
       </Suspense>
-
+    </article>
   );
 }
 ```
@@ -1858,7 +1861,7 @@ interface RenameNoteResult {
 export async function renameNote(
   noteId: string,
   title: string,
-): Promise {
+): Promise<RenameNoteResult> {
   const nextTitle = title.trim();
 
   if (nextTitle.length < 2) {
@@ -1881,7 +1884,7 @@ import { renameNote } from "./actions";
 
 export function RenameButton({ noteId }: { noteId: string }) {
   const [title, setTitle] = useState("React 19");
-const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   const [isPending, startRenameTransition] = useTransition();
 
   function handleRename() {
@@ -1892,15 +1895,13 @@ const [error, setError] = useState(null);
   }
 
   return (
-
-setTitle(event.target.value)} />
-
+    <section>
+      <input value={title} onChange={(event) => setTitle(event.target.value)} />
+      <button disabled={isPending} onClick={handleRename}>
         {isPending ? "保存中" : "保存"}
       </button>
-      {error &&
-{error}
-}
-
+      {error && <p role="alert">{error}</p>}
+    </section>
   );
 }
 ```
@@ -1910,7 +1911,7 @@ setTitle(event.target.value)} />
 - `"use server"` 必须位于函数或模块的最前面；注释可以在其上方，但 import 和其他代码不能在模块级 directive 之前[["use server" – React]](https://react.dev/reference/rsc/use-server)。
 - Server Function 只能用于 async function，因为底层网络调用始终是异步的[["use server" – React]](https://react.dev/reference/rsc/use-server)。
 - 从客户端代码 import Server Function 时，`"use server"` 必须放在模块级，不能只写在某个内联函数体里[["use server" – React]](https://react.dev/reference/rsc/use-server)。
-- 在表单外调用 Server Function 时，应放进 Transition；传给 `` 或 `formAction` 的 Server Function 会自动在 Transition 中调用[["use server" – React]](https://react.dev/reference/rsc/use-server)。
+- 在表单外调用 Server Function 时，应放进 Transition；传给 `<form action>` 或 `formAction` 的 Server Function 会自动在 Transition 中调用[["use server" – React]](https://react.dev/reference/rsc/use-server)。
 
 ### 18.3 序列化、安全与缓存边界
 
@@ -1924,7 +1925,7 @@ interface DeleteNoteResult {
   error?: string;
 }
 
-export async function deleteNote(noteId: string): Promise {
+export async function deleteNote(noteId: string): Promise<DeleteNoteResult> {
   if (!isValidId(noteId)) {
     return { ok: false, error: "非法笔记 ID" };
   }
@@ -1964,7 +1965,8 @@ export default async function DashboardPage() {
   const revenue = await getRevenue();
 
   return (
-
+    <DashboardShell>
+      <RevenueChart data={revenue} />
     </DashboardShell>
   );
 }
@@ -1984,12 +1986,12 @@ export function DashboardShell({ children }: DashboardShellProps) {
   const [collapsed, setCollapsed] = useState(false);
 
   return (
-
-setCollapsed((value) => !value)}>
+    <section data-sidebar-collapsed={collapsed}>
+      <button type="button" onClick={() => setCollapsed((value) => !value)}>
         切换侧边栏
       </button>
       {children}
-
+    </section>
   );
 }
 ```
@@ -2011,14 +2013,10 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
   const article = await getArticleBySlug(slug);
 
   return (
-
-
-# {article.title}
-
-
-{article.summary}
-
-
+    <article>
+      <h1>{article.title}</h1>
+      <p>{article.summary}</p>
+    </article>
   );
 }
 ```
@@ -2032,7 +2030,7 @@ interface PublishResult {
   error?: string;
 }
 
-export async function publishArticle(slug: string): Promise {
+export async function publishArticle(slug: string): Promise<PublishResult> {
   await assertCanPublish(slug);
   await db.article.publish(slug);
   return { ok: true };
@@ -2049,12 +2047,12 @@ Server Functions 允许 Client Components 调用在服务端执行的 async func
 // app/articles/actions.ts
 "use server";
 
-export async function saveDraft(formData: FormData): Promise {
+export async function saveDraft(formData: FormData): Promise<void> {
   const title = String(formData.get("title") ?? "").trim();
   await saveArticleDraft({ title });
 }
 
-export async function archiveArticle(id: string): Promise {
+export async function archiveArticle(id: string): Promise<void> {
   await archiveById(id);
 }
 ```
@@ -2080,9 +2078,10 @@ export function EditForm({ articleId }: EditFormProps) {
   }
 
   return (
-
-保存草稿
-
+    <form action={saveDraft}>
+      <input name="title" />
+      <button type="submit">保存草稿</button>
+      <button type="button" disabled={isPending} onClick={handleArchive}>
         归档
       </button>
     </form>
@@ -2090,7 +2089,7 @@ export function EditForm({ articleId }: EditFormProps) {
 }
 ```
 
-上面两个导出都是 Server Functions；`saveDraft` 作为 `` 使用时是 Server Action，`archiveArticle` 是在普通事件中通过 Transition 调用的 Server Function。工程表达上可以统一称它们为“服务端写操作入口”，但在 API 边界上要区分是否接入表单、Action context、pending 状态和渐进增强。
+上面两个导出都是 Server Functions；`saveDraft` 作为 `<form action>` 使用时是 Server Action，`archiveArticle` 是在普通事件中通过 Transition 调用的 Server Function。工程表达上可以统一称它们为“服务端写操作入口”，但在 API 边界上要区分是否接入表单、Action context、pending 状态和渐进增强。
 
 ### 19.4 稳定性边界：应用 API 稳定，框架集成 API 要 pin
 

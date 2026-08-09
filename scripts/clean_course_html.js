@@ -36,11 +36,37 @@ function walk(dir, acc = []) {
   return acc;
 }
 
-/** 判定是否为 HTML 粘贴稿：出现 data-nodeid 或成规模的块级标签。 */
+/**
+ * 判定是否为 HTML 粘贴稿。
+ *
+ * 判据只认 `data-nodeid`——课程站导出的 HTML 必带这个属性。
+ * 早期版本还用「块级标签数量」做兜底判据，结果把含大量 JSX 的 React 笔记
+ * （`</div>`、`</span>` 满篇）误判为粘贴稿，转换时剥掉了示例代码里的标签。
+ * 因此这里去掉数量兜底，并额外要求标记出现在代码块之外，
+ * 避免「正常笔记里贴了一段 HTML 源码作为示例」被误伤。
+ */
 function isHtmlPaste(text) {
-  if (/data-nodeid=/.test(text)) return true;
-  const blockTags = (text.match(/<\/(p|h[1-6]|ul|ol|li|pre|table|blockquote)>/g) || []).length;
-  return blockTags >= 10;
+  if (!/data-nodeid=/.test(text)) return false;
+  return /data-nodeid=/.test(stripFences(text));
+}
+
+/** 剥掉围栏代码块，用于判定时排除示例代码的干扰。 */
+function stripFences(text) {
+  const lines = text.split('\n');
+  let fence = null;
+  const kept = [];
+  for (const line of lines) {
+    const m = line.match(/^\s*(`{3,}|~{3,})(.*)$/);
+    if (m) {
+      const char = m[1][0];
+      const len = m[1].length;
+      if (fence === null) fence = { char, len };
+      else if (char === fence.char && len >= fence.len && m[2].trim() === '') fence = null;
+      continue;
+    }
+    if (!fence) kept.push(line);
+  }
+  return kept.join('\n');
 }
 
 const ENTITIES = {

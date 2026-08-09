@@ -2,26 +2,26 @@
 
 ### 1. 语义化标签
 
-- ****
-- ****
-- ****
-- ****
-- ****
-- ****
-- ****
-- **** ( 定义带有记号的文本 )
+- **<header>**
+- **<nav>**
+- **<article>**
+- **<main>**
+- **<aside>**
+- **<foot>**
+- **<section>**
+- **<mark>** ( 定义带有记号的文本 )
 
 ### 2. 增强型表单
 
-- ****
-- ****
-- ****
-- ****
-- ****
+- **<color>**
+- **<date>**
+- **<email>**
+- **<number>**
+- **<tel>**
 
 ### 3. Canvas
 
-`` 元素用于图形的绘制。通过脚本（通常是JS）来完成。
+`<canvas>` 元素用于图形的绘制。通过脚本（通常是JS）来完成。
 
 ### 4. HTML5 拖放
 
@@ -35,18 +35,22 @@ HTML5 原生拖拽的核心要点：
 
 ### 5. HTML Audio(音频)、Video(视频)
 
-1. HTML5 规定了在网页上嵌入音频元素的标准，即使用 元素。
+1. HTML5 规定了在网页上嵌入音频元素的标准，即使用 <audio> 元素。
 
 ```html
-
+<audio controls>
+    <sourcesrc="horse.ogg"type="audio/ogg">
+    <sourcesrc="horse.mp3"type="audio/mpeg">
     您的浏览器不支持 audio 元素。
 </audio>
 ```
 
-2. HTML5 规定了在网页上嵌入音频元素的标准，即使用 元素。
+2. HTML5 规定了在网页上嵌入音频元素的标准，即使用 <audio> 元素。
 
 ```html
-
+<video width="320"height="240"controls>
+<sourcesrc="movie.mp4"type="video/mp4">
+<sourcesrc="movie.ogg"type="video/ogg">
 您的浏览器不支持Video标签。
 </video>
 ```
@@ -90,15 +94,13 @@ HTML5 原生拖拽的核心要点：
 
 ```
 <!DOCTYPE html>
-
+<html manifest="/example/html5/demo_html.appcache">
+<body>
+<script type="text/javascript" src="/example/html5/demo_time.js">
 </script>
-
-获得日期和事件
-
-![](/i/w3school_banner.gif)
-
-请打开[这个页面](/example/html5/html5_html_manifest.html)，然后脱机浏览，重新加载页面。页面中的脚本和图像依然可用。
-
+<p id="timePara"><button onclick="getDateTime()">获得日期和事件</button></p>
+<p><img src="/i/w3school_banner.gif" /></p>
+<p>请打开<a href="/example/html5/html5_html_manifest.html" target="_blank">这个页面</a>，然后脱机浏览，重新加载页面。页面中的脚本和图像依然可用。</p>
 </body>
 </html>
 ```
@@ -196,23 +198,19 @@ function successPos (pos){
 
 ## 现代 HTML API 补充（面试加分 + 日常实用）
 
-### `` 元素 — 原生模态框
+### `<dialog>` 元素 — 原生模态框
 
 无需第三方库，浏览器原生支持模态对话框（Chrome 37+，主流浏览器全支持）。
 
 ```html
-
-
-## 确认删除
-
-
-此操作不可撤销，确定要删除吗？
-
-确认
-取消
+<dialog id="myDialog">
+  <h2>确认删除</h2>
+  <p>此操作不可撤销，确定要删除吗？</p>
+  <button id="confirmBtn">确认</button>
+  <button id="cancelBtn">取消</button>
 </dialog>
 
-打开对话框
+<button id="openBtn">打开对话框</button>
 ```
 
 ```js
@@ -262,13 +260,12 @@ dialog[open] {
 
 ```html
 <!-- 触发按钮 + popovertarget 指向弹出层 id -->
-打开 Popover
+<button popovertarget="my-popover">打开 Popover</button>
 
-
-这是一个 Popover 内容
-
-关闭
-
+<div id="my-popover" popover>
+  <p>这是一个 Popover 内容</p>
+  <button popovertarget="my-popover" popovertargetaction="hide">关闭</button>
+</div>
 ```
 
 ```js
@@ -284,28 +281,24 @@ popover.togglePopover(); // 切换
 // - dialog 是模态，必须主动关闭
 ```
 
-### `` + `` — 原生折叠
+### `<details>` + `<summary>` — 原生折叠
 
 不用 JS 实现手风琴/折叠展开效果：
 
 ```html
-
-点击展开详情
-
-这里是折叠的内容，可以包含任意 HTML
-
-
-- 列表项 1
-- 列表项 2
-
+<details>
+  <summary>点击展开详情</summary>
+  <p>这里是折叠的内容，可以包含任意 HTML</p>
+  <ul>
+    <li>列表项 1</li>
+    <li>列表项 2</li>
+  </ul>
 </details>
 
 <!-- 默认展开 -->
-
-默认展开的内容
-
-这个默认是展开状态
-
+<details open>
+  <summary>默认展开的内容</summary>
+  <p>这个默认是展开状态</p>
 </details>
 ```
 
@@ -389,10 +382,11 @@ async function navigate(newUrl) {
 
 ```html
 <!-- 当 dialog 打开时，背景内容应该 inert -->
-
+<main id="mainContent">
   <!-- 主要内容 -->
 </main>
 
+<dialog id="modal">
   <!-- 对话框内容 -->
 </dialog>
 ```
@@ -412,13 +406,14 @@ main.inert = false;
 
 ```html
 <!-- 骨架屏加载时禁止交互 -->
-
+<section inert aria-busy="true">
   <!-- 内容加载中... -->
+</section>
 
 <!-- 分步表单中隐藏非当前步骤 -->
-
+<div id="step2" inert hidden>
   <!-- 第二步内容，当前步骤不在这里 -->
-
+</div>
 ```
 
 **为什么比 `pointer-events: none` 更好**：`pointer-events: none` 只禁止鼠标事件，不禁止键盘 Tab 导航；`inert` 同时禁止鼠标、键盘和屏幕阅读器，是无障碍访问（a11y）的最佳实践。

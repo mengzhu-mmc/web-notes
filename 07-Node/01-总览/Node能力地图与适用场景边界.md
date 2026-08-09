@@ -363,7 +363,7 @@ async function getMyTodos(userId) {
 - [Node.js 事件循环详解](../Node.js事件循环详解.md) —— **分工**：那篇讲事件循环 6 个阶段、微任务时机、`nextTick` 与 `setImmediate` 的运行时机制；本篇只用「非阻塞 I/O 让出执行权」这一个结论来解释选型，不重复展开阶段细节。
 - [Node.js 现代特性与新 API](../Node.js现代特性与新API.md) —— **分工**：那篇的 AsyncLocalStorage 章节是「请求上下文」的标准解法，正好用来修正本篇第 5.2 节的模块级单例陷阱；本篇只指出问题，解法看那篇。
 - [Node.js 面试核心知识点](../Node.js面试核心知识点.md) —— **分工**：那篇是运行时 API 的广度速查（模块、Stream、Buffer、cluster）；本篇是宏观选型判断，两篇一个纵深一个横向，不重叠。
-- [Node.js Stream 流与中间件机制](../Node.js%20Stream流与中间件机制.md) —— **分工**：那篇讲流式处理与背压（Backpressure）的实现细节；本篇只在「大文件不该一次读进内存」这个选型结论上引用它。
+- [Node.js Stream 流与中间件机制](../Node.js-Stream流与中间件机制.md) —— **分工**：那篇讲流式处理与背压（Backpressure）的实现细节；本篇只在「大文件不该一次读进内存」这个选型结论上引用它。
 - [Todo 全栈项目](../../11-项目实战/Todo全栈项目/README.md) —— **分工**：那是当前唯一的真实 Node 代码（Koa2 + Sequelize + JWT 三层架构），本篇把它当作反面对照的锚点——它证明了「能跑通」，但没证明「能上线」。
 - [React SSR 实现原理](../../05-React/React_SSR实现原理.md) —— **分工**：那篇讲 React 侧的渲染 API、水合（Hydration）与同构；本篇只讲「SSR 作为 Node 战场的定位与 CPU 瓶颈」，SSR 服务侧的工程实践（缓存、降级、容量）待补。
 - [认证与会话](../../08-网络与浏览器/认证与会话/README.md) —— **分工**：那个目录讲 Cookie / Session / JWT / Token 刷新的协议原理；本篇不碰认证细节，Node 侧的鉴权中间件工程实现待补。

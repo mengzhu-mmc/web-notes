@@ -342,7 +342,8 @@ process.nextTick(() => console.log("nextTick"));
 
 ## 关联笔记
 
-- [[Node.js面试核心知识点]] —— 事件循环、模块系统、Stream 等全面梳理
-- [[Node.js事件循环详解]] —— 事件循环深度解析
-- [[Node.js模块系统深入解析]] —— CJS / ESM 模块系统
-- [[Node.js-Stream流与中间件机制]] —— Stream 与中间件
+- [Node.js 面试核心知识点](./Node.js面试核心知识点.md) — 事件循环、模块系统、Stream 等全面梳理
+- [Node.js 事件循环详解](./Node.js事件循环详解.md) — 事件循环深度解析
+- [Node.js 模块系统深入解析](./Node.js模块系统深入解析.md) — CJS / ESM 模块系统
+- [Node.js Stream 流与中间件机制](./Node.js-Stream流与中间件机制.md) — Stream 与中间件
+- [Node 生产项目全景图](./01-总览/Node生产项目全景图.md) — 本篇的 AsyncLocalStorage 是全链路 traceId 透传的基础，生产落地见该篇与 `05-生产运维/`

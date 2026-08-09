@@ -1158,7 +1158,491 @@ observe("resource", (r) => {
 | DevTools 原生支持 | Network 面板的 Timing 标签会自动展示 Server Timing 分段，零成本可视化 |
 | `duration` 可省略 | 只给 `desc` 可用于传纯标签（如机房、版本号），此时 `duration` 为 0 |
 
-<!--TBC-->
+---
+
+## 九、采集上报实战
+
+把前面的 API 组装成一个能上线的采集器。难点不在调 API，而在**上报时机、bfcache、采样、SPA 重置**这四件事。
+
+### 9.1 上报时机：为什么不能用 unload
+
+```
+页面生命周期与上报时机
+
+  active ──────► hidden ──────► frozen ──────► 进入 bfcache（可恢复）
+    │              │                                   │
+    │              │                                   └─► pageshow(persisted=true) 恢复
+    │              │
+    │              └─► terminated（真正销毁）
+    │
+  ┌──────────────────────────────────────────────────────────────┐
+  │ ❌ unload / beforeunload：注册监听器会让页面失去 bfcache 资格   │
+  │    且在移动端经常根本不触发 → 数据丢失 + 破坏后退秒开           │
+  │ ✅ visibilitychange → hidden：移动端切后台、锁屏都会触发，最可靠 │
+  │ ✅ pagehide：作为 Safari 等场景的兜底                          │
+  └──────────────────────────────────────────────────────────────┘
+```
+
+| 事件 | 移动端可靠性 | 是否破坏 bfcache | 建议 |
+| --- | --- | --- | --- |
+| `unload` | 极低（iOS 基本不触发） | ✅ 破坏 | ❌ 绝对不用 |
+| `beforeunload` | 低 | ✅ 破坏（部分场景） | ❌ 不用于上报 |
+| `visibilitychange`（→ hidden） | 高 | ❌ 不破坏 | ✅ **首选** |
+| `pagehide` | 中高 | ❌ 不破坏 | ✅ 兜底并用 |
+| `load` | 高，但太早 | ❌ | 仅用于导航类指标 |
+
+### 9.2 sendBeacon 为什么比 fetch 合适
+
+| 维度 | `navigator.sendBeacon` | `fetch` / `XHR` |
+| --- | --- | --- |
+| 页面卸载后能否继续发送 | ✅ 浏览器接管，页面关了照样发完 | ❌ 页面销毁时请求被取消 |
+| 是否阻塞卸载/下一页导航 | ❌ 完全异步，不阻塞 | ⚠️ `keepalive` 也可能受限于并发/体积 |
+| 优先级 | 最低优先级，不与业务资源竞争带宽 | 正常优先级，会抢带宽 |
+| 体积上限 | 约 **64KB**（超出返回 `false`） | 大得多 |
+| 能否读响应 | ❌ 只返回 `true`/`false`（是否成功入队） | ✅ |
+| 请求方法 | 固定 `POST` | 任意 |
+
+```js
+function send(url, payload) {
+  const body = JSON.stringify(payload);
+
+  // ✅ 优先 sendBeacon：页面卸载时最可靠，且不抢带宽
+  if (navigator.sendBeacon) {
+    // 用 Blob 指定 Content-Type，否则默认是 text/plain
+    const blob = new Blob([body], { type: "application/json" });
+    if (navigator.sendBeacon(url, blob)) return; // 返回 false 说明超 64KB 或队列满
+  }
+
+  // ✅ 兜底：fetch + keepalive（同样能在卸载后继续，但体积限制更严）
+  fetch(url, { method: "POST", body, keepalive: true, mode: "no-cors" }).catch(() => {});
+
+  // ❌ 反面写法：卸载时用普通 fetch，请求会被直接取消
+  // fetch(url, { method: 'POST', body });
+}
+```
+
+### 9.3 bfcache 恢复与重复上报
+
+从 bfcache 恢复的页面**没有重新导航**：time origin 不变、`navigation` 条目还是老的、已上报的 LCP/FCP 不会重来。如果不处理，会出现两类问题：
+
+1. **重复上报**：`visibilitychange` 会在恢复后再次进入 hidden 时触发，把同一份数据再发一次。
+2. **指标失真**：恢复后的用户交互产生的 INP，如果继续累加到上次的会话里，口径就混了。
+
+```js
+// bfcache 恢复检测：两种途径
+// 途径 1：pageshow 事件的 persisted 标志（兼容性最好）
+window.addEventListener("pageshow", (e) => {
+  if (e.persisted) onBFCacheRestore(e.timeStamp);
+});
+
+// 途径 2：back-forward-cache-restoration entryType（更精确，能拿到恢复耗时）
+observe("back-forward-cache-restoration", (entry) => {
+  // entry.startTime 恢复开始时间；entry.pageshowEventStart / pageshowEventEnd
+  onBFCacheRestore(entry.startTime, {
+    pageshowDuration: entry.pageshowEventEnd - entry.pageshowEventStart,
+  });
+});
+```
+
+```js
+// ✅ 用「已上报标记 + 会话 ID 重置」双管齐下
+let reported = false; // 本次会话是否已 flush
+let sessionId = uuid(); // 会话标识，恢复后重置
+
+function flush(reason) {
+  if (reported || !Object.keys(buffer).length) return;
+  reported = true; // ★ 防重复的关键
+  send(REPORT_URL, { sessionId, reason, metrics: buffer });
+}
+
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "hidden") flush("hidden");
+});
+window.addEventListener("pagehide", () => flush("pagehide"));
+
+function onBFCacheRestore(restoreTime, extra) {
+  flush("before-bfcache-restore"); // 先把老数据发掉
+  // ★ 重置状态，开启新会话
+  reported = false;
+  sessionId = uuid();
+  buffer = {};
+  timeOriginOffset = restoreTime; // 后续指标以恢复时刻为新零点
+  report({ metric: "bfcache-restore", ...extra });
+}
+```
+
+> 💡 `web-vitals` 库已经内置处理：bfcache 恢复后它会重新采集 LCP/FCP/CLS/INP，并给出**新的 `metric.id`**（同一 metric 的 id 变了就代表新会话），同时 `metric.navigationType` 会变成 `'back-forward-cache'`。手写采集器很难做到同样完备，生产环境建议用库 + 自定义补充。
+
+### 9.4 采样策略
+
+```js
+// ✅ 会话级采样：同一会话要么全采要么全不采，避免同一用户数据缺片段
+const SAMPLE_RATE = 0.1; // 10%
+function decideSampling() {
+  // 用 sessionStorage 让同一会话内决策一致（含 SPA 路由切换）
+  const cached = sessionStorage.getItem("perf-sampled");
+  if (cached !== null) return cached === "1";
+  const sampled = Math.random() < SAMPLE_RATE;
+  sessionStorage.setItem("perf-sampled", sampled ? "1" : "0");
+  return sampled;
+}
+
+// ❌ 反面写法：每次上报独立随机，导致同一用户的 FCP 采到了、LCP 丢了，无法做关联分析
+// if (Math.random() < 0.1) send(...)
+```
+
+| 策略 | 做法 | 适用 |
+| --- | --- | --- |
+| 会话级采样 | 会话开始时决策一次，全程一致 | 默认方案，保证指标可关联 |
+| 分层采样 | 核心页面 100%，长尾页面 1% | 页面数量多、重要性差异大 |
+| 异常全采 | 指标超阈值（LCP > 4s、INP > 500ms）时 100% 上报 | 保证坏样本不被采样丢掉 |
+| 白名单全采 | 内部用户 / 灰度用户全采 | 灰度期观测 |
+| 上报合并 | 一次会话所有指标攒在一起，hidden 时一次发出 | 降低请求数（配合 64KB 上限） |
+
+```js
+// ✅ 组合：采样 + 异常全采
+function shouldReport(metric) {
+  if (isAnomaly(metric)) return true; // 坏样本永不丢
+  return decideSampling();
+}
+function isAnomaly(m) {
+  const th = { LCP: 4000, INP: 500, CLS: 0.25, TTFB: 1800 };
+  return th[m.name] != null && m.value > th[m.name];
+}
+```
+
+### 9.5 SPA 路由切换下的指标重置
+
+SPA 的痛点：`navigation` 条目、`paint` 条目、LCP 都只对**首次硬导航**有效。路由切换后不会产生新的 FCP/LCP，但用户实实在在经历了一次"页面加载"。
+
+```
+SPA 路由切换时各指标的行为
+
+  硬导航 /home ────────────► 软导航 /detail ────────────► 软导航 /list
+     │                            │                           │
+  navigation ✅ 产生一条         ❌ 不再产生                 ❌ 不再产生
+  paint(FCP)  ✅ 产生            ❌ 不再产生                 ❌ 不再产生
+  LCP         ✅ 有最终值        ❌ 已锁定，不更新            ❌ 不更新
+  CLS         ✅ 开始累加        ⚠️ 继续累加（跨路由污染）    ⚠️ 继续累加
+  INP/event   ✅ 采集            ✅ 继续采集（需按路由分桶）  ✅ 继续
+  resource    ✅ 采集            ✅ 继续（需按时间窗切分）    ✅ 继续
+  mark/measure ✅               ✅ ★ 软导航只能靠自己打点     ✅
+```
+
+```js
+// ✅ SPA 软导航采集：用 User Timing 自建"路由级首屏"
+let currentRoute = location.pathname;
+let routeStartMark = null;
+let clsBaseline = 0; // CLS 分段基线
+
+function onRouteChange(nextRoute) {
+  // 1. 结算上一个路由
+  if (routeStartMark) {
+    try {
+      performance.measure(`route:${currentRoute}`, routeStartMark);
+    } catch {}
+  }
+  flush("route-change"); // 上报上一个路由的数据（注意重置 reported）
+
+  // 2. 重置状态，开启新路由会话
+  reported = false;
+  buffer = {};
+  currentRoute = nextRoute;
+  clsBaseline = totalCLS; // ★ CLS 按路由分段，避免跨路由污染
+  routeStartMark = `route-start:${nextRoute}`;
+  performance.mark(routeStartMark, { detail: { route: nextRoute } });
+  resourceWindowStart = performance.now(); // ★ resource 也按时间窗切分
+}
+
+// React Router v6 接法
+function RouteTracker() {
+  const location = useLocation();
+  useEffect(() => {
+    onRouteChange(location.pathname);
+  }, [location.pathname]);
+  return null;
+}
+
+// 路由内容渲染完成时结算"软导航首屏"
+// —— 关键：要在真实 paint 之后，用双层 rAF 或 requestPostAnimationFrame 近似
+function markRouteReady(route) {
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      performance.measure(`soft-nav-fcp:${route}`, {
+        start: `route-start:${route}`,
+        detail: { route, type: "soft-navigation" },
+      });
+    });
+  });
+}
+```
+
+> 💡 Chrome 正在推进 **Soft Navigations API**（`entryType` 为 `soft-navigation`，并让 `paint` / `largest-contentful-paint` 在软导航后重新产生），目前仍在实验阶段（需 flag 开启），生产不可依赖。现阶段 SPA 路由级首屏只能靠 User Timing 自建。
+
+### 9.6 完整采集器骨架
+
+```js
+// perf-collector.js —— 建议内联到 HTML 头部或作为最先执行的脚本
+const REPORT_URL = "https://rum.example.com/collect";
+let buffer = {};
+let reported = false;
+let sessionId = crypto.randomUUID();
+let totalCLS = 0;
+
+// ---------- 基础设施 ----------
+const supports = (t) =>
+  typeof PerformanceObserver !== "undefined" &&
+  PerformanceObserver.supportedEntryTypes?.includes(t);
+
+function observe(type, cb, opts = {}) {
+  if (!supports(type)) return null;
+  try {
+    const po = new PerformanceObserver((list) => list.getEntries().forEach(cb));
+    po.observe({ type, buffered: true, ...opts });
+    return po;
+  } catch {
+    return null;
+  }
+}
+
+const activationStart = () =>
+  performance.getEntriesByType("navigation")[0]?.activationStart ?? 0;
+const toVisibleTime = (t) => Math.max(t - activationStart(), 0);
+const put = (k, v) => (buffer[k] = v);
+
+// ---------- 1. 导航与网络分段 ----------
+observe("navigation", (nav) => {
+  put("nav", {
+    type: nav.type,
+    redirectCount: nav.redirectCount,
+    dns: nav.domainLookupEnd - nav.domainLookupStart,
+    tcp: nav.connectEnd - nav.connectStart,
+    tls: nav.secureConnectionStart > 0 ? nav.connectEnd - nav.secureConnectionStart : 0,
+    ttfb: toVisibleTime(nav.responseStart),
+    download: nav.responseEnd - nav.responseStart,
+    domInteractive: toVisibleTime(nav.domInteractive),
+    dcl: toVisibleTime(nav.domContentLoadedEventEnd),
+    load: toVisibleTime(nav.loadEventEnd),
+    server: Object.fromEntries((nav.serverTiming ?? []).map((s) => [s.name, s.duration])),
+  });
+});
+
+// ---------- 2. FCP ----------
+observe("paint", (e) => {
+  if (e.name === "first-contentful-paint") put("FCP", toVisibleTime(e.startTime));
+});
+
+// ---------- 3. LCP（取最后一条，且在 hidden 时定格）----------
+observe("largest-contentful-paint", (e) => {
+  put("LCP", {
+    value: toVisibleTime(e.startTime),
+    element: e.element?.tagName,
+    url: e.url,
+    size: e.size,
+  });
+});
+
+// ---------- 4. CLS（会话窗口累加）----------
+let sessionValue = 0;
+let sessionEntries = [];
+observe("layout-shift", (e) => {
+  if (e.hadRecentInput) return; // 用户主动交互引起的偏移不计入
+  const first = sessionEntries[0];
+  const last = sessionEntries[sessionEntries.length - 1];
+  // 会话窗口：间隔 <1s 且总长 <5s 归为同一窗口
+  if (sessionValue && e.startTime - last.startTime < 1000 && e.startTime - first.startTime < 5000) {
+    sessionValue += e.value;
+    sessionEntries.push(e);
+  } else {
+    sessionValue = e.value;
+    sessionEntries = [e];
+  }
+  totalCLS = Math.max(totalCLS, sessionValue); // CLS 取最大会话窗口
+  put("CLS", totalCLS);
+});
+
+// ---------- 5. INP + LoAF 归因 ----------
+const loafBuffer = [];
+observe("long-animation-frame", (f) => {
+  loafBuffer.push(f);
+  if (loafBuffer.length > 20) loafBuffer.shift();
+});
+
+const interactions = [];
+observe(
+  "event",
+  (e) => {
+    if (!e.interactionId) return; // 只统计真实交互（有 interactionId 的）
+    interactions.push(e.duration);
+    interactions.sort((a, b) => b - a);
+    // 近似 INP：取第 98 百分位 ≈ 每 50 次交互允许一个更差值
+    const idx = Math.min(Math.floor(interactions.length / 50), interactions.length - 1);
+    const inp = interactions[idx];
+    put("INP", inp);
+
+    if (e.duration >= 200) {
+      const end = e.startTime + e.duration;
+      const scripts = loafBuffer
+        .filter((f) => f.startTime + f.duration > e.startTime && f.startTime < end)
+        .flatMap((f) => f.scripts ?? [])
+        .sort((a, b) => b.duration - a.duration)
+        .slice(0, 3)
+        .map((s) => ({
+          fn: s.sourceFunctionName,
+          url: s.sourceURL,
+          pos: s.sourceCharPosition,
+          invoker: s.invoker,
+          invokerType: s.invokerType,
+          dur: s.duration,
+          forcedLayout: s.forcedStyleAndLayoutDuration,
+        }));
+      put("slowInteractions", [...(buffer.slowInteractions ?? []), {
+        name: e.name,
+        duration: e.duration,
+        inputDelay: e.processingStart - e.startTime,
+        processing: e.processingEnd - e.processingStart,
+        presentation: end - e.processingEnd,
+        scripts,
+      }].slice(-5));
+    }
+  },
+  { durationThreshold: 40 },
+);
+
+// ---------- 6. 资源聚合（避免逐条上报）----------
+const resAgg = {};
+observe("resource", (r) => {
+  const t = (resAgg[r.initiatorType] ??= { count: 0, dur: 0, size: 0, cached: 0, restricted: 0 });
+  t.count++;
+  t.dur += r.duration;
+  t.size += r.decodedBodySize; // ★ 用 decodedBodySize 而非 transferSize
+  if (r.transferSize === 0 && r.decodedBodySize > 0) t.cached++;
+  if (r.requestStart === 0) t.restricted++; // 跨域缺 TAO，打标便于治理
+  put("resources", resAgg);
+});
+
+// ---------- 7. 业务自定义打点 ----------
+observe("measure", (m) => {
+  put("measures", { ...(buffer.measures ?? {}), [m.name]: { d: m.duration, ...m.detail } });
+});
+observe("element", (e) => {
+  put("elements", { ...(buffer.elements ?? {}), [e.identifier]: toVisibleTime(e.renderTime) });
+});
+
+// ---------- 8. 上报 ----------
+function flush(reason) {
+  if (reported || !Object.keys(buffer).length) return;
+  if (!shouldReport({ name: "LCP", value: buffer.LCP?.value ?? 0 })) return;
+  reported = true;
+  const body = JSON.stringify({
+    sessionId,
+    reason,
+    url: location.href,
+    ua: navigator.userAgent,
+    // 网络与设备信息，用于分桶排除环境噪声
+    conn: navigator.connection?.effectiveType,
+    rtt: navigator.connection?.rtt,
+    mem: navigator.deviceMemory,
+    cpu: navigator.hardwareConcurrency,
+    metrics: buffer,
+  });
+  if (!navigator.sendBeacon?.(REPORT_URL, new Blob([body], { type: "application/json" }))) {
+    fetch(REPORT_URL, { method: "POST", body, keepalive: true, mode: "no-cors" }).catch(() => {});
+  }
+}
+
+// ✅ 正确的上报时机组合
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "hidden") flush("hidden");
+});
+window.addEventListener("pagehide", () => flush("pagehide"));
+
+// ✅ bfcache 恢复：先结算旧会话，再开新会话
+window.addEventListener("pageshow", (e) => {
+  if (!e.persisted) return;
+  flush("bfcache-leave");
+  reported = false;
+  sessionId = crypto.randomUUID();
+  buffer = { bfcacheRestore: true };
+});
+
+// ❌ 绝对不要写这两行：会让页面失去 bfcache 资格
+// window.addEventListener('unload', flush);
+// window.addEventListener('beforeunload', flush);
+```
+
+### 9.7 采集器自检清单
+
+| 检查项 | 为什么 |
+| --- | --- |
+| 所有 `observe` 都带 `buffered: true` | 否则脚本执行前产生的 FCP/LCP 全部丢失 |
+| 所有 entryType 都做了 `supportedEntryTypes` 检测 | Safari 不支持 LoAF/element，裸调会抛错中断整个采集 |
+| 时间点指标都减了 `activationStart` | 预渲染场景下指标虚低到失真 |
+| 用 `visibilitychange` + `pagehide`，无 `unload` | 保证移动端不丢数据、不破坏 bfcache |
+| `sendBeacon` 失败时有 `keepalive` 兜底 | 超 64KB 或队列满时 `sendBeacon` 返回 `false` |
+| 上报有 `reported` 幂等标记 | 否则 hidden/pagehide 会重复发两次 |
+| bfcache 恢复重置了 sessionId 与 buffer | 否则新旧数据混算 |
+| 资源数据做了聚合，不逐条上报 | 一个页面几百条 resource，全量上报会打爆带宽与后端 |
+| 跨域缺 TAO 的字段没被当 0 上报 | 会让大盘 TTFB 严重低估 |
+| 采样是会话级的 | 否则同一用户指标残缺，无法关联分析 |
+| SPA 路由切换重置了 buffer 与 CLS 基线 | 否则跨路由污染 |
+| 采集代码全程 try/catch，不抛错 | 监控代码不能反过来搞崩业务 |
+
+---
+
+## 十、面试高频问答 🎯
+
+### Q1：`performance.getEntriesByType()` 和 `PerformanceObserver` 有什么区别？`buffered: true` 解决了什么问题？
+
+前者是拉取式的同步快照，后者是订阅式的推送。生产采集必须用 Observer，原因有三个：一是**时机问题**，采集脚本通常是异步加载的，等它执行时 FCP、LCP 可能早就发生了，同步拉取拿不到；二是**缓冲区上限**，resource 缓冲区默认只有 250 条，满了以后新条目直接丢弃，拉取式只能拿到残缺数据；三是 LCP 会随渲染多次更新、CLS 需要持续累加，单次快照拿到的是中间值不是最终值。
+
+`buffered: true` 的语义是：把 Observer 创建**之前**浏览器已经缓存的历史条目也一并投递给回调。所以它对 FCP、LCP、navigation 这些一次性早期指标不是优化项，而是正确性前提。`web-vitals` 库内部一律带这个参数就是这个原因。注意它只在 `{ type: 'x' }` 单类型写法下生效，`entryTypes` 数组写法不支持。
+
+### Q2：`performance.timing` 和 `PerformanceNavigationTiming` 有什么区别？为什么前者被废弃？
+
+`performance.timing` 是 Navigation Timing Level 1，已被标记为废弃；`PerformanceNavigationTiming` 是 Level 2，是现行标准。核心区别是**时间基准**：旧 API 的字段都是 Unix 绝对时间戳，精度只有整数毫秒，而且基于系统时钟——用户改时间或者 NTP 校时都会让差值失真甚至算出负数；新 API 的字段全是相对 time origin 的偏移量，基于单调时钟，精度到微秒级，而且不需要减 `navigationStart` 就能直接用。
+
+另外新 API 是标准的 PerformanceEntry，能被 `PerformanceObserver` 订阅，还新增了 `transferSize`、`nextHopProtocol`、`serverTiming`、`activationStart` 这些旧 API 完全没有的字段；`type` 也从 0/1/2 的魔法数字变成了 `navigate`/`reload`/`back_forward`/`prerender` 字符串。旧 API 里的 `domLoading` 在新标准中被直接移除了。
+
+### Q3：`transferSize`、`encodedBodySize`、`decodedBodySize` 分别是什么？怎么判断资源命中了缓存？
+
+`transferSize` 是网络上实际传输的字节数，包含响应头加上压缩后的响应体；`encodedBodySize` 是压缩后的响应体大小，不含头；`decodedBodySize` 是解压后的原始大小，也不含头。
+
+判断缓存有两条规则：`transferSize` 为 0 而 `decodedBodySize` 大于 0，说明命中了**强缓存**，完全没走网络；`transferSize` 有值但很小（几百字节以内）而 `encodedBodySize` 为 0，说明是 **304 协商缓存**，只传了响应头。压缩率用 `1 - encodedBodySize / decodedBodySize` 算，接近 0 就说明 Gzip/Brotli 没生效。
+
+一个常见错误是拿 `transferSize` 去统计包体积——强缓存命中时它是 0，会把体积算成 0，正确做法是用 `decodedBodySize`。
+
+### Q4：为什么跨域资源的耗时字段全是 0？怎么修？
+
+出于隐私考虑，浏览器防止站点通过耗时侧信道探测用户的网络状况和缓存状态。跨域资源默认只暴露 `name`、`startTime`、`duration`、`responseEnd`、`initiatorType` 这几个粗粒度字段，`domainLookupStart/End`、`connectStart/End`、`requestStart`、`responseStart`、三个体积字段、`nextHopProtocol`、`serverTiming` 全部被置 0 或置空。
+
+解法是让资源所在的域返回 `Timing-Allow-Origin` 响应头，值可以是具体来源或 `*`。注意它和 CORS 的 `Access-Control-Allow-Origin` 是两个独立的头，配了 CORS 不等于配了 TAO，`crossorigin` 属性也不能替代。
+
+实战上更重要的一点是：采集代码必须主动识别这种情况——用 `requestStart === 0` 判定字段不可见，然后打标而不是上报 0，否则一堆 0 混进大盘会把 TTFB 严重低估。
+
+### Q5：`longtask` 只知道卡了 50ms，怎么定位到具体代码？
+
+用 `long-animation-frame`（LoAF），这是 2024 年后 INP 归因的关键 API。`longtask` 的 `attribution` 只有容器级信息（window 还是 iframe），`name` 也只是 `self`、`same-origin-descendant` 这种归属描述，线上拿到一堆 `{ name: 'self', duration: 180 }` 完全没法行动；而且它不包含任务结束后的样式计算和布局绘制耗时，正好漏掉了 INP 的 Presentation Delay。
+
+LoAF 把观测单位从「任务」升级为「动画帧」，包含帧内所有任务加渲染工作。关键是 `entry.scripts[]` 数组，每一项都有 `invoker`（谁触发的，比如 `BUTTON#submit.onclick`）、`invokerType`（`event-listener`/`resolve-promise` 等）、`sourceURL`、`sourceFunctionName`、`sourceCharPosition`——配合 sourcemap 就能反解到源码具体行列。另外 `forcedStyleAndLayoutDuration` 直接暴露强制同步布局耗时，`blockingDuration` 比 `duration` 更贴近对交互的真实阻塞。
+
+实战做法是缓存最近若干条 LoAF，再把慢的 `event` 条目按时间区间去匹配重叠的帧，取里面最耗时的脚本作为第一嫌疑人。生产项目直接用 `web-vitals` v4+ 的 `metric.attribution` 更稳，它已经内置了这套归因。
+
+---
+
+## 相关笔记
+
+- [Web Vitals：INP 指标详解](./Web%20Vitals与INP指标详解.md) — INP 三段拆解与优化手段，本篇 LoAF 归因的上游
+- [前端性能优化全景](./前端性能优化全景.md) — 优化手段总览，第一章的指标采集在本篇有系统化展开
+- [大量 DOM 节点优化方案](./大量DOM节点优化方案.md) — 长任务与强制同步布局的具体治理
+- [页面渲染流程与优化](../浏览器原理/渲染/页面渲染流程与优化.md) — 理解 LoAF 里 Style / Layout 阶段的前置知识
+- [缓存机制](../浏览器原理/缓存/缓存机制.md) — 强缓存与协商缓存，对应本篇的体积字段判定
+- [HTTP 请求头与响应头](../HTTP协议/HTTP请求头与响应头.md) — `Timing-Allow-Origin` 与 `Server-Timing` 所属的头部体系
+- [第 04 讲：首屏时间指标采集方法](../课程笔记/性能优化/第04讲：首屏时间指标采集方法.md) — 该篇使用的是已废弃的 `performance.timing`，字段对照见本篇第三章
+- [React 性能优化指南](../../05-React/React性能优化指南.md) — 配合 User Timing 做组件级耗时归因
+- [前端性能优化完全指南](../../11-项目实战/前端性能优化完全指南.md) — 分层优化正典
+
+
 
 
 

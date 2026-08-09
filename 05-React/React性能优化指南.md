@@ -20,12 +20,10 @@ React 在大多数场景下已经足够快。优化前先**测量**，用 React 
 // ✅ 场景1：纯展示组件 + 父组件频繁更新
 const UserCard = React.memo(function UserCard({ user }) {
   return (
-
-
-
-### {user.name}
-
-
+    <div>
+      <img src={user.avatar} alt={user.name} />
+      <h3>{user.name}</h3>
+    </div>
   );
 });
 
@@ -39,12 +37,10 @@ function Dashboard() {
 
   const user = useUser(); // 假设用户数据不常变
   return (
-
-
-当前时间: {time}
-
-{/* memo 保护：时间变化不触发 UserCard 重渲染 */}
-
+    <div>
+      <p>当前时间: {time}</p>
+      <UserCard user={user} /> {/* memo 保护：时间变化不触发 UserCard 重渲染 */}
+    </div>
   );
 }
 ```
@@ -54,14 +50,14 @@ function Dashboard() {
 const ListItem = React.memo(function ListItem({ item, onToggle }) {
   console.log("ListItem render:", item.id);
   return (
-
+    <li>
       <input
         type="checkbox"
         checked={item.done}
         onChange={() => onToggle(item.id)}
       />
       {item.title}
-
+    </li>
   );
 });
 
@@ -74,8 +70,11 @@ function TodoList({ todos }) {
   }, []); // 稳定引用
 
   return (
-
-
+    <ul>
+      {todos.map((item) => (
+        <ListItem key={item.id} item={item} onToggle={handleToggle} />
+      ))}
+    </ul>
   );
 }
 ```
@@ -88,16 +87,16 @@ function TodoList({ todos }) {
 function Parent() {
   return (
     // 每次 Parent 渲染，{ color: 'red' } 都是新对象
-
+    <MemoChild style={{ color: "red" }} items={[1, 2, 3]} />
   );
 }
 
 // ❌ 场景2：组件本身就很简单，渲染耗时 < 比较 props 耗时
-const SimpleText = React.memo(({ text }) => {text});
+const SimpleText = React.memo(({ text }) => <span>{text}</span>);
 // 这个 memo 几乎没有收益，反而增加了一点点开销
 
 // ❌ 场景3：props 本身就频繁变化
-const Counter = React.memo(({ count }) => {count});
+const Counter = React.memo(({ count }) => <div>{count}</div>);
 // count 每秒都变，memo 每次都比较失败，毫无意义
 ```
 
@@ -108,9 +107,9 @@ const Counter = React.memo(({ count }) => {count});
 const UserProfile = React.memo(
   function UserProfile({ user, settings }) {
     return (
-
+      <div>
         {user.name} - {settings.theme}
-
+      </div>
     );
   },
   (prevProps, nextProps) => {
@@ -140,7 +139,11 @@ function DataTable({ rows, sortKey, filterText }) {
   }, [rows, sortKey, filterText]); // 依赖项精确
 
   return (
-
+    <table>
+      {processedData.map((row) => (
+        <Row key={row.id} row={row} />
+      ))}
+    </table>
   );
 }
 ```
@@ -154,7 +157,7 @@ function Parent({ userId }) {
   // ✅ userId 不变则引用稳定
   const config = useMemo(() => ({ userId, theme: "dark" }), [userId]);
 
-return ;
+  return <MemoChild config={config} />;
 }
 ```
 
@@ -176,7 +179,7 @@ function SearchComponent({ query }) {
     fetchData(options);
   }, [options]); // 依赖稳定了
 
-  return ...;
+  return <div>...</div>;
 }
 ```
 
@@ -224,9 +227,13 @@ const ExpensiveList = React.memo(function ExpensiveList({
   onItemClick,
 }) {
   return (
-
-- onItemClick(item.id)}> {item.name}
-
+    <ul>
+      {items.map((item) => (
+        <li key={item.id} onClick={() => onItemClick(item.id)}>
+          {item.name}
+        </li>
+      ))}
+    </ul>
   );
 });
 
@@ -240,7 +247,7 @@ function Parent({ items }) {
     console.log("点击了:", id);
   }, []); // 无依赖，永远稳定
 
-return ;
+  return <ExpensiveList items={items} onItemClick={handleClick} />;
 }
 ```
 
@@ -259,7 +266,7 @@ function Parent() {
     setData(data);
   }, []);
 
-return ;
+  return <Component onDataLoad={handleDataLoad} />;
 }
 ```
 
@@ -287,13 +294,13 @@ function Component() {
     console.log("click");
   }, []);
 
-return Click;
+  return <button onClick={handleClick}>Click</button>;
 }
 
 // ✅ 直接写就行
 function Component() {
   const handleClick = () => console.log("click");
-return Click;
+  return <button onClick={handleClick}>Click</button>;
 }
 ```
 
@@ -302,7 +309,7 @@ return Click;
 function Parent() {
   // 用了 useCallback，但 Child 没有 memo
   const fn = useCallback(() => {}, []);
-return ; // Child 每次都会渲染，useCallback 白费
+  return <Child onClick={fn} />; // Child 每次都会渲染，useCallback 白费
 }
 ```
 
@@ -345,11 +352,9 @@ function SearchPage({ allItems }) {
 
   return (
     <>
-
-      {isPending &&
-过滤中...
-}
-
+      <input value={query} onChange={handleSearch} placeholder="搜索..." />
+      {isPending && <p>过滤中...</p>}
+      <ItemList items={filteredItems} />
     </>
   );
 }
@@ -368,8 +373,8 @@ function TabContainer() {
   }
 
   return (
-
-
+    <div>
+      <nav>
         {["overview", "details", "reviews"].map((tab) => (
           <button
             key={tab}
@@ -380,8 +385,8 @@ function TabContainer() {
           </button>
         ))}
       </nav>
-{/* 重量级组件 */}
-
+      <TabContent tab={activeTab} /> {/* 重量级组件 */}
+    </div>
   );
 }
 ```
@@ -428,7 +433,7 @@ function SearchResults({ query }) {
   // query 来自父组件，你控制不了何时更新
   const deferredQuery = useDeferredValue(query);
 
-return ;
+  return <HeavyResultList query={deferredQuery} />;
 }
 ```
 
@@ -442,7 +447,7 @@ return ;
 type Row = { id: number; name: string; age: number; score: number };
 
 function DataTable({ data }: { data: Row[] }) {
-const [sortKey, setSortKey] = useState('id');
+  const [sortKey, setSortKey] = useState<keyof Row>('id');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
   const [filter, setFilter] = useState('');
   const [isPending, startTransition] = useTransition();
@@ -474,31 +479,43 @@ const [sortKey, setSortKey] = useState('id');
   }, []);
 
   // 3. startTransition: 过滤是非紧急操作
-const handleFilter = (e: React.ChangeEvent) => {
+  const handleFilter = (e: React.ChangeEvent<HTMLInputElement>) => {
     startTransition(() => setFilter(e.target.value));
   };
 
   return (
-
-
-      {isPending && 过滤中...}
-
-| handleSort(key)} style={{ cursor: 'pointer' }}>
- {key} {sortKey === key ? (sortDir === 'asc' ? '↑' : '↓') : ''} |
-| --- |
-
-
+    <div>
+      <input placeholder="过滤..." onChange={handleFilter} />
+      {isPending && <span>过滤中...</span>}
+      <table>
+        <thead>
+          <tr>
+            {(['id', 'name', 'age', 'score'] as const).map(key => (
+              <th key={key} onClick={() => handleSort(key)} style={{ cursor: 'pointer' }}>
+                {key} {sortKey === key ? (sortDir === 'asc' ? '↑' : '↓') : ''}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {processedData.map(row => (
+            // 4. React.memo: 每行单独 memo
+            <TableRow key={row.id} row={row} />
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
 
 // 5. memo: 只有 row 引用变化才重渲染
 const TableRow = React.memo(function TableRow({ row }: { row: Row }) {
   return (
-
-{row.id}
-{row.name}
-{row.age}
-{row.score}
+    <tr>
+      <td>{row.id}</td>
+      <td>{row.name}</td>
+      <td>{row.age}</td>
+      <td>{row.score}</td>
     </tr>
   );
 });
@@ -607,23 +624,23 @@ React 性能问题的根本原因：**不必要的重新渲染**。
 function Parent() {
   const [count, setCount] = useState(0);
   return (
-
-setCount((c) => c + 1)}>+1
-{/* 每次 Parent 更新，Child 都会重新渲染 */}
-
+    <div>
+      <button onClick={() => setCount((c) => c + 1)}>+1</button>
+      <Child name="固定名字" /> {/* 每次 Parent 更新，Child 都会重新渲染 */}
+    </div>
   );
 }
 
 // 解决：用 React.memo 包裹，props 不变则跳过渲染
 const Child = React.memo(function Child({ name }) {
   console.log("Child 渲染了");
-  return {name};
+  return <div>{name}</div>;
 });
 
 // 自定义比较函数（默认是浅比较）
 const Child2 = React.memo(
   function Child2({ user }) {
-    return {user.name};
+    return <div>{user.name}</div>;
   },
   (prevProps, nextProps) => {
     // 返回 true 表示相同，跳过渲染
@@ -649,9 +666,11 @@ function Component({ list, filter }) {
   );
 
   return (
-
-- {item}
-
+    <ul>
+      {filteredList2.map((item) => (
+        <li key={item}>{item}</li>
+      ))}
+    </ul>
   );
 }
 
@@ -667,7 +686,7 @@ function Parent() {
   // ✅ 引用稳定，Child 不会不必要重新渲染
   const config2 = useMemo(() => ({ theme: "dark", size: "large" }), []);
 
-return ;
+  return <Child config={config2} />;
 }
 ```
 
@@ -693,7 +712,7 @@ function Parent() {
     setCount((c) => c + 1); // 用函数式更新，不需要依赖 count
   }, []);
 
-return ;
+  return <Child onClick={handleClick2} />;
 }
 
 // useMemo vs useCallback
@@ -734,9 +753,10 @@ const About = lazy(() => import("./pages/About"));
 
 function App() {
   return (
-
-} />
-} />
+    <Suspense fallback={<div>加载中...</div>}>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
       </Routes>
     </Suspense>
   );
@@ -749,10 +769,10 @@ function Page() {
   const [show, setShow] = useState(false);
   return (
     <>
-setShow(true)}>打开弹窗
+      <button onClick={() => setShow(true)}>打开弹窗</button>
       {show && (
-}>
-setShow(false)} />
+        <Suspense fallback={<Spinner />}>
+          <HeavyModal onClose={() => setShow(false)} />
         </Suspense>
       )}
     </>
@@ -772,7 +792,7 @@ import { FixedSizeList } from "react-window";
 
 function VirtualList({ items }) {
   const Row = ({ index, style }) => (
-    {items[index].name}
+    <div style={style}>{items[index].name}</div>
   );
 
   return (
@@ -802,18 +822,20 @@ function SimpleVirtualList({ items, itemHeight = 50, containerHeight = 500 }) {
   const offsetY = startIndex * itemHeight;
 
   return (
-     setScrollTop(e.target.scrollTop)}
+    <div
+      style={{ height: containerHeight, overflow: "auto" }}
+      onScroll={(e) => setScrollTop(e.target.scrollTop)}
     >
-
-
+      <div style={{ height: totalHeight, position: "relative" }}>
+        <div style={{ transform: `translateY(${offsetY}px)` }}>
           {visibleItems.map((item, i) => (
-
+            <div key={startIndex + i} style={{ height: itemHeight }}>
               {item.name}
-
+            </div>
           ))}
-
-
-
+        </div>
+      </div>
+    </div>
   );
 }
 ```
@@ -826,11 +848,14 @@ function SimpleVirtualList({ items, itemHeight = 50, containerHeight = 500 }) {
 
 ```tsx
 // ❌ 每次渲染都创建新数组
+<Component style={{ color: 'red' }} />
+<Component items={[1, 2, 3]} />
 
 // ✅ 提到组件外或用 useMemo
 const STYLE = { color: 'red' };
 const ITEMS = [1, 2, 3];
-
+<Component style={STYLE} />
+<Component items={ITEMS} />
 ```
 
 ### 合理使用 key
@@ -838,17 +863,17 @@ const ITEMS = [1, 2, 3];
 ```tsx
 // ❌ 用 index 作为 key（列表重排时性能差）
 {
-list.map((item, index) => );
+  list.map((item, index) => <Item key={index} {...item} />);
 }
 
 // ✅ 用稳定唯一的 id
 {
-list.map((item) => );
+  list.map((item) => <Item key={item.id} {...item} />);
 }
 
 // 特殊用法：强制重置组件状态
 // 改变 key 会让 React 销毁旧组件，创建新组件
-;
+<UserForm key={userId} userId={userId} />;
 ```
 
 ### 状态下移（State Colocation）
@@ -858,13 +883,13 @@ list.map((item) => );
 function Parent() {
   const [inputValue, setInputValue] = useState("");
   return (
-
+    <div>
       <input
         value={inputValue}
         onChange={(e) => setInputValue(e.target.value)}
       />
-{/* 每次输入都重新渲染 */}
-
+      <HeavyComponent /> {/* 每次输入都重新渲染 */}
+    </div>
   );
 }
 
@@ -872,16 +897,16 @@ function Parent() {
 function SearchInput() {
   const [inputValue, setInputValue] = useState("");
   return (
-setInputValue(e.target.value)} />
+    <input value={inputValue} onChange={(e) => setInputValue(e.target.value)} />
   );
 }
 
 function Parent() {
   return (
-
-
-{/* 不再受 input 影响 */}
-
+    <div>
+      <SearchInput />
+      <HeavyComponent /> {/* 不再受 input 影响 */}
+    </div>
   );
 }
 ```
@@ -895,12 +920,10 @@ function Parent() {
 function ScrollTracker() {
   const [scroll, setScroll] = useState(0);
   return (
-     setScroll(e.target.scrollTop)}>
-
-Scroll: {scroll}
-
-{/* 每次滚动都重新渲染！ */}
-
+    <div onScroll={(e) => setScroll(e.target.scrollTop)}>
+      <p>Scroll: {scroll}</p>
+      <HeavyComponent /> {/* 每次滚动都重新渲染！ */}
+    </div>
   );
 }
 
@@ -908,17 +931,16 @@ Scroll: {scroll}
 function ScrollTracker({ children }) {
   const [scroll, setScroll] = useState(0);
   return (
-     setScroll(e.target.scrollTop)}>
-
-Scroll: {scroll}
-
+    <div onScroll={(e) => setScroll(e.target.scrollTop)}>
+      <p>Scroll: {scroll}</p>
       {children} {/* 引用稳定，不重新渲染 */}
-
+    </div>
   );
 }
 
 // 使用时
-
+<ScrollTracker>
+  <HeavyComponent />
 </ScrollTracker>;
 ```
 
@@ -929,8 +951,9 @@ Scroll: {scroll}
 const importSettings = () => import("./pages/Settings");
 const Settings = lazy(importSettings);
 
+<Link to="/settings" onMouseEnter={importSettings}>
   Settings
-;
+</Link>;
 ```
 
 ### 使用 @tanstack/react-virtual 虚拟滚动
@@ -947,15 +970,23 @@ function VirtualList({ items }) {
   });
 
   return (
-
-
+    <div ref={parentRef} style={{ height: 400, overflow: "auto" }}>
+      <div style={{ height: virtualizer.getTotalSize(), position: "relative" }}>
         {virtualizer.getVirtualItems().map((row) => (
-
+          <div
+            key={row.key}
+            style={{
+              position: "absolute",
+              top: row.start,
+              height: row.size,
+              width: "100%",
+            }}
+          >
             {items[row.index].name}
-
+          </div>
         ))}
-
-
+      </div>
+    </div>
   );
 }
 ```
