@@ -66,6 +66,7 @@ const markdowns = files.filter((f) => f.endsWith('.md'));
 
 const brokenLinks = [];
 const brokenWiki = [];
+const spaceLinks = [];
 let totalLocal = 0;
 
 // Obsidian 双链解析：按「文件名（可不带扩展名）」在全仓匹配
@@ -80,8 +81,10 @@ for (const file of markdowns) {
   const text = maskCode(raw);
   const rel = path.relative(ROOT, file);
 
-  // Markdown 相对链接：[text](target)，排除图片 ![]() 以外的普通链接也一并校验
-  const linkRe = /\[([^\]]*)\]\(([^)\s]+)(?:\s+"[^"]*")?\)/g;
+  // Markdown 相对链接：[text](target)。
+  // 目标允许含空格，因为仓库里有「Webpack5核心特性 - 一页速记.md」这类文件名；
+  // 未编码的空格在 GitHub 上会截断链接，单独归类为 spaceLinks 报告。
+  const linkRe = /\[([^\]]*)\]\(([^)]+?)(?:\s+"[^"]*")?\)/g;
   let m;
   while ((m = linkRe.exec(text))) {
     let target = m[2].trim();
@@ -102,6 +105,9 @@ for (const file of markdowns) {
     const resolved = path.resolve(path.dirname(file), decoded);
     if (!fs.existsSync(resolved)) {
       brokenLinks.push({ file: rel, line: lineOf(text, m.index), target: m[2] });
+    } else if (/\s/.test(target)) {
+      // 文件存在但路径含未编码空格：Obsidian 能跳转，GitHub 会断
+      spaceLinks.push({ file: rel, line: lineOf(text, m.index), target: m[2] });
     }
   }
 
@@ -135,7 +141,7 @@ function classifyWiki(name) {
 }
 
 if (asJson) {
-  console.log(JSON.stringify({ totalLocal, brokenLinks, brokenWiki }, null, 2));
+  console.log(JSON.stringify({ totalLocal, brokenLinks, spaceLinks, brokenWiki }, null, 2));
 } else {
   const nav = brokenWiki.filter((b) => b.kind === 'navigation');
   const noise = brokenWiki.length - nav.length;
@@ -145,12 +151,15 @@ if (asJson) {
   console.log(`失效相对链接：${brokenLinks.length} 条`);
   for (const b of brokenLinks) console.log(`  ${b.file}:${b.line}  ->  ${b.target}`);
 
+  console.log(`\n路径含未编码空格：${spaceLinks.length} 条（Obsidian 可跳转，GitHub 会截断）`);
+  for (const b of spaceLinks) console.log(`  ${b.file}:${b.line}  ->  ${b.target}`);
+
   console.log(`\n失效导航双链：${nav.length} 条`);
   for (const b of nav) console.log(`  ${b.file}:${b.line}  ->  ${b.target}`);
 
   console.log(`\n已忽略 ${noise} 条非导航双链（代码字面量、外部文档引用标注）`);
 
-  const total = brokenLinks.length + nav.length;
+  const total = brokenLinks.length + spaceLinks.length + nav.length;
   console.log(total === 0 ? '\n全部链接可达。' : `\n合计 ${total} 处待修复。`);
   process.exit(total > 0 ? 1 : 0);
 }

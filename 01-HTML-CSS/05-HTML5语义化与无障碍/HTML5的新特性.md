@@ -418,7 +418,7 @@ main.inert = false;
 
 **为什么比 `pointer-events: none` 更好**：`pointer-events: none` 只禁止鼠标事件，不禁止键盘 Tab 导航；`inert` 同时禁止鼠标、键盘和屏幕阅读器，是无障碍访问（a11y）的最佳实践。
 
-### 10.[Web Workers](4.Web Workers.html)
+### 10. Web Workers
 
 web worker 是运行在后台的 JavaScript，独立于其他脚本，不会影响页面的性能。您可以继续做任何愿意做的事情：点击、选取内容等等，而此时 web worker 在后台运行。 关于web worker的应用大概分为三个部分：
 
