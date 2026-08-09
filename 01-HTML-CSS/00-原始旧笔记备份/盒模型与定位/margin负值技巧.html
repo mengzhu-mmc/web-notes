@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>margin负值使用技巧</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+        .wrap {
+            margin-left: 600px;
+        }
+        .left {
+            float: left;
+            width: 200px;
+            height: 400px;
+            background: red;
+        }
+        .right {
+            float: left;
+            width: 400px;
+            height: 400px;
+            background: blue;
+            margin-left: -600px;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <div class="left">左</div>
+        <div class="right">右</div>
+    </div>
+</body>
+</html>

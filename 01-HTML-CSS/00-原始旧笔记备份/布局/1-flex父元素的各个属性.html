@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+        .wrap {
+            display: flex;
+            display: -webkit-flex;
+            width: 100%;
+            height: 600px;
+            background-color: blanchedalmond;
+            /* 主轴方向 */
+            /* flex-direction: row; */
+            /* flex-direction: column; */
+            /* flex-direction: row-reverse; */
+
+            /* 主轴上子元素排列的方式 */
+            /* justify-content: center; */
+            /* justify-content: flex-start; */
+            /* justify-content: flex-end;*/
+            justify-content: space-around;
+
+            /* flex布局中，默认的子元素是不换行的， 如果装不开，会缩小子元素的宽度，放到父元素里面  */
+            /* flex-wrap: nowrap; */
+            /* flex-wrap: wrap; */
+
+            flex-flow: row wrap; /* flex-direction 和 flex-wrap的缩写 */
+
+            /* 恻轴上的子元素排列方式 */
+            align-items: center;
+            /* align-items: stretch; 拉伸子盒子使之充满父盒子，子盒子不要设高度 */
+
+            /* 恻轴上子元素排列方式（多行） */
+            /* align-content: center; */
+        }
+        .demo {
+            width: 30%;
+            height: 150px;
+            background-color: brown;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <div class="demo">1</div>
+        <div class="demo">2</div>
+        <div class="demo">3</div>
+        <div class="demo">4</div>
+        <div class="demo">5</div>
+        <div class="demo">6</div>
+        <div class="demo">7</div>
+        <div class="demo">8</div>
+        <div class="demo">9</div>
+    </div>
+</body>
+</html>

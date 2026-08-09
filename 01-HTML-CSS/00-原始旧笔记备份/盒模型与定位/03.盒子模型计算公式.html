@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      .demo {
+        width: 100px;
+        height: 250px;
+        border: 10px solid blue;
+        border-left: 40px; /* 没有左边框 */
+        padding: 10px 30px;
+        margin: 200px;
+        /* 
+                边框只设宽度 等于 没有
+                实际宽度：100 + 30 + 30 + 0 + 10 = 170
+                实际高度：250 + 10 + 10 + 10 + 10 = 290
+             */
+      }
+    </style>
+  </head>
+  <body>
+    <div class="demo"></div>
+  </body>
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .wrap div {
+            width: 100px;
+            height: 100px;
+            position: absolute;
+        }
+        .demo,
+        .demo1,
+        .demo2 {
+            z-index: 0;
+        }
+        .demo {
+            background-color: bisque;
+        }
+        .demo1 {
+            background-color: brown;
+        }
+        .demo2 {
+            background-color: cornflowerblue;
+        }
+    </style>
+</head>
+<body>
+    <!-- 
+        1.层级相同的情况下，谁在结构中的后面，就展示谁
+        2.z-index 的值只能是整数
+     -->
+     <div class="wrap">
+         <div class="demo"></div>
+         <div class="demo1"></div>
+         <div class="demo2"></div>
+     </div>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        article {
+            display: table;
+            width: 600px;
+            height: 100vh;
+        }
+        .top {
+            display: table-row;
+            height: 150px;
+            background: orange;
+        }
+        .middle {
+            display: table-row;
+            background: yellow;
+        }
+        .bottom {
+            display: table-row;
+            height: 100px;
+            background: skyblue;
+        }
+    </style>
+</head>
+<body>
+    <!-- div中如果不包含内容，页面会显示空白 -->
+    <article>
+        <div class="top">top</div>
+        <div class="middle">middle</div>
+        <div class="bottom">bottom</div>
+    </article>
+</body>
+</html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .wrap {
+            padding: 0 100px 0 120px;
+            height: 60px;
+        }
+        .wrap>div {
+            height: 100%;
+        }
+        .main {
+            width: 100%;
+            background: orange;
+        }
+        .main,.left,.right {
+            float: left;
+        }
+
+        .left {
+            position: relative;
+            left: -120px;
+            margin-left: -100%;
+            width: 120px;
+            background: skyblue;
+        }
+        .right {
+            position: relative;
+            right: -100px;
+            margin-left: -100px;
+            width: 100px;
+            background: tomato;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <div class="main"></div>
+        <div class="left"></div>
+        <div class="right"></div>
+    </div>
+</body>
+</html>

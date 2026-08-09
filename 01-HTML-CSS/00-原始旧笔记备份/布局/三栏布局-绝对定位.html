@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        /* .box {
+            position: relative;
+        }
+        .left {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 200px;
+            height: 200px;
+            background-color: gray;
+        }
+
+        .right {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 200px;
+            height: 200px;
+            background-color: gray;
+        }
+
+        .middle {
+            margin-left: 210px;
+            margin-right: 210px;
+            background-color: lightgray;
+            height: 200px;
+        } */
+
+        .box {
+            position: relative;
+        }
+        .left,
+        .right {
+            position: absolute;
+            top: 0;
+            width: 200px;
+            height: 100px;
+            background: orange;
+        }
+
+        .left {
+            left: 0;
+        }
+        .right {
+            right: 0;
+        }
+
+        .middle {
+            margin: 0 230px;
+            height: 100px;
+            background: skyblue;
+        }
+
+
+    </style>
+</head>
+
+<body>
+    <div class="box">
+        <div class="left">左边</div>
+        <div class="middle">中间</div>
+        <div class="right">右边</div>
+    </div>
+</body>
+
+</html>

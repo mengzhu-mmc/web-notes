@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>transform与层叠上下文</title>
+    <style>
+        .box {
+            width: 800px;
+            transform: rotate(15deg); /* 应用了 transform变换的元素 同样具有层叠上下文 */
+            background: orange;
+        }
+        .box img {
+            position: relative;
+            width: 600px;
+            left: 100px;
+            z-index: -1;
+        } 
+    </style>
+</head>
+<body>
+    <div class="box">
+        <img src="../../assist/img/3.jpg" alt="">
+    </div>
+</body>
+</html>

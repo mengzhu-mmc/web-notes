@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>mix-blend-mode与层叠上下文</title>
+    <style>
+        /* IE浏览器(包括IE14 )还不支持 mix-blend-mode， */
+        /* mix-blend-mode 属性描述了元素的内容应该与元素的直系父元素的内容和元素的背景如何混合 */
+        .box {
+            mix-blend-mode: darken;
+            width: 800px;
+            background: orange;
+        }
+        .box img {
+            position: relative;
+            width: 600px;
+            left: 100px;
+            z-index: -1;
+        }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <img src="../../assist/img/3.jpg" alt="">
+    </div>
+</body>
+</html>

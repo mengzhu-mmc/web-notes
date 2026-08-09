@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>圣杯</title>
+   <!--  <style>
+        /* .container {
+            padding: 0 120px 0 100px;
+            border: 1px solid black;
+        }
+
+        /* 清除浮动 */
+        .clearfix:after {
+            content: '';
+            display: block;
+            clear: both;
+        }
+
+        .main,
+        .left,
+        .right {
+            float: left;
+        }
+
+        .main {
+            background: #ccc;
+            width: 100%;
+        }
+
+        .left {
+            position: relative;
+            left: -100px;
+            background: red;
+            width: 100px;
+        }
+
+        .right {
+            position: relative;
+            right: -120px;
+            background: blue;
+            width: 120px;
+        }
+
+        .left {
+            background: red;
+            width: 100px;
+            /*  %	规定基于父元素的宽度的百分比的外边距。 */
+            margin-left: -100%;/* 值为100%，left会在最左边 */
+        }
+
+        .right {
+            background: blue;
+            width: 120px;
+            margin-left: -120px;/* 值为120px，即right的宽度right会在最右边 */
+        } 
+        
+    </style> -->
+    <style>
+        .container {
+            padding: 0 100px 0 120px;
+            overflow: hidden;
+        }
+        .main, .left, .right {
+            float: left;
+            height: 60px;
+        }
+        .main {
+            width: 100%;
+            background: orange;
+        }
+        .left {
+            position: relative;
+            left: -120px;
+            margin-left: -100%;
+            width: 120px;
+            background: skyblue;
+        }
+        .right {
+            position: relative;
+            right: -100px;
+            width: 100px;
+            margin-left: -100px;
+            background: thistle;
+        }
+
+    </style>
+</head>
+
+<body>
+    <div class="container clearfix">
+        <div class="main">main</div>
+        <div class="left">left</div>
+        <div class="right">right</div>
+    </div>
+</body>
+
+</html>

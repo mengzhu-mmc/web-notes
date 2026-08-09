@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>demo</title>
+	<style type="text/css">
+    /* 
+    粘性定位可以被认为是相对定位和固定定位的混合。元素在跨越特定阈值前为相对定位，之后为固定定位。设置该属性的元素并不脱离文档流，仍然保留元素原本在文档流中的位置。 */
+		html,body{
+			margin: 0;
+			padding: 0;
+		}
+		.fixed{
+			line-height: 40px;
+			display: flex;
+			position: -webkit-sticky;
+			position: sticky;/*兼容*/
+			top: 0;
+			left: 0;
+		}
+		.fixed li{
+			flex: 1;
+			text-align: center;
+			background-color: #61b0ef; 
+		}
+		ul{
+			padding: 0;
+		}
+		li{
+			list-style: none;
+		}
+	</style>
+</head>
+<body>
+	<ul>
+		<li>第1行</li>
+		<li>第2行</li>
+		<li>第3行</li>
+		<li>第4行</li>
+		<li>第5行</li>
+	</ul>
+	<ul class="fixed">
+		<li>tab1</li>
+		<li>tab2</li>
+		<li>tab3</li>
+		<li>tab4</li>
+	</ul>
+	<ul>
+		<li>第1行</li>
+		<li>第2行</li>
+		<li>第3行</li>
+		<li>第4行</li>
+		<li>第1行</li>
+		<li>第2行</li>
+		<li>第3行</li>
+		<li>第4行</li>
+		<li>第1行</li>
+		<li>第2行</li>
+		<li>第3行</li>
+		<li>第4行</li>
+		<li>第1行</li>
+		<li>第2行</li>
+		<li>第3行</li>
+		<li>第4行</li>
+		<li>第1行</li>
+		<li>第2行</li>
+		<li>第3行</li>
+		<li>第4行</li>
+		<li>第1行</li>
+		<li>第2行</li>
+		<li>第3行</li>
+		<li>第4行</li>
+		<li>第1行</li>
+		<li>第2行</li>
+		<li>第3行</li>
+		<li>第4行</li>
+		<li>第1行</li>
+		<li>第2行</li>
+		<li>第3行</li>
+		<li>第4行</li>
+		<li>第1行</li>
+		<li>第2行</li>
+		<li>第3行</li>
+		<li>第4行</li>
+		<li>第1行</li>
+		<li>第2行</li>
+		<li>第3行</li>
+		<li>第4行</li>
+		<li>第1行</li>
+		<li>第2行</li>
+		<li>第3行</li>
+		<li>第4行</li>
+	</ul>
+</body>
+</html>

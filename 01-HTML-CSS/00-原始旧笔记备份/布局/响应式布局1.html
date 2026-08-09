@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>响应式</title>
+    <!-- 屏幕设备 -->
+    <style media="screen and (min-width: 768px) and (max-width:1000px)">
+      h1 {
+        color: rgb(255, 0, 0);
+        font-size: 40px;
+      }
+    </style>
+    <style media="screen and (max-width: 768px)">
+      h1 {
+        color: rgb(15, 192, 236);
+        font-size: 35px;
+      }
+    </style>
+    <!-- 打印机设备 -->
+    <style media="print">
+      h1 {
+        color: blueviolet;
+      }
+      h2 {
+        font-size: 60px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>我自横刀向天笑</h1>
+    <h2>去留肝胆两昆仑</h2>
+  </body>
+</html>

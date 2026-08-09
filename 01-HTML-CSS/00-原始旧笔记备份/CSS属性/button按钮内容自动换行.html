@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .demo {
+            width: 200px;
+        }
+        .wrap {
+            padding: 10px;
+            width: 200px;
+            text-align: center;
+            background-color: #f40;
+        }
+        .wrap>p {
+            display: inline-block;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <!-- 
+        button 是典型的 inline-block元素
+        <input>标签按钮，默认 white-space:pre，是不会换行的，需要将 pre 值重置为默认的 normal。
+     -->
+    <button class="demo">我曾经跨过山河大海，也穿过人山人海。</button>
+    <input type="button" value="我曾经跨过山河大海，也穿过人山人海。"  class="demo">
+    <input type="button" value="我曾经跨过山河大海，也穿过人山人海。" style="white-space: normal;"  class="demo">
+
+    <hr>
+
+    <!-- 请看这个需求：
+        页面某个模块的文字内容是动态的，可能是几个字，也可能是一句话。然后，希望文字少的时候居中显示，文字超过一行的时候居左显示。该如何实现？ 
+    -->
+    <div class="wrap">
+        <p id="content">文字内容</p>
+    </div>
+    <button value="更多内容" id="btnMore">添加文字</button>
+    <script>
+        let btnMore = document.getElementById('btnMore'),
+            con = document.getElementById('content');
+        if (btnMore && con) {
+            btnMore.onclick = function () {
+                con.innerText += '更多内容'
+            }
+        }
+        
+    </script>
+
+    <!-- 
+        除了 inline-block 元素，浮动元素以 及绝对定位元素都具有包裹性，均有类似的智能宽度行为
+     -->
+</body>
+</html>

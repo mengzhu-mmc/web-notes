@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .ao,
+        .tu {
+            margin: 35px;
+            /* block也可 */
+            display: inline-block;
+            width: 0;
+            /* color: #fff; */
+        }
+        .ao::before {
+            content: 'love学love';
+            outline: 1px solid #000;
+        }
+        .tu {
+            direction: rtl; 
+        }
+        .tu::before {
+            content: '学love学';
+            outline: 1px solid #000;
+        }
+    /* .ao span {
+            outline: 1px solid #000;
+        } */
+    </style>
+</head>
+<body>
+    <span class="ao">
+    </span>
+    <span class="tu"></span>
+    <!-- <div class="ao">
+        <span>love学love</span>
+    </div> -->
+</body>
+</html>
