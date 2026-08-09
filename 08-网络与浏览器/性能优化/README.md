@@ -17,6 +17,7 @@
 ### 优化手段
 
 - [前端性能优化全景](./前端性能优化全景.md) — 网络/渲染/JS/构建分层优化总览与白屏专题
+- [资源加载优先级与预取策略](./资源加载优先级与预取策略.md) — 浏览器默认优先级、fetchpriority、preload、Speculation Rules、modulepreload、Early Hints
 - [大量 DOM 节点优化方案](./大量DOM节点优化方案.md) — 虚拟列表、DocumentFragment、rAF 节流
 
 ## 🔗 相关模块
