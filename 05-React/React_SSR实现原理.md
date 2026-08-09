@@ -26,7 +26,7 @@
 
 ### 服务端 API（react-dom/server）
 
-```tsxx
+```tsx
 // React 18 推荐：流式传输，可以更快发送首字节
 import { renderToPipeableStream } from "react-dom/server";
 
@@ -39,7 +39,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 
 ### 客户端 API（react-dom/client）
 
-```tsxx
+```tsx
 // React 18：复用服务端 HTML，只挂载事件监听器
 import { hydrateRoot } from "react-dom/client";
 
@@ -53,7 +53,7 @@ import { hydrate } from "react-dom";
 
 ### 第一步：服务端渲染 HTML
 
-```tsxx
+```tsx
 // server.js
 import express from "express";
 import { renderToString } from "react-dom/server";
@@ -83,7 +83,7 @@ app.listen(3000);
 
 ### 第二步：客户端入口改造
 
-```tsxx
+```tsx
 // client.js
 import { hydrateRoot } from "react-dom/client";
 import App from "./App";
@@ -95,7 +95,7 @@ hydrateRoot(document.getElementById("root"), <App />);
 
 ### 第三步：双端构建配置
 
-```tsxx
+```tsx
 // webpack.server.js
 module.exports = {
   target: "node", // 输出 Node.js 环境代码
@@ -146,7 +146,7 @@ Hydration 是指客户端 React 接管服务端生成的静态 HTML，将其变�
 
 **常见原因：**
 
-```tsxxx
+```tsx
 // ❌ 错误：使用了只在客户端有效的值
 function App() {
   return <div>{new Date().toLocaleString()}</div>; // 服务端和客户端时间不同
@@ -165,7 +165,7 @@ function App() {
 
 **解决方案：**
 
-```tsxxx
+```tsx
 // ✅ 方案1：使用 useEffect 在客户端更新
 function App() {
   const [time, setTime] = useState("");
@@ -196,7 +196,7 @@ function ClientOnly({ children }) {
 
 ### 方案一：路由组件静态方法（传统方案）
 
-```tsxx
+```tsx
 // 给路由组件添加静态方法
 function UserPage({ user }) {
   return <div>{user.name}</div>;
@@ -208,7 +208,7 @@ UserPage.loadData = (store) => {
 };
 ```
 
-```tsxx
+```tsx
 // server.js
 const matchedRoutes = matchRoutes(routes, req.url);
 const promises = matchedRoutes
@@ -232,7 +232,7 @@ const html = `
 `;
 ```
 
-```tsxx
+```tsx
 // client.js - 使用服务端注入的初始数据
 const preloadedState = window.__INITIAL_STATE__;
 const store = createStore(reducer, preloadedState);
@@ -241,7 +241,7 @@ hydrateRoot(document.getElementById("root"), <App store={store} />);
 
 ### 方案二：Next.js 的数据获取方式
 
-```tsxx
+```tsx
 // getServerSideProps：每次请求都在服务端执行
 export async function getServerSideProps(context) {
   const user = await fetchUser(context.params.id);
@@ -267,7 +267,7 @@ export async function getStaticProps() {
 
 React 18 的 `renderToPipeableStream` + `Suspense` 实现了流式传输：
 
-```tsxx
+```tsx
 // server.js
 import { renderToPipeableStream } from "react-dom/server";
 
@@ -286,7 +286,7 @@ app.get("*", (req, res) => {
 });
 ```
 
-```tsxxx
+```tsx
 // App.jsx - 用 Suspense 包裹慢速组件
 function App() {
   return (
@@ -335,7 +335,7 @@ React 18 还支持选择性 Hydration：不需要等待所有 JS 下载完成才
 
 ### RSC 的核心优势
 
-```tsxxx
+```tsx
 // Server Component：直接访问数据库，代码不发送到客户端
 // app/page.tsx（Next.js App Router）
 async function ProductPage({ params }) {
@@ -367,7 +367,7 @@ function AddToCartButton({ productId }) {
 
 ## 八、SSR 路由处理
 
-```tsxxx
+```tsx
 // 服务端使用 StaticRouter（无状态，传入当前 URL）
 import { StaticRouter } from "react-router-dom/server";
 

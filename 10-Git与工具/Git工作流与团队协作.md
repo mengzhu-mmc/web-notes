@@ -478,7 +478,25 @@ git reset --soft HEAD~3
 git reset --hard HEAD~3
 ```
 
-### 7.2 远程操作问题
+### 7.2 reset 与 revert 的选择
+
+两者都能"撤销"，区别在于**是否改写历史**，这决定了它们的适用边界。
+
+```bash
+# reset：回退提交，改写历史 —— 只用于本地未推送的提交
+git reset --soft HEAD~1    # 回退提交，修改留在暂存区
+git reset HEAD~1           # 回退提交，修改留在工作区（--mixed，默认）
+git reset --hard HEAD~1    # 回退提交，丢弃所有修改（危险）
+
+# revert：新建一个反向提交来抵消，不改写历史 —— 用于已推送的提交
+git revert <commit-hash>   # 撤销指定提交
+git revert HEAD            # 撤销最近一次提交
+git revert -m 1 <merge-commit>   # 撤销合并提交，-m 1 表示保留第一个父提交
+```
+
+判断依据：**提交是否已推送到远程**。已推送就用 `revert`，否则用 `reset`。对公共分支执行 `reset` 后强推，会导致其他人历史错乱。
+
+### 7.3 远程操作问题
 
 ```bash
 # 强制推送（谨慎使用！）
@@ -494,6 +512,45 @@ git push origin --delete feature-branch
 git fetch --prune
 ```
 
+`--force-with-lease` 比 `--force` 安全：它会检查远端是否有你未拉取的新提交，若有则拒绝推送，避免覆盖他人工作。
+
+### 7.4 推送被拒绝（"recent pushes" / non-fast-forward）处理流程
+
+远端有他人的新提交时，`git push` 会被拒绝。标准处理顺序是 **先同步远程 → 解决冲突 → 再推送**（Pull before Push）。
+
+```bash
+# 第一步：先提交本地修改（或用 git stash 暂存）
+git add .
+git commit -m "fix: 修复登录态失效问题"
+
+# 第二步：拉取远程最新代码
+git pull origin main
+# Already up to date        → 直接推送
+# Automatic merge failed    → 解决冲突后再推送（见第四章）
+
+# 第三步：推送
+git push origin main
+```
+
+本地有未提交改动、不想产生中间提交时，用 stash 暂存法：
+
+```bash
+git stash                  # 暂存本地未提交改动
+git pull origin main       # 拉取最新代码
+git stash pop              # 恢复本地改动，有冲突则按第四章解决
+git add . && git commit -m "feat: 合并远端变更"
+git push
+```
+
+PR 场景下也可在 GitHub 网页端处理：打开 PR → **Resolve conflicts** → 删掉冲突标记保留正确代码 → **Mark as resolved** → **Commit merge**。
+
+避坑要点：
+
+- ❌ 团队协作中禁止 `git push -f`，需要强推时至少用 `--force-with-lease`
+- ✅ 冲突标记（`<<<<<<<` / `=======` / `>>>>>>>`）必须全部删净，不能残留
+- ✅ 解决冲突后先跑一遍项目，确认功能正常再推送
+- ✅ 拉取前用 `git branch` 确认当前分支正确
+
 ---
 
 ## 参考资源
@@ -502,3 +559,9 @@ git fetch --prune
 - [Atlassian Git 教程](https://www.atlassian.com/git/tutorials)
 - [Pro Git 中文版](https://git-scm.com/book/zh/v2)
 - [Conventional Commits](https://www.conventionalcommits.org/)
+
+## 相关笔记
+
+- [Git: Rebase 与 Merge 的实战抉择（通俗易懂版）](./Git_Rebase与Merge实战比较.md) — rebase/merge 的图解与决策依据
+- [Git 高级技巧速查](./Git高级技巧.md) — bisect、worktree、stash 进阶、commitlint、别名配置
+- [Git 工作流速查与协作指南](./Git工作流速查与协作指南.md) — 一页速查版

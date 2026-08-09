@@ -419,6 +419,7 @@ git amend        # 修正最后一次 commit（不改内容，只改信息）
 
 ## 关联笔记
 
-- [[Git高级用法与工作流]] —— rebase、cherry-pick、bisect 深度解析
-- [[Git工作流与团队协作]] —— Git Flow、GitHub Flow、冲突解决
-- [[豆包对话提取-Git]] —— 推送冲突解决实战记录（已归档）
+- [Git 工作流与团队协作](./Git工作流与团队协作.md) — Git Flow、GitHub Flow、冲突解决、reset/revert
+- [Git 工作流速查与协作指南](./Git工作流速查与协作指南.md) — merge/rebase 一页决策表
+- [Git: Rebase 与 Merge 的实战抉择](./Git_Rebase与Merge实战比较.md) — 通俗比喻与图解
+- [AI 对话笔记 - Git](./AI对话笔记-Git.md) — 推送冲突解决实战记录（已归档）

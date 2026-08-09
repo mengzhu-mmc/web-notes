@@ -68,7 +68,7 @@ Nuxt 3 支持自动导入：`components/`、`composables/` 目录下的文件无
 
 ### Next.js（App Router）
 
-```tsxx
+```tsx
 // 服务端组件直接 async/await（推荐）
 async function BlogPost({ params }: { params: { slug: string } }) {
   const post = await fetch(`/api/posts/${params.slug}`).then((r) => r.json());
@@ -117,7 +117,7 @@ const { data, pending, error } = await useAsyncData("products", () =>
 
 Next.js App Router 中组件默认是 Server Components，不会向客户端发送 JS：
 
-```tsxx
+```tsx
 // server component（默认）— 零客户端 JS
 async function HeavyList() {
   const items = await db.items.findAll(); // 直接访问数据库

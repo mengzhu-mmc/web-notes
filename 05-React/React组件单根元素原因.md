@@ -8,7 +8,7 @@
 
 JSX 不是 HTML，也不是模板语言，它是 `React.createElement()` 的语法糖。Babel 会将 JSX 编译成函数调用：
 
-```tsxxx
+```tsx
 // 你写的 JSX
 const element = (
   <div className="container">
@@ -46,7 +46,7 @@ const element = _jsxs("div", {
 
 React 组件本质是 JavaScript 函数，`return` 语句只能返回一个值。如果写两个并列的 JSX 元素，就相当于：
 
-```tsxx
+```tsx
 // 错误：这在 JS 中是非法的
 return (
   React.createElement('h1', null, 'Title')
@@ -83,7 +83,7 @@ React 17 之前，JSX 编译后需要调用 `React.createElement`，所以必须
 
 `React.Fragment` 是 React 提供的特殊组件，它不会在 DOM 中渲染任何真实节点，只是一个逻辑分组容器：
 
-```tsxxx
+```tsx
 import React from "react";
 
 function MyComponent() {
@@ -114,7 +114,7 @@ function MyComponent() {
 
 ### 方案二：返回数组（需要 key）
 
-```tsxxx
+```tsx
 function MyComponent() {
   return [
     <h1 key="title">标题</h1>,
@@ -128,7 +128,7 @@ function MyComponent() {
 
 ### 方案三：包裹 div（最简单但有副作用）
 
-```tsxxx
+```tsx
 function MyComponent() {
   return (
     <div>
@@ -147,7 +147,7 @@ function MyComponent() {
 
 短语法 `<>...</>` 不支持任何属性，但 `<React.Fragment>` 支持 `key` 属性。这在渲染列表时非常有用：
 
-```tsxxx
+```tsx
 // 场景：渲染一组包含多个元素的列表项
 function GlossaryList({ items }) {
   return (
@@ -180,7 +180,7 @@ function GlossaryList({ items }) {
 
 Fragment 在最终渲染的 DOM 中完全消失，不留任何痕迹：
 
-```tsxxx
+```tsx
 // React 代码
 function App() {
   return (
@@ -210,7 +210,7 @@ function ListItems() {
 
 这对于需要严格 HTML 结构的场景（如 `<table>` 的 `<tr>/<td>`、`<ul>` 的 `<li>`）非常重要：
 
-```tsxxx
+```tsx
 // 正确：使用 Fragment 保持 table 结构合法
 function TableRows({ data }) {
   return (
@@ -245,7 +245,7 @@ function TableRows({ data }) {
 
 React 17 引入了新的 JSX Transform，解决了以下问题：
 
-```tsxxx
+```tsx
 // React 17 之前：必须手动 import React
 import React from "react"; // 即使不直接用 React，也必须引入
 

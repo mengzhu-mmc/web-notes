@@ -44,7 +44,7 @@ Ryan Carniato 认为：**细粒度响应式（fine-grained reactivity）是 AI-a
 
 ### Solid.js v1 vs v2 响应式写法对比
 
-```tsxxx
+```tsx
 // ==================== Solid.js v1 写法 ====================
 
 import { createSignal, createEffect, createResource, Suspense } from "solid-js";
@@ -119,7 +119,7 @@ function EditForm() {
 
 ### Signals 核心原理（框架无关）
 
-```tsxx
+```tsx
 // Signals 是细粒度响应式的核心原语
 // Vue 3 (ref/reactive)、Solid、Angular Signals、Preact Signals 都是这个思想
 
@@ -164,7 +164,7 @@ setCount(1); // 输出: count: 1（精确更新，不需要 diff 整个组件树
 
 ### 细粒度响应式 vs 虚拟 DOM 对比
 
-```tsxxx
+```tsx
 // ==================== React（虚拟 DOM）====================
 // 状态变化 → 整个组件函数重新执行 → 生成新 VDOM → diff → patch DOM
 

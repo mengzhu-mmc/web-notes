@@ -1,6 +1,6 @@
 # Git 工作流速查与协作指南
 
-> Updated: 2026-05-23. 本文合并 `Git高级用法与工作流.md`、`Git高级技巧.md`、`Git_Rebase与Merge实战比较.md` 与 `AI对话笔记-Git.md` 的重叠内容，作为 Git 目录的主入口；原文件暂保留为专题展开和历史来源。
+> 本文是 Git 目录的**速查入口**，只保留决策表和高频命令；完整团队流程与面试展开见 [Git 工作流与团队协作](./Git工作流与团队协作.md)。
 
 ## 一、先记住 4 条协作原则
 
@@ -115,10 +115,9 @@ chore: update prettier config
 
 提交信息要回答“做了什么”和“为什么”。避免 `update`、`fix bug`、`wip` 长期留在公共历史里。
 
-## 七、旧文件分流建议
+## 七、本目录文档分工
 
-- `Git工作流与团队协作.md`：保留完整团队流程和面试展开。
-- `Git高级技巧.md`：保留高级命令细节。
-- `Git_Rebase与Merge实战比较.md`：保留通俗比喻版本。
-- `Git高级用法与工作流.md`：后续可降级为归档或合并到本文。
-- `AI对话笔记-Git.md`：已蒸馏，建议只保留归档提示。
+- [Git 工作流与团队协作](./Git工作流与团队协作.md) — 主干文档：工作流模式、冲突解决、Hooks、PR 规范、reset/revert、推送被拒处理
+- [Git 高级技巧速查](./Git高级技巧.md) — bisect、worktree、stash 进阶、commitlint、`.gitconfig` 别名
+- [Git: Rebase 与 Merge 的实战抉择](./Git_Rebase与Merge实战比较.md) — 通俗比喻与图解版
+- [AI 对话笔记 - Git](./AI对话笔记-Git.md) — 原始对话归档，内容已蒸馏进上述文档

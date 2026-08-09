@@ -30,7 +30,7 @@
 
 **3. Fiber 节点核心结构**
 
-```tsxx
+```tsx
 {
   type,         // 节点类型 ('div', Component等)
   props,        // 属性
@@ -57,7 +57,7 @@
 
 **2. 经典场景**
 
-```tsxx
+```tsx
 function Demo() {
   const [count, setCount] = useState(0);
   useEffect(() => {
@@ -73,7 +73,7 @@ function Demo() {
 - **方案A：补全依赖**（最本分） - `useEffect` 依赖加入 `[count]`，每次变化重新绑挂定时器。
 - **方案B：函数式更新** - `setCount(prev => prev + 1)`，如果只是为了更新而不需读取最新状态值。
 - **方案C：使用 `useRef`**（最通用、ahooks `useMemoizedFn` 底层原理） - `useRef` 内容随时可变且在生命周期内引用唯一。
-  ```tsxx
+  ```tsx
   const countRef = useRef(count);
   countRef.current = count; // 每次渲染都同步最新值
   // 定时器内部读取 countRef.current

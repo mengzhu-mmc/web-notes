@@ -9,7 +9,9 @@
     "format": "prettier --write \"**/*.{md,json,js,ts,tsx,yml,yaml}\"",
     "format:md": "prettier --write \"**/*.md\"",
     "check:format": "prettier --check \"**/*.{md,json,js,ts,tsx,yml,yaml}\"",
-    "audit:thin": "python3 scripts/audit_notes_quality.py"
+    "audit:thin": "python3 scripts/audit_notes_quality.py",
+    "audit:links": "node scripts/audit_links.js",
+    "audit": "npm run audit:links && npm run audit:thin"
   },
   "repository": {
     "type": "git",

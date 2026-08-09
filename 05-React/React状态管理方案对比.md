@@ -16,7 +16,7 @@ React 本身通过 `useState` 和 `useReducer` 提供了组件级别的状态管
 
 这是 React 官方提供的轻量级状态管理组合，不需要引入任何第三方库。
 
-```tsxxx
+```tsx
 // 定义 Context 和 Reducer
 const TodoContext = createContext(null);
 const TodoDispatchContext = createContext(null);
@@ -77,7 +77,7 @@ Redux 的设计围绕三个核心原则展开：单一数据源（整个应用�
 
 现代 Redux 开发推荐使用 Redux Toolkit，它大幅简化了样板代码：
 
-```tsxx
+```tsx
 import { createSlice, configureStore } from "@reduxjs/toolkit";
 
 // 创建 Slice（集成了 action + reducer）
@@ -115,7 +115,7 @@ const store = configureStore({
 
 Redux 中间件是面试重点。中间件本质上是对 `dispatch` 方法的增强，采用洋葱模型（类似 Koa）：
 
-```tsxx
+```tsx
 // 中间件签名：store => next => action => result
 const loggerMiddleware = (store) => (next) => (action) => {
   console.log("dispatching:", action.type);
@@ -132,7 +132,7 @@ const loggerMiddleware = (store) => (next) => (action) => {
 
 RTK Query 是 Redux Toolkit 内置的数据请求和缓存方案，类似于 React Query 但与 Redux 深度集成：
 
-```tsxx
+```tsx
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 const apiSlice = createApi({
@@ -166,7 +166,7 @@ Zustand 是近年来增长最快的 React 状态管理库，以极简的 API 和
 
 ### 核心用法
 
-```tsxx
+```tsx
 import { create } from "zustand";
 
 // 创建 store，不需要 Provider
@@ -201,7 +201,7 @@ function Counter() {
 
 Zustand 的核心实现非常精巧，大约只有 40 行代码。它基于发布-订阅模式，内部维护一个 state 对象和一个 listeners 集合。`set` 方法更新 state 并通知所有 listener，每个 `useStore(selector)` 调用会注册一个 listener，在 listener 回调中通过 `Object.is` 比较 selector 的返回值是否变化来决定是否触发组件重渲染。
 
-```tsxx
+```tsx
 // 简化版核心实现
 function createStore(createState) {
   let state;
@@ -231,7 +231,7 @@ function createStore(createState) {
 
 Zustand 通过函数组合的方式支持中间件，常用的有 `persist`（持久化）、`devtools`（Redux DevTools 集成）、`immer`（不可变更新）：
 
-```tsxx
+```tsx
 import { create } from "zustand";
 import { persist, devtools } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
@@ -266,7 +266,7 @@ MobX 有三个核心角色：
 - **Computed**：由 observable 派生的计算值，自动缓存，依赖不变不重算
 - **Action**：修改 observable 的函数，推荐在 strict mode 下强制要求所有状态变更必须在 action 内发生
 
-```tsxx
+```tsx
 import { makeAutoObservable, runInAction } from "mobx";
 import { observer } from "mobx-react-lite";
 
@@ -371,7 +371,7 @@ Jotai 受 Recoil 启发，采用自底向上的原子化（atomic）模型，每
 
 ### 核心概念
 
-```tsxx
+```tsx
 import { atom, useAtom, useAtomValue, useSetAtom } from "jotai";
 
 // 基础 atom

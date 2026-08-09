@@ -60,7 +60,7 @@ React 收集所有事件类型，在 root 节点上注册原生事件监听器�
 
 **2. 性能优化 — 事件委托**
 
-```tsxx
+```tsx
 // 原生方式：1000 个按钮 = 1000 个监听器
 buttons.forEach((btn) => btn.addEventListener("click", handler));
 
@@ -70,7 +70,7 @@ items.map((item) => <button onClick={handler}>{item}</button>);
 
 **3. 批量更新**
 
-```tsxx
+```tsx
 function handleClick(e) {
   // 这些 setState 会被批量处理，只触发一次重新渲染
   setCount1((c) => c + 1);
@@ -100,7 +100,7 @@ IdleEventPriority       // 空闲优先级
 
 ### React 17+ 的执行顺序
 
-```tsxxx
+```tsx
 function App() {
   const divRef = useRef(null);
 
@@ -158,7 +158,7 @@ function App() {
 
 ### 陷阱 1：`e.stopPropagation()` 无法阻止原生事件
 
-```tsxxx
+```tsx
 function App() {
   const btnRef = useRef(null);
 
@@ -188,7 +188,7 @@ function App() {
 
 **解决方案**：
 
-```tsxx
+```tsx
 onClick={(e) => {
   e.nativeEvent.stopImmediatePropagation(); // 阻止原生事件继续传播
 }}
@@ -196,7 +196,7 @@ onClick={(e) => {
 
 ### 陷阱 2：原生事件中阻止冒泡，React 事件不会触发
 
-```tsxxx
+```tsx
 function App() {
   const btnRef = useRef(null);
 
@@ -232,7 +232,7 @@ React 16 将事件代理在 document 上，如果在 document 上绑定了原生
 
 React 16 为了性能，使用了事件池：合成事件对象在事件处理函数执行完毕后会被"回收"，所有属性被置为 null。
 
-```tsxx
+```tsx
 // React 16 中的问题
 function handleClick(e) {
   console.log(e.type); // 'click' ✅
