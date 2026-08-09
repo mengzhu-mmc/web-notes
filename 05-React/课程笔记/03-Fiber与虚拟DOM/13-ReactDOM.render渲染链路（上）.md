@@ -1,3 +1,5 @@
+# 13-ReactDOM.render渲染链路（上）
+
 由于 ReactDOM.render 的内容比较多，所以这里拆分了上中下三讲来讲解。
 
 在上一讲，我们站在宏观角度对 Fiber 的架构分层和迭代动机有了充分的把握。从本讲开始，我们将以首次渲染为切入点，拆解 Fiber 架构下 ReactDOM.render 所触发的渲染链路，结合源码理解整个链路中所涉及的初始化、render 和 commit 等过程。

@@ -1,3 +1,5 @@
+# 15-ReactDOM.render渲染链路（下）
+
 在上一讲我们从 beginWork 切入，摸索出了 Fiber 节点的创建链路与 Fiber 树的构建链路。本讲我们将以 completeWork 为线索，去寻觅 Fiber 树和 DOM 树之间的关联，将整个 render 阶段讲透。在此基础上，结合 commit 阶段工作流，你将会对 ReactDOM.render 所触发的渲染链路有一个完整、通透的理解。
 
 本讲的实验 Demo 与前两讲保持一致，代码如下：

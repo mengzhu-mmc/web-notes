@@ -1,3 +1,5 @@
+# 12-Fiber架构的迭代动机与设计思想
+
 在理解 Fiber 架构之前，我们先来看看 React 团队在“[React 哲学](https://zh-hans.reactjs.org/docs/thinking-in-react.html#gatsby-focus-wrapper)”中对 React 的定位：
 
 > 我们认为，React 是用 JavaScript 构建快速响应的大型 Web 应用程序的首选方式。它在 Facebook 和 Instagram 上表现优秀。

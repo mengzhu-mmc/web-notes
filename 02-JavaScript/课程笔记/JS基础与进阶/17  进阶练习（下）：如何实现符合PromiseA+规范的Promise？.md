@@ -1,3 +1,5 @@
+# 17 进阶练习（下）：如何实现符合PromiseA+规范的Promise？
+
 我在上一讲带你实现了一个浏览器端的 EventEmitter，那么这一讲还是继续进阶，我们来实现一个符合 Promise/A+ 规范的 Promise。
 
 其实在“[14 | 异步编程（中）：如何深入理解异步编程的核心 Promise](https://kaiwu.lagou.com/course/courseInfo.htm?courseId=601#/detail/pc?id=6187)”中，我已经专门介绍了 Promise 的基本原理和使用情况。由于 Promise 在异步编程中的重要性不言而喻，因此在很多互联网大厂面试中，现场实现 Promise 相关方法的题目经常会出现，比如 all、race 或者 any 等。

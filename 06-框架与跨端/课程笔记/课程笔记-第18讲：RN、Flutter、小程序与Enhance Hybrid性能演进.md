@@ -1,3 +1,5 @@
+# 第18讲：RN、Flutter、小程序与Enhance Hybrid性能演进
+
 前面讲的性能优化方案，基本都立足于 Hybrid。这一讲我们来聊聊多端场景下的性能优化方案——RN、Flutter 和小程序。
 
 RN 即 ReactNative，是 Facebook 开发的开源移动应用架构，它可以让开发者基于 Javascript 和 React.js 开发跨平台移动应用。近一年 RN 非常火，其优势之一是多端开发，另一个最大特点就是渲染性能，我曾使用 RN 做了一个个人中心解决方案，首屏性能可以提升 50%。

@@ -1,3 +1,5 @@
+# 19-Redux设计思想与工作原理（下）
+
 在上一讲，我们尝试对 Redux 源码进行拆解，认识了 Redux 源码的基本构成与主要模块，并深入了解了 createStore 这个核心模块的工作逻辑。这一讲，我们将更进一步，针对 dispatch 和 subscribe 这两个具体的方法进行分析，分别认识 Redux 工作流中最为核心的**dispatch 动作**，以及 Redux 自身独特的 **“发布-订阅”模式**。
 
 ### Redux 工作流的核心：dispatch 动作

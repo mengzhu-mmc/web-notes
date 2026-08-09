@@ -1,3 +1,5 @@
+# 16 进阶练习（上）：怎样轻松实现一个 EventEmitter？
+
 前两讲我们探讨了 JS 异步编程中 Generator 和 async/await 的相关内容，那么这一讲我们就进入 Node.js 的 events 模块以及 EventEmitter 的学习，并且我将带你在浏览器端实现一遍它的底层逻辑。
 
 之所以要特地讲解这部分知识，是因为虽然严格意义上来说，events 模块属于 Node.js 服务端的知识，但是由于大多数 Node.js 核心 API 构建用的是异步事件驱动架构，因此这里单独加了一讲来带你学习这部分内容。我希望通过这一讲的学习，你能够自己实现一个EventEmitter。
