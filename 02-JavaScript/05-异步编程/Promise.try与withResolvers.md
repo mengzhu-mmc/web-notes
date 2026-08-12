@@ -123,5 +123,5 @@ function createCancellable() {
 
 ## 相关笔记
 
-- [[02-JavaScript/Promise基础]]
-- [[02-JavaScript/异步编程模式]]
+- [Promise 实现原理](./Promise实现原理.md)
+- [异步编程与 Event Loop](./异步编程与EventLoop.md)

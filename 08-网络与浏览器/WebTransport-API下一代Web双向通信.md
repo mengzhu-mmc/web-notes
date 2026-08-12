@@ -82,5 +82,5 @@ async function connectWebTransport(url) {
 
 ## 相关笔记
 
-- [[08-网络与浏览器/WebSocket原理]]
-- [[08-网络与浏览器/HTTP3-QUIC协议]]
+- [WebSocket 深入理解](./WebSocket深入理解.md)
+- [HTTP/2 与 HTTP/3 对比](./网络协议/HTTP2与HTTP3对比.md)

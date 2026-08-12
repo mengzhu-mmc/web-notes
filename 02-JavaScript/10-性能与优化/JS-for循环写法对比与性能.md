@@ -188,7 +188,7 @@ for (const val of set) {
 
 ## 相关知识
 
-- [[迭代器协议与 Symbol.iterator]]
-- [[2026-03-11-js-loop-perf]] — 循环性能测试细节
+- [迭代器与生成器](../06-ES6+新特性/迭代器与生成器.md)
+- [JavaScript 循环性能优化](./JS循环性能优化.md) — 循环性能测试细节
 - [[JavaScript 函数式编程 map/filter/reduce]]
-- [[ES6 新特性总结]]
+- [ES6 核心特性详解](../06-ES6+新特性/ES6核心特性详解.md)

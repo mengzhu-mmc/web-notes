@@ -1,7 +1,5 @@
 # 🧬 Capability Evolver
 
-![Capability Evolver Cover](assets/cover.png)
-
 **[evomap.ai](https://evomap.ai)** | [Documentation](https://evomap.ai/wiki) | [Chinese Docs](README.zh-CN.md)
 
 ---

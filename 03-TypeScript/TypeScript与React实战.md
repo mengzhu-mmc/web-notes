@@ -2,10 +2,10 @@
 
 ## 关联笔记
 
-- [[03-TypeScript/TypeScript基础到进阶]]
-- [[03-TypeScript/[3182] 第11讲：为什么说 JavaScript 不适合大型项目？]]
-- [[03-TypeScript/README]]
-- [[05-React/]]
+- [TypeScript 基础到进阶](./TypeScript基础到进阶.md)
+- [为什么说 JavaScript 不适合大型项目？](./课程笔记/课程笔记-第11讲：为什么说JavaScript不适合大型项目？.md)
+- [TypeScript 模块索引](./00-🌟索引.md)
+- [React 模块索引](../05-React/00-🌟索引.md)
 
 ---
 

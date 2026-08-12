@@ -4,12 +4,13 @@
   "description": "> 个人前端学习笔记，覆盖 HTML/CSS → JS → 框架 → 工程化 → 算法 → 面试手写全链路。",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "npm run audit:hard",
     "prepare": "husky install",
     "format": "prettier --write \"**/*.{md,json,js,ts,tsx,yml,yaml}\"",
     "format:md": "prettier --write \"**/*.md\"",
     "check:format": "prettier --check \"**/*.{md,json,js,ts,tsx,yml,yaml}\"",
     "audit:thin": "python3 scripts/audit_notes_quality.py",
+    "audit:hard": "node scripts/audit_links.js --hard",
     "audit:links": "node scripts/audit_links.js",
     "audit": "npm run audit:links && npm run audit:thin"
   },

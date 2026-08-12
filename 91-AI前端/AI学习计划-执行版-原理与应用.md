@@ -2,7 +2,7 @@
 
 > 设计思路：双线并进。**A 线（原理）**用微软《面向初学者的生成式 AI》21 课打底，建立系统认知；**B 线（应用）**用前端工程项目把原理落到代码。两条线每周交替推进，周末做整合。
 > 节奏：每天 60-90 分钟（A 线 30-45 分钟 + B 线 30-45 分钟）；共 6 周，可按实际进度伸缩。
-> 主教材：微软《面向初学者的生成式 AI》中文版（21 课，含 Learn 课与 Build 课）[[generative-ai-for-beginners / translations / zh-CN]](https://github.com/microsoft/generative-ai-for-beginners/tree/main/translations/zh-CN)。
+> 主教材：微软《面向初学者的生成式 AI》中文版（21 课，含 Learn 课与 Build 课）[generative-ai-for-beginners / translations / zh-CN](https://github.com/microsoft/generative-ai-for-beginners/tree/main/translations/zh-CN)。
 
 ## 一、双线总览
 
@@ -11,7 +11,7 @@
 | **A 线：原理** | 概念、模型、提示工程、RAG、Agent、安全、生命周期 | 微软 21 课中文版                      | 每课一页笔记 + 关键词卡片 |
 | **B 线：应用** | 前端工程落地：流式 UI、工具调用、生成式 UI       | 本仓库 `AI前端工程师指南.md` + AI SDK | 可运行 Demo + 复盘笔记    |
 
-> A 线对应课程清单（微软 21 课，节选）：01 GenAI 与 LLM 简介、04 提示工程基础、05 高级提示、07 构建聊天应用、08 搜索与向量数据库、11 函数调用、13 安全、15 RAG 与向量数据库、17 AI 代理[[generative-ai-for-beginners / translations / zh-CN]](https://github.com/microsoft/generative-ai-for-beginners/tree/main/translations/zh-CN)。
+> A 线对应课程清单（微软 21 课，节选）：01 GenAI 与 LLM 简介、04 提示工程基础、05 高级提示、07 构建聊天应用、08 搜索与向量数据库、11 函数调用、13 安全、15 RAG 与向量数据库、17 AI 代理[generative-ai-for-beginners / translations / zh-CN](https://github.com/microsoft/generative-ai-for-beginners/tree/main/translations/zh-CN)。
 
 ## 二、6 周执行表
 
@@ -94,10 +94,10 @@
 
 ## 六、配套资料
 
-- 原理主教材：微软《面向初学者的生成式 AI》中文版[[generative-ai-for-beginners / translations / zh-CN]](https://github.com/microsoft/generative-ai-for-beginners/tree/main/translations/zh-CN)。
+- 原理主教材：微软《面向初学者的生成式 AI》中文版[generative-ai-for-beginners / translations / zh-CN](https://github.com/microsoft/generative-ai-for-beginners/tree/main/translations/zh-CN)。
 - 应用主干：`91-AI前端/AI前端工程师指南.md`。
 - 资料索引：`91-AI前端/AI学习资料索引.md`。
 - 协议原理：`09-工程化/MCP协议原理与协作流程.md`。
 - 前沿风向：`91-AI前端/AI大佬前沿讯息.md`。
 
-> Updated: 2026-06-27 ｜ 课程结构依据微软官方仓库目录整理，外部资料按 [[title]](url) 内联标注。
+> Updated: 2026-06-27 ｜ 课程结构依据微软官方仓库目录整理，外部资料按 `[title](url)` 内联标注。

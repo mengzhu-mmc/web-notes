@@ -1,6 +1,6 @@
 # HTML `<dialog>` closedBy 属性 — 点击蒙层关闭弹框
 
-> 整合于 2026-03-31，来源：4篇重复笔记合并
+> 整合于 2026-03-31，来源：4 篇重复笔记合并 | 事实状态复核于 2026-08-12
 
 ## 核心功能
 
@@ -108,12 +108,12 @@ dialog.addEventListener("toggle", (e) => {
 
 ## 兼容性
 
-| 浏览器      | 支持情况    |
-| ----------- | ----------- |
-| Chrome 134+ | ✅          |
-| Edge 134+   | ✅          |
-| Firefox     | ✅          |
-| Safari      | ❌ 暂不支持 |
+| 浏览器/状态 | 支持情况 |
+| --- | --- |
+| Chrome / Edge 134+ | ✅ |
+| Firefox / Safari | 版本状态持续变化，使用前查询兼容性数据 |
+
+`closedBy` 截至 2026-08 仍被 MDN 标记为 Limited availability，不属于 Baseline。
 
 **渐进增强策略**：不支持的浏览器会忽略 `closedby` 属性，fallback 到默认行为（Esc 可关闭），不会报错。
 

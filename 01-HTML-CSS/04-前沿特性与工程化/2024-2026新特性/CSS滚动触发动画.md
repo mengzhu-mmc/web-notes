@@ -114,5 +114,5 @@ anim.trigger; // AnimationTrigger 对象
 
 ## 相关笔记
 
-- [[notes/css/scroll-driven-animations]]
-- [[notes/css/2026-03-30-web-platform-march-2026]]
+- Scroll-Driven Animations（待补专题）
+- [Web 平台更新 2026 年 3 月](./Web平台更新-2026年3月.md)

@@ -1,42 +1,39 @@
-# TypeScript 6.0 Release Candidate
+# TypeScript 6.0 到 7.0：版本演进与迁移
 
-> 来源: JavaScript Weekly #776 | 2026-03-10原文: https://devblogs.microsoft.com/typescript/announcing-typescript-6-0-rc/
+> 首次记录：[TypeScript 6.0 RC](https://devblogs.microsoft.com/typescript/announcing-typescript-6-0-rc/) | 状态更新：[TypeScript 7.0 正式版](https://devblogs.microsoft.com/typescript/announcing-typescript-7-0/) | 事实状态复核于 2026-08-12
 
 ## 要点
 
-### 定位：过渡版本
+### 当前状态
 
-- TS 6.0 是通向 **Go 重写版 TypeScript 7.0** 的过渡
-- TypeScript 7.0 将使用 Go 重写，预计 2026 年晚些发布
-- 6.0 主要做好 tsconfig.json 的配置迁移
+- TypeScript 6.0 已于 2026 年 3 月正式发布，是原 JavaScript 代码库的最后一个主要版本和迁移桥梁
+- TypeScript 7.0 已于 **2026 年 7 月 8 日**正式发布，编译器与语言服务主体迁移到 Go
+- 官方基准显示完整构建通常可提升约 8～12 倍，但实际收益取决于项目规模、配置和工作负载
 
 ### 关键变化
 
 - tsconfig.json 中部分选项调整（为 7.0 做准备）
-- RC 相比 Beta 只有少量改动
-- 建议现在就升级到 6.0，这样未来迁移 7.0 更平滑
+- 6.0 引入和强化了一批弃用检查，为 7.0 移除旧选项做准备
+- 7.0 尽量保持类型检查结果兼容，但依赖 TypeScript Compiler API 的工具可能仍需要兼容改造或暂时与 6.0 并存
 
 ## 面试相关
 
-- TypeScript 7.0 用 Go 重写是大新闻，可以提到性能将有 10x 提升
+- TypeScript 7.0 是 Go 原生移植，可以表述为“官方完整构建基准通常提升 8～12 倍”，不要承诺所有项目固定提升 10 倍
 - 体现对工具链演进的了解
 
 ---
 
 ## 升级与配置示例
 
-### 升级到 TypeScript 6.0
+### 升级到 TypeScript 7.0
 
 ```bash
-# 升级到 RC 版本
-npm install typescript@rc --save-dev
-
-# 或指定版本
-npm install typescript@6.0.0-rc.1 --save-dev
+# 安装当前稳定版
+npm install typescript@latest --save-dev
 
 # 检查版本
 npx tsc --version
-# Version 6.0.0-rc.1
+# Version 7.0.x
 
 # 运行类型检查（不输出文件）
 npx tsc --noEmit
@@ -45,12 +42,12 @@ npx tsc --noEmit
 ### tsconfig.json 迁移示例
 
 ```jsonc
-// tsconfig.json（TS 6.0 推荐配置）
+// tsconfig.json（打包器项目示例）
 {
   "compilerOptions": {
-    // TS 6.0 对 module 配置做了整理，推荐明确指定
-    "module": "NodeNext", // 或 "Bundler"（用于 webpack/vite 项目）
-    "moduleResolution": "NodeNext", // 与 module 保持一致
+    // Vite / webpack / Rollup 等打包器项目
+    "module": "preserve",
+    "moduleResolution": "bundler",
 
     // target 推荐 ES2022+（为 7.0 做准备）
     "target": "ES2022",
@@ -58,9 +55,9 @@ npx tsc --noEmit
     // 严格模式全家桶（强烈推荐）
     "strict": true,
 
-    // TS 6.0 新增：更严格的类型检查选项
-    "noUncheckedSideEffectImports": true, // 检查有副作用的纯 import
-    "exactOptionalPropertyTypes": true, // 可选属性严格区分 undefined vs 缺失
+    // 这些是既有严格选项，并非 TS 6.0 新增
+    "noUncheckedSideEffectImports": true,
+    "exactOptionalPropertyTypes": true,
 
     // 其他推荐
     "esModuleInterop": true,
@@ -73,22 +70,22 @@ npx tsc --noEmit
 }
 ```
 
-### TypeScript 7.0 Go 重写带来的变化预览
+### TypeScript 7.0 Go 原生实现的实际变化
 
 ```bash
-# TypeScript 7.0（Go 重写版）性能目标
-# tsc 编译速度：10x 提升（大型项目从分钟级→秒级）
-# 内存占用：大幅降低
+# TypeScript 7.0 官方完整构建基准通常提升 8～12 倍
+# 实际性能取决于项目规模和任务类型
 
 # 对开发者的实际影响（大部分透明）：
-# - API 完全兼容（.ts 代码不需要改）
-# - tsconfig.json 格式兼容（6.0 的配置直接用）
-# - 类型语义不变
+# - 普通 .ts/.tsx 源码通常无需因编译器移植而重写
+# - 类型检查结果以兼容为目标
+# - 依赖 Compiler API 的工具不能假设完全兼容
 
 # 7.0 的 tsconfig 重大调整（6.0 已预热）：
 # 废弃的选项（6.0 会警告，7.0 会报错）：
-# - "module": "CommonJS" → 改用 "NodeNext" 或 "Node16"
-# - "moduleResolution": "node" → 改用 "NodeNext"
+# - 重点处理 TS 6.0 已标记弃用、TS 7.0 已移除的旧选项
+# - Node 项目优先按运行时版本使用 "NodeNext" 等模式
+# - 打包器项目通常使用 module="Preserve" + moduleResolution="Bundler"
 
 # 验证配置是否符合 7.0 迁移路径
 npx tsc --noEmit 2>&1 | grep "deprecated"
@@ -97,8 +94,8 @@ npx tsc --noEmit 2>&1 | grep "deprecated"
 ### 类型系统新特性示例
 
 ```typescript
-// TS 6.0 新增：noUncheckedSideEffectImports
-// 以前这种"副作用 import"不会被检查文件是否存在
+// noUncheckedSideEffectImports（该选项早于 TS 6.0）
+// 开启后会检查副作用 import 是否能解析
 import "./polyfills/my-polyfill"; // 6.0 会检查此文件是否存在
 
 // exactOptionalPropertyTypes 示例
@@ -167,24 +164,24 @@ function processItems<T>(items: T[]): T extends string ? string[] : number[] {
 **标准答案要点：**
 
 - 原因：大型 TS 项目（百万行代码）的**编译速度**成为开发体验瓶颈
-- Go 比 Node.js 有更好的并发模型和更低的内存开销
-- 预计性能提升 **10x**，语言行为/类型语义完全不变
-- 对普通开发者透明：代码不用改，只是工具更快了
+- 原生代码、共享内存多线程和新的内部优化共同提升大型项目性能
+- 官方完整构建基准通常为 **8～12 倍**，不是所有场景固定 10 倍
+- 普通源码迁移通常较平滑，但 Compiler API、编辑器扩展和构建工具集成需要单独验证
 
 ---
 
 ## 关键点总结
 
-- **TS 6.0 定位**：稳定版 + 迁移桥梁，为 7.0 铺路
-- **升级价值**：现在用 6.0 推荐配置，未来迁移 7.0 无缝衔接
-- **重要新选项**：`noUncheckedSideEffectImports`、`exactOptionalPropertyTypes`
-- **大背景**：TS 7.0 Go 重写是 2026 年前端工具链最大新闻之一
+- **TS 6.0 定位**：JavaScript 版编译器的最后一个主要版本和迁移桥梁
+- **TS 7.0 状态**：已于 2026-07-08 正式发布，当前应以稳定版而不是 RC 叙述
+- **配置原则**：Node 项目与打包器项目采用不同的 module/moduleResolution 组合，不存在通用的 `module: "Bundler"`
+- **迁移边界**：源码兼容不等于 Compiler API 和全部工具链完全兼容
 
 ---
 
 ## 相关知识
 
-- [[TypeScript 类型系统基础]]
-- [[tsconfig.json 配置详解]]
-- [[2026-03-12-solid-2-beta]] — 同期前端框架动态
-- [[前端工具链演进：Vite / esbuild / Turbopack / TS Go]]
+- [TypeScript 基础到进阶](./TypeScript基础到进阶.md)
+- [TypeScript 编译配置与工程实践](./TypeScript编译配置与工程实践.md)
+- [SolidJS 2 Beta 新特性](../05-React/SolidJS2-Beta新特性.md) — 同期前端框架动态
+- 前端工具链演进：Vite / esbuild / Turbopack / TS Go（待补专题）

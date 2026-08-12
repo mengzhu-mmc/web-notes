@@ -4,6 +4,7 @@
  *
  * 用法：
  *   npm run audit:links          # 扫描并打印报告，有断链时退出码为 1
+ *   npm run audit:hard           # 仅将确定失效的相对链接作为阻断错误
  *   node scripts/audit_links.js --json   # 输出 JSON，便于接入 CI
  *
  * 设计要点：
@@ -12,12 +13,13 @@
  * - 额外报告课程导入残留的纯数字双链（如 [[4849]]），这类链接在 Obsidian 中永远点不开。
  */
 
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
-const ROOT = path.resolve(__dirname, '..');
-const SKIP_DIRS = new Set(['.git', 'node_modules', '.obsidian', '.trash']);
-const asJson = process.argv.includes('--json');
+const ROOT = path.resolve(__dirname, "..");
+const SKIP_DIRS = new Set([".git", "node_modules", ".obsidian", ".trash"]);
+const asJson = process.argv.includes("--json");
+const hardOnly = process.argv.includes("--hard");
 
 function walk(dir, acc = []) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -34,7 +36,7 @@ function walk(dir, acc = []) {
  * 围栏用 3 个以上反引号，结束围栏长度需不小于开始围栏（笔记里有嵌套三反引号的 ````js 块）。
  */
 function maskCode(text) {
-  const lines = text.split('\n');
+  const lines = text.split("\n");
   let fence = null; // { char, len }
   const masked = lines.map((line) => {
     const m = line.match(/^\s*(`{3,}|~{3,})(.*)$/);
@@ -43,26 +45,26 @@ function maskCode(text) {
       const len = m[1].length;
       if (fence === null) {
         fence = { char, len };
-        return ' '.repeat(line.length);
+        return " ".repeat(line.length);
       }
       // 结束围栏：同字符、长度不小于开始、且不带 info string
-      if (char === fence.char && len >= fence.len && m[2].trim() === '') {
+      if (char === fence.char && len >= fence.len && m[2].trim() === "") {
         fence = null;
       }
-      return ' '.repeat(line.length);
+      return " ".repeat(line.length);
     }
-    return fence ? ' '.repeat(line.length) : line;
+    return fence ? " ".repeat(line.length) : line;
   });
   // 行内代码
-  return masked.join('\n').replace(/`[^`\n]*`/g, (m) => ' '.repeat(m.length));
+  return masked.join("\n").replace(/`[^`\n]*`/g, (m) => " ".repeat(m.length));
 }
 
 function lineOf(text, index) {
-  return text.slice(0, index).split('\n').length;
+  return text.slice(0, index).split("\n").length;
 }
 
 const files = walk(ROOT);
-const markdowns = files.filter((f) => f.endsWith('.md'));
+const markdowns = files.filter((f) => f.endsWith(".md"));
 
 const brokenLinks = [];
 const brokenWiki = [];
@@ -77,7 +79,7 @@ for (const f of files) {
 }
 
 for (const file of markdowns) {
-  const raw = fs.readFileSync(file, 'utf8');
+  const raw = fs.readFileSync(file, "utf8");
   const text = maskCode(raw);
   const rel = path.relative(ROOT, file);
 
@@ -89,11 +91,11 @@ for (const file of markdowns) {
   while ((m = linkRe.exec(text))) {
     let target = m[2].trim();
     // 非文件协议一律跳过（含 chrome:// devtools:// about: 等浏览器内部页面）
-    if (/^[a-z][a-z0-9+.-]*:/i.test(target) || target.startsWith('#')) continue;
-    target = target.split('#')[0];
+    if (/^[a-z][a-z0-9+.-]*:/i.test(target) || target.startsWith("#")) continue;
+    target = target.split("#")[0];
     if (!target) continue;
     // 既无路径分隔符又无扩展名的，多为伪代码里的参数名（如 [value](value)），不是文件引用
-    if (!target.includes('/') && !path.extname(target)) continue;
+    if (!target.includes("/") && !path.extname(target)) continue;
     totalLocal++;
 
     let decoded = target;
@@ -104,7 +106,11 @@ for (const file of markdowns) {
     }
     const resolved = path.resolve(path.dirname(file), decoded);
     if (!fs.existsSync(resolved)) {
-      brokenLinks.push({ file: rel, line: lineOf(text, m.index), target: m[2] });
+      brokenLinks.push({
+        file: rel,
+        line: lineOf(text, m.index),
+        target: m[2],
+      });
     } else if (/\s/.test(target)) {
       // 文件存在但路径含未编码空格：Obsidian 能跳转，GitHub 会断
       spaceLinks.push({ file: rel, line: lineOf(text, m.index), target: m[2] });
@@ -116,7 +122,10 @@ for (const file of markdowns) {
   while ((m = wikiRe.exec(text))) {
     const name = m[1].trim();
     if (!name) continue;
-    const hit = basenames.has(name) || basenames.has(`${name}.md`) || basenames.has(path.basename(name));
+    const hit =
+      basenames.has(name) ||
+      basenames.has(`${name}.md`) ||
+      basenames.has(path.basename(name));
     if (hit) continue;
 
     brokenWiki.push({
@@ -135,33 +144,51 @@ for (const file of markdowns) {
  * - navigation：真正的内部笔记跳转，需要修（目标改名、移动或从未创建）。
  */
 function classifyWiki(name) {
-  if (/^[\d\s,.'"[\]]+$/.test(name) || /^".*"$/.test(name)) return 'literal';
-  if (/[–—]|^".*"/.test(name) || /\s[–—]\s/.test(name)) return 'citation';
-  return 'navigation';
+  if (/^[\d\s,.'"[\]]+$/.test(name) || /^".*"$/.test(name)) return "literal";
+  if (/[–—]|^".*"/.test(name) || /\s[–—]\s/.test(name)) return "citation";
+  return "navigation";
 }
 
 if (asJson) {
-  console.log(JSON.stringify({ totalLocal, brokenLinks, spaceLinks, brokenWiki }, null, 2));
+  console.log(
+    JSON.stringify(
+      { totalLocal, brokenLinks, spaceLinks, brokenWiki },
+      null,
+      2,
+    ),
+  );
 } else {
-  const nav = brokenWiki.filter((b) => b.kind === 'navigation');
+  const nav = brokenWiki.filter((b) => b.kind === "navigation");
   const noise = brokenWiki.length - nav.length;
 
-  console.log(`扫描 Markdown 文件：${markdowns.length} 个，本地相对链接：${totalLocal} 条\n`);
+  console.log(
+    `扫描 Markdown 文件：${markdowns.length} 个，本地相对链接：${totalLocal} 条\n`,
+  );
 
   console.log(`失效相对链接：${brokenLinks.length} 条`);
-  for (const b of brokenLinks) console.log(`  ${b.file}:${b.line}  ->  ${b.target}`);
+  for (const b of brokenLinks)
+    console.log(`  ${b.file}:${b.line}  ->  ${b.target}`);
 
-  console.log(`\n路径含未编码空格：${spaceLinks.length} 条（Obsidian 可跳转，GitHub 会截断）`);
-  for (const b of spaceLinks) console.log(`  ${b.file}:${b.line}  ->  ${b.target}`);
+  console.log(
+    `\n路径含未编码空格：${spaceLinks.length} 条（Obsidian 可跳转，GitHub 会截断）`,
+  );
+  for (const b of spaceLinks)
+    console.log(`  ${b.file}:${b.line}  ->  ${b.target}`);
 
   console.log(`\n失效导航双链：${nav.length} 条`);
   for (const b of nav) console.log(`  ${b.file}:${b.line}  ->  ${b.target}`);
 
   console.log(`\n已忽略 ${noise} 条非导航双链（代码字面量、外部文档引用标注）`);
 
-  const total = brokenLinks.length + spaceLinks.length + nav.length;
-  console.log(total === 0 ? '\n全部链接可达。' : `\n合计 ${total} 处待修复。`);
-  process.exit(total > 0 ? 1 : 0);
+  const hardErrors = brokenLinks.length + spaceLinks.length;
+  const total = hardErrors + nav.length;
+  console.log(total === 0 ? "\n全部链接可达。" : `\n合计 ${total} 处待修复。`);
+  if (hardOnly && nav.length > 0) {
+    console.log(
+      `硬错误 ${hardErrors} 处；另有 ${nav.length} 条待补导航，不阻断本次检查。`,
+    );
+  }
+  process.exit((hardOnly ? hardErrors : total) > 0 ? 1 : 0);
 }
 
 process.exit(0);

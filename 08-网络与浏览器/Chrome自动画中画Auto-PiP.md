@@ -82,5 +82,5 @@ chrome://flags/#browser-initiated-automatic-picture-in-picture
 
 ## 相关笔记
 
-- [[浏览器媒体API]]
-- [[Picture-in-Picture API]]
+- 浏览器媒体 API（待补专题）
+- Picture-in-Picture API（待补专题）

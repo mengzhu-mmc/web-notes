@@ -203,7 +203,7 @@ const typedArr = new Float64Array(1_000_000);
 
 ## 相关知识
 
-- [[2026-03-09-js-for-loop-comparison]] — 四种遍历方式的语义对比
-- [[迭代器协议与 Symbol.iterator]]
-- [[V8 引擎优化原理]]
-- [[TypedArray 使用场景]]
+- [JavaScript for 循环写法对比与性能](./JS-for循环写法对比与性能.md) — 四种遍历方式的语义对比
+- [迭代器与生成器](../06-ES6+新特性/迭代器与生成器.md)
+- V8 引擎优化原理（待补专题）
+- TypedArray 使用场景（待补专题）

@@ -164,9 +164,9 @@ setInterval(async () => {
 
 ## 五、相关笔记
 
-- [[08-网络与浏览器/WebTransport-API-下一代Web双向通信]] — API 详解
-- [[08-网络与浏览器/WebSocket深入理解]] — WebSocket 原理
-- [[08-网络与浏览器/2026-04-03-WebTransport-API]] — 早期学习记录
+- [WebTransport API：下一代 Web 双向通信](../08-网络与浏览器/WebTransport-API下一代Web双向通信.md) — API 详解
+- [WebSocket 深入理解](../08-网络与浏览器/WebSocket深入理解.md) — WebSocket 原理
+- [WebTransport API 详解](../08-网络与浏览器/WebTransport-API详解.md) — 早期学习记录
 
 ## 六、下期预告执行记录
 

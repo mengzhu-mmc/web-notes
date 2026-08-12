@@ -1,6 +1,6 @@
 # CSS/HTML 新特性：interestfor + dialog closedBy
 
-> 来源：[张鑫旭博客](https://www.zhangxinxu.com/wordpress/2026/03/) | 日期：2026-03-04 ~ 03-09
+> 来源：[张鑫旭博客](https://www.zhangxinxu.com/wordpress/2026/03/) | 日期：2026-03-04 ~ 03-09 | 事实状态复核于 2026-08-12
 
 ## 核心内容
 
@@ -51,7 +51,7 @@
 
 - Popover API 完整体系：`popover` 属性、`popovertarget`（点击触发）、`interestfor`（悬停触发）
 - 与传统 JS 实现 tooltip 的区别（声明式 vs 命令式）
-- 浏览器支持情况：2026 年现代浏览器全支持
+- 浏览器支持情况：`interestfor` 从 Chrome 142 起可用，但仍不是 Baseline，生产环境需要特性检测和降级
 
 ---
 
@@ -66,7 +66,7 @@
 | 值             | 行为                                          |
 | -------------- | --------------------------------------------- |
 | `any`          | 点击 backdrop 蒙层 或 按 Esc 都能关闭         |
-| `closerequest` | 默认值，只有按 Esc（或调用 `.close()`）才关闭 |
+| `closerequest` | 允许关闭请求（如 Esc）以及代码调用 `.close()` |
 | `none`         | 禁止自动关闭，必须通过代码显式关闭            |
 
 ### 代码示例
@@ -118,7 +118,9 @@ dialog.addEventListener("close", () => {
 - dialog 的 `close` 事件和 `returnValue` 属性
 - 为什么推荐用原生 dialog 替代自定义弹窗组件？（无障碍、键盘导航、焦点陷阱）
 
+> 兼容性说明：`closedby` 从 Chrome 134 开始支持，但截至 2026-08 仍不是 Baseline。它适合渐进增强，不能直接写成“现代浏览器全支持”。
+
 ## 相关笔记
 
-- [[01-HTML-CSS/Popover-API]]
-- [[01-HTML-CSS/CSS-新特性-2026]]
+- [Popover 弹出框](./CSS交互特性-hover与popover弹出框.md)
+- [CSS 新特性 2026 全图](./CSS新特性-2026全图.md)

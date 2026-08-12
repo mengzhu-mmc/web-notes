@@ -254,8 +254,8 @@ function SolidCounter() {
 
 ## 相关知识
 
-- [[Vue 3 响应式原理：ref 与 reactive]]
-- [[React Hooks 原理与 useEffect 依赖收集]]
-- [[2026-03-12-typescript-6-rc]] — 同期 TS 工具链动态
-- [[前端框架演进：React → Vue → Solid → ？]]
-- [[乐观更新与 TanStack Query]]
+- [Vue 3 响应式原理](../04-Vue/Vue3响应式原理与Proxy深度解析.md)
+- [React Hooks 原理与实战避坑](./React_Hooks原理与实战避坑.md)
+- [TypeScript 6 RC 新特性](../03-TypeScript/TypeScript6-RC新特性.md) — 同期 TS 工具链动态
+- 前端框架演进：React → Vue → Solid（待补专题）
+- 乐观更新与 TanStack Query（待补专题）

@@ -78,7 +78,7 @@ function Demo() {
   countRef.current = count; // 每次渲染都同步最新值
   // 定时器内部读取 countRef.current
   ```
-- **方案D：`useEvent`（React 18+ 提案/相关实现）** - 从 Effect 中剥离出响应式外部状态的函数。
+- **方案 D：`useEffectEvent`（React 19.2）** - 把只应由 Effect 触发、但需要读取最新 props/state 的逻辑提取为 Effect Event；不能把它当作通用事件 Hook 或逃避依赖数组的手段。
 
 ---
 

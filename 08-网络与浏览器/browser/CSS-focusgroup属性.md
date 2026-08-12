@@ -1,10 +1,10 @@
 # focusgroup HTML 属性 — 声明式键盘导航
 
-> 来源：[Chrome Developers Blog](https://developer.chrome.com/blog/focusgroup-rfc?hl=en) | 日期：2026-03-05
+> 来源：[Chrome Developers Blog](https://developer.chrome.com/blog/focusgroup-rfc?hl=en) | 首次记录：2026-03-05 | 状态复核：2026-08-12
 
 ## 核心内容
 
-`focusgroup` 是一个 **提案中的 HTML 属性**（目前处于 Origin Trial），由微软通过 OpenUI 社区组提出，Chrome/Edge 支持。用一个属性替代传统 "roving tabindex" 模式所需的大量 JS 代码，为 toolbar、tablist、menu、listbox 等复合控件提供原生方向键导航。
+`focusgroup` 是一个声明式 HTML 属性，用于替代传统 roving tabindex 模式中的大量通用 JavaScript，为 toolbar、tablist、menu、listbox 等复合控件提供方向键导航。它在 2026 年 3 月仍处于试验阶段，随后随 Chrome 150 在 2026 年 6 月进入稳定版。
 
 ## 关键知识点
 
@@ -15,7 +15,7 @@
   - 自动折叠为单个 Tab stop（无需手动设置 `tabindex="-1"`）
   - 焦点记忆（离开再回来恢复上次焦点位置）
   - 提供合适的 ARIA role
-- **试用方式**：开启 `about://flags` 中的 Experimental Web Platform features，或 Origin Trial 注册
+- **兼容策略**：Chrome 150+ 可直接使用；其他浏览器需要特性检测，并保留 roving tabindex 降级实现
 
 ## 代码示例
 
@@ -43,8 +43,8 @@
 
 ## 相关笔记
 
-- [[Web Accessibility ARIA]]
-- [[键盘导航最佳实践]]
+- Web Accessibility ARIA（待补专题）
+- 键盘导航最佳实践（待补专题）
 
 ---
 

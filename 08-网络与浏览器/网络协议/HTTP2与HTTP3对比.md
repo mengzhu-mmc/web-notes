@@ -351,6 +351,6 @@ HTTP/2 → HTTP/3：传输层优化（QUIC 替代 TCP，彻底解决 HOL + 0-RTT
 
 ## 相关笔记
 
-- [[HTTPS握手过程]]
-- [[CDN原理与应用]]
-- [[WebTransport-API-下一代Web双向通信]]
+- [HTTPS 握手过程](../HTTP协议/HTTPS握手过程.md)
+- [CDN 原理与应用](../HTTP协议/CDN原理与应用.md)
+- [WebTransport API](../WebTransport-API下一代Web双向通信.md)

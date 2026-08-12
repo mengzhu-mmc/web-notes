@@ -12,7 +12,7 @@
 
 ### 1. Ilya Sutskever：从「规模化时代」回到「研究时代」
 
-Ilya 近期访谈的核心判断被多篇中文解读概括为：行业需要从单纯依赖算力规模化，重新关注样本效率、泛化和推理等基础研究问题[[Ilya 最新访谈：为什么人类几小时能学会的事，万卡集群却做不到]](https://zhuanlan.zhihu.com/p/1976865040423469399)。
+Ilya 近期访谈的核心判断被多篇中文解读概括为：行业需要从单纯依赖算力规模化，重新关注样本效率、泛化和推理等基础研究问题[Ilya 最新访谈：为什么人类几小时能学会的事，万卡集群却做不到](https://zhuanlan.zhihu.com/p/1976865040423469399)。
 
 对学习者的启发：
 
@@ -21,7 +21,7 @@ Ilya 近期访谈的核心判断被多篇中文解读概括为：行业需要从
 
 ### 2. Yann LeCun：LLM 范式触顶，下一步在「世界模型」
 
-LeCun 长期代表世界模型 / JEPA 路线，近期中文资讯把他对机器人、非英语 AI 基建和世界模型评测的关注解读为：行业不能只押注更大 LLM，还要关注物理世界建模与具身智能[[AI大佬推特热议行业风向 | 2026.06.22 日报快照]](https://www.amazingindex.com/article/1f69c4b7337003cdc7d307bfc1a922ec)。
+LeCun 长期代表世界模型 / JEPA 路线，近期中文资讯把他对机器人、非英语 AI 基建和世界模型评测的关注解读为：行业不能只押注更大 LLM，还要关注物理世界建模与具身智能[AI 大佬推特热议行业风向 | 2026.06.22 日报快照](https://www.amazingindex.com/article/1f69c4b7337003cdc7d307bfc1a922ec)。
 
 对学习者的启发：
 
@@ -30,7 +30,7 @@ LeCun 长期代表世界模型 / JEPA 路线，近期中文资讯把他对机器
 
 ### 3. Andrej Karpathy：AI-Native 开发与「Vibe Coding」
 
-Karpathy 的个人主页长期把 AI 教育、LLM 视频和工程化讲解作为重点入口，并提示最新内容主要发布在 X/Twitter 与 GitHub[[Andrej Karpathy]](https://karpathy.ai/)。结合其近年关于 AI-Native 开发的公开表达，本仓库把相关学习重点归纳为：人负责描述意图、审校产出并守住质量边界，AI 负责提高实现效率。
+Karpathy 的个人主页长期把 AI 教育、LLM 视频和工程化讲解作为重点入口，并提示最新内容主要发布在 X/Twitter 与 GitHub[Andrej Karpathy](https://karpathy.ai/)。结合其近年关于 AI-Native 开发的公开表达，本仓库把相关学习重点归纳为：人负责描述意图、审校产出并守住质量边界，AI 负责提高实现效率。
 
 对前端学习者的启发：
 
@@ -39,7 +39,7 @@ Karpathy 的个人主页长期把 AI 教育、LLM 视频和工程化讲解作为
 
 ### 4. Demis Hassabis：警惕「泡沫感」，但看好 AI 加速科学
 
-围绕 AI 未来趋势的二手整理普遍把 Hassabis 归入“长期看好 AI for Science，同时提醒短期过热”的代表性声音[[Predictions from the Top: AI's Future Unveiled]](https://artificialperception.vc/predictions)。
+围绕 AI 未来趋势的二手整理普遍把 Hassabis 归入“长期看好 AI for Science，同时提醒短期过热”的代表性声音[Predictions from the Top: AI's Future Unveiled](https://artificialperception.vc/predictions)。
 
 对学习者的启发：
 
@@ -59,7 +59,7 @@ Karpathy 的个人主页长期把 AI 教育、LLM 视频和工程化讲解作为
 
 > 用途：建立稳定的一手信息源，减少被二手营销号带节奏。
 
-- **Andrej Karpathy（@karpathy）**：前 OpenAI / Tesla AI 总监，深度技术解读、LLM 教程、代码示例[[海外值得关注的10位AI博主清单（2026）]](https://x.com/duange6099/status/2061970429380809143)。
+- **Andrej Karpathy（@karpathy）**：前 OpenAI / Tesla AI 总监，深度技术解读、LLM 教程、代码示例[海外值得关注的 10 位 AI 博主清单（2026）](https://x.com/duange6099/status/2061970429380809143)。
 - **Yann LeCun（@ylecun）**：Meta 首席 AI 科学家，世界模型 / JEPA 路线代表。
 - **Andrew Ng**：AI 教育与工程落地长期倡导者，适合系统学习路线参考。
 - **Demis Hassabis**：Google DeepMind CEO，AI for Science 方向。
