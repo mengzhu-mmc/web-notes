@@ -447,33 +447,33 @@ function SearchResults({ query }) {
 type Row = { id: number; name: string; age: number; score: number };
 
 function DataTable({ data }: { data: Row[] }) {
-  const [sortKey, setSortKey] = useState<keyof Row>('id');
-  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
-  const [filter, setFilter] = useState('');
+  const [sortKey, setSortKey] = useState<keyof Row>("id");
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
+  const [filter, setFilter] = useState("");
   const [isPending, startTransition] = useTransition();
 
   // 1. useMemo: 缓存排序过滤结果
   const processedData = useMemo(() => {
     let result = data;
     if (filter) {
-      result = result.filter(row =>
-        row.name.toLowerCase().includes(filter.toLowerCase())
+      result = result.filter((row) =>
+        row.name.toLowerCase().includes(filter.toLowerCase()),
       );
     }
     return [...result].sort((a, b) => {
       const val = a[sortKey] > b[sortKey] ? 1 : -1;
-      return sortDir === 'asc' ? val : -val;
+      return sortDir === "asc" ? val : -val;
     });
   }, [data, sortKey, sortDir, filter]);
 
   // 2. useCallback: 稳定排序函数引用
   const handleSort = useCallback((key: keyof Row) => {
-    setSortKey(prev => {
+    setSortKey((prev) => {
       if (prev === key) {
-        setSortDir(d => d === 'asc' ? 'desc' : 'asc');
+        setSortDir((d) => (d === "asc" ? "desc" : "asc"));
         return prev;
       }
-      setSortDir('asc');
+      setSortDir("asc");
       return key;
     });
   }, []);
@@ -490,15 +490,19 @@ function DataTable({ data }: { data: Row[] }) {
       <table>
         <thead>
           <tr>
-            {(['id', 'name', 'age', 'score'] as const).map(key => (
-              <th key={key} onClick={() => handleSort(key)} style={{ cursor: 'pointer' }}>
-                {key} {sortKey === key ? (sortDir === 'asc' ? '↑' : '↓') : ''}
+            {(["id", "name", "age", "score"] as const).map((key) => (
+              <th
+                key={key}
+                onClick={() => handleSort(key)}
+                style={{ cursor: "pointer" }}
+              >
+                {key} {sortKey === key ? (sortDir === "asc" ? "↑" : "↓") : ""}
               </th>
             ))}
           </tr>
         </thead>
         <tbody>
-          {processedData.map(row => (
+          {processedData.map((row) => (
             // 4. React.memo: 每行单独 memo
             <TableRow key={row.id} row={row} />
           ))}
@@ -844,6 +848,66 @@ function VirtualList({ items }) {
 
 ---
 
+## 十二、React Compiler 时代的性能优化口径
+
+React Compiler 的目标是把一部分安全的 memoization 前移到编译阶段，减少手写 `useMemo`、`useCallback` 和 `React.memo` 的样板代码。但它不等于“所有性能问题自动消失”，也不意味着现在就可以无条件删除历史优化。
+
+### 1. 默认策略：先写纯净组件，再用数据验证
+
+1. 组件 render 保持纯净：不要在 render 中修改外部变量、发请求、写 DOM 或触发订阅。
+2. props、state、context 尽量保持不可变更新，避免原地修改对象导致 memo 或 Compiler 判断失真。
+3. 优化前先用 React DevTools Profiler、Performance 面板或业务指标定位瓶颈。
+4. 新代码不要预防性地到处包 `useMemo/useCallback`，优先保证数据流清晰。
+
+### 2. 仍然适合手写 memo 的场景
+
+即使启用 React Compiler，下面这些场景仍然需要人工判断：
+
+- 大列表行组件、复杂图表、富文本渲染等已通过 profiling 证明收益明确的 memo 边界。
+- 传给第三方库、订阅系统、虚拟列表或缓存层的稳定引用。
+- Context Provider 的 `value` 对象，避免 Provider 每次 render 都广播给所有消费者。
+- 跨组件共享的昂贵派生数据，例如大型索引、排序结果、权限树、路由匹配表。
+- Compiler 尚未覆盖或因为纯度问题被 lint 跳过的历史模块。
+
+### 3. 决策树升级版
+
+```text
+遇到性能问题？
+    ↓
+先测量：Profiler / Performance / 用户指标
+    ↓
+是渲染次数过多，还是单次计算太重？
+    ├─ 渲染次数过多
+    │   ├─ state 是否放得太高？→ 状态下移 / 组件拆分
+    │   ├─ Context 是否广播过大？→ 拆 Context / memo Provider value
+    │   ├─ props 是否每次新建？→ useMemo/useCallback 稳定引用
+    │   └─ 子组件是否昂贵且 props 稳定？→ React.memo
+    │
+    ├─ 单次计算太重
+    │   ├─ 大数组过滤/排序？→ useMemo / worker / 分页
+    │   ├─ 大列表渲染？→ 虚拟列表
+    │   └─ 非关键 UI 阻塞输入？→ startTransition / useDeferredValue
+    │
+    └─ 已启用 Compiler
+        ├─ lint 是否通过？→ 先修 purity / immutability / hooks 规则
+        ├─ profiling 是否仍显示瓶颈？→ 保留或补充手写 memo
+        └─ 没有可观测收益？→ 删除冗余 memo，降低维护成本
+```
+
+### 4. 与专题笔记的分工
+
+- 本文只保留“性能问题如何定位、何时使用手写优化、如何组合优化”的实践口径。
+- React Compiler 的配置、指令、lint、gating、`target` 等工程化细节，统一维护在 [React Compiler 自动记忆化心智模型](./React_Compiler自动记忆化.md)。
+- React 18/19 的并发 API 与 RSC 心智模型，分别回到 [React Fiber 架构与虚拟 DOM](./React_Fiber与Concurrent_Mode详解.md) 和 [React 19 新特性深度指南](./React18-19新特性与Server_Components.md)。
+
+## 十三、去重记录
+
+> Updated: 2026-09-01 based on local note inspection.
+
+本文件原本在正文后重复拼接了“深入版、一页速记、标准答案索引、深挖专题索引”等片段，和前文的 `React.memo`、`useMemo`、`useCallback`、`startTransition`、虚拟列表等内容高度重叠。本轮已将这些重复片段收敛为上面的 Compiler 时代决策口径，并保留专题跳转，避免同一知识点在一个文件中维护多份答案。
+
+---
+
 ## 相关笔记
 
 - [React 性能优化指南 - 一页速记](./React性能优化指南%20-%20一页速记.md) — 高频复习用
@@ -855,4 +919,3 @@ function VirtualList({ items }) {
 - [DevTools Performance 面板实操](../08-网络与浏览器/性能优化/DevTools-Performance面板实操.md) — 配合 React DevTools Profiler 定位渲染瓶颈
 - [Web Vitals：INP 指标详解](../08-网络与浏览器/性能优化/Web%20Vitals与INP指标详解.md) — React 优化如何反映到 INP 指标
 - [前端性能优化完全指南](../11-项目实战/前端性能优化完全指南.md) — 分层优化正典
-

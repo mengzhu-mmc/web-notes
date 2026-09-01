@@ -11,13 +11,13 @@
 
 ## 重复知识点分流表
 
-| 知识点                     | 推荐主入口                                                                                                        | 重复/历史来源                                                          | 处理建议                                               |
-| -------------------------- | ----------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------ |
+| 知识点                     | 推荐主入口                                                                                                        | 重复/历史来源                                                                 | 处理建议                                               |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------ |
 | Hooks 工作机制与依赖       | [React Hooks 深入实战指南](./React_Hooks原理与实战避坑.md)                                                        | `课程笔记/02-Hooks/*`、[手写自定义 Hook 合集](./React_Hooks原理与实战避坑.md) | 主干文档沉淀规则、反例和 TS 模板；课程笔记保留讲解过程 |
-| Fiber / Concurrent Mode    | [React Fiber 架构与虚拟 DOM](./React_Fiber与Concurrent_Mode详解.md)                                               | `课程笔记/03-Fiber与虚拟DOM/*`                                         | 主干文档补 React 18/19 并发 API；课程笔记作为历史推导  |
-| SSR / RSC / Server Actions | [React 19 新特性深度指南](./React18-19新特性与Server_Components.md)、[React SSR 实现原理](./React_SSR实现原理.md) | Next.js 对比、旧 SSR 笔记                                              | 主干文档保持官方 API 差异；框架文档只保留落地差异      |
-| 性能优化 / memo            | [React 性能优化实战](./React性能优化指南.md)、[React Compiler 自动记忆化心智模型](./React_Compiler自动记忆化.md)  | 课程笔记性能章节、Hooks 依赖优化                                       | 手写 memo 经验迁移为“Compiler 前后如何判断”            |
-| 状态管理 / Redux           | [React 状态管理方案对比](./React状态管理方案对比.md)                                                              | Redux 课程笔记、useReducer 模拟 Redux                                  | 主干文档保留选型矩阵；课程笔记保留原理细节             |
+| Fiber / Concurrent Mode    | [React Fiber 架构与虚拟 DOM](./React_Fiber与Concurrent_Mode详解.md)                                               | `课程笔记/03-Fiber与虚拟DOM/*`                                                | 主干文档补 React 18/19 并发 API；课程笔记作为历史推导  |
+| SSR / RSC / Server Actions | [React 19 新特性深度指南](./React18-19新特性与Server_Components.md)、[React SSR 实现原理](./React_SSR实现原理.md) | Next.js 对比、旧 SSR 笔记                                                     | 主干文档保持官方 API 差异；框架文档只保留落地差异      |
+| 性能优化 / memo            | [React 性能优化实战](./React性能优化指南.md)、[React Compiler 自动记忆化心智模型](./React_Compiler自动记忆化.md)  | 课程笔记性能章节、Hooks 依赖优化                                              | 手写 memo 经验迁移为“Compiler 前后如何判断”            |
+| 状态管理 / Redux           | [React 状态管理方案对比](./React状态管理方案对比.md)                                                              | Redux 课程笔记、useReducer 模拟 Redux                                         | 主干文档保留选型矩阵；课程笔记保留原理细节             |
 
 ## 本轮已合并的口径
 
@@ -114,4 +114,11 @@
 - `createRoot` 与 `hydrateRoot` 的 SSR/SSG 边界后续只在 SSR 主干文档和 React 19.2 心智模型中维护，避免分散到课程笔记。
 - React Compiler 的库作者编译、`incompatible-library` 与 `use-memo` lint 边界继续统一维护在 `React_Compiler自动记忆化.md`。
 - Compiler 相关碎片后续按“应用接入配置”和“库发布兼容”两条线合并：应用看 `compilationMode/gating/logger/panicThreshold`，库作者额外检查 `target` 与 `react-compiler-runtime`。
+- Vue 相关内容本轮不扩写，仅参与索引、格式化和安全巡检。
+
+## 2026-09-01 巡检补充
+
+- `React性能优化指南.md` 原文件内部重复拼接了深入版、一页速记、标准答案索引、深挖专题索引等片段，本轮已收敛为单一主文档，避免 `React.memo`、`useMemo`、`useCallback`、`startTransition` 等知识点在同一文件内多份维护。
+- 性能优化主文档新增“React Compiler 时代的性能优化口径”，只保留定位性能问题、何时手写 memo、Compiler 启用后如何用 profiling 验证的实践判断。
+- React Compiler 的配置、指令、lint、gating、`target` 等细节继续统一维护在 `React_Compiler自动记忆化.md`；性能优化文档仅保留跳转和决策口径。
 - Vue 相关内容本轮不扩写，仅参与索引、格式化和安全巡检。
