@@ -122,3 +122,9 @@
 - 性能优化主文档新增“React Compiler 时代的性能优化口径”，只保留定位性能问题、何时手写 memo、Compiler 启用后如何用 profiling 验证的实践判断。
 - React Compiler 的配置、指令、lint、gating、`target` 等细节继续统一维护在 `React_Compiler自动记忆化.md`；性能优化文档仅保留跳转和决策口径。
 - Vue 相关内容本轮不扩写，仅参与索引、格式化和安全巡检。
+
+## 2026-10-04 巡检补充
+
+- `13-前端面试题/牛客网-面试题-React/03-三、生命周期与组件.md` 中 React Compiler 面试口径已从“React Forget / 仍在实验阶段”更新为现代 Compiler 表述，强调自动 memoization、纯度规则、lint 与 profiling 验证。
+- `React.memo` 面试示例已从隐式 `any` 的 `jsx` 示例升级为 `tsx`，补充 `ButtonProps`、`User`、`Todo`、`TodoItemProps` 等类型，避免无类型回调和空数组 state 推断问题。
+- React Compiler 深层配置仍回到 `React_Compiler自动记忆化.md`，面试题只保留可直接表达的边界和迁移判断。
