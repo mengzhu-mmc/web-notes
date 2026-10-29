@@ -1,7 +1,7 @@
 # AI 学习计划 · 执行版（A+B：原理 + 应用）
 
 > 设计思路：双线并进。**A 线（原理）**用微软《面向初学者的生成式 AI》21 课打底，建立系统认知；**B 线（应用）**用前端工程项目把原理落到代码。两条线每周交替推进，周末做整合。
-> 节奏：每天 60-90 分钟（A 线 30-45 分钟 + B 线 30-45 分钟）；共 6 周，可按实际进度伸缩。
+> 节奏：每天 60-90 分钟（A 线 30-45 分钟 + B 线 30-45 分钟）；共 6 周，可按实际进度伸缩。另有**可选第 7 周（全栈 AI 方向）**，适合走「前端 + AI 全栈」路线的同学加餐。
 > 主教材：微软《面向初学者的生成式 AI》中文版（21 课，含 Learn 课与 Build 课）[generative-ai-for-beginners / translations / zh-CN](https://github.com/microsoft/generative-ai-for-beginners/tree/main/translations/zh-CN)。
 
 ## 一、双线总览
@@ -55,6 +55,18 @@
 - **B 线**：给前几周的项目补齐：工具调用审批、长任务取消/重试、来源可追溯、敏感信息过滤。
 - **整合**：把一个项目打磨成可展示作品 + 一页架构图 + 一页安全清单。
 
+### 第 7 周（可选 · 全栈 AI 方向）：LangChain.js
+
+> 投入前提：第 1-6 周主线已完成，且明确要走「前端 + AI 全栈」路线。React + Node 主线用 AI SDK 即可，LangChain 是第二套抽象——先手写过再看框架，收益才最大。
+
+- **A 线（原理）**
+  - 复盘微软课 15「RAG 与向量数据库」+ 课 17「AI 代理」，带着"框架会怎么封装这个"的问题重看一遍。
+  - 了解 LangChain 1.0 三件套分工：LangChain（Agent/组件）、LangGraph（有状态编排）、LangSmith（可观测）。
+- **B 线（应用）**
+  - 做 `91-AI前端/实战教程/实战08-LangChain重写RAG.md`：用 LangChain.js 1.x 重写第 4 周的手写 RAG，逐工序对照切片/Embedding/存储/检索/生成的框架对应物。
+  - 把检索包装成 `createAgent` 工具，对照第 5 周手写的 agent loop。
+- **整合**：写一页《手写 vs AI SDK vs LangChain 选型决策表》（维度：流式 UI、RAG 组件、Agent、可观测、生态契合），沉淀到本文件或回流 `AI前端工程师指南.md`。
+
 ## 三、A 线（原理）逐课检查点
 
 > 完成一课就在对应行打勾，并写一句话「我能向别人讲清楚的点」。
@@ -83,6 +95,7 @@
 | AI 面试题解释器    | 结构化输出、提示工程     | 输出结构稳定、可复用     |
 | web-notes RAG 助手 | RAG、引用、安全          | 答案带来源、无依据则拒答 |
 | 多步检索小 Agent   | 工具调用、agent-loop     | 步骤可控、危险操作需审批 |
+| RAG · LangChain 重写版（选做） | LangChain.js 1.x、框架对照 | 逐工序说清手写与框架对应物 |
 
 ## 五、执行原则
 
@@ -97,7 +110,8 @@
 - 原理主教材：微软《面向初学者的生成式 AI》中文版[generative-ai-for-beginners / translations / zh-CN](https://github.com/microsoft/generative-ai-for-beginners/tree/main/translations/zh-CN)。
 - 应用主干：`91-AI前端/AI前端工程师指南.md`。
 - 资料索引：`91-AI前端/AI学习资料索引.md`。
+- 实战教程：`91-AI前端/实战教程/`（B 线项目均有配套实现教程，入口见其 README）。
 - 协议原理：`09-工程化/MCP协议原理与协作流程.md`。
 - 前沿风向：`91-AI前端/AI大佬前沿讯息.md`。
 
-> Updated: 2026-06-27 ｜ 课程结构依据微软官方仓库目录整理，外部资料按 `[title](url)` 内联标注。
+> Updated: 2026-10-30 ｜ 课程结构依据微软官方仓库目录整理，外部资料按 `[title](url)` 内联标注。

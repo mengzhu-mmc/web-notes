@@ -45,6 +45,22 @@
   - 用途：理解 type-safe chat、Agentic Loop Control、工具状态、消息持久化等实践方向。
   - 重点：UIMessage / ModelMessage 分离、Data Parts、工具调用状态和前后端类型安全。
 
+### LangChain.js（全栈 AI · 选修）
+
+> 定位：对应知识地图「选修方向 → 全栈 AI」。React + Node 主线（AI SDK）完成后再投入；不适合作为第一套 AI 框架。
+
+- [LangChain.js 官方文档](https://docs.langchain.com/oss/javascript/langchain/overview)
+  - 用途：LangChain.js 1.x 主框架（`createAgent`、`tool`、模型集成）。
+  - 重点：1.0 断代重构后的包结构——`langchain`（Agent 主入口）、`@langchain/core`（消息与 LCEL）、`@langchain/classic`（经典组件如 MemoryVectorStore）、`@langchain/textsplitters`（切分器）。
+- [LangGraph.js](https://docs.langchain.com/oss/javascript/langgraph/overview)
+  - 用途：有状态的多步 Agent 编排（挂起/恢复、检查点、人工介入）。
+  - 重点：StateGraph、interrupt、agentic RAG；对照实战04 的手写审批挂起。
+- [LangSmith](https://docs.langchain.com/langsmith/home)
+  - 用途：Agent/链路可观测平台（trace、token、延迟）。
+  - 重点：只需两个环境变量即可接入，观察一次 RAG 调用全链路。
+- 仓库内配套教程：`91-AI前端/实战教程/实战08-LangChain重写RAG.md`
+  - 用途：与实战03 手写 RAG 逐工序对照，验证框架抽象的等价物。
+
 ## 三、仓库内学习入口
 
 - `91-AI前端/AI前端工程师指南.md`
@@ -57,6 +73,8 @@
   - MCP 深入原理与协作流程。
 - `92-前端周报/技术雷达-2026Q1.md`
   - AI 与前端融合趋势观察。
+- `91-AI前端/实战教程/`
+  - 4 篇 React + Node 渐进式实战教程：手写流式聊天 → AI SDK 重构 → RAG 知识库问答 → Agent 工具调用与审批流，入口见 [实战教程 README](./实战教程/README.md)。
 
 ## 四、项目练习资料
 
@@ -65,18 +83,21 @@
 - 输入：用户问题。
 - 输出：逐字/逐块显示的回答。
 - 重点：取消、重试、错误恢复、消息持久化。
+- 配套教程：[实战01 · 手写流式聊天应用](./实战教程/实战01-手写流式聊天应用.md)、[实战02 · AI SDK 重构](./实战教程/实战02-AI-SDK重构聊天与工具调用.md)。
 
 ### 练习 2：知识库 RAG
 
 - 输入：本地 Markdown 知识库。
 - 输出：带引用来源的问答。
 - 重点：切片、召回、引用、拒答、文档投毒防护。
+- 配套教程：[实战03 · RAG 知识库问答](./实战教程/实战03-RAG知识库问答.md)；进阶对照 [实战08 · LangChain 重写 RAG](./实战教程/实战08-LangChain重写RAG.md)（选修）。
 
 ### 练习 3：AI 表单助手
 
 - 输入：用户填写的表单草稿。
 - 输出：字段补全、错误解释、风险提示。
 - 重点：schema 校验、人工确认、不可直接替用户提交。
+- 配套教程：[实战04 · Agent 审批流](./实战教程/实战04-Agent工具调用与审批流.md)（人工确认的协议层实现）+ 实战02 延伸练习 3（`streamObject` 结构化输出）。
 
 ### 练习 4：AI 代码审查助手
 
