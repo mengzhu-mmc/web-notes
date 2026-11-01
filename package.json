@@ -12,7 +12,8 @@
     "audit:thin": "python3 scripts/audit_notes_quality.py",
     "audit:hard": "node scripts/audit_links.js --hard",
     "audit:links": "node scripts/audit_links.js",
-    "audit": "npm run audit:links && npm run audit:thin"
+    "audit:sensitive": "python3 scripts/audit_sensitive.py",
+    "audit": "npm run audit:sensitive && npm run audit:links && npm run audit:thin"
   },
   "repository": {
     "type": "git",

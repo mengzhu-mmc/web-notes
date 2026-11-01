@@ -793,3 +793,146 @@ function List<T>({ items, ref }: ListProps<T> & { ref?: React.Ref<ListRef> }) {
 ### Q4：如何处理联合类型的 Props？
 
 用可辨识联合（discriminated union）+ switch/if 缩窄，避免用可选属性模拟互斥 Props。见第一节"组件 Props 的条件类型"示例。
+
+## 七、React 19 / RSC / Actions 类型模板
+
+React 19 之后，TypeScript 重点不只是 Props 和 Hooks，还包括 **Action 状态、RSC 可序列化边界、Server Function 入参校验、乐观 UI 投影类型**。
+
+### 7.1 `useActionState` 状态类型
+
+```tsx
+import { useActionState } from "react";
+
+type LoginState = {
+  status: "idle" | "success" | "error";
+  message: string;
+};
+
+type LoginPayload = {
+  email: string;
+  password: string;
+};
+
+const initialLoginState: LoginState = {
+  status: "idle",
+  message: "",
+};
+
+async function login(payload: LoginPayload): Promise<LoginState> {
+  const response = await fetch("/api/login", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    return { status: "error", message: "登录失败" };
+  }
+
+  return { status: "success", message: "登录成功" };
+}
+
+export function LoginForm() {
+  const [state, formAction, isPending] = useActionState(
+    async (_previous: LoginState, formData: FormData): Promise<LoginState> => {
+      const payload: LoginPayload = {
+        email: String(formData.get("email") ?? ""),
+        password: String(formData.get("password") ?? ""),
+      };
+
+      return login(payload);
+    },
+    initialLoginState,
+  );
+
+  return (
+    <form action={formAction}>
+      <input name="email" type="email" />
+      <input name="password" type="password" />
+      <button disabled={isPending}>登录</button>
+      {state.message && <p role="status">{state.message}</p>}
+    </form>
+  );
+}
+```
+
+### 7.2 RSC Props 只传可序列化公开类型
+
+```tsx
+type ServerUserRecord = {
+  id: string;
+  displayName: string;
+  email: string;
+  accessToken: string;
+  createdAt: Date;
+};
+
+type PublicUserCardProps = {
+  id: string;
+  displayName: string;
+  createdAtISO: string;
+};
+
+function toPublicUserCardProps(user: ServerUserRecord): PublicUserCardProps {
+  return {
+    id: user.id,
+    displayName: user.displayName,
+    createdAtISO: user.createdAt.toISOString(),
+  };
+}
+```
+
+不要把 token、cookie、连接串、内网地址、`Date` 实例、函数、类实例直接传给 Client Component。先转换成明确的公开 DTO。
+
+### 7.3 Server Function 的入参先收窄
+
+```tsx
+type RenameUserResult =
+  | { ok: true; displayName: string }
+  | { ok: false; reason: "EMPTY" | "TOO_LONG" | "UNAUTHORIZED" };
+
+function parseDisplayName(formData: FormData): string | null {
+  const value = formData.get("displayName");
+  if (typeof value !== "string") return null;
+
+  const displayName = value.trim();
+  if (!displayName) return null;
+
+  return displayName;
+}
+
+export async function renameUser(
+  formData: FormData,
+): Promise<RenameUserResult> {
+  "use server";
+
+  const displayName = parseDisplayName(formData);
+  if (!displayName) return { ok: false, reason: "EMPTY" };
+  if (displayName.length > 30) return { ok: false, reason: "TOO_LONG" };
+
+  await updateDisplayName(displayName);
+  return { ok: true, displayName };
+}
+```
+
+### 7.4 ref as prop 的类型写法
+
+React 19 支持把 `ref` 当作普通 prop 传给函数组件。写可复用组件时，可以直接继承原生元素属性并保留 ref 类型。
+
+```tsx
+import { ComponentPropsWithRef } from "react";
+
+type TextInputProps = ComponentPropsWithRef<"input"> & {
+  label: string;
+};
+
+export function TextInput({ label, ref, ...props }: TextInputProps) {
+  return (
+    <label>
+      <span>{label}</span>
+      <input ref={ref} {...props} />
+    </label>
+  );
+}
+```
+
+兼容旧 React 或旧类型声明的组件库仍可保留 `forwardRef`，但新业务组件可以优先使用这种更直观的写法。

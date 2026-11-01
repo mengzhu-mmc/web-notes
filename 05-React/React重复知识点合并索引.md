@@ -128,3 +128,11 @@
 - `13-前端面试题/牛客网-面试题-React/03-三、生命周期与组件.md` 中 React Compiler 面试口径已从“React Forget / 仍在实验阶段”更新为现代 Compiler 表述，强调自动 memoization、纯度规则、lint 与 profiling 验证。
 - `React.memo` 面试示例已从隐式 `any` 的 `jsx` 示例升级为 `tsx`，补充 `ButtonProps`、`User`、`Todo`、`TodoItemProps` 等类型，避免无类型回调和空数组 state 推断问题。
 - React Compiler 深层配置仍回到 `React_Compiler自动记忆化.md`，面试题只保留可直接表达的边界和迁移判断。
+
+## 2026-11-01 巡检补充
+
+- 全仓 Markdown 去重扫描结果：未发现正文完全相同的 Markdown 组；重复 H1 主要来自 `README.md` 与 `00-🌟索引.md` 的兼容入口设计，不直接删除。
+- React 主干去重结果：`React18-19新特性与Server_Components.md` 已由多段拼接稿收敛为一篇主线指南，避免 React 18 并发、React 19 API、RSC 与 Server Action 边界在同一文件中重复维护。
+- `React_Fiber与Concurrent_Mode详解.md` 继续作为 Fiber / Concurrent 的历史与底层入口；新增 API 解释优先链接到 React 18/19 主线指南，避免重复扩写。
+- TypeScript 示例补充策略：新增 React 示例默认使用 `tsx`，显式标注 Props、Action State、DTO、DOM ref 与事件类型。
+- Vue 内容仍按既有资料维护，本轮不新增扩写。
